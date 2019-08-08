@@ -462,6 +462,65 @@ struct arg_retval
 };
 
 /****************************************************************************
+* Implementation of expm1                                                   *
+****************************************************************************/
+
+// This implementation is based on GSL Math's expm1.
+namespace std_fallback {
+  // fallback expm1 implementation in case there is no expm1(Scalar) function in namespace of Scalar,
+  // or that there is no suitable std::expm1 function available. Implementation
+  // attributed to Kahan. See: http://www.plunk.org/~hatch/rightway.php.
+  template<typename Scalar>
+  EIGEN_DEVICE_FUNC inline Scalar expm1(const Scalar& x) {
+    EIGEN_STATIC_ASSERT_NON_INTEGER(Scalar)
+    typedef typename NumTraits<Scalar>::Real RealScalar;
+
+    EIGEN_USING_STD_MATH(exp);
+    Scalar u = exp(x);
+    if (numext::equal_strict(u, Scalar(1))) {
+      return x;
+    }
+    Scalar um1 = u - RealScalar(1);
+    if (numext::equal_strict(um1, Scalar(-1))) {
+      return RealScalar(-1);
+    }
+
+    EIGEN_USING_STD_MATH(log);
+    return (u - RealScalar(1)) * x / log(u);
+  }
+}
+
+template<typename Scalar>
+struct expm1_impl {
+  EIGEN_DEVICE_FUNC static inline Scalar run(const Scalar& x)
+  {
+    EIGEN_STATIC_ASSERT_NON_INTEGER(Scalar)
+    #if EIGEN_HAS_CXX11_MATH
+    using std::expm1;
+    #else
+    using std_fallback::expm1;
+    #endif
+    return expm1(x);
+  }
+};
+
+// Specialization for complex types that are not supported by std::expm1.
+template <typename RealScalar>
+struct expm1_impl<std::complex<RealScalar> > {
+  EIGEN_DEVICE_FUNC static inline std::complex<RealScalar> run(
+      const std::complex<RealScalar>& x) {
+    EIGEN_STATIC_ASSERT_NON_INTEGER(RealScalar)
+    return std_fallback::expm1(x);
+  }
+};
+
+template<typename Scalar>
+struct expm1_retval
+{
+  typedef Scalar type;
+};
+
+/****************************************************************************
 * Implementation of log1p                                                   *
 ****************************************************************************/
 
@@ -485,12 +544,22 @@ struct log1p_impl {
     EIGEN_STATIC_ASSERT_NON_INTEGER(Scalar)
     #if EIGEN_HAS_CXX11_MATH
     using std::log1p;
-    #endif
+    #else
     using std_fallback::log1p;
+    #endif
     return log1p(x);
   }
 };
 
+// Specialization for complex types that are not supported by std::log1p.
+template <typename RealScalar>
+struct log1p_impl<std::complex<RealScalar> > {
+  EIGEN_DEVICE_FUNC static inline std::complex<RealScalar> run(
+      const std::complex<RealScalar>& x) {
+    EIGEN_STATIC_ASSERT_NON_INTEGER(RealScalar)
+    return std_fallback::log1p(x);
+  }
+};
 
 template<typename Scalar>
 struct log1p_retval
