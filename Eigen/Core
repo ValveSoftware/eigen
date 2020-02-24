@@ -279,7 +279,10 @@
 #include <cmath>
 #include <cassert>
 #include <functional>
-#include <iosfwd>
+#include <sstream>
+#ifndef EIGEN_NO_IO
+  #include <iosfwd>
+#endif
 #include <cstring>
 #include <string>
 #include <limits>
