@@ -16,12 +16,6 @@
 #endif
 // using namespace Eigen;
 
-#ifdef EIGEN_VECTORIZE_SSE
-const bool g_vectorize_sse = true;
-#else
-const bool g_vectorize_sse = false;
-#endif
-
 namespace Eigen {
 namespace internal {
 template<typename T> T negate(const T& x) { return -x; }
