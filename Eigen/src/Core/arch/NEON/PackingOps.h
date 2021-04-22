@@ -17,8 +17,14 @@ namespace internal {
 template<int CPU, typename Scalar, bool isLhs>
 constexpr int PACK_SHAPES_COUNT<0, CPU, Scalar, isLhs> = 3;
 
+template<int CPU, typename Scalar>
+constexpr int PACK_SHAPES_COUNT<0, CPU, Scalar, true> = 4;
+
 template<int CPU, typename Scalar, bool isLhs>
 constexpr int PACK_SHAPES<0, CPU, Scalar, isLhs>[PACK_SHAPES_COUNT<0, CPU, Scalar, isLhs>][PACK_SHAPES_DIMENSION] = {{1,1,PACK_SHAPES_END},{4,1,0},{4,4,0}};
+
+template<int CPU, typename Scalar>
+constexpr int PACK_SHAPES<0, CPU, Scalar, true>[PACK_SHAPES_COUNT<0, CPU, Scalar, true>][PACK_SHAPES_DIMENSION] = {{1,1,PACK_SHAPES_END},{4,1,0},{4,4,0},{8,1,2}};
 
 template<int CPU, typename Index, typename Scalar, bool isLhs, typename DataMapper, bool Conjugate, bool PanelMode, int StorageOrder>
 struct PackingOperator<0, CPU, Index, Scalar, isLhs, DataMapper, Conjugate, PanelMode, StorageOrder, 4, 4>
@@ -64,6 +70,70 @@ struct PackingOperator<0, CPU, Index, Scalar, isLhs, DataMapper, Conjugate, Pane
       pstore<Scalar>(c + 2*vectorSize, pblock.packet[2]);
       pstore<Scalar>(c + 3*vectorSize, pblock.packet[3]);
       c+=4*vectorSize;
+    }
+    return c;
+  }
+};
+
+template<int CPU, typename Index, typename Scalar, bool isLhs, typename DataMapper, bool Conjugate, bool PanelMode, int StorageOrder>
+struct PackingOperator<0, CPU, Index, Scalar, isLhs, DataMapper, Conjugate, PanelMode, StorageOrder, 8, 1>
+{
+  EIGEN_STRONG_INLINE Scalar* operator()(Index d1Idx, Index d2Idx, Scalar *block, const DataMapper& data)
+  {
+    using Packet = typename packet_traits<Scalar>::type;
+    Scalar *c = block;
+    if(isLhs && StorageOrder == ColMajor)
+    {
+        Packet p = data.template loadPacket<Packet>(d1Idx + 0, d2Idx);
+        pstore<Scalar>(c, p);
+        c+=4;
+        p = data.template loadPacket<Packet>(d1Idx + 4, d2Idx);
+        pstore<Scalar>(c, p);
+        c+=4;
+    } else if(!isLhs && StorageOrder == RowMajor) {
+        Packet p = data.template loadPacket<Packet>(d2Idx, d1Idx + 0);
+        pstore<Scalar>(c, p);
+        c+=4;
+        p = data.template loadPacket<Packet>(d2Idx, d1Idx + 4);
+        pstore<Scalar>(c, p);
+        c+=4;
+    } else {
+      if(isLhs)
+      {
+        *c = data(d1Idx + 0, d2Idx + 0);
+        c++;
+        *c = data(d1Idx + 1, d2Idx + 0);
+        c++;
+        *c = data(d1Idx + 2, d2Idx + 0);
+        c++;
+        *c = data(d1Idx + 3, d2Idx + 0);
+        c++;
+        *c = data(d1Idx + 0, d2Idx + 4);
+        c++;
+        *c = data(d1Idx + 1, d2Idx + 4);
+        c++;
+        *c = data(d1Idx + 2, d2Idx + 4);
+        c++;
+        *c = data(d1Idx + 3, d2Idx + 4);
+        c++;
+      } else {
+        *c = data(d2Idx, d1Idx + 0);
+        c++;
+        *c = data(d2Idx, d1Idx + 1);
+        c++;
+        *c = data(d2Idx, d1Idx + 2);
+        c++;
+        *c = data(d2Idx, d1Idx + 3);
+        c++;
+        *c = data(d2Idx + 4, d1Idx + 0);
+        c++;
+        *c = data(d2Idx + 4, d1Idx + 1);
+        c++;
+        *c = data(d2Idx + 4, d1Idx + 2);
+        c++;
+        *c = data(d2Idx + 4, d1Idx + 3);
+        c++;
+      }
     }
     return c;
   }
