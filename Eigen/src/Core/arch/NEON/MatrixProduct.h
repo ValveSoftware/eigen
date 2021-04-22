@@ -592,7 +592,9 @@ struct PackingOperator
 {
   EIGEN_STRONG_INLINE Scalar* operator()(Index d1Idx, Index d2Idx, Scalar *block, const DataMapper& data)
   {
+#ifdef __DEBUG__
     std::cout << M << "x" << N << " ( " << d1Idx << ", " << d2Idx <<") -> ( " << d1Idx + M << ", " << d2Idx + N << ") ";
+#endif
     Scalar *c = block;
     for(auto i = 0; i < M; i++)
       for(auto j = 0; j < N; j++)
@@ -601,10 +603,14 @@ struct PackingOperator
           *c = data(d1Idx + i, d2Idx + j);
         else
           *c = data(d2Idx + j, d1Idx + i);
+#ifdef __DEBUG__
         std::cout << *c << " ";
+#endif
         c++;
       }
+#ifdef __DEBUG__
     std::cout << std::endl;
+#endif
     return c;
   }
 };
@@ -713,10 +719,12 @@ struct PackMap
 {
   const Scalar *pBase;
   const Scalar *pCur;
+  Index stride;
+  Index offset;
   Index d2Size;
   PackMapCalculator<Architecture, CPU, Index, Scalar, DataMapper, isLhs, PACK_SHAPES_COUNT<Architecture, CPU, Scalar, isLhs>-1> pmc;
 
-  PackMap(const Scalar *base, Index d2Size) : pBase(base), pCur(base), d2Size(d2Size) {}
+  PackMap(const Scalar *base, Index d2Size, Index stride, Index offset) : pBase(base), pCur(base), d2Size(d2Size), stride(stride), offset(offset) {}
 
   EIGEN_STRONG_INLINE void resetCur() { pCur = pBase; }
   EIGEN_STRONG_INLINE void moveTo(Index p1) { pCur = pBase + pmc.getPosition(p1, d2Size); }
@@ -739,7 +747,8 @@ struct Accumulator
     }
   }
 
-  EIGEN_STRONG_INLINE void scale(ResScalar alpha)
+  template<typename ResPacket>
+  EIGEN_STRONG_INLINE void scale(ResScalar alpha, const ResPacket& pAlpha)
   {
     for(auto i = 0; i < M; i++)
     {
@@ -762,14 +771,15 @@ struct Accumulator
   }
 };
 
-template<int Architecture, int CPU, typename Index, typename LhsScalar, typename RhsScalar, typename AccScalar, typename ResScalar, typename DataMapper, int SHAPE_IDX, int M, int K, int N>
+template<int Architecture, int CPU, typename Index, typename LhsScalar, typename LhsPackMap, typename RhsScalar, typename RhsPackMap, typename AccScalar, typename ResScalar, typename Accumulator, int M, int K, int N>
 struct MicroKernel
 {
-  EIGEN_STRONG_INLINE void operator()(PackMap<Architecture, CPU, Index, LhsScalar, DataMapper, true>& lhsPackMap, 
-                                      PackMap<Architecture, CPU, Index, RhsScalar, DataMapper, false>& rhsPackMap, 
+  EIGEN_STRONG_INLINE void operator()(LhsPackMap& lhsPackMap, 
+                                      RhsPackMap& rhsPackMap, 
                                       Index rowIdx, Index colIdx, Index depthIdx,
-                                      Accumulator<Architecture, CPU, AccScalar, ResScalar, DataMapper, M, N>& acc)
+                                      Accumulator& acc)
   {
+#ifdef __DEBUG__
     std::cout << "Kernel " << M << " x " << K << " x " << N << " @ " << rowIdx << ", " << depthIdx << ", " << colIdx << std::endl;
     std::cout << "LHS ";
     for(auto i = 0; i < M; i++)
@@ -788,6 +798,7 @@ struct MicroKernel
       }
     }
     std::cout << std::endl;
+#endif
     const RhsScalar *pRhs = rhsPackMap.pCur;
     for(auto i = 0; i < N; i++)
     {
@@ -802,98 +813,104 @@ struct MicroKernel
   };
 };
 
-template<int Architecture, int CPU, typename Index, typename LhsScalar, typename RhsScalar, typename AccScalar, typename ResScalar, typename DataMapper, int RHS_SHAPE_IDX, int LHS_SHAPE_IDX, int IDX>
+template<int Architecture, int CPU, typename Index, typename LhsScalar, typename LhsPackMap, typename RhsScalar, typename RhsPackMap, typename AccScalar, typename ResScalar, typename ResPacket, typename DataMapper, int RHS_SHAPE_IDX, int LHS_SHAPE_IDX, int IDX>
 struct DepthLoopStruct
 {
-  DepthLoopStruct<Architecture, CPU, Index, LhsScalar, RhsScalar, AccScalar, ResScalar, DataMapper, RHS_SHAPE_IDX, LHS_SHAPE_IDX, IDX-1> depthLS;
-  EIGEN_STRONG_INLINE void operator()(Index rowIdx, Index colIdx, Index depthIdx, const DataMapper& res, const LhsScalar* blockA, const RhsScalar*blockB, 
-                          Index rows, Index depth, Index cols, ResScalar alpha, Index strideA, Index strideB, Index offsetA, Index offsetB, PackMap<Architecture, CPU, Index, LhsScalar, DataMapper, true>& lhsPackMap, PackMap<Architecture, CPU, Index, RhsScalar, DataMapper, false>& rhsPackMap)
+  DepthLoopStruct<Architecture, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, ResPacket, DataMapper, RHS_SHAPE_IDX, LHS_SHAPE_IDX, IDX-1> depthLS;
+  EIGEN_STRONG_INLINE void operator()(Index rowIdx, Index colIdx, Index depthIdx, const DataMapper& res,
+                          Index rows, Index depth, Index cols, ResScalar alpha, const ResPacket& pAlpha, LhsPackMap& lhsPackMap, RhsPackMap& rhsPackMap)
   {
     constexpr auto rhsProgress      = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[RHS_SHAPE_IDX][SHAPES_RHS_DIMENSION];
     constexpr auto lhsProgress      = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[LHS_SHAPE_IDX][SHAPES_LHS_DIMENSION];
     constexpr auto depthProgress    = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[IDX][SHAPES_DEP_DIMENSION];
+    typedef Accumulator<Architecture, CPU, AccScalar, ResScalar, DataMapper, lhsProgress, rhsProgress> AccumulatorType;
 
     if(rhsProgress == SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[IDX][SHAPES_RHS_DIMENSION] && lhsProgress == SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[IDX][SHAPES_LHS_DIMENSION])
     {
-      MicroKernel<Architecture, CPU, Index, LhsScalar, RhsScalar, AccScalar, ResScalar, DataMapper, IDX, lhsProgress, depthProgress, rhsProgress> mkt;
-      Accumulator<Architecture, CPU, AccScalar, ResScalar, DataMapper, lhsProgress, rhsProgress> acc;
+      MicroKernel<Architecture, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, AccumulatorType, lhsProgress, depthProgress, rhsProgress> mkt;
+      AccumulatorType acc;
       acc.zero();
       for(; depthIdx + depthProgress <= depth; depthIdx+=depthProgress)
       {
           mkt(lhsPackMap, rhsPackMap, rowIdx, colIdx, depthIdx, acc);
       }
-      acc.scale(alpha);
+      acc.scale(alpha, pAlpha);
       acc.store(res, rowIdx, colIdx);
     }
-    depthLS(rowIdx, colIdx, depthIdx, res, blockA, blockB, rows, depth, cols, alpha, strideA, strideB, offsetA, offsetB, lhsPackMap, rhsPackMap);
+    depthLS(rowIdx, colIdx, depthIdx, res, rows, depth, cols, alpha, pAlpha, lhsPackMap, rhsPackMap);
   }
 };
 
-template<int Architecture, int CPU, typename Index, typename LhsScalar, typename RhsScalar, typename AccScalar, typename ResScalar, typename DataMapper, int RHS_SHAPE_IDX, int LHS_SHAPE_IDX>
-struct DepthLoopStruct<Architecture, CPU, Index, LhsScalar, RhsScalar, AccScalar, ResScalar, DataMapper, RHS_SHAPE_IDX, LHS_SHAPE_IDX, -1>
+template<int Architecture, int CPU, typename Index, typename LhsScalar, typename LhsPackMap, typename RhsScalar, typename RhsPackMap, typename AccScalar, typename ResScalar, typename ResPacket, typename DataMapper, int RHS_SHAPE_IDX, int LHS_SHAPE_IDX>
+struct DepthLoopStruct<Architecture, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, ResPacket, DataMapper, RHS_SHAPE_IDX, LHS_SHAPE_IDX, -1>
 {
-  EIGEN_STRONG_INLINE void operator()(Index, Index, Index, const DataMapper&, const LhsScalar*, const RhsScalar*,
-                          Index, Index, Index, ResScalar, Index, Index, Index, Index, PackMap<Architecture, CPU, Index, LhsScalar, DataMapper, true>&, PackMap<Architecture, CPU, Index, RhsScalar, DataMapper, false>&) {}
+  EIGEN_STRONG_INLINE void operator()(Index, Index, Index, const DataMapper&,
+                          Index, Index, Index, ResScalar, const ResPacket&, LhsPackMap&, RhsPackMap&) {}
 };
 
-template<int Architecture, int CPU, typename Index, typename LhsScalar, typename RhsScalar, typename AccScalar, typename ResScalar, typename DataMapper, int RHS_SHAPE_IDX, int IDX>
+template<int Architecture, int CPU, typename Index, typename LhsScalar, typename LhsPackMap, typename RhsScalar, typename RhsPackMap, typename AccScalar, typename ResScalar, typename ResPacket, typename DataMapper, int RHS_SHAPE_IDX, int IDX>
 struct LhsLoopStruct
 {
-  LhsLoopStruct<Architecture, CPU, Index, LhsScalar, RhsScalar, AccScalar, ResScalar, DataMapper, RHS_SHAPE_IDX, IDX-1> lhsLS;
-  EIGEN_STRONG_INLINE void operator()(Index rowIdx, int colIdx, const DataMapper& res, const LhsScalar* blockA, const RhsScalar*blockB, 
-                          Index rows, Index depth, Index cols, ResScalar alpha, Index strideA, Index strideB, Index offsetA, Index offsetB, PackMap<Architecture, CPU, Index, LhsScalar, DataMapper, true>& lhsPackMap, PackMap<Architecture, CPU, Index, RhsScalar, DataMapper, false>& rhsPackMap)
+  LhsLoopStruct<Architecture, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, ResPacket, DataMapper, RHS_SHAPE_IDX, IDX-1> lhsLS;
+  EIGEN_STRONG_INLINE void operator()(Index rowIdx, int colIdx, const DataMapper& res,
+                          Index rows, Index depth, Index cols, ResScalar alpha, const ResPacket& pAlpha, LhsPackMap& lhsPackMap, RhsPackMap& rhsPackMap)
   {
     constexpr auto lhsProgress = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[IDX][SHAPES_LHS_DIMENSION];
 
-    DepthLoopStruct<Architecture, CPU, Index, LhsScalar, RhsScalar, AccScalar, ResScalar, DataMapper, RHS_SHAPE_IDX, IDX, IDX> depthLS;
+    DepthLoopStruct<Architecture, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, ResPacket, DataMapper, RHS_SHAPE_IDX, IDX, IDX> depthLS;
     for(;rowIdx + lhsProgress <= rows; rowIdx+=lhsProgress)
     {
       lhsPackMap.moveTo(rowIdx);
       rhsPackMap.moveTo(colIdx);
-      depthLS(rowIdx, colIdx, 0, res, blockA, blockB, rows, depth, cols, alpha, strideA, strideB, offsetA, offsetB, lhsPackMap, rhsPackMap);
+      depthLS(rowIdx, colIdx, 0, res, rows, depth, cols, alpha, pAlpha, lhsPackMap, rhsPackMap);
     }
-    lhsLS(rowIdx, colIdx, res, blockA, blockB, rows, depth, cols, alpha, strideA, strideB, offsetA, offsetB, lhsPackMap, rhsPackMap);
+    lhsLS(rowIdx, colIdx, res, rows, depth, cols, alpha, pAlpha, lhsPackMap, rhsPackMap);
   }
 };
 
-template<int Architecture, int CPU, typename Index, typename LhsScalar, typename RhsScalar, typename AccScalar, typename ResScalar, typename DataMapper, int RHS_SHAPE_IDX>
-struct LhsLoopStruct<Architecture, CPU, Index, LhsScalar, RhsScalar, AccScalar, ResScalar, DataMapper, RHS_SHAPE_IDX, -1>
+template<int Architecture, int CPU, typename Index, typename LhsScalar, typename LhsPackMap, typename RhsScalar, typename RhsPackMap, typename AccScalar, typename ResScalar, typename ResPacket, typename DataMapper, int RHS_SHAPE_IDX>
+struct LhsLoopStruct<Architecture, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, ResPacket, DataMapper, RHS_SHAPE_IDX, -1>
 {
-  EIGEN_STRONG_INLINE void operator()(Index, Index, const DataMapper&, const LhsScalar*, const RhsScalar*,
-                          Index, Index, Index, ResScalar, Index, Index, Index, Index, PackMap<Architecture, CPU, Index, LhsScalar, DataMapper, true>&, PackMap<Architecture, CPU, Index, RhsScalar, DataMapper, false>&) {}
+  EIGEN_STRONG_INLINE void operator()(Index, Index, const DataMapper&,
+                          Index, Index, Index, ResScalar, const ResPacket&, LhsPackMap&, RhsPackMap&) {}
 };
 
-template<int Architecture, int CPU, typename Index, typename LhsScalar, typename RhsScalar, typename AccScalar, typename ResScalar, typename DataMapper, int IDX>
+template<int Architecture, int CPU, typename Index, typename LhsScalar, typename LhsPackMap, typename RhsScalar, typename RhsPackMap, typename AccScalar, typename ResScalar, typename ResPacket, typename DataMapper, int IDX>
 struct RhsLoopStruct
 {
   static constexpr auto PREVIOUS = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[IDX][SHAPES_POINTER];
-  RhsLoopStruct<Architecture, CPU, Index, LhsScalar, RhsScalar, AccScalar, ResScalar, DataMapper, PREVIOUS> rhsLS;
+  RhsLoopStruct<Architecture, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, ResPacket, DataMapper, PREVIOUS> rhsLS;
 
-  EIGEN_STRONG_INLINE void operator()(Index colIdx, const DataMapper& res, const LhsScalar* blockA, const RhsScalar*blockB, 
-                          Index rows, Index depth, Index cols, ResScalar alpha, Index strideA, Index strideB, Index offsetA, Index offsetB, PackMap<Architecture, CPU, Index, LhsScalar, DataMapper, true>& lhsPackMap, PackMap<Architecture, CPU, Index, RhsScalar, DataMapper, false>& rhsPackMap)
+  EIGEN_STRONG_INLINE void operator()(Index colIdx, const DataMapper& res,
+                          Index rows, Index depth, Index cols, ResScalar alpha, const ResPacket& pAlpha, LhsPackMap& lhsPackMap, RhsPackMap& rhsPackMap)
   {
     constexpr auto rhsProgress = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[IDX][SHAPES_RHS_DIMENSION];
 
     for(;colIdx + rhsProgress <= cols; colIdx+=rhsProgress)
     {
-      LhsLoopStruct<Architecture, CPU, Index, LhsScalar, RhsScalar, AccScalar, ResScalar, DataMapper, IDX, IDX> lhsLS;
-      lhsLS(0, colIdx, res, blockA, blockB, rows, depth, cols, alpha, strideA, strideB, offsetA, offsetB, lhsPackMap, rhsPackMap);
+      LhsLoopStruct<Architecture, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, ResPacket, DataMapper, IDX, IDX> lhsLS;
+      lhsLS(0, colIdx, res, rows, depth, cols, alpha, pAlpha, lhsPackMap, rhsPackMap);
     }
-    rhsLS(colIdx, res, blockA, blockB, rows, depth, cols, alpha, strideA, strideB, offsetA, offsetB, lhsPackMap, rhsPackMap);
+    rhsLS(colIdx, res, rows, depth, cols, alpha, pAlpha, lhsPackMap, rhsPackMap);
   }
 };
 
-template<int Architecture, int CPU, typename Index, typename LhsScalar, typename RhsScalar, typename AccScalar, typename ResScalar, typename DataMapper>
-struct RhsLoopStruct<Architecture, CPU, Index, LhsScalar, RhsScalar, AccScalar, ResScalar, DataMapper, -1>
+template<int Architecture, int CPU, typename Index, typename LhsScalar, typename LhsPackMap, typename RhsScalar, typename RhsPackMap, typename AccScalar, typename ResScalar, typename ResPacket, typename DataMapper>
+struct RhsLoopStruct<Architecture, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, ResPacket, DataMapper, -1>
 {
-  EIGEN_STRONG_INLINE void operator()(Index colIdx, const DataMapper&, const LhsScalar*, const RhsScalar*, 
-                          Index, Index, Index, ResScalar, Index, Index, Index, Index, PackMap<Architecture, CPU, Index, LhsScalar, DataMapper, true>&, PackMap<Architecture, CPU, Index, RhsScalar, DataMapper, false>&) {}
+  EIGEN_STRONG_INLINE void operator()(Index colIdx, const DataMapper&,
+                          Index, Index, Index, ResScalar, const ResPacket&, LhsPackMap&, RhsPackMap&) {}
 };
 
 template<int Architecture, int CPU, typename ResScalar, typename AccScalar, typename LhsScalar, typename RhsScalar, typename Index, typename DataMapper>
 EIGEN_STRONG_INLINE void gemm(const DataMapper& res, const LhsScalar* blockA, const RhsScalar* blockB,
           Index rows, Index depth, Index cols, ResScalar alpha, Index strideA, Index strideB, Index offsetA, Index offsetB)
 {
+  using ResPacket = typename unpacket_traits<ResScalar>::type;
+  typedef PackMap<Architecture, CPU, Index, LhsScalar, DataMapper, true> LhsPackMap;
+  typedef PackMap<Architecture, CPU, Index, RhsScalar, DataMapper, false> RhsPackMap;
+
+#ifdef __DEBUG__
   std::cout << "blockA" << std::endl;
   for(auto i = 0; i < rows*depth; i++)
   {
@@ -910,11 +927,14 @@ EIGEN_STRONG_INLINE void gemm(const DataMapper& res, const LhsScalar* blockA, co
     std::cout << blockB[i] << " ";
   }
   std::cout << std::endl;
+#endif
+  RhsLoopStruct<Architecture, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, ResPacket, DataMapper, SHAPES_COUNT<0, 0, LhsScalar, RhsScalar>-1> rhsLS;
+  LhsPackMap lhsPackMap(blockA, depth, strideA, offsetA);
+  RhsPackMap rhsPackMap(blockB, depth, strideB, offsetB);
 
-  RhsLoopStruct<Architecture, CPU, Index, LhsScalar, RhsScalar, AccScalar, ResScalar, DataMapper, SHAPES_COUNT<0, 0, LhsScalar, RhsScalar>-1> rhsLS;
-  PackMap<Architecture, CPU, Index, LhsScalar, DataMapper, true> lhsPackMap(blockA, depth);
-  PackMap<Architecture, CPU, Index, RhsScalar, DataMapper, false> rhsPackMap(blockB, depth);
-  rhsLS(0, res, blockA, blockB, rows, depth, cols, alpha, strideA, strideB, offsetA, offsetB, lhsPackMap, rhsPackMap);
+  ResPacket pAlpha = pset1<ResPacket>(alpha);
+
+  rhsLS(0, res, rows, depth, cols, alpha, pAlpha, lhsPackMap, rhsPackMap);
 }
 
 template<typename Index, typename DataMapper, int nr, bool Conjugate, bool PanelMode>
