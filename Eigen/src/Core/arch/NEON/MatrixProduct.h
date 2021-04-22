@@ -928,6 +928,7 @@ EIGEN_STRONG_INLINE void gemm(const DataMapper& res, const LhsScalar* blockA, co
   }
   std::cout << std::endl;
 #endif
+  asm __volatile__("#BEGING_GEBP\n\t");
   RhsLoopStruct<Architecture, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, ResPacket, DataMapper, SHAPES_COUNT<0, 0, LhsScalar, RhsScalar>-1> rhsLS;
   LhsPackMap lhsPackMap(blockA, depth, strideA, offsetA);
   RhsPackMap rhsPackMap(blockB, depth, strideB, offsetB);
@@ -935,6 +936,7 @@ EIGEN_STRONG_INLINE void gemm(const DataMapper& res, const LhsScalar* blockA, co
   ResPacket pAlpha = pset1<ResPacket>(alpha);
 
   rhsLS(0, res, rows, depth, cols, alpha, pAlpha, lhsPackMap, rhsPackMap);
+  asm __volatile__("#END_GEBP\n\t");
 }
 
 template<typename Index, typename DataMapper, int nr, bool Conjugate, bool PanelMode>
