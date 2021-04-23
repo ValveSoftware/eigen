@@ -17,9 +17,16 @@ namespace internal {
 template<int CPU, typename LhsScalar, typename RhsScalar>
 constexpr int SHAPES_COUNT<0, CPU, LhsScalar, RhsScalar> = 7;
 
+// lhs_progress x depth_progress x rhs_progress (depth_progress > 1 matrix ops) x pointer to next rhs_progress on the shapes map
 template<int CPU, typename LhsScalar, typename RhsScalar>
 constexpr int SHAPES<0, CPU, LhsScalar, RhsScalar>[SHAPES_COUNT<0, CPU, LhsScalar,RhsScalar>][SHAPES_DIMENSION] =
-    {{1,1,1,SHAPES_POINTER_END},{4,1,1,0},{1,1,4,1},{4,1,4,1},{4,4,4,1},{8,1,4,1},{8,4,4,1}};
+  { {1,1,1,SHAPES_POINTER_END, SHAPES_POINTER_END, SHAPES_POINTER_END},
+    {4,1,1,                 0,                  0, SHAPES_POINTER_END},
+    {1,1,4,                 1, SHAPES_POINTER_END, SHAPES_POINTER_END},
+    {4,1,4,                 1,                  2, SHAPES_POINTER_END},
+    {4,4,4,                 1,                  2,                  3},
+    {8,1,4,                 1,                  4, SHAPES_POINTER_END},
+    {8,4,4,                 1,                  4,                  5}};
 
 template<int CPU, typename Scalar, typename ResScalar, typename DataMapper>
 struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 4, 1>
