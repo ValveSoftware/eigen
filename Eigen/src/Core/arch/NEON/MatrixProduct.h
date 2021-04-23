@@ -226,7 +226,7 @@ struct Accumulator
     {
       for(auto j = 0; j < N; j++)
       {
-        dest(row + i, col + j) = dt[i][j];
+        dest(row + i, col + j) += dt[i][j];
       }
     }
   }
