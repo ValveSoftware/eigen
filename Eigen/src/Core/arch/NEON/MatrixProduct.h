@@ -321,12 +321,14 @@ struct LhsLoopStruct
                           Index rows, Index depth, Index cols, ResScalar alpha, const ResPacket& pAlpha, LhsPackMap& lhsPackMap, RhsPackMap& rhsPackMap)
   {
     constexpr auto lhsProgress = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[IDX][SHAPES_LHS_DIMENSION];
-
+    constexpr auto rhsProgress = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[IDX][SHAPES_RHS_DIMENSION];
     DepthLoopStruct<Architecture, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, ResPacket, DataMapper, RHS_SHAPE_IDX, IDX, IDX> depthLS;
     for(;rowIdx + lhsProgress <= rows; rowIdx+=lhsProgress)
     {
       lhsPackMap.moveTo(rowIdx);
       rhsPackMap.moveTo(colIdx);
+      //prefetch(lhsPackMap.pCur + 2*lhsProgress);
+      //prefetch(rhsPackMap.pCur + 2*rhsProgress);
       depthLS(rowIdx, colIdx, 0, res, rows, depth, cols, alpha, pAlpha, lhsPackMap, rhsPackMap);
     }
     lhsLS(rowIdx, colIdx, res, rows, depth, cols, alpha, pAlpha, lhsPackMap, rhsPackMap);
@@ -403,7 +405,7 @@ EIGEN_STRONG_INLINE void gemm(const DataMapper& res, const LhsScalar* blockA, co
   rhsLS(0, res, rows, depth, cols, alpha, pAlpha, lhsPackMap, rhsPackMap);
   asm __volatile__("#END_GEBP\n\t");
 }
-
+/*
 template<typename Index, typename DataMapper, int nr, bool Conjugate, bool PanelMode>
 struct gemm_pack_rhs<float, Index, DataMapper, nr, ColMajor, Conjugate, PanelMode>
 {
@@ -459,7 +461,7 @@ void gemm_pack_lhs<float, Index, DataMapper, Pack1, Pack2, Packet, ColMajor, Con
   lhs_pack<0, 0, Index, float, DataMapper, Conjugate, PanelMode, ColMajor> pack;
   pack(blockA, lhs, depth, rows, stride, offset);
 }
-
+*/
 template<typename Index, typename DataMapper, int mr, int nr, bool ConjugateLhs, bool ConjugateRhs>
 struct gebp_kernel<float, float, Index, DataMapper, mr, nr, ConjugateLhs, ConjugateRhs>
 {

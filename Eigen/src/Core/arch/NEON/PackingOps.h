@@ -14,6 +14,54 @@ namespace Eigen {
 
 namespace internal {
 
+template<int CPU, typename Index, typename Scalar, typename DataMapper, bool isLhs>
+struct PackMap<0, CPU, Index, Scalar, DataMapper, isLhs>
+{
+  const Scalar *pBase;
+  const Scalar *pCur;
+  Index stride;
+  Index offset;
+  Index d2Size;
+
+  Index shift;
+  Index jump;
+
+  PackMap(const Scalar *base, Index d2Size, Index stride, Index offset) : pBase(base), pCur(base), d2Size(d2Size), stride(stride), offset(offset) 
+  {
+    shift = (d2Size / 4) * 4;
+    jump = shift;
+  }
+
+  EIGEN_STRONG_INLINE void resetCur() { pCur = pBase; }
+  
+  EIGEN_STRONG_INLINE void moveTo(Index p1)
+  {
+    Index offset;
+    if(isLhs)
+    {
+      if(p1 >= shift)
+      {
+        offset = static_cast<Index>(shift*d2Size + ((p1%4))*d2Size);
+        jump = 1;
+      } else {
+        offset = p1;
+        jump = shift;
+      }
+    } else {
+      offset = static_cast<Index>(4*d2Size*(p1/4));
+      pCur = pBase + offset;
+    }
+    pCur = pBase + offset;
+  }
+
+  EIGEN_STRONG_INLINE void advance(int progress)
+  {
+    Index offset = static_cast<Index>(isLhs ? jump : progress);
+    pCur += offset;
+  }
+};
+
+/*
 template<int CPU, typename Scalar, bool isLhs>
 constexpr int PACK_SHAPES_COUNT<0, CPU, Scalar, isLhs> = 3;
 
@@ -180,7 +228,7 @@ struct PackingOperator<0, CPU, Index, Scalar, isLhs, DataMapper, Conjugate, Pane
     return c;
   }
 };
-
+*/
 
 } // end namespace internal
 
