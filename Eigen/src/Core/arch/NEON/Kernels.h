@@ -15,18 +15,66 @@ namespace Eigen {
 namespace internal {
 
 template<int CPU, typename LhsScalar, typename RhsScalar>
-constexpr int SHAPES_COUNT<0, CPU, LhsScalar, RhsScalar> = 8;
+constexpr int SHAPES_COUNT<0, CPU, LhsScalar, RhsScalar> = 9;
 
 template<int CPU, typename LhsScalar, typename RhsScalar>
 constexpr int SHAPES<0, CPU, LhsScalar, RhsScalar>[SHAPES_COUNT<0, CPU, LhsScalar,RhsScalar>][SHAPES_DIMENSION] =
-  { {1,1,1,SHAPES_POINTER_END, SHAPES_POINTER_END, SHAPES_POINTER_END},
-    {4,1,1,                 0,                  0, SHAPES_POINTER_END},
-    {1,1,4,                 1, SHAPES_POINTER_END, SHAPES_POINTER_END},
-    {4,1,4,                 1,                  2, SHAPES_POINTER_END},
-    {4,4,4,                 1,                  2,                  3},
-    {4,8,4,                 1,                  2,                  4},
-    {8,1,4,                 1,                  4, SHAPES_POINTER_END},
-    {8,4,4,                 1,                  4,                  6}};
+  { /*0*/ {1,1,1,SHAPES_POINTER_END, SHAPES_POINTER_END, SHAPES_POINTER_END},
+    /*1*/ {4,1,1,                 0,                  0, SHAPES_POINTER_END},
+    /*2*/ {8,1,1,                 0,                  1, SHAPES_POINTER_END},
+    /*3*/ {1,1,4,                 2, SHAPES_POINTER_END, SHAPES_POINTER_END},
+    /*4*/ {4,1,4,                 2,                  2, SHAPES_POINTER_END},
+    /*5*/ {4,4,4,                 2,                  2,                  3},
+    /*6*/ {4,8,4,                 2,                  2,                  4},
+    /*7*/ {8,1,4,                 2,                  4, SHAPES_POINTER_END},
+    /*8*/ {8,4,4,                 2,                  4,                  6}};
+
+template<int CPU, typename Scalar, typename ResScalar, typename DataMapper>
+struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 8, 1>
+{
+  using LinearMapper = typename DataMapper::LinearMapper;
+  using AccPacket = typename packet_traits<Scalar>::type;
+  using ResPacket = typename packet_traits<ResScalar>::type;
+
+  PacketBlock<AccPacket,2> _acc;
+
+  EIGEN_STRONG_INLINE void zero()
+  {
+    _acc.packet[0] = pset1<AccPacket>(0);
+    _acc.packet[1] = pset1<AccPacket>(0);
+  }
+
+  template<typename ResPacket_>
+  EIGEN_STRONG_INLINE void scale(ResScalar alpha, const ResPacket_& pAlpha)
+  {
+    _acc.packet[0] *= pAlpha;
+    _acc.packet[1] *= pAlpha;
+  }
+
+  EIGEN_STRONG_INLINE void store(const DataMapper& dest, Index row, Index col)
+  {
+    //eigen_assert(false && "4x1");
+    //LinearMapper r0 = dest.getLinearMapper(row, col + 0);
+    
+    //r0.storePacket(0, r0.template loadPacket<ResPacket>(0) + _acc);
+    PacketBlock<ResPacket, 1> block;
+    block.packet[0] = dest.template loadPacket<ResPacket>(row, col) + _acc.packet[0];
+    dest.template storePacketBlock<AccPacket, 1>(row, col, block);
+    block.packet[0] = dest.template loadPacket<ResPacket>(row + 4, col) + _acc.packet[1];
+    dest.template storePacketBlock<AccPacket, 1>(row + 4, col, block);
+    /*
+    dest(row + 0, col + 0) += _acc.packet[0][0];
+    dest(row + 1, col + 0) += _acc.packet[0][1];
+    dest(row + 2, col + 0) += _acc.packet[0][2];
+    dest(row + 3, col + 0) += _acc.packet[0][3];
+    
+    dest(row + 4, col + 0) += _acc.packet[1][0];
+    dest(row + 5, col + 0) += _acc.packet[1][1];
+    dest(row + 6, col + 0) += _acc.packet[1][2];
+    dest(row + 7, col + 0) += _acc.packet[1][3];
+    */
+  }
+};
 
 template<int CPU, typename Scalar, typename ResScalar, typename DataMapper>
 struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 4, 1>
@@ -50,9 +98,19 @@ struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 4, 1>
 
   EIGEN_STRONG_INLINE void store(const DataMapper& dest, Index row, Index col)
   {
-    LinearMapper r0 = dest.getLinearMapper(row, col + 0);
-
-    r0.storePacket(0, r0.template loadPacket<ResPacket>(0) + _acc);
+    //eigen_assert(false && "4x1");
+    //LinearMapper r0 = dest.getLinearMapper(row, col + 0);
+    
+    //r0.storePacket(0, r0.template loadPacket<ResPacket>(0) + _acc);
+    PacketBlock<ResPacket, 1> block;
+    block.packet[0] = dest.template loadPacket<ResPacket>(row, col) + _acc;
+    dest.template storePacketBlock<AccPacket, 1>(row, col, block);
+    /*
+    dest(row + 0, col) += _acc[0];
+    dest(row + 1, col) += _acc[1];
+    dest(row + 2, col) += _acc[2];
+    dest(row + 3, col) += _acc[3];
+    */
   }
 };
 
@@ -63,29 +121,23 @@ struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 1, 4>
   using AccPacket = typename packet_traits<Scalar>::type;
   using ResPacket = typename packet_traits<ResScalar>::type;
 
-  PacketBlock<AccPacket, 1> _acc;
+  AccPacket _acc;
 
   EIGEN_STRONG_INLINE void zero()
   {
-    _acc.packet[0] = pset1<AccPacket>(0);
+    _acc = pset1<AccPacket>(0);
   }
 
   template<typename ResPacket_>
   EIGEN_STRONG_INLINE void scale(ResScalar alpha, const ResPacket_& pAlpha)
   {
-    _acc.packet[0] *= pAlpha;
+    _acc *= pAlpha;
   }
 
   EIGEN_STRONG_INLINE void store(const DataMapper& dest, Index row, Index col)
   {
-    // [TODO] Check this    
-    //_acc.packet[0] += dest.template loadPacket<ResPacket>(row, col);
-    //dest.template storePacketBlock<ResPacket, 1>(row, col, _acc);
-    
-    dest(row, col + 0) += _acc.packet[0][0];
-    dest(row, col + 1) += _acc.packet[0][1];
-    dest(row, col + 2) += _acc.packet[0][2];
-    dest(row, col + 3) += _acc.packet[0][3];
+    ResPacket r = dest.template gatherPacket<ResPacket>(row, col) + _acc;
+    dest.template scatterPacket<ResPacket>(row, col, r);
   }
 };
 
@@ -375,10 +427,10 @@ struct MicroKernel<0, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, 
 };
 
 template<int CPU, typename Index, typename LhsScalar, typename LhsPackMap, typename RhsScalar, typename RhsPackMap, typename AccScalar, typename ResScalar, typename Accumulator>
-struct MicroKernel<0, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, Accumulator, 4, 1, 1>
+struct MicroKernel<0, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, Accumulator, 8, 1, 1>
 {
-  EIGEN_STRONG_INLINE void operator()(LhsPackMap& lhsPackMap, 
-                                      RhsPackMap& rhsPackMap, 
+  EIGEN_STRONG_INLINE void operator()(LhsPackMap& lhsPackMap,
+                                      RhsPackMap& rhsPackMap,
                                       Index rowIdx, Index colIdx, Index depthIdx,
                                       Accumulator& acc)
   {
@@ -390,7 +442,35 @@ struct MicroKernel<0, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, 
     LhsPacket pLhs = pload<LhsPacket>(lhsPackMap.pCur);
     RhsPacket pRhs = pset1<RhsPacket>(*rhsPackMap.pCur);
 
-    acc._acc += pLhs*pRhs;
+    acc._acc.packet[0] = pmadd(pRhs, pLhs, acc._acc.packet[0]);
+    lhsPackMap.advance(4*1);
+    pLhs = pload<LhsPacket>(lhsPackMap.pCur);
+    acc._acc.packet[1] = pmadd(pRhs, pLhs, acc._acc.packet[1]);
+
+    lhsPackMap.advance(4*1);
+    rhsPackMap.advance(1);
+    asm __volatile__("#END_NEON_MICROKERNEL_4x1x1\n\t");
+  };
+};
+
+template<int CPU, typename Index, typename LhsScalar, typename LhsPackMap, typename RhsScalar, typename RhsPackMap, typename AccScalar, typename ResScalar, typename Accumulator>
+struct MicroKernel<0, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, Accumulator, 4, 1, 1>
+{
+  EIGEN_STRONG_INLINE void operator()(LhsPackMap& lhsPackMap,
+                                      RhsPackMap& rhsPackMap,
+                                      Index rowIdx, Index colIdx, Index depthIdx,
+                                      Accumulator& acc)
+  {
+    using LhsPacket = typename packet_traits<LhsScalar>::type;
+    using RhsPacket = typename packet_traits<RhsScalar>::type;
+
+    asm __volatile__("#BEGIN_NEON_MICROKERNEL_4x1x1\n\t");
+
+    LhsPacket pLhs = pload<LhsPacket>(lhsPackMap.pCur);
+    RhsPacket pRhs = pset1<RhsPacket>(*rhsPackMap.pCur);
+
+    //acc._acc += pRhs*pLhs;
+    acc._acc = pmadd(pRhs, pLhs, acc._acc);
 
     lhsPackMap.advance(4*1);
     rhsPackMap.advance(1);
@@ -411,10 +491,10 @@ struct MicroKernel<0, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, 
 
     asm __volatile__("#BEGIN_NEON_MICROKERNEL_1x1x4\n\t");
 
-    RhsPacket pRhs = pload<RhsPacket>(rhsPackMap.pCur);
     LhsPacket pLhs = pset1<LhsPacket>(*lhsPackMap.pCur);
+    RhsPacket pRhs = pload<RhsPacket>(rhsPackMap.pCur);
 
-    acc._acc.packet[0] += pRhs*pLhs;
+    acc._acc += pLhs*pRhs;
 
     lhsPackMap.advance(1);
     rhsPackMap.advance(4*1);
