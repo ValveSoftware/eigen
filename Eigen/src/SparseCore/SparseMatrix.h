@@ -253,9 +253,10 @@ class SparseMatrix
     inline void setZero()
     {
       m_data.clear();
-      memset(m_outerIndex, 0, (m_outerSize+1)*sizeof(StorageIndex));
-      if(m_innerNonZeros)
-        memset(m_innerNonZeros, 0, (m_outerSize)*sizeof(StorageIndex));
+      std::fill_n(m_outerIndex, m_outerSize + 1, StorageIndex(0));
+      if(m_innerNonZeros) {
+        std::fill_n(m_innerNonZeros, m_outerSize, StorageIndex(0));
+      }
     }
 
     /** Preallocates \a reserveSize non zeros.
@@ -641,7 +642,7 @@ class SparseMatrix
         std::free(m_innerNonZeros);
         m_innerNonZeros = 0;
       }
-      memset(m_outerIndex, 0, (m_outerSize+1)*sizeof(StorageIndex));
+      std::fill_n(m_outerIndex, m_outerSize + 1, StorageIndex(0));
     }
 
     /** \internal
@@ -1260,7 +1261,7 @@ typename SparseMatrix<_Scalar,_Options,_StorageIndex>::Scalar& SparseMatrix<_Sca
       m_innerNonZeros = static_cast<StorageIndex*>(std::malloc(m_outerSize * sizeof(StorageIndex)));
       if(!m_innerNonZeros) internal::throw_std_bad_alloc();
       
-      memset(m_innerNonZeros, 0, (m_outerSize)*sizeof(StorageIndex));
+      std::fill(m_innerNonZeros, m_innerNonZeros + m_outerSize, StorageIndex(0));
       
       // pack all inner-vectors to the end of the pre-allocated space
       // and allocate the entire free-space to the first inner-vector

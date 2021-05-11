@@ -281,7 +281,32 @@ struct GpuDevice {
     EIGEN_UNUSED_VARIABLE(err)
     gpu_assert(err == gpuSuccess);
 #else
+  EIGEN_UNUSED_VARIABLE(buffer)
+  EIGEN_UNUSED_VARIABLE(c)
+  EIGEN_UNUSED_VARIABLE(n)
   eigen_assert(false && "The default device should be used instead to generate kernel code");
+#endif
+  }
+
+  template<typename T>
+  EIGEN_STRONG_INLINE void fill(T* begin, T* end, const T& value) const {
+#ifndef EIGEN_GPU_COMPILE_PHASE
+    const size_t count = end - begin;
+    // Split value into bytes and run memset with stride.
+    const int value_size = sizeof(value);
+    char* buffer = (char*)begin;
+    char* value_bytes = (char*)(&value);
+    gpuError_t err;
+    EIGEN_UNUSED_VARIABLE(err)
+    for (int b=0; b<value_size; ++b) {
+      err = gpuMemset2DAsync(buffer+b, value_size, value_bytes[b], 1, count, stream_->stream());
+      gpu_assert(err == gpuSuccess);
+    }
+#else
+    EIGEN_UNUSED_VARIABLE(begin)
+    EIGEN_UNUSED_VARIABLE(end)
+    EIGEN_UNUSED_VARIABLE(value)
+    eigen_assert(false && "The default device should be used instead to generate kernel code");
 #endif
   }
 
