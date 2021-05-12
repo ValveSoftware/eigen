@@ -19,7 +19,7 @@ namespace Eigen {
 namespace internal {
 
 template<int Architecture, int CPU, typename LhsScalar, typename RhsScalar>
-constexpr int SHAPES_COUNT = 4;
+constexpr int SHAPES_COUNT = 8;
 
 constexpr int SHAPES_DIMENSION = 6;
 constexpr int SHAPES_LHS_DIMENSION = 0;
@@ -32,6 +32,10 @@ constexpr int SHAPES_POINTER_END = -1;
 
 template<int Architecture, int CPU, typename Scalar, bool isLhs>
 constexpr int PACK_SHAPES_COUNT = 2;
+
+template<int Architecture, int CPU, typename Scalar>
+constexpr int PACK_SHAPES_COUNT<Architecture, CPU, Scalar, true> = 4;
+
 constexpr int PACK_SHAPES_DIMENSION = 3;
 constexpr int PACK_SHAPES_POINTER = 2;
 constexpr int PACK_SHAPES_END = -1;
@@ -39,14 +43,27 @@ constexpr int PACK_SHAPES_END = -1;
 // lhs_progress x depth_progress x rhs_progress (depth_progress > 1 matrix ops) x pointer to next rhs_progress on the shapes map
 template<int Architecture, int CPU, typename LhsScalar, typename RhsScalar>
 constexpr int SHAPES[SHAPES_COUNT<Architecture, CPU, LhsScalar,RhsScalar>][SHAPES_DIMENSION] = 
-  { {1,1,1,SHAPES_POINTER_END, SHAPES_POINTER_END, SHAPES_POINTER_END},
-    {4,1,1,                 0,                  0, SHAPES_POINTER_END},
-    {1,1,4,                 1, SHAPES_POINTER_END, SHAPES_POINTER_END},
-    {4,1,4,                 1,                  2, SHAPES_POINTER_END}};
+  { /* 0 */{                            1,1,1,SHAPES_POINTER_END, SHAPES_POINTER_END, SHAPES_POINTER_END},
+    /* 1 */{1*packet_traits<RhsScalar>::size,1,1,                 0,                  0, SHAPES_POINTER_END},
+    /* 2 */{2*packet_traits<RhsScalar>::size,1,1,                 0,                  1, SHAPES_POINTER_END},
+    /* 3 */{3*packet_traits<RhsScalar>::size,1,1,                 0,                  2, SHAPES_POINTER_END},
+    /* 4 */{                               1,1,4,                 3, SHAPES_POINTER_END, SHAPES_POINTER_END},
+    /* 5 */{1*packet_traits<RhsScalar>::size,1,4,                 3,                  4, SHAPES_POINTER_END},
+    /* 6 */{2*packet_traits<RhsScalar>::size,1,4,                 3,                  5, SHAPES_POINTER_END},
+    /* 7 */{3*packet_traits<RhsScalar>::size,1,4,                 3,                  6, SHAPES_POINTER_END}};
 
 // d1progress x d2progress
 template<int Architecture, int CPU, typename Scalar, bool isLhs>
-constexpr int PACK_SHAPES[PACK_SHAPES_COUNT<Architecture, CPU, Scalar, isLhs>][PACK_SHAPES_DIMENSION] = {{1,1,PACK_SHAPES_END},{4,1,0}};
+constexpr int PACK_SHAPES[PACK_SHAPES_COUNT<Architecture, CPU, Scalar, isLhs>][PACK_SHAPES_DIMENSION] =
+{{ 1, 1, PACK_SHAPES_END},
+ { 4, 1,               0}};
+
+template<int Architecture, int CPU, typename Scalar>
+constexpr int PACK_SHAPES<Architecture, CPU, Scalar, true>[PACK_SHAPES_COUNT<Architecture, CPU, Scalar, true>][PACK_SHAPES_DIMENSION] =
+{{                            1, 1, PACK_SHAPES_END},
+ {1*packet_traits<Scalar>::size, 1,               0},
+ {2*packet_traits<Scalar>::size, 1,               1},
+ {3*packet_traits<Scalar>::size, 1,               2}};
 
 template<int Architecture, int CPU, typename Index, typename Scalar, bool isLhs, typename DataMapper, bool Conjugate, bool PanelMode, int StorageOrder, int M, int N>
 struct PackingOperator
