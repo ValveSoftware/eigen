@@ -15,7 +15,7 @@ void set(MatrixXf& A, int m, int n, int id, int digits)
 int main(int argc, char* argv[])
 {
 #ifdef __DEBUG__
-    int m = 32, k = 32, n = 32, max = std::max(std::max(m,k),n);
+    int m = 9, k = 9, n = 9, max = std::max(std::max(m,k),n);
     MatrixXf A = MatrixXf::Zero(m, k);
     MatrixXf B = MatrixXf::Zero(k, n);
     MatrixXf C = MatrixXf::Zero(m, n);
@@ -28,6 +28,7 @@ int main(int argc, char* argv[])
 
     std::cout << A << std::endl;
     std::cout << B << std::endl;
+    std::cout << C << std::endl;
 
     std::cout << std::endl;
 
@@ -47,6 +48,8 @@ int main(int argc, char* argv[])
             }
         }
     }
+
+    std::cout << D << std::endl;
 #else
     if(argc < 3)
     {

@@ -17,30 +17,28 @@ namespace internal {
 #ifdef __ENABLE_VECTOR_KERNELS__
 
 #define MICRO_12x1x4() \
-    pRhs = pload<RhsPacket>(rhsPackMap.pCur); \
-    rhsPackMap.advance(1*4); \
-    pRhs0 = pset1<RhsPacket>(pRhs[0]); \
-    pRhs1 = pset1<RhsPacket>(pRhs[1]); \
-    pRhs2 = pset1<RhsPacket>(pRhs[2]); \
-    pRhs3 = pset1<RhsPacket>(pRhs[3]); \
     pLhs = pload<LhsPacket>(lhsPackMap.pCur); \
-    lhsPackMap.advance(4*1); \
+    pLhs2 = pload<LhsPacket>(lhsPackMap.pCur + 4); \
+    pLhs3 = pload<LhsPacket>(lhsPackMap.pCur + 8); \
+    pRhs = pload<RhsPacket>(lhsPackMap.pCur);\
+    pRhs0 = pset1<RhsPacket>(pRhs[0]); \
     acc._acc1.packet[0] += pLhs*pRhs0; \
-    acc._acc1.packet[1] += pLhs*pRhs1; \
-    acc._acc1.packet[2] += pLhs*pRhs2; \
-    acc._acc1.packet[3] += pLhs*pRhs3; \
-    pLhs2 = pload<LhsPacket>(lhsPackMap.pCur); \
-    lhsPackMap.advance(4*1); \
     acc._acc2.packet[0] += pLhs2*pRhs0; \
-    acc._acc2.packet[1] += pLhs2*pRhs1; \
-    acc._acc2.packet[2] += pLhs2*pRhs2; \
-    acc._acc2.packet[3] += pLhs2*pRhs3; \
-    pLhs3 = pload<LhsPacket>(lhsPackMap.pCur); \
     acc._acc3.packet[0] += pLhs3*pRhs0; \
+    pRhs1 = pset1<RhsPacket>(pRhs[1]); \
+    acc._acc1.packet[1] += pLhs*pRhs1; \
+    acc._acc2.packet[1] += pLhs2*pRhs1; \
     acc._acc3.packet[1] += pLhs3*pRhs1; \
+    pRhs2 = pset1<RhsPacket>(pRhs[2]); \
+    acc._acc1.packet[2] += pLhs*pRhs2; \
+    acc._acc2.packet[2] += pLhs2*pRhs2; \
     acc._acc3.packet[2] += pLhs3*pRhs2; \
+    pRhs3 = pset1<RhsPacket>(pRhs[3]); \
+    acc._acc1.packet[3] += pLhs*pRhs3; \
+    acc._acc2.packet[3] += pLhs2*pRhs3; \
     acc._acc3.packet[3] += pLhs3*pRhs3; \
-    lhsPackMap.advance(4*1);
+    rhsPackMap.advance(4); \
+    lhsPackMap.advance(12);
 
 #define MICRO_8x1x4() \
     pLhs = pload<LhsPacket>(lhsPackMap.pCur); \

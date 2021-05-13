@@ -215,6 +215,7 @@ struct PackMap
   PackMap(const Scalar *base, Index d2Size, Index stride, Index offset) : pBase(base), pCur(base), d2Size(d2Size), stride(stride), offset(offset) {}
 
   EIGEN_STRONG_INLINE void resetCur() { pCur = pBase; }
+  EIGEN_STRONG_INLINE void updateBase() { pBase = pCur; }
   EIGEN_STRONG_INLINE void moveTo(Index p1) { pCur = pBase + pmc.getPosition(p1, d2Size); }
   EIGEN_STRONG_INLINE void advance(int progress) { pCur += progress; }
 };
@@ -362,12 +363,12 @@ struct LhsLoopStruct
     constexpr auto lhsProgress = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[IDX][SHAPES_LHS_DIMENSION];
     constexpr auto rhsProgress = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[IDX][SHAPES_RHS_DIMENSION];
     DepthLoopStruct<Architecture, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, ResPacket, DataMapper, RHS_SHAPE_IDX, IDX, IDX> depthLS;
+    rhsPackMap.resetCur();
     for(;rowIdx + lhsProgress <= rows; rowIdx+=lhsProgress)
     {
-      lhsPackMap.moveTo(rowIdx);
-      rhsPackMap.moveTo(colIdx);
-      //prefetch(lhsPackMap.pCur + 2*lhsProgress);
-      //prefetch(rhsPackMap.pCur + 2*rhsProgress);
+      //lhsPackMap.moveTo(rowIdx);
+      //rhsPackMap.moveTo(colIdx);
+
       depthLS(rowIdx, colIdx, 0, res, rows, depth, cols, alpha, pAlpha, lhsPackMap, rhsPackMap);
     }
     lhsLS(rowIdx, colIdx, res, rows, depth, cols, alpha, pAlpha, lhsPackMap, rhsPackMap);
@@ -395,7 +396,9 @@ struct RhsLoopStruct
     for(;colIdx + rhsProgress <= cols; colIdx+=rhsProgress)
     {
       LhsLoopStruct<Architecture, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, ResPacket, DataMapper, IDX, IDX> lhsLS;
+      lhsPackMap.resetCur();
       lhsLS(0, colIdx, res, rows, depth, cols, alpha, pAlpha, lhsPackMap, rhsPackMap);
+      rhsPackMap.updateBase();
     }
     rhsLS(colIdx, res, rows, depth, cols, alpha, pAlpha, lhsPackMap, rhsPackMap);
   }
