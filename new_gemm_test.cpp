@@ -28,7 +28,6 @@ int main(int argc, char* argv[])
 
     std::cout << A << std::endl;
     std::cout << B << std::endl;
-    std::cout << C << std::endl;
 
     std::cout << std::endl;
 
@@ -48,8 +47,6 @@ int main(int argc, char* argv[])
             }
         }
     }
-
-    std::cout << C << std::endl;
 #else
     if(argc < 3)
     {

@@ -23,7 +23,7 @@ namespace internal {
 #endif
 
 template<int Architecture, int CPU, typename LhsScalar, typename RhsScalar>
-constexpr int SHAPES_COUNT = 11;
+constexpr int SHAPES_COUNT = 14;
 
 constexpr int SHAPES_DIMENSION = 6;
 constexpr int SHAPES_LHS_DIMENSION = 0;
@@ -49,15 +49,18 @@ template<int Architecture, int CPU, typename LhsScalar, typename RhsScalar>
 constexpr int SHAPES[SHAPES_COUNT<Architecture, CPU, LhsScalar,RhsScalar>][SHAPES_DIMENSION] = 
   { /* 00 */{                               1,         1,1,SHAPES_POINTER_END, SHAPES_POINTER_END, SHAPES_POINTER_END},
     /* 01 */{1*packet_traits<RhsScalar>::size,         1,1,                 0,                  0, SHAPES_POINTER_END},
-    /* 02 */{2*packet_traits<RhsScalar>::size,         1,1,                 0,                  1, SHAPES_POINTER_END},
-    /* 03 */{3*packet_traits<RhsScalar>::size,         1,1,                 0,                  2, SHAPES_POINTER_END},
-    /* 04 */{                               1,         1,4,                 3, SHAPES_POINTER_END, SHAPES_POINTER_END},
-    /* 05 */{1*packet_traits<RhsScalar>::size,         1,4,                 3,                  4, SHAPES_POINTER_END},
-    /* 06 */{1*packet_traits<RhsScalar>::size,__UNROLL__,4,                 3,                  4, SHAPES_POINTER_END},
-    /* 07 */{2*packet_traits<RhsScalar>::size,         1,4,                 3,                  6, SHAPES_POINTER_END},
-    /* 08 */{2*packet_traits<RhsScalar>::size,__UNROLL__,4,                 3,                  6,                  7},
-    /* 09 */{3*packet_traits<RhsScalar>::size,         1,4,                 3,                  8, SHAPES_POINTER_END},
-    /* 10 */{3*packet_traits<RhsScalar>::size,__UNROLL__,4,                 3,                  8,                  9}};
+    /* 02 */{1*packet_traits<RhsScalar>::size,__UNROLL__,1,                 0,                  0,                  1},
+    /* 03 */{2*packet_traits<RhsScalar>::size,         1,1,                 0,                  2, SHAPES_POINTER_END},
+    /* 04 */{2*packet_traits<RhsScalar>::size,__UNROLL__,1,                 0,                  2,                  3},
+    /* 05 */{3*packet_traits<RhsScalar>::size,         1,1,                 0,                  4, SHAPES_POINTER_END},
+    /* 06 */{3*packet_traits<RhsScalar>::size,__UNROLL__,1,                 0,                  4,                  5},
+    /* 07 */{                               1,         1,4,                 6, SHAPES_POINTER_END, SHAPES_POINTER_END},
+    /* 08 */{1*packet_traits<RhsScalar>::size,         1,4,                 6,                  7, SHAPES_POINTER_END},
+    /* 09 */{1*packet_traits<RhsScalar>::size,__UNROLL__,4,                 6,                  7,                  8},
+    /* 10 */{2*packet_traits<RhsScalar>::size,         1,4,                 6,                  9, SHAPES_POINTER_END},
+    /* 11 */{2*packet_traits<RhsScalar>::size,__UNROLL__,4,                 6,                  9,                 10},
+    /* 12 */{3*packet_traits<RhsScalar>::size,         1,4,                 6,                 11, SHAPES_POINTER_END},
+    /* 13 */{3*packet_traits<RhsScalar>::size,__UNROLL__,4,                 6,                 11,                 12}};
 
 // d1progress x d2progress
 template<int Architecture, int CPU, typename Scalar, bool isLhs>

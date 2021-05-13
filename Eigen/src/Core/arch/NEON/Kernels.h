@@ -17,30 +17,30 @@ namespace internal {
 #ifdef __ENABLE_VECTOR_KERNELS__
 
 #define MICRO_12x1x4() \
-    pLhs = pload<LhsPacket>(lhsPackMap.pCur); \
-    lhsPackMap.advance(4*1); \
-    pLhs2 = pload<LhsPacket>(lhsPackMap.pCur); \
-    lhsPackMap.advance(4*1); \
-    pLhs3 = pload<LhsPacket>(lhsPackMap.pCur); \
     pRhs = pload<RhsPacket>(rhsPackMap.pCur); \
+    rhsPackMap.advance(1*4); \
     pRhs0 = pset1<RhsPacket>(pRhs[0]); \
     pRhs1 = pset1<RhsPacket>(pRhs[1]); \
     pRhs2 = pset1<RhsPacket>(pRhs[2]); \
     pRhs3 = pset1<RhsPacket>(pRhs[3]); \
+    pLhs = pload<LhsPacket>(lhsPackMap.pCur); \
+    lhsPackMap.advance(4*1); \
     acc._acc1.packet[0] += pLhs*pRhs0; \
     acc._acc1.packet[1] += pLhs*pRhs1; \
     acc._acc1.packet[2] += pLhs*pRhs2; \
     acc._acc1.packet[3] += pLhs*pRhs3; \
+    pLhs2 = pload<LhsPacket>(lhsPackMap.pCur); \
+    lhsPackMap.advance(4*1); \
     acc._acc2.packet[0] += pLhs2*pRhs0; \
     acc._acc2.packet[1] += pLhs2*pRhs1; \
     acc._acc2.packet[2] += pLhs2*pRhs2; \
     acc._acc2.packet[3] += pLhs2*pRhs3; \
+    pLhs3 = pload<LhsPacket>(lhsPackMap.pCur); \
     acc._acc3.packet[0] += pLhs3*pRhs0; \
     acc._acc3.packet[1] += pLhs3*pRhs1; \
     acc._acc3.packet[2] += pLhs3*pRhs2; \
     acc._acc3.packet[3] += pLhs3*pRhs3; \
-    lhsPackMap.advance(4*1); \
-    rhsPackMap.advance(1*4);
+    lhsPackMap.advance(4*1);
 
 #define MICRO_8x1x4() \
     pLhs = pload<LhsPacket>(lhsPackMap.pCur); \
@@ -75,6 +75,36 @@ namespace internal {
     acc._acc.packet[3] += pLhs*pRhs3; \
     lhsPackMap.advance(4*1); \
     rhsPackMap.advance(1*4);
+
+#define MICRO_12x1x1() \
+    pLhs = pload<LhsPacket>(lhsPackMap.pCur); \
+    pRhs = pset1<RhsPacket>(*rhsPackMap.pCur); \
+    acc._acc.packet[0] = pmadd(pRhs, pLhs, acc._acc.packet[0]); \
+    lhsPackMap.advance(4*1); \
+    pLhs = pload<LhsPacket>(lhsPackMap.pCur); \
+    acc._acc.packet[1] = pmadd(pRhs, pLhs, acc._acc.packet[1]); \
+    lhsPackMap.advance(4*1); \
+    pLhs = pload<LhsPacket>(lhsPackMap.pCur); \
+    acc._acc.packet[2] = pmadd(pRhs, pLhs, acc._acc.packet[2]); \
+    lhsPackMap.advance(4*1); \
+    rhsPackMap.advance(1);
+
+#define MICRO_8x1x1() \
+    pLhs = pload<LhsPacket>(lhsPackMap.pCur); \
+    pRhs = pset1<RhsPacket>(*rhsPackMap.pCur); \
+    acc._acc.packet[0] = pmadd(pRhs, pLhs, acc._acc.packet[0]); \
+    lhsPackMap.advance(4*1); \
+    pLhs = pload<LhsPacket>(lhsPackMap.pCur); \
+    acc._acc.packet[1] = pmadd(pRhs, pLhs, acc._acc.packet[1]); \
+    lhsPackMap.advance(4*1); \
+    rhsPackMap.advance(1);
+
+#define MICRO_4x1x1() \
+    pLhs = pload<LhsPacket>(lhsPackMap.pCur); \
+    pRhs = pset1<RhsPacket>(*rhsPackMap.pCur); \
+    acc._acc += pRhs*pLhs; \
+    lhsPackMap.advance(4*1); \
+    rhsPackMap.advance(1);
 
 template<int CPU, typename Scalar, typename ResScalar, typename DataMapper>
 struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 12, 1>
@@ -582,7 +612,58 @@ struct MicroKernel<0, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, 
 };
 
 template<int CPU, typename Index, typename LhsScalar, typename LhsPackMap, typename RhsScalar, typename RhsPackMap, typename AccScalar, typename ResScalar, typename Accumulator>
+struct MicroKernel<0, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, Accumulator, 12, __UNROLL__, 1>
+{
+  EIGEN_STRONG_INLINE void operator()(LhsPackMap& lhsPackMap,
+                                      RhsPackMap& rhsPackMap,
+                                      Index rowIdx, Index colIdx, Index depthIdx,
+                                      Accumulator& acc)
+  {
+    using LhsPacket = typename packet_traits<LhsScalar>::type;
+    using RhsPacket = typename packet_traits<RhsScalar>::type;
+
+    LhsPacket pLhs;
+    RhsPacket pRhs;
+
+    asm __volatile__("#BEGIN_NEON_MICROKERNEL_4x1x1\n\t");
+
+    MICRO_12x1x1();
+    MICRO_12x1x1();
+    MICRO_12x1x1();
+    MICRO_12x1x1();
+    MICRO_12x1x1();
+    MICRO_12x1x1();
+    MICRO_12x1x1();
+    MICRO_12x1x1();
+
+    asm __volatile__("#END_NEON_MICROKERNEL_4x1x1\n\t");
+  };
+};
+
+template<int CPU, typename Index, typename LhsScalar, typename LhsPackMap, typename RhsScalar, typename RhsPackMap, typename AccScalar, typename ResScalar, typename Accumulator>
 struct MicroKernel<0, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, Accumulator, 12, 1, 1>
+{
+  EIGEN_STRONG_INLINE void operator()(LhsPackMap& lhsPackMap,
+                                      RhsPackMap& rhsPackMap,
+                                      Index rowIdx, Index colIdx, Index depthIdx,
+                                      Accumulator& acc)
+  {
+    using LhsPacket = typename packet_traits<LhsScalar>::type;
+    using RhsPacket = typename packet_traits<RhsScalar>::type;
+
+    LhsPacket pLhs;
+    RhsPacket pRhs;
+
+    asm __volatile__("#BEGIN_NEON_MICROKERNEL_4x1x1\n\t");
+
+    MICRO_12x1x1();
+
+    asm __volatile__("#END_NEON_MICROKERNEL_4x1x1\n\t");
+  };
+};
+
+template<int CPU, typename Index, typename LhsScalar, typename LhsPackMap, typename RhsScalar, typename RhsPackMap, typename AccScalar, typename ResScalar, typename Accumulator>
+struct MicroKernel<0, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, Accumulator, 8, __UNROLL__, 1>
 {
   EIGEN_STRONG_INLINE void operator()(LhsPackMap& lhsPackMap,
                                       RhsPackMap& rhsPackMap,
@@ -594,19 +675,18 @@ struct MicroKernel<0, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, 
 
     asm __volatile__("#BEGIN_NEON_MICROKERNEL_4x1x1\n\t");
 
-    LhsPacket pLhs = pload<LhsPacket>(lhsPackMap.pCur);
-    RhsPacket pRhs = pset1<RhsPacket>(*rhsPackMap.pCur);
+    LhsPacket pLhs;
+    RhsPacket pRhs;
 
-    acc._acc.packet[0] = pmadd(pRhs, pLhs, acc._acc.packet[0]);
-    lhsPackMap.advance(4*1);
-    pLhs = pload<LhsPacket>(lhsPackMap.pCur);
-    acc._acc.packet[1] = pmadd(pRhs, pLhs, acc._acc.packet[1]);
-    lhsPackMap.advance(4*1);
-    pLhs = pload<LhsPacket>(lhsPackMap.pCur);
-    acc._acc.packet[2] = pmadd(pRhs, pLhs, acc._acc.packet[2]);
+    MICRO_8x1x1();
+    MICRO_8x1x1();
+    MICRO_8x1x1();
+    MICRO_8x1x1();
+    MICRO_8x1x1();
+    MICRO_8x1x1();
+    MICRO_8x1x1();
+    MICRO_8x1x1();
 
-    lhsPackMap.advance(4*1);
-    rhsPackMap.advance(1);
     asm __volatile__("#END_NEON_MICROKERNEL_4x1x1\n\t");
   };
 };
@@ -624,16 +704,40 @@ struct MicroKernel<0, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, 
 
     asm __volatile__("#BEGIN_NEON_MICROKERNEL_4x1x1\n\t");
 
-    LhsPacket pLhs = pload<LhsPacket>(lhsPackMap.pCur);
-    RhsPacket pRhs = pset1<RhsPacket>(*rhsPackMap.pCur);
+    LhsPacket pLhs;
+    RhsPacket pRhs;
 
-    acc._acc.packet[0] = pmadd(pRhs, pLhs, acc._acc.packet[0]);
-    lhsPackMap.advance(4*1);
-    pLhs = pload<LhsPacket>(lhsPackMap.pCur);
-    acc._acc.packet[1] = pmadd(pRhs, pLhs, acc._acc.packet[1]);
+    MICRO_8x1x1();
 
-    lhsPackMap.advance(4*1);
-    rhsPackMap.advance(1);
+    asm __volatile__("#END_NEON_MICROKERNEL_4x1x1\n\t");
+  };
+};
+
+template<int CPU, typename Index, typename LhsScalar, typename LhsPackMap, typename RhsScalar, typename RhsPackMap, typename AccScalar, typename ResScalar, typename Accumulator>
+struct MicroKernel<0, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, Accumulator, 4, __UNROLL__, 1>
+{
+  EIGEN_STRONG_INLINE void operator()(LhsPackMap& lhsPackMap,
+                                      RhsPackMap& rhsPackMap,
+                                      Index rowIdx, Index colIdx, Index depthIdx,
+                                      Accumulator& acc)
+  {
+    using LhsPacket = typename packet_traits<LhsScalar>::type;
+    using RhsPacket = typename packet_traits<RhsScalar>::type;
+
+    asm __volatile__("#BEGIN_NEON_MICROKERNEL_4x1x1\n\t");
+
+    LhsPacket pLhs;
+    RhsPacket pRhs;
+
+    MICRO_4x1x1();
+    MICRO_4x1x1();
+    MICRO_4x1x1();
+    MICRO_4x1x1();
+    MICRO_4x1x1();
+    MICRO_4x1x1();
+    MICRO_4x1x1();
+    MICRO_4x1x1();
+
     asm __volatile__("#END_NEON_MICROKERNEL_4x1x1\n\t");
   };
 };
@@ -651,13 +755,11 @@ struct MicroKernel<0, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, 
 
     asm __volatile__("#BEGIN_NEON_MICROKERNEL_4x1x1\n\t");
 
-    LhsPacket pLhs = pload<LhsPacket>(lhsPackMap.pCur);
-    RhsPacket pRhs = pset1<RhsPacket>(*rhsPackMap.pCur);
+    LhsPacket pLhs;
+    RhsPacket pRhs;
 
-    acc._acc += pRhs*pLhs;
+    MICRO_4x1x1();
 
-    lhsPackMap.advance(4*1);
-    rhsPackMap.advance(1);
     asm __volatile__("#END_NEON_MICROKERNEL_4x1x1\n\t");
   };
 };
