@@ -250,13 +250,14 @@ struct Accumulator
     }
   }
 
-  EIGEN_STRONG_INLINE void store(const DataMapper& dest, Index row, Index col)
+  template<typename ResPacket>
+  EIGEN_STRONG_INLINE void store(const DataMapper& dest, Index row, Index col, ResScalar alpha, const ResPacket& pAlpha)
   {
     for(auto i = 0; i < M; i++)
     {
       for(auto j = 0; j < N; j++)
       {
-        dest(row + i, col + j) += dt[i][j];
+        dest(row + i, col + j) += alpha*dt[i][j];
       }
     }
   }
@@ -337,8 +338,8 @@ struct DepthLoopStruct
     {
         mkt(lhsPackMap, rhsPackMap, rowIdx, colIdx, depthIdx, acc);
     }
-    acc.scale(alpha, pAlpha);
-    acc.store(res, rowIdx, colIdx);
+    //acc.scale(alpha, pAlpha);
+    acc.store(res, rowIdx, colIdx, alpha, pAlpha);
 
     depthLS(rowIdx, colIdx, depthIdx, res, rows, depth, cols, alpha, pAlpha, lhsPackMap, rhsPackMap);
   }
