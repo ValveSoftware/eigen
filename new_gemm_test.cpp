@@ -15,10 +15,11 @@ void set(MatrixXf& A, int m, int n, int id, int digits)
 int main(int argc, char* argv[])
 {
 #ifdef __DEBUG__
-    int m = 9, k = 9, n = 9, max = std::max(std::max(m,k),n);
+    int m = 32, k = 32, n = 32, max = std::max(std::max(m,k),n);
     MatrixXf A = MatrixXf::Zero(m, k);
     MatrixXf B = MatrixXf::Zero(k, n);
     MatrixXf C = MatrixXf::Zero(m, n);
+    MatrixXf D = MatrixXf::Zero(m, n);
 
     set(A, m, k, 1, static_cast<int>(std::log10(max)) + 1);
     set(B, k, n, 2, static_cast<int>(std::log10(max)) + 1);
@@ -40,17 +41,25 @@ int main(int argc, char* argv[])
             {
                 acc += A(i,kk)*B(kk,j);
             }
-            C(i,j) = acc;
-            //std::cout << acc << " ";
+            D(i,j) = acc;
+            if(std::sqrt(std::pow(D(i,j)-C(i,j),2)) > 1.0e-5)
+            {
+                std::cout << "Difference too big at " << i << " ," << j << " is " << C(i,j) << " should be " << D(i,j) << std::endl;
+            }
         }
-        //std::cout << std::endl;
     }
 
     std::cout << C << std::endl;
 #else
-    int sz = 128;
+    if(argc < 3)
+    {
+        std::cout << "Wrong number of arguments." << std::endl;
+        return -1;
+    }
+
+    int sz = std::atoi(argv[1]);
     int m = sz, k = sz, n = sz;
-    int RUNS = 500;
+    int RUNS = std::atoi(argv[2]);
     double time = 0;
 
     for(auto i = 0; i < RUNS; i++)

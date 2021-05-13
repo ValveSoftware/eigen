@@ -18,8 +18,12 @@ namespace Eigen {
 
 namespace internal {
 
+#ifndef __UNROLL__
+#define __UNROLL__ 8
+#endif
+
 template<int Architecture, int CPU, typename LhsScalar, typename RhsScalar>
-constexpr int SHAPES_COUNT = 8;
+constexpr int SHAPES_COUNT = 11;
 
 constexpr int SHAPES_DIMENSION = 6;
 constexpr int SHAPES_LHS_DIMENSION = 0;
@@ -43,14 +47,17 @@ constexpr int PACK_SHAPES_END = -1;
 // lhs_progress x depth_progress x rhs_progress (depth_progress > 1 matrix ops) x pointer to next rhs_progress on the shapes map
 template<int Architecture, int CPU, typename LhsScalar, typename RhsScalar>
 constexpr int SHAPES[SHAPES_COUNT<Architecture, CPU, LhsScalar,RhsScalar>][SHAPES_DIMENSION] = 
-  { /* 0 */{                            1,1,1,SHAPES_POINTER_END, SHAPES_POINTER_END, SHAPES_POINTER_END},
-    /* 1 */{1*packet_traits<RhsScalar>::size,1,1,                 0,                  0, SHAPES_POINTER_END},
-    /* 2 */{2*packet_traits<RhsScalar>::size,1,1,                 0,                  1, SHAPES_POINTER_END},
-    /* 3 */{3*packet_traits<RhsScalar>::size,1,1,                 0,                  2, SHAPES_POINTER_END},
-    /* 4 */{                               1,1,4,                 3, SHAPES_POINTER_END, SHAPES_POINTER_END},
-    /* 5 */{1*packet_traits<RhsScalar>::size,1,4,                 3,                  4, SHAPES_POINTER_END},
-    /* 6 */{2*packet_traits<RhsScalar>::size,1,4,                 3,                  5, SHAPES_POINTER_END},
-    /* 7 */{3*packet_traits<RhsScalar>::size,1,4,                 3,                  6, SHAPES_POINTER_END}};
+  { /* 00 */{                               1,         1,1,SHAPES_POINTER_END, SHAPES_POINTER_END, SHAPES_POINTER_END},
+    /* 01 */{1*packet_traits<RhsScalar>::size,         1,1,                 0,                  0, SHAPES_POINTER_END},
+    /* 02 */{2*packet_traits<RhsScalar>::size,         1,1,                 0,                  1, SHAPES_POINTER_END},
+    /* 03 */{3*packet_traits<RhsScalar>::size,         1,1,                 0,                  2, SHAPES_POINTER_END},
+    /* 04 */{                               1,         1,4,                 3, SHAPES_POINTER_END, SHAPES_POINTER_END},
+    /* 05 */{1*packet_traits<RhsScalar>::size,         1,4,                 3,                  4, SHAPES_POINTER_END},
+    /* 06 */{1*packet_traits<RhsScalar>::size,__UNROLL__,4,                 3,                  4, SHAPES_POINTER_END},
+    /* 07 */{2*packet_traits<RhsScalar>::size,         1,4,                 3,                  6, SHAPES_POINTER_END},
+    /* 08 */{2*packet_traits<RhsScalar>::size,__UNROLL__,4,                 3,                  6,                  7},
+    /* 09 */{3*packet_traits<RhsScalar>::size,         1,4,                 3,                  8, SHAPES_POINTER_END},
+    /* 10 */{3*packet_traits<RhsScalar>::size,__UNROLL__,4,                 3,                  8,                  9}};
 
 // d1progress x d2progress
 template<int Architecture, int CPU, typename Scalar, bool isLhs>
@@ -225,6 +232,8 @@ struct Accumulator
     }
   }
 
+  EIGEN_STRONG_INLINE void prefetch(const DataMapper&, Index, Index) {}
+
   template<typename ResPacket>
   EIGEN_STRONG_INLINE void scale(ResScalar alpha, const ResPacket& pAlpha)
   {
@@ -305,11 +314,21 @@ struct DepthLoopStruct
     constexpr auto lhsProgress      = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[LHS_SHAPE_IDX][SHAPES_LHS_DIMENSION];
     constexpr auto depthProgress    = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[IDX][SHAPES_DEP_DIMENSION];
 
+#ifdef __ENABLE_PREFETCH__
+    prefetch(lhsPackMap.pCur);
+    prefetch(rhsPackMap.pCur);
+#endif
+
     typedef Accumulator<Architecture, CPU, AccScalar, ResScalar, DataMapper, lhsProgress, rhsProgress> AccumulatorType;
 
     MicroKernel<Architecture, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, AccumulatorType, lhsProgress, depthProgress, rhsProgress> mkt;
     AccumulatorType acc;
     acc.zero();
+
+#ifdef __ENABLE_PREFETCH__
+    acc.prefetch(res, rowIdx, colIdx);
+#endif
+
     for(; depthIdx + depthProgress <= depth; depthIdx+=depthProgress)
     {
         mkt(lhsPackMap, rhsPackMap, rowIdx, colIdx, depthIdx, acc);

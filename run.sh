@@ -1,32 +1,33 @@
 #!/bin/bash
-echo 'Running with master'
-T_OLD1=$(./gto)
-echo $T_OLD1
-echo 'Running current'
-T_NEW1=$(./gt)
-echo $T_NEW1
-echo 'Running with master'
-T_OLD2=$(./gto)
-echo $T_OLD2
-echo 'Running with master'
-T_OLD3=$(./gto)
-echo $T_OLD3
-echo 'Running current'
-T_NEW2=$(./gt)
-echo $T_NEW2
-echo 'Running with master'
-T_OLD4=$(./gto)
-echo $T_OLD4
-echo 'Running current'
-T_NEW3=$(./gt)
-echo $T_NEW3
-echo 'Running current'
-T_NEW4=$(./gt)
-echo $T_NEW4
-echo 'Running with master'
-T_OLD5=$(./gto)
-echo $T_OLD5
-echo 'Running current'
-T_NEW5=$(./gt)
-echo $T_NEW5
-echo "($T_OLD1 + $T_OLD2 + $T_OLD3 + $T_OLD4 + $T_OLD5) / ($T_NEW1 + $T_NEW2 + $T_NEW3 + $T_NEW4 + $T_NEW5)" | bc -l
+function run() {
+    OLD=0
+    NEW=0
+    EXECS=$1
+    SIZE=$2
+    RUNS=$3
+    for ((i = 0; i < $EXECS; i++)) do
+        SEL=$(A=$(shuf -i 0-10 -n 1); echo $(($A % 2)))
+        if [ $SEL -eq 0 ]; then
+            T_OLD=$(./gto $SIZE $RUNS)
+            #echo "Master: $T_OLD"
+            OLD=$OLD+$T_OLD
+            T_NEW=$(./gt $SIZE $RUNS)
+            #echo "Current: $T_NEW"
+        else
+            T_NEW=$(./gt $SIZE $RUNS)
+            #echo "Current: $T_NEW"
+            T_OLD=$(./gto $SIZE $RUNS)
+            #echo "Master: $T_OLD"
+            OLD=$OLD+$T_OLD
+        fi
+        NEW=$NEW+$T_NEW
+    done
+    SPEED=$(echo "($OLD) / ($NEW)" | bc -l)
+    echo "$SIZE -> $SPEED"
+}
+
+run $1 16 500
+run $1 32 500
+run $1 64 500
+run $1 128 100
+run $1 256 100
