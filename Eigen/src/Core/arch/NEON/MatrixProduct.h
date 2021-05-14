@@ -218,7 +218,12 @@ struct PackMap
   EIGEN_STRONG_INLINE void updateBase() { pBase = pCur; }
   EIGEN_STRONG_INLINE void moveTo(Index p1) { pCur = pBase + pmc.getPosition(p1, d2Size); }
   EIGEN_STRONG_INLINE void advance(Index progress) { pCur += progress; }
-  EIGEN_STRONG_INLINE void prefetch(Index amnt) { internal::prefetch(pCur + amnt); }
+  EIGEN_STRONG_INLINE void prefetch(Index amnt)
+  {
+#ifdef __ENABLE_PREFETCH__
+    internal::prefetch(pCur + amnt);
+#endif
+  }
 };
 
 template<int Architecture, int CPU, typename Scalar, typename ResScalar, typename DataMapper, int M, int N>
@@ -327,11 +332,11 @@ struct DepthLoopStruct
 
     acc.zero();
 
-#ifdef __ENABLE_PREFETCH__
-    lhsPackMap.prefetch(0);
     acc.prefetch(res, rowIdx, colIdx);
-    rhsPackMap.prefetch(0);
-#endif
+
+    lhsPackMap.prefetch(0);
+    if(rhsProgress > 1)
+      rhsPackMap.prefetch(0);
 
     for(; depthIdx + depthProgress <= depth; depthIdx+=depthProgress)
     {

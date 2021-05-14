@@ -22,7 +22,7 @@ namespace internal {
   pLhs = pload<LhsPacket>(lhsPackMap.pCur +  (0 + 3*K)*4); \
   pLhs2 = pload<LhsPacket>(lhsPackMap.pCur + (1 + 3*K)*4); \
   pLhs3 = pload<LhsPacket>(lhsPackMap.pCur + (2 + 3*K)*4); \
-  pRhs = pload<RhsPacket>(lhsPackMap.pCur + (0 + 4*K)*1);\
+  pRhs = pload<RhsPacket>(rhsPackMap.pCur + (0 + 4*K)*1);\
   pRhs0 = pset1<RhsPacket>(pRhs[0]); \
   acc._acc1.packet[0] += pLhs*pRhs0; \
   acc._acc2.packet[0] += pLhs2*pRhs0; \
@@ -74,18 +74,14 @@ namespace internal {
     lhsPackMap.advance(4*1); \
     rhsPackMap.advance(1*4);
 
-#define MICRO_12x1x1() \
-    pLhs = pload<LhsPacket>(lhsPackMap.pCur); \
-    pRhs = pset1<RhsPacket>(*rhsPackMap.pCur); \
-    acc._acc.packet[0] = pmadd(pRhs, pLhs, acc._acc.packet[0]); \
-    lhsPackMap.advance(4*1); \
-    pLhs = pload<LhsPacket>(lhsPackMap.pCur); \
-    acc._acc.packet[1] = pmadd(pRhs, pLhs, acc._acc.packet[1]); \
-    lhsPackMap.advance(4*1); \
-    pLhs = pload<LhsPacket>(lhsPackMap.pCur); \
-    acc._acc.packet[2] = pmadd(pRhs, pLhs, acc._acc.packet[2]); \
-    lhsPackMap.advance(4*1); \
-    rhsPackMap.advance(1);
+#define MICRO_12x1x1(K) \
+  pLhs = pload<LhsPacket>(lhsPackMap.pCur +  (0 + 3*K)*4); \
+  pLhs2 = pload<LhsPacket>(lhsPackMap.pCur + (1 + 3*K)*4); \
+  pLhs3 = pload<LhsPacket>(lhsPackMap.pCur + (2 + 3*K)*4); \
+  pRhs = pset1<RhsPacket>(*(rhsPackMap.pCur + K));\
+  acc._acc.packet[0] += pLhs*pRhs; \
+  acc._acc.packet[1] += pLhs2*pRhs; \
+  acc._acc.packet[2] += pLhs3*pRhs;
 
 #define MICRO_8x1x1() \
     pLhs = pload<LhsPacket>(lhsPackMap.pCur); \
@@ -101,7 +97,7 @@ namespace internal {
     pLhs = pload<LhsPacket>(lhsPackMap.pCur); \
     pRhs = pset1<RhsPacket>(*rhsPackMap.pCur); \
     acc._acc += pRhs*pLhs; \
-    lhsPackMap.advance(4*1); \
+    lhsPackMap.advance(4); \
     rhsPackMap.advance(1);
 
 template<int CPU, typename Scalar, typename ResScalar, typename DataMapper>
@@ -133,6 +129,7 @@ struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 12, 1>
   template<typename ResPacket_>
   EIGEN_STRONG_INLINE void store(const DataMapper& dest, Index row, Index col, ResScalar alpha, const ResPacket_& pAlpha)
   {
+    asm __volatile__("#BEGIN_STORE_12x1\n\t");
     PacketBlock<ResPacket, 1> block;
     block.packet[0] = dest.template loadPacket<ResPacket>(row + 0, col) + pAlpha*_acc.packet[0];
     dest.template storePacketBlock<AccPacket, 1>(row + 0, col, block);
@@ -140,6 +137,7 @@ struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 12, 1>
     dest.template storePacketBlock<AccPacket, 1>(row + 4, col, block);
     block.packet[0] = dest.template loadPacket<ResPacket>(row + 8, col) + pAlpha*_acc.packet[2];
     dest.template storePacketBlock<AccPacket, 1>(row + 8, col, block);
+    asm __volatile__("#END_STORE_12x1\n\t");
   }
 };
 
@@ -246,6 +244,11 @@ struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 4, 4>
   using AccPacket = typename packet_traits<Scalar>::type;
   using ResPacket = typename packet_traits<ResScalar>::type;
 
+  LinearMapper r0{nullptr};
+  LinearMapper r1{nullptr};
+  LinearMapper r2{nullptr};
+  LinearMapper r3{nullptr};
+
   PacketBlock<AccPacket, 4> _acc;
 
   EIGEN_STRONG_INLINE void zero()
@@ -258,10 +261,19 @@ struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 4, 4>
 
   EIGEN_STRONG_INLINE void prefetch(const DataMapper& dest, Index row, Index col)
   {
-    dest.getLinearMapper(row, col + 0).prefetch(0);
-    dest.getLinearMapper(row, col + 1).prefetch(0);
-    dest.getLinearMapper(row, col + 2).prefetch(0);
-    dest.getLinearMapper(row, col + 3).prefetch(0);
+    asm __volatile__("#BEGIN_PREFETCH_4x4\n\t");
+    r0 = dest.getLinearMapper(row + 0, col + 0);
+    r1 = dest.getLinearMapper(row + 0, col + 1);
+    r2 = dest.getLinearMapper(row + 0, col + 2);
+    r3 = dest.getLinearMapper(row + 0, col + 3);
+
+#ifdef __ENABLE_PREFETCH__
+    r0.prefetch(0);
+    r1.prefetch(0);
+    r2.prefetch(0);
+    r3.prefetch(0);
+#endif
+    asm __volatile__("#END_PREFETCH_4x4\n\t");
   }
 
   template<typename ResPacket_>
@@ -276,13 +288,8 @@ struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 4, 4>
   template<typename ResPacket_>
   EIGEN_STRONG_INLINE void store(const DataMapper& dest, Index row, Index col, ResScalar alpha, const ResPacket_& pAlpha)
   {
+    asm __volatile__("#BEGIN_STORE_4x4\n\t");
     constexpr auto PacketSize = unpacket_traits<ResPacket>::size;
-
-    LinearMapper r0 = dest.getLinearMapper(row, col + 0);
-    LinearMapper r1 = dest.getLinearMapper(row, col + 1);
-    LinearMapper r2 = dest.getLinearMapper(row, col + 2);
-    LinearMapper r3 = dest.getLinearMapper(row, col + 3);
-
     ResPacket R00 = r0.template loadPacket<ResPacket>(0*PacketSize);
     ResPacket R01 = r1.template loadPacket<ResPacket>(0*PacketSize);
     ResPacket R02 = r2.template loadPacket<ResPacket>(0*PacketSize);
@@ -297,11 +304,7 @@ struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 4, 4>
     r1.storePacket(0*PacketSize, R01);
     r2.storePacket(0*PacketSize, R02);
     r3.storePacket(0*PacketSize, R03);
-
-    r0.storePacket(0*PacketSize, r0.template loadPacket<ResPacket>(0*PacketSize) + pAlpha*_acc.packet[0]);
-    r1.storePacket(0*PacketSize, r1.template loadPacket<ResPacket>(0*PacketSize) + pAlpha*_acc.packet[1]);
-    r2.storePacket(0*PacketSize, r2.template loadPacket<ResPacket>(0*PacketSize) + pAlpha*_acc.packet[2]);
-    r3.storePacket(0*PacketSize, r3.template loadPacket<ResPacket>(0*PacketSize) + pAlpha*_acc.packet[3]);
+    asm __volatile__("#END_STORE_4x4\n\t");
   }
 };
 
@@ -311,6 +314,11 @@ struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 8, 4>
   using LinearMapper = typename DataMapper::LinearMapper;
   using AccPacket = typename packet_traits<Scalar>::type;
   using ResPacket = typename packet_traits<ResScalar>::type;
+
+  LinearMapper r0{nullptr};
+  LinearMapper r1{nullptr};
+  LinearMapper r2{nullptr};
+  LinearMapper r3{nullptr};
 
   PacketBlock<AccPacket, 4> _acc1;
   PacketBlock<AccPacket, 4> _acc2;
@@ -331,10 +339,17 @@ struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 8, 4>
   EIGEN_STRONG_INLINE void prefetch(const DataMapper& dest, Index row, Index col)
   {
     constexpr Index offset = 32 / sizeof(ResScalar);
-    dest.getLinearMapper(row, col + 0).prefetch(offset);
-    dest.getLinearMapper(row, col + 1).prefetch(offset);
-    dest.getLinearMapper(row, col + 2).prefetch(offset);
-    dest.getLinearMapper(row, col + 3).prefetch(offset);
+    r0 = dest.getLinearMapper(row + 0, col + 0);
+    r1 = dest.getLinearMapper(row + 0, col + 1);
+    r2 = dest.getLinearMapper(row + 0, col + 2);
+    r3 = dest.getLinearMapper(row + 0, col + 3);
+
+#ifdef __ENABLE_PREFETCH__
+    r0.prefetch(offset);
+    r1.prefetch(offset);
+    r2.prefetch(offset);
+    r3.prefetch(offset);
+#endif
   }
 
   template<typename ResPacket_>
@@ -355,11 +370,6 @@ struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 8, 4>
   EIGEN_STRONG_INLINE void store(const DataMapper& dest, Index row, Index col, ResScalar alpha, const ResPacket_& pAlpha)
   {
     constexpr auto PacketSize = unpacket_traits<ResPacket>::size;
-
-    LinearMapper r0 = dest.getLinearMapper(row, col + 0);
-    LinearMapper r1 = dest.getLinearMapper(row, col + 1);
-    LinearMapper r2 = dest.getLinearMapper(row, col + 2);
-    LinearMapper r3 = dest.getLinearMapper(row, col + 3);
 
     ResPacket R00 = r0.template loadPacket<ResPacket>(0*PacketSize);
     ResPacket R01 = r1.template loadPacket<ResPacket>(0*PacketSize);
@@ -400,6 +410,11 @@ struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 12, 4>
   using AccPacket = typename packet_traits<Scalar>::type;
   using ResPacket = typename packet_traits<ResScalar>::type;
 
+  LinearMapper r0{nullptr};
+  LinearMapper r1{nullptr};
+  LinearMapper r2{nullptr};
+  LinearMapper r3{nullptr};
+
   PacketBlock<AccPacket, 4> _acc1;
   PacketBlock<AccPacket, 4> _acc2;
   PacketBlock<AccPacket, 4> _acc3;
@@ -424,10 +439,19 @@ struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 12, 4>
 
   EIGEN_STRONG_INLINE void prefetch(const DataMapper& dest, Index row, Index col)
   {
-    dest.getLinearMapper(row + 0, col + 0).prefetch(0);
-    dest.getLinearMapper(row + 0, col + 1).prefetch(0);
-    dest.getLinearMapper(row + 0, col + 2).prefetch(0);
-    dest.getLinearMapper(row + 0, col + 3).prefetch(0);
+    asm __volatile__("#BEGIN_PREFETCH_12x4\n\t");
+    r0 = dest.getLinearMapper(row + 0, col + 0);
+    r1 = dest.getLinearMapper(row + 0, col + 1);
+    r2 = dest.getLinearMapper(row + 0, col + 2);
+    r3 = dest.getLinearMapper(row + 0, col + 3);
+
+#ifdef __ENABLE_PREFETCH__
+    r0.prefetch(0);
+    r1.prefetch(0);
+    r2.prefetch(0);
+    r3.prefetch(0);
+#endif
+    asm __volatile__("#END_PREFETCH_12x4\n\t");
   }
 
   template<typename ResPacket_>
@@ -454,10 +478,7 @@ struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 12, 4>
   {
     constexpr auto PacketSize = unpacket_traits<ResPacket>::size;
 
-    LinearMapper r0 = dest.getLinearMapper(row, col + 0);
-    LinearMapper r1 = dest.getLinearMapper(row, col + 1);
-    LinearMapper r2 = dest.getLinearMapper(row, col + 2);
-    LinearMapper r3 = dest.getLinearMapper(row, col + 3);
+    asm __volatile__("#BEGIN_STORE_12x4\n\t");
 
     ResPacket R00 = r0.template loadPacket<ResPacket>(0*PacketSize);
     ResPacket R01 = r1.template loadPacket<ResPacket>(0*PacketSize);
@@ -503,6 +524,8 @@ struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 12, 4>
     r1.storePacket(2*PacketSize, R21);
     r2.storePacket(2*PacketSize, R22);
     r3.storePacket(2*PacketSize, R23);
+
+    asm __volatile__("#END_STORE_12x4\n\t");
   }
 };
 
@@ -698,21 +721,23 @@ struct MicroKernel<0, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, 
     using LhsPacket = typename packet_traits<LhsScalar>::type;
     using RhsPacket = typename packet_traits<RhsScalar>::type;
 
-    LhsPacket pLhs;
+    LhsPacket pLhs, pLhs2, pLhs3;
     RhsPacket pRhs;
 
-    asm __volatile__("#BEGIN_NEON_MICROKERNEL_4x1x1\n\t");
+    asm __volatile__("#BEGIN_NEON_MICROKERNEL_12x8x1\n\t");
 
-    MICRO_12x1x1();
-    MICRO_12x1x1();
-    MICRO_12x1x1();
-    MICRO_12x1x1();
-    MICRO_12x1x1();
-    MICRO_12x1x1();
-    MICRO_12x1x1();
-    MICRO_12x1x1();
+    MICRO_12x1x1(0);
+    MICRO_12x1x1(1);
+    MICRO_12x1x1(2);
+    MICRO_12x1x1(3);
+    MICRO_12x1x1(4);
+    MICRO_12x1x1(5);
+    MICRO_12x1x1(6);
+    MICRO_12x1x1(7);
+    lhsPackMap.advance(12*__UNROLL__);
+    rhsPackMap.advance(1*__UNROLL__);
 
-    asm __volatile__("#END_NEON_MICROKERNEL_4x1x1\n\t");
+    asm __volatile__("#END_NEON_MICROKERNEL_12x8x1\n\t");
   };
 };
 
@@ -727,14 +752,16 @@ struct MicroKernel<0, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, 
     using LhsPacket = typename packet_traits<LhsScalar>::type;
     using RhsPacket = typename packet_traits<RhsScalar>::type;
 
-    LhsPacket pLhs;
+    LhsPacket pLhs, pLhs2, pLhs3;
     RhsPacket pRhs;
 
-    asm __volatile__("#BEGIN_NEON_MICROKERNEL_4x1x1\n\t");
+    asm __volatile__("#BEGIN_NEON_MICROKERNEL_12x1x1\n\t");
 
-    MICRO_12x1x1();
+    MICRO_12x1x1(0);
+    lhsPackMap.advance(12);
+    rhsPackMap.advance(1);
 
-    asm __volatile__("#END_NEON_MICROKERNEL_4x1x1\n\t");
+    asm __volatile__("#END_NEON_MICROKERNEL_12x1x1\n\t");
   };
 };
 
