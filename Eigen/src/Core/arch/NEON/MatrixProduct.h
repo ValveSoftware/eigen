@@ -217,7 +217,8 @@ struct PackMap
   EIGEN_STRONG_INLINE void resetCur() { pCur = pBase; }
   EIGEN_STRONG_INLINE void updateBase() { pBase = pCur; }
   EIGEN_STRONG_INLINE void moveTo(Index p1) { pCur = pBase + pmc.getPosition(p1, d2Size); }
-  EIGEN_STRONG_INLINE void advance(int progress) { pCur += progress; }
+  EIGEN_STRONG_INLINE void advance(Index progress) { pCur += progress; }
+  EIGEN_STRONG_INLINE void prefetch(Index amnt) { internal::prefetch(pCur + amnt); }
 };
 
 template<int Architecture, int CPU, typename Scalar, typename ResScalar, typename DataMapper, int M, int N>
@@ -319,26 +320,23 @@ struct DepthLoopStruct
     constexpr auto lhsProgress      = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[LHS_SHAPE_IDX][SHAPES_LHS_DIMENSION];
     constexpr auto depthProgress    = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[IDX][SHAPES_DEP_DIMENSION];
 
-#ifdef __ENABLE_PREFETCH__
-    prefetch(lhsPackMap.pCur);
-    prefetch(rhsPackMap.pCur);
-#endif
-
     typedef Accumulator<Architecture, CPU, AccScalar, ResScalar, DataMapper, lhsProgress, rhsProgress> AccumulatorType;
 
     MicroKernel<Architecture, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, AccumulatorType, lhsProgress, depthProgress, rhsProgress> mkt;
     AccumulatorType acc;
+
     acc.zero();
 
 #ifdef __ENABLE_PREFETCH__
+    lhsPackMap.prefetch(0);
     acc.prefetch(res, rowIdx, colIdx);
+    rhsPackMap.prefetch(0);
 #endif
 
     for(; depthIdx + depthProgress <= depth; depthIdx+=depthProgress)
     {
         mkt(lhsPackMap, rhsPackMap, rowIdx, colIdx, depthIdx, acc);
     }
-    //acc.scale(alpha, pAlpha);
     acc.store(res, rowIdx, colIdx, alpha, pAlpha);
 
     depthLS(rowIdx, colIdx, depthIdx, res, rows, depth, cols, alpha, pAlpha, lhsPackMap, rhsPackMap);

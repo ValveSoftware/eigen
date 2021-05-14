@@ -51,23 +51,19 @@ int main(int argc, char* argv[])
 
     std::cout << D << std::endl;
 #else
-    if(argc < 3)
+    if(argc < 5)
     {
         std::cout << "Wrong number of arguments." << std::endl;
         return -1;
     }
-
-    int sz = std::atoi(argv[1]);
-    int m = sz, k = sz, n = sz;
-    int RUNS = std::atoi(argv[2]);
+    int m = std::atoi(argv[1]), k = std::atoi(argv[2]), n = std::atoi(argv[3]);
+    int RUNS = std::atoi(argv[4]);
     double time = 0;
 
+    MatrixXf A = MatrixXf::Random(m,k);
+    MatrixXf B = MatrixXf::Random(k,n);
     for(auto i = 0; i < RUNS; i++)
     {
-        MatrixXf A = MatrixXf::Random(m,k);
-        MatrixXf B = MatrixXf::Random(k,n);
-        //set(A,m, k, 1);
-        //set(B,k, n, 2);
         MatrixXf C = MatrixXf::Zero(m, n);
 
         std::clock_t start,end;

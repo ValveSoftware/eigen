@@ -9,13 +9,13 @@ function run() {
     for ((i = 0; i < $EXECS; i++)) do
         SEL=$(A=$(shuf -i 0-10 -n 1); echo $(($A % 2)))
         if [ $SEL -eq 0 ]; then
-            T_OLD=$(./gto $SIZE $RUNS)
-            T_NEW=$(./gt $SIZE $RUNS)
-            T_NEWP=$(./gtp $SIZE $RUNS)
+            T_OLD=$(./gto $SIZE $SIZE $SIZE $RUNS)
+            T_NEW=$(./gt $SIZE $SIZE $SIZE $RUNS)
+            T_NEWP=$(./gtp $SIZE $SIZE $SIZE $RUNS)
         else
-            T_NEW=$(./gt $SIZE $RUNS)
-            T_NEWP=$(./gtp $SIZE $RUNS)
-            T_OLD=$(./gto $SIZE $RUNS)
+            T_NEW=$(./gt $SIZE $SIZE $SIZE $RUNS)
+            T_NEWP=$(./gtp $SIZE $SIZE $SIZE $RUNS)
+            T_OLD=$(./gto $SIZE $SIZE $SIZE $RUNS)
         fi
         NEW=$NEW+$T_NEW
         OLD=$OLD+$T_OLD
