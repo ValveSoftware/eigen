@@ -423,20 +423,50 @@ struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 12, 4>
     LinearMapper r2 = dest.getLinearMapper(row, col + 2);
     LinearMapper r3 = dest.getLinearMapper(row, col + 3);
 
-    r0.storePacket(0*PacketSize, r0.template loadPacket<ResPacket>(0*PacketSize) + pAlpha*_acc1.packet[0]);
-    r1.storePacket(0*PacketSize, r1.template loadPacket<ResPacket>(0*PacketSize) + pAlpha*_acc1.packet[1]);
-    r2.storePacket(0*PacketSize, r2.template loadPacket<ResPacket>(0*PacketSize) + pAlpha*_acc1.packet[2]);
-    r3.storePacket(0*PacketSize, r3.template loadPacket<ResPacket>(0*PacketSize) + pAlpha*_acc1.packet[3]);
+    ResPacket R00 = r0.template loadPacket<ResPacket>(0*PacketSize);
+    ResPacket R01 = r1.template loadPacket<ResPacket>(0*PacketSize);
+    ResPacket R02 = r2.template loadPacket<ResPacket>(0*PacketSize);
+    ResPacket R03 = r3.template loadPacket<ResPacket>(0*PacketSize);
 
-    r0.storePacket(1*PacketSize, r0.template loadPacket<ResPacket>(1*PacketSize) + pAlpha*_acc2.packet[0]);
-    r1.storePacket(1*PacketSize, r1.template loadPacket<ResPacket>(1*PacketSize) + pAlpha*_acc2.packet[1]);
-    r2.storePacket(1*PacketSize, r2.template loadPacket<ResPacket>(1*PacketSize) + pAlpha*_acc2.packet[2]);
-    r3.storePacket(1*PacketSize, r3.template loadPacket<ResPacket>(1*PacketSize) + pAlpha*_acc2.packet[3]);
+    ResPacket R10 = r0.template loadPacket<ResPacket>(1*PacketSize);
+    ResPacket R11 = r1.template loadPacket<ResPacket>(1*PacketSize);
+    ResPacket R12 = r2.template loadPacket<ResPacket>(1*PacketSize);
+    ResPacket R13 = r3.template loadPacket<ResPacket>(1*PacketSize);
+    
+    ResPacket R20 = r0.template loadPacket<ResPacket>(2*PacketSize);
+    ResPacket R21 = r1.template loadPacket<ResPacket>(2*PacketSize);
+    ResPacket R22 = r2.template loadPacket<ResPacket>(2*PacketSize);
+    ResPacket R23 = r3.template loadPacket<ResPacket>(2*PacketSize);
 
-    r0.storePacket(2*PacketSize, r0.template loadPacket<ResPacket>(2*PacketSize) + pAlpha*_acc3.packet[0]);
-    r1.storePacket(2*PacketSize, r1.template loadPacket<ResPacket>(2*PacketSize) + pAlpha*_acc3.packet[1]);
-    r2.storePacket(2*PacketSize, r2.template loadPacket<ResPacket>(2*PacketSize) + pAlpha*_acc3.packet[2]);
-    r3.storePacket(2*PacketSize, r3.template loadPacket<ResPacket>(2*PacketSize) + pAlpha*_acc3.packet[3]);
+    R00 += pAlpha*_acc1.packet[0];
+    R01 += pAlpha*_acc1.packet[1];
+    R02 += pAlpha*_acc1.packet[2];
+    R03 += pAlpha*_acc1.packet[3];
+
+    R10 += pAlpha*_acc2.packet[0];
+    R11 += pAlpha*_acc2.packet[1];
+    R12 += pAlpha*_acc2.packet[2];
+    R13 += pAlpha*_acc2.packet[3];
+
+    R20 += pAlpha*_acc3.packet[0];
+    R21 += pAlpha*_acc3.packet[1];
+    R22 += pAlpha*_acc3.packet[2];
+    R23 += pAlpha*_acc3.packet[3];
+
+    r0.storePacket(0*PacketSize, R00);
+    r1.storePacket(0*PacketSize, R01);
+    r2.storePacket(0*PacketSize, R02);
+    r3.storePacket(0*PacketSize, R03);
+
+    r0.storePacket(1*PacketSize, R10);
+    r1.storePacket(1*PacketSize, R11);
+    r2.storePacket(1*PacketSize, R12);
+    r3.storePacket(1*PacketSize, R13);
+
+    r0.storePacket(2*PacketSize, R20);
+    r1.storePacket(2*PacketSize, R21);
+    r2.storePacket(2*PacketSize, R22);
+    r3.storePacket(2*PacketSize, R23);
   }
 };
 
