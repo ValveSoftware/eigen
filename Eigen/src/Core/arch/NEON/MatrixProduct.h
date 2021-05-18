@@ -23,7 +23,7 @@ namespace internal {
 #endif
 
 template<int Architecture, int CPU, typename LhsScalar, typename RhsScalar>
-constexpr int SHAPES_COUNT = 14;
+constexpr int SHAPES_COUNT = 16;
 
 constexpr int SHAPES_DIMENSION = 6;
 constexpr int SHAPES_LHS_DIMENSION = 0;
@@ -44,23 +44,35 @@ constexpr int PACK_SHAPES_DIMENSION = 3;
 constexpr int PACK_SHAPES_POINTER = 2;
 constexpr int PACK_SHAPES_END = -1;
 
+template<typename Scalar>
+struct PacketMultiples
+{
+  enum
+  {
+    half = unpacket_traits<typename packet_traits<Scalar>::half>::size,
+    quarter = unpacket_traits<typename packet_traits<Scalar>::half>::size // Is this used?
+  };
+};
+
 // lhs_progress x depth_progress x rhs_progress (depth_progress > 1 matrix ops) x pointer to next rhs_progress on the shapes map
 template<int Architecture, int CPU, typename LhsScalar, typename RhsScalar>
 constexpr int SHAPES[SHAPES_COUNT<Architecture, CPU, LhsScalar,RhsScalar>][SHAPES_DIMENSION] = 
   { /* 00 */{                               1,         1,1,SHAPES_POINTER_END, SHAPES_POINTER_END, SHAPES_POINTER_END},
-    /* 01 */{1*packet_traits<RhsScalar>::size,         1,1,                 0,                  0, SHAPES_POINTER_END},
-    /* 02 */{1*packet_traits<RhsScalar>::size,__UNROLL__,1,                 0,                  0,                  1},
-    /* 03 */{2*packet_traits<RhsScalar>::size,         1,1,                 0,                  2, SHAPES_POINTER_END},
-    /* 04 */{2*packet_traits<RhsScalar>::size,__UNROLL__,1,                 0,                  2,                  3},
-    /* 05 */{3*packet_traits<RhsScalar>::size,         1,1,                 0,                  4, SHAPES_POINTER_END},
-    /* 06 */{3*packet_traits<RhsScalar>::size,__UNROLL__,1,                 0,                  4,                  5},
-    /* 07 */{                               1,         1,4,                 6, SHAPES_POINTER_END, SHAPES_POINTER_END},
-    /* 08 */{1*packet_traits<RhsScalar>::size,         1,4,                 6,                  7, SHAPES_POINTER_END},
-    /* 09 */{1*packet_traits<RhsScalar>::size,__UNROLL__,4,                 6,                  7,                  8},
-    /* 10 */{2*packet_traits<RhsScalar>::size,         1,4,                 6,                  9, SHAPES_POINTER_END},
-    /* 11 */{2*packet_traits<RhsScalar>::size,__UNROLL__,4,                 6,                  9,                 10},
-    /* 12 */{3*packet_traits<RhsScalar>::size,         1,4,                 6,                 11, SHAPES_POINTER_END},
-    /* 13 */{3*packet_traits<RhsScalar>::size,__UNROLL__,4,                 6,                 11,                 12}};
+    /* 01 */{PacketMultiples<RhsScalar>::half,         1,1,                 0,                  0, SHAPES_POINTER_END},
+    /* 02 */{1*packet_traits<RhsScalar>::size,         1,1,                 0,                  1, SHAPES_POINTER_END},
+    /* 03 */{1*packet_traits<RhsScalar>::size,__UNROLL__,1,                 0,                  1,                  2},
+    /* 04 */{2*packet_traits<RhsScalar>::size,         1,1,                 0,                  3, SHAPES_POINTER_END},
+    /* 05 */{2*packet_traits<RhsScalar>::size,__UNROLL__,1,                 0,                  3,                  4},
+    /* 06 */{3*packet_traits<RhsScalar>::size,         1,1,                 0,                  5, SHAPES_POINTER_END},
+    /* 07 */{3*packet_traits<RhsScalar>::size,__UNROLL__,1,                 0,                  5,                  6},
+    /* 08 */{                               1,         1,4,                 7, SHAPES_POINTER_END, SHAPES_POINTER_END},
+    /* 09 */{PacketMultiples<RhsScalar>::half,         1,4,                 7,                  8, SHAPES_POINTER_END},
+    /* 10 */{1*packet_traits<RhsScalar>::size,         1,4,                 7,                  9, SHAPES_POINTER_END},
+    /* 11 */{1*packet_traits<RhsScalar>::size,__UNROLL__,4,                 7,                  9,                 10},
+    /* 12 */{2*packet_traits<RhsScalar>::size,         1,4,                 7,                 11, SHAPES_POINTER_END},
+    /* 13 */{2*packet_traits<RhsScalar>::size,__UNROLL__,4,                 7,                 11,                 12},
+    /* 14 */{3*packet_traits<RhsScalar>::size,         1,4,                 7,                 13, SHAPES_POINTER_END},
+    /* 15 */{3*packet_traits<RhsScalar>::size,__UNROLL__,4,                 7,                 13,                 14}};
 
 // d1progress x d2progress
 template<int Architecture, int CPU, typename Scalar, bool isLhs>
@@ -218,6 +230,8 @@ struct PackMap
   EIGEN_STRONG_INLINE void updateBase() { pBase = pCur; }
   EIGEN_STRONG_INLINE void moveTo(Index p1) { pCur = pBase + pmc.getPosition(p1, d2Size); }
   EIGEN_STRONG_INLINE void advance(Index progress) { pCur += progress; }
+
+  template<int D1Progress=-1, int D2Progress=-1>
   EIGEN_STRONG_INLINE void prefetch(Index amnt)
   {
 #ifdef __ENABLE_PREFETCH__
@@ -242,6 +256,7 @@ struct Accumulator
     }
   }
 
+  template<int LhsProgress=-1, int DepthProgress=-1, int RhsProgress=-1>
   EIGEN_STRONG_INLINE void prefetch(const DataMapper&, Index, Index) {}
 
   template<typename ResPacket>
@@ -321,9 +336,9 @@ struct DepthLoopStruct
   EIGEN_STRONG_INLINE void operator()(Index rowIdx, Index colIdx, Index depthIdx, const DataMapper& res,
                           Index rows, Index depth, Index cols, ResScalar alpha, const ResPacket& pAlpha, LhsPackMap& lhsPackMap, RhsPackMap& rhsPackMap)
   {
-    constexpr auto rhsProgress      = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[RHS_SHAPE_IDX][SHAPES_RHS_DIMENSION];
-    constexpr auto lhsProgress      = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[LHS_SHAPE_IDX][SHAPES_LHS_DIMENSION];
-    constexpr auto depthProgress    = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[IDX][SHAPES_DEP_DIMENSION];
+    constexpr int rhsProgress      = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[RHS_SHAPE_IDX][SHAPES_RHS_DIMENSION];
+    constexpr int lhsProgress      = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[LHS_SHAPE_IDX][SHAPES_LHS_DIMENSION];
+    constexpr int depthProgress    = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[IDX][SHAPES_DEP_DIMENSION];
 
     typedef Accumulator<Architecture, CPU, AccScalar, ResScalar, DataMapper, lhsProgress, rhsProgress> AccumulatorType;
 
@@ -332,11 +347,10 @@ struct DepthLoopStruct
 
     acc.zero();
 
-    acc.prefetch(res, rowIdx, colIdx);
+    acc.template prefetch<lhsProgress, depthProgress, rhsProgress>(res, rowIdx, colIdx);
 
-    lhsPackMap.prefetch(0);
-    if(rhsProgress > 1)
-      rhsPackMap.prefetch(0);
+    lhsPackMap.template prefetch<lhsProgress, depthProgress>(0);
+    rhsPackMap.template prefetch<rhsProgress, depthProgress>(0);
 
     for(; depthIdx + depthProgress <= depth; depthIdx+=depthProgress)
     {
@@ -367,9 +381,10 @@ struct LhsLoopStruct
     constexpr auto lhsProgress = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[IDX][SHAPES_LHS_DIMENSION];
     constexpr auto rhsProgress = SHAPES<Architecture, CPU, LhsScalar, RhsScalar>[IDX][SHAPES_RHS_DIMENSION];
     DepthLoopStruct<Architecture, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, ResPacket, DataMapper, RHS_SHAPE_IDX, IDX, IDX> depthLS;
-    rhsPackMap.resetCur();
+    //rhsPackMap.resetCur();
     for(;rowIdx + lhsProgress <= rows; rowIdx+=lhsProgress)
     {
+      rhsPackMap.resetCur();
       //lhsPackMap.moveTo(rowIdx);
       //rhsPackMap.moveTo(colIdx);
 
