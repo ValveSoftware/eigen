@@ -28,9 +28,14 @@ int main(int argc, char* argv[])
     for(auto i = 0; i < 2; i++)
         C = A*B;
 
+#ifdef __DEBUG_SHOW_INPUTS__
     std::cout << A << std::endl;
     std::cout << B << std::endl;
+#endif
+
+#ifdef __DEBUG_SHOW_RESULT__
     std::cout << C << std::endl;
+#endif
 
     std::cout << std::endl;
 
@@ -50,8 +55,9 @@ int main(int argc, char* argv[])
             }
         }
     }
-
+#ifdef __DEBUG_SHOW_RESULT__
     std::cout << D << std::endl;
+#endif
 #else
     if(argc < 5)
     {

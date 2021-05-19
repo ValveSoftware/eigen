@@ -115,6 +115,13 @@ namespace internal {
     lhsPackMap.advance(4); \
     rhsPackMap.advance(1);
 
+#define MICRO_2x1x1() \
+    pLhs = pload<LhsPacket>(lhsPackMap.pCur); \
+    pRhs = pset1<RhsPacket>(*rhsPackMap.pCur); \
+    acc._acc += pRhs*pLhs; \
+    lhsPackMap.advance(2); \
+    rhsPackMap.advance(1);
+
 template<int CPU, typename Scalar, typename ResScalar, typename DataMapper>
 struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 12, 1>
 {
@@ -199,6 +206,38 @@ struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 4, 1>
   using LinearMapper = typename DataMapper::LinearMapper;
   using AccPacket = typename packet_traits<Scalar>::type;
   using ResPacket = typename packet_traits<ResScalar>::type;
+
+  AccPacket _acc;
+
+  EIGEN_STRONG_INLINE void zero()
+  {
+    _acc = pset1<AccPacket>(0);
+  }
+
+  template<int LhsProgress, int DepthProgress, int RhsProgress>
+  EIGEN_STRONG_INLINE void prefetch(const DataMapper&, Index, Index) {}
+
+  template<typename ResPacket_>
+  EIGEN_STRONG_INLINE void scale(ResScalar alpha, const ResPacket_& pAlpha)
+  {
+    _acc *= pAlpha;
+  }
+
+  template<typename ResPacket_>
+  EIGEN_STRONG_INLINE void store(const DataMapper& dest, Index row, Index col, ResScalar alpha, const ResPacket_& pAlpha)
+  {
+    PacketBlock<ResPacket, 1> block;
+    block.packet[0] = dest.template loadPacket<ResPacket>(row, col) + pAlpha*_acc;
+    dest.template storePacketBlock<AccPacket, 1>(row, col, block);
+  }
+};
+
+template<int CPU, typename Scalar, typename ResScalar, typename DataMapper>
+struct Accumulator<0, CPU, Scalar, ResScalar, DataMapper, 2, 1>
+{
+  using LinearMapper = typename DataMapper::LinearMapper;
+  using AccPacket = typename packet_traits<Scalar>::half;
+  using ResPacket = typename packet_traits<ResScalar>::half;
 
   AccPacket _acc;
 
@@ -980,6 +1019,28 @@ struct MicroKernel<0, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, 
     RhsPacket pRhs;
 
     MICRO_4x1x1();
+
+    asm __volatile__("#END_NEON_MICROKERNEL_4x1x1\n\t");
+  };
+};
+
+template<int CPU, typename Index, typename LhsScalar, typename LhsPackMap, typename RhsScalar, typename RhsPackMap, typename AccScalar, typename ResScalar, typename Accumulator>
+struct MicroKernel<0, CPU, Index, LhsScalar, LhsPackMap, RhsScalar, RhsPackMap, AccScalar, ResScalar, Accumulator, 2, 1, 1>
+{
+  EIGEN_STRONG_INLINE void operator()(LhsPackMap& lhsPackMap,
+                                      RhsPackMap& rhsPackMap,
+                                      Index rowIdx, Index colIdx, Index depthIdx,
+                                      Accumulator& acc)
+  {
+    using LhsPacket = typename packet_traits<LhsScalar>::half;
+    using RhsPacket = typename packet_traits<RhsScalar>::half;
+
+    asm __volatile__("#BEGIN_NEON_MICROKERNEL_4x1x1\n\t");
+
+    LhsPacket pLhs;
+    RhsPacket pRhs;
+
+    MICRO_2x1x1();
 
     asm __volatile__("#END_NEON_MICROKERNEL_4x1x1\n\t");
   };
