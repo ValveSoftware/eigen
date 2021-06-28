@@ -276,9 +276,28 @@ class EigenQuaternionPrinter:
 	def to_string(self):
 		return "Eigen::Quaternion<%s> (data ptr: %s)" % (self.innerType, self.data)
 
+
+def cast_eigen_block_to_matrix(val):
+	# Get the type of the variable (and convert to a string)
+	# Example: 'const Eigen::Block<Eigen::Block<Eigen::Matrix<double, -1, -1, 0, -1, -1>, -1, -1, false> const, -1, -1, false>'
+	type = str(val.type)
+
+	# Extract the Eigen::Matrix type from the Block:
+	# From the previous example: Eigen::Matrix<double, -1, -1, 0, -1, -1>
+	begin = type.find('Eigen::Matrix<')
+	end = type.find('>', begin) + 1
+
+	# Convert the Eigen::Block to an Eigen::Matrix
+	return val.cast(gdb.lookup_type(type[begin:end]))
+
+
 def build_eigen_dictionary ():
 	pretty_printers_dict[re.compile('^Eigen::Quaternion<.*>$')] = lambda val: EigenQuaternionPrinter(val)
 	pretty_printers_dict[re.compile('^Eigen::Matrix<.*>$')] = lambda val: EigenMatrixPrinter("Matrix", val)
+	pretty_printers_dict[re.compile('^Eigen::Block<.*>$')] =\
+		lambda val: EigenMatrixPrinter("Matrix", cast_eigen_block_to_matrix(val))
+	pretty_printers_dict[re.compile('^Eigen::VectorBlock<.*>$')] =\
+		lambda val: EigenMatrixPrinter("Matrix", cast_eigen_block_to_matrix(val))
 	pretty_printers_dict[re.compile('^Eigen::SparseMatrix<.*>$')] = lambda val: EigenSparseMatrixPrinter(val)
 	pretty_printers_dict[re.compile('^Eigen::Array<.*>$')]  = lambda val: EigenMatrixPrinter("Array",  val)
 
