@@ -770,7 +770,7 @@ EIGEN_UNUSED Packet pdiv_complex(const Packet& x, const Packet& y) {
   const RealPacket y_scaled = pdiv(y.v, y_max);  // c / max(|c|, |d|), d / max(|c|, |d|)
   // Compute scaled denominator.
   const RealPacket y_scaled_sq = pmul(y_scaled, y_scaled); // c'**2, d'**2
-  const RealPacket denom = y_scaled_sq + pcplxflip(Packet(y_scaled_sq)).v;
+  const RealPacket denom = padd(y_scaled_sq, pcplxflip(Packet(y_scaled_sq)).v);
   Packet result_scaled = pmul(x, pconj(Packet(y_scaled)));  // a * c' + b * d', -a * d + b * c
   // Divide elementwise by denom.
   result_scaled = Packet(pdiv(result_scaled.v, denom));
