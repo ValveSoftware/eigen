@@ -298,9 +298,23 @@ struct GpuDevice {
     char* value_bytes = (char*)(&value);
     gpuError_t err;
     EIGEN_UNUSED_VARIABLE(err)
-    for (int b=0; b<value_size; ++b) {
-      err = gpuMemset2DAsync(buffer+b, value_size, value_bytes[b], 1, count, stream_->stream());
+    
+    // If all value bytes are equal, then a single memset can be much faster.
+    bool use_single_memset = true;
+    for (int i=1; i<value_size; ++i) {
+      if (value_bytes[i] != value_bytes[0]) {
+        use_single_memset = false;
+      } 
+    }
+    
+    if (use_single_memset) {
+      err = gpuMemsetAsync(buffer, value_bytes[0], count * sizeof(T), stream_->stream());
       gpu_assert(err == gpuSuccess);
+    } else {
+      for (int b=0; b<value_size; ++b) {
+        err = gpuMemset2DAsync(buffer+b, value_size, value_bytes[b], 1, count, stream_->stream());
+        gpu_assert(err == gpuSuccess);
+      }
     }
 #else
     EIGEN_UNUSED_VARIABLE(begin)
