@@ -962,6 +962,15 @@ struct SyclDevice : public SyclDeviceBase {
     return queue_stream()->get(data);
   }
 
+  /// attach existing buffer
+  EIGEN_STRONG_INLINE void *attach_buffer(
+      cl::sycl::buffer<buffer_scalar_t, 1> &buf) const {
+    return queue_stream()->attach_buffer(buf);
+  }
+  /// detach buffer
+  EIGEN_STRONG_INLINE void detach_buffer(void *p) const {
+    queue_stream()->detach_buffer(p);
+  }
   EIGEN_STRONG_INLINE ptrdiff_t get_offset(const void *ptr) const {
     return queue_stream()->get_offset(ptr);
   }
