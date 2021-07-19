@@ -219,6 +219,7 @@ struct packet_traits<int8_t> : default_packet_traits
     size = 16,
     HasHalfPacket = 1,
 
+    HasCmp       = 1,
     HasAdd       = 1,
     HasSub       = 1,
     HasShift     = 1,
@@ -248,6 +249,7 @@ struct packet_traits<uint8_t> : default_packet_traits
     size = 16,
     HasHalfPacket = 1,
 
+    HasCmp       = 1,
     HasAdd       = 1,
     HasSub       = 1,
     HasShift     = 1,
