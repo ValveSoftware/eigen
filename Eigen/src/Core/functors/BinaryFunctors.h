@@ -206,7 +206,10 @@ struct functor_traits<scalar_cmp_op<LhsScalar,RhsScalar, cmp> > {
   enum {
     Cost = (NumTraits<LhsScalar>::AddCost+NumTraits<RhsScalar>::AddCost)/2,
     PacketAccess = is_same<LhsScalar, RhsScalar>::value &&
-        packet_traits<LhsScalar>::HasCmp
+        packet_traits<LhsScalar>::HasCmp &&
+        // Since return type is bool, we currently require the inputs
+        // to be bool to enable packet access.
+        is_same<LhsScalar, bool>::value
   };
 };
 
