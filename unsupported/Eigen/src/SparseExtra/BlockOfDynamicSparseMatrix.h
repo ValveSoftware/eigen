@@ -14,7 +14,7 @@ namespace Eigen {
 
 #if 0
 
-// NOTE Have to be reimplemented as a specialization of BlockImpl< DynamicSparseMatrix<_Scalar, _Options, _Index>, ... >
+// NOTE Have to be reimplemented as a specialization of BlockImpl< DynamicSparseMatrix<Scalar_, Options_, Index_>, ... >
 // See SparseBlock.h for an example
 
 
@@ -22,11 +22,11 @@ namespace Eigen {
 * specialisation for DynamicSparseMatrix
 ***************************************************************************/
 
-template<typename _Scalar, int _Options, typename _Index, int Size>
-class SparseInnerVectorSet<DynamicSparseMatrix<_Scalar, _Options, _Index>, Size>
-  : public SparseMatrixBase<SparseInnerVectorSet<DynamicSparseMatrix<_Scalar, _Options, _Index>, Size> >
+template<typename Scalar_, int Options_, typename Index_, int Size>
+class SparseInnerVectorSet<DynamicSparseMatrix<Scalar_, Options_, Index_>, Size>
+  : public SparseMatrixBase<SparseInnerVectorSet<DynamicSparseMatrix<Scalar_, Options_, Index_>, Size> >
 {
-    typedef DynamicSparseMatrix<_Scalar, _Options, _Index> MatrixType;
+    typedef DynamicSparseMatrix<Scalar_, Options_, Index_> MatrixType;
   public:
 
     enum { IsRowMajor = internal::traits<SparseInnerVectorSet>::IsRowMajor };

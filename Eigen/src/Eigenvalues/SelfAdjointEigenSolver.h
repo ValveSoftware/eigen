@@ -15,7 +15,7 @@
 
 namespace Eigen { 
 
-template<typename _MatrixType>
+template<typename MatrixType_>
 class GeneralizedSelfAdjointEigenSolver;
 
 namespace internal {
@@ -33,7 +33,7 @@ ComputationInfo computeFromTridiagonal_impl(DiagType& diag, SubDiagType& subdiag
   *
   * \brief Computes eigenvalues and eigenvectors of selfadjoint matrices
   *
-  * \tparam _MatrixType the type of the matrix of which we are computing the
+  * \tparam MatrixType_ the type of the matrix of which we are computing the
   * eigendecomposition; this is expected to be an instantiation of the Matrix
   * class template.
   *
@@ -73,11 +73,11 @@ ComputationInfo computeFromTridiagonal_impl(DiagType& diag, SubDiagType& subdiag
   *
   * \sa MatrixBase::eigenvalues(), class EigenSolver, class ComplexEigenSolver
   */
-template<typename _MatrixType> class SelfAdjointEigenSolver
+template<typename MatrixType_> class SelfAdjointEigenSolver
 {
   public:
 
-    typedef _MatrixType MatrixType;
+    typedef MatrixType_ MatrixType;
     enum {
       Size = MatrixType::RowsAtCompileTime,
       ColsAtCompileTime = MatrixType::ColsAtCompileTime,
@@ -85,13 +85,13 @@ template<typename _MatrixType> class SelfAdjointEigenSolver
       MaxColsAtCompileTime = MatrixType::MaxColsAtCompileTime
     };
     
-    /** \brief Scalar type for matrices of type \p _MatrixType. */
+    /** \brief Scalar type for matrices of type \p MatrixType_. */
     typedef typename MatrixType::Scalar Scalar;
     typedef Eigen::Index Index; ///< \deprecated since Eigen 3.3
     
     typedef Matrix<Scalar,Size,Size,ColMajor,MaxColsAtCompileTime,MaxColsAtCompileTime> EigenvectorsType;
 
-    /** \brief Real scalar type for \p _MatrixType.
+    /** \brief Real scalar type for \p MatrixType_.
       *
       * This is just \c Scalar if #Scalar is real (e.g., \c float or
       * \c double), and the type of the real part of \c Scalar if #Scalar is
@@ -104,7 +104,7 @@ template<typename _MatrixType> class SelfAdjointEigenSolver
     /** \brief Type for vector of eigenvalues as returned by eigenvalues().
       *
       * This is a column vector with entries of type #RealScalar.
-      * The length of the vector is the size of \p _MatrixType.
+      * The length of the vector is the size of \p MatrixType_.
       */
     typedef typename internal::plain_col_type<MatrixType, RealScalar>::type RealVectorType;
     typedef Tridiagonalization<MatrixType> TridiagonalizationType;
@@ -114,7 +114,7 @@ template<typename _MatrixType> class SelfAdjointEigenSolver
       *
       * The default constructor is useful in cases in which the user intends to
       * perform decompositions via compute(). This constructor
-      * can only be used if \p _MatrixType is a fixed-size matrix; use
+      * can only be used if \p MatrixType_ is a fixed-size matrix; use
       * SelfAdjointEigenSolver(Index) for dynamic-size matrices.
       *
       * Example: \include SelfAdjointEigenSolver_SelfAdjointEigenSolver.cpp

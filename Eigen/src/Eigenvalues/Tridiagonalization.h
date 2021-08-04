@@ -36,7 +36,7 @@ void tridiagonalization_inplace(MatrixType& matA, CoeffVectorType& hCoeffs);
   *
   * \brief Tridiagonal decomposition of a selfadjoint matrix
   *
-  * \tparam _MatrixType the type of the matrix of which we are computing the
+  * \tparam MatrixType_ the type of the matrix of which we are computing the
   * tridiagonal decomposition; this is expected to be an instantiation of the
   * Matrix class template.
   *
@@ -61,12 +61,12 @@ void tridiagonalization_inplace(MatrixType& matA, CoeffVectorType& hCoeffs);
   *
   * \sa class HessenbergDecomposition, class SelfAdjointEigenSolver
   */
-template<typename _MatrixType> class Tridiagonalization
+template<typename MatrixType_> class Tridiagonalization
 {
   public:
 
-    /** \brief Synonym for the template parameter \p _MatrixType. */
-    typedef _MatrixType MatrixType;
+    /** \brief Synonym for the template parameter \p MatrixType_. */
+    typedef MatrixType_ MatrixType;
 
     typedef typename MatrixType::Scalar Scalar;
     typedef typename NumTraits<Scalar>::Real RealScalar;
