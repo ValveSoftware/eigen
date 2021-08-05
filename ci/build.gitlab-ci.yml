@@ -167,12 +167,12 @@ build:aarch64:linux:clang-10:cxx11-on:
 
 # GCC-10
 build:ppc64le:linux:gcc-10:cxx11-off:
-  allow_failure: true
   extends: .build:linux:base
   variables:
     EIGEN_CI_CXX_COMPILER: "g++-10"
     EIGEN_CI_CC_COMPILER: "gcc-10"
     EIGEN_TEST_CXX11: "off"
+    EIGEN_CI_ADDITIONAL_ARGS: "-DCMAKE_CXX_FLAGS='-DEIGEN_ALTIVEC_DISABLE_MMA'"
   tags:
     - eigen-runner
     - linux
