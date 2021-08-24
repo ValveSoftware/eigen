@@ -28,7 +28,6 @@ static long g_dense_op_sparse_count = 0;
 #include "sparse_product.cpp"
 
 
-#if EIGEN_HAS_CXX11
 
 #ifdef min
 #undef min
@@ -39,9 +38,6 @@ static long g_dense_op_sparse_count = 0;
 #endif
 
 #include <unordered_map>
-#define EIGEN_UNORDERED_MAP_SUPPORT
-
-#endif
 
 
 #include <Eigen/SparseExtra>
@@ -133,9 +129,7 @@ template<typename SparseMatrixType> void sparse_extra(const SparseMatrixType& re
 //   VERIFY_IS_APPROX(m, refMat);
 
     VERIFY(( test_random_setter<RandomSetter<SparseMatrixType, StdMapTraits> >(m,refMat,nonzeroCoords) ));
-    #ifdef EIGEN_UNORDERED_MAP_SUPPORT
     VERIFY(( test_random_setter<RandomSetter<SparseMatrixType, StdUnorderedMapTraits> >(m,refMat,nonzeroCoords) ));
-    #endif
     #ifdef EIGEN_GOOGLEHASH_SUPPORT
     VERIFY(( test_random_setter<RandomSetter<SparseMatrixType, GoogleDenseHashMapTraits> >(m,refMat,nonzeroCoords) ));
     VERIFY(( test_random_setter<RandomSetter<SparseMatrixType, GoogleSparseHashMapTraits> >(m,refMat,nonzeroCoords) ));
