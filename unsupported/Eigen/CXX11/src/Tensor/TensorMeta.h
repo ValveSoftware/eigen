@@ -207,9 +207,11 @@ template<> struct PacketType<const half, const SyclDevice>: PacketType<half, Syc
 #endif
 #endif
 
-// Tuple mimics std::pair but works on e.g. nvcc.
-template <typename U, typename V> struct Tuple {
+// Pair mimics std::pair but works on e.g. nvcc.
+template <typename U, typename V> struct Pair {
  public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   U first;
   V second;
 
@@ -217,13 +219,13 @@ template <typename U, typename V> struct Tuple {
   typedef V second_type;
 
   EIGEN_CONSTEXPR EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
-  Tuple() : first(), second() {}
+  Pair() : first(), second() {}
 
   EIGEN_CONSTEXPR EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
-  Tuple(const U& f, const V& s) : first(f), second(s) {}
+  Pair(const U& f, const V& s) : first(f), second(s) {}
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
-  void swap(Tuple& rhs) {
+  void swap(Pair& rhs) {
     using numext::swap;
     swap(first, rhs.first);
     swap(second, rhs.second);
@@ -232,13 +234,13 @@ template <typename U, typename V> struct Tuple {
 
 template <typename U, typename V>
 EIGEN_CONSTEXPR EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
-bool operator==(const Tuple<U, V>& x, const Tuple<U, V>& y) {
+bool operator==(const Pair<U, V>& x, const Pair<U, V>& y) {
   return (x.first == y.first && x.second == y.second);
 }
 
 template <typename U, typename V>
 EIGEN_CONSTEXPR EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
-bool operator!=(const Tuple<U, V>& x, const Tuple<U, V>& y) {
+bool operator!=(const Pair<U, V>& x, const Pair<U, V>& y) {
   return !(x == y);
 }
 
