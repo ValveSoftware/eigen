@@ -55,19 +55,26 @@
 #endif
 #endif
 
-// Same for cuda_fp16.h
-#if defined(__CUDACC__) && !defined(EIGEN_NO_CUDA)
-  // Means the compiler is either nvcc or clang with CUDA enabled
+// Configure GPU.
+#if defined(EIGEN_USE_HIP)
+  #if defined(__HIPCC__) && !defined(EIGEN_NO_HIP)
+    #define EIGEN_HIPCC __HIPCC__
+    #include <hip/hip_runtime.h>
+    #include <hip/hip_runtime_api.h>
+  #endif
+#elif defined(__CUDACC__) && !defined(EIGEN_NO_CUDA)
   #define EIGEN_CUDACC __CUDACC__
+  #include <cuda.h>
+  #include <cuda_runtime.h>
+  #include <cuda_runtime_api.h>
+  #if CUDA_VERSION >= 7050
+    #include <cuda_fp16.h>
+  #endif
 #endif
-#if defined(EIGEN_CUDACC)
-#include <cuda.h>
-  #define EIGEN_CUDA_SDK_VER (CUDA_VERSION * 10)
-#else
-  #define EIGEN_CUDA_SDK_VER 0
-#endif
-#if EIGEN_CUDA_SDK_VER >= 70500
-#include <cuda_fp16.h>
+
+#if defined(EIGEN_CUDACC) || defined(EIGEN_HIPCC)
+  #define EIGEN_TEST_NO_LONGDOUBLE
+  #define EIGEN_DEFAULT_DENSE_INDEX_TYPE int
 #endif
 
 // To test that all calls from Eigen code to std::min() and std::max() are
@@ -1081,3 +1088,5 @@ int main(int argc, char *argv[])
   // 4503 - decorated name length exceeded, name was truncated
   #pragma warning( disable : 4503)
 #endif
+
+#include "gpu_test_helper.h"
