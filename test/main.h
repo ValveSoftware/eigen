@@ -391,6 +391,8 @@ inline void verify_impl(bool condition, const char *testname, const char *file, 
 #define VERIFY_IS_NOT_MUCH_SMALLER_THAN(a, b) VERIFY(!test_isMuchSmallerThan(a, b))
 #define VERIFY_IS_APPROX_OR_LESS_THAN(a, b) VERIFY(test_isApproxOrLessThan(a, b))
 #define VERIFY_IS_NOT_APPROX_OR_LESS_THAN(a, b) VERIFY(!test_isApproxOrLessThan(a, b))
+#define VERIFY_IS_CWISE_EQUAL(a, b) VERIFY(test_isCwiseApprox(a, b, true))
+#define VERIFY_IS_CWISE_APPROX(a, b) VERIFY(test_isCwiseApprox(a, b, false))
 
 #define VERIFY_IS_UNITARY(a) VERIFY(test_isUnitary(a))
 
@@ -653,6 +655,29 @@ template<typename Derived>
 inline bool test_isUnitary(const MatrixBase<Derived>& m)
 {
   return m.isUnitary(test_precision<typename internal::traits<Derived>::Scalar>());
+}
+
+// Checks component-wise, works with infs and nans.
+template<typename Derived1, typename Derived2>
+bool test_isCwiseApprox(const DenseBase<Derived1>& m1,
+                        const DenseBase<Derived2>& m2,
+                        bool exact) {
+  if (m1.rows() != m2.rows()) {
+    return false;
+  }
+  if (m1.cols() != m2.cols()) {
+    return false;
+  }
+  for (Index r = 0; r < m1.rows(); ++r) {
+    for (Index c = 0; c < m1.cols(); ++c) {
+      if (m1(r, c) != m2(r, c)
+          && !((numext::isnan)(m1(r, c)) && (numext::isnan)(m2(r, c))) 
+          && (exact || !test_isApprox(m1(r, c), m2(r, c)))) {
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 template<typename T, typename U>
