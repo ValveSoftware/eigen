@@ -289,6 +289,7 @@ ei_add_test(random_matrix)
 ei_add_test(initializer_list_construction)
 ei_add_test(diagonal_matrix_variadic_ctor)
 ei_add_test(serializer)
+ei_add_test(tuple_test)
 
 add_executable(bug1213 bug1213.cpp bug1213_main.cpp)
 
