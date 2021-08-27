@@ -27,8 +27,6 @@ static long g_dense_op_sparse_count = 0;
 #define EIGEN_SPARSE_PRODUCT_IGNORE_TEMPORARY_COUNT
 #include "sparse_product.cpp"
 
-
-
 #ifdef min
 #undef min
 #endif
@@ -36,9 +34,6 @@ static long g_dense_op_sparse_count = 0;
 #ifdef max
 #undef max
 #endif
-
-#include <unordered_map>
-
 
 #include <Eigen/SparseExtra>
 
