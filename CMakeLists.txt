@@ -1,6 +1,19 @@
 # cmake_minimum_require must be the first command of the file
 cmake_minimum_required(VERSION 3.5.0)
 
+# NOTE Remove setting the policy once the minimum required CMake version is
+# increased to at least 3.15. Retain enabling the export to package registry.
+if (POLICY CMP0090)
+  # The export command does not populate package registry by default
+  cmake_policy (SET CMP0090 NEW)
+
+  # Unless otherwise specified, always export to package registry to ensure
+  # backwards compatibility.
+  if (NOT DEFINED CMAKE_EXPORT_PACKAGE_REGISTRY)
+    set (CMAKE_EXPORT_PACKAGE_REGISTRY ON)
+  endif (NOT DEFINED CMAKE_EXPORT_PACKAGE_REGISTRY)
+endif (POLICY CMP0090)
+
 project(Eigen3)
 
 set(CMAKE_CXX_STANDARD 11 CACHE STRING "Default C++ standard")
