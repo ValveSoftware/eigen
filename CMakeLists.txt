@@ -575,7 +575,6 @@ include (CMakePackageConfigHelpers)
 # Imported target support
 add_library (eigen INTERFACE)
 add_library (Eigen3::Eigen ALIAS eigen)
-target_compile_definitions (eigen INTERFACE ${EIGEN_DEFINITIONS})
 target_include_directories (eigen INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>
