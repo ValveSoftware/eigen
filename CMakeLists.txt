@@ -592,16 +592,26 @@ configure_package_config_file (
   NO_SET_AND_CHECK_MACRO # Eigen does not provide legacy style defines
   NO_CHECK_REQUIRED_COMPONENTS_MACRO # Eigen does not provide components
 )
-# Remove CMAKE_SIZEOF_VOID_P from Eigen3ConfigVersion.cmake since Eigen does
-# not depend on architecture specific settings or libraries. More
-# specifically, an Eigen3Config.cmake generated from a 64 bit target can be
-# used for 32 bit targets as well (and vice versa).
-set (_Eigen3_CMAKE_SIZEOF_VOID_P ${CMAKE_SIZEOF_VOID_P})
-unset (CMAKE_SIZEOF_VOID_P)
-write_basic_package_version_file (Eigen3ConfigVersion.cmake
-                                  VERSION ${EIGEN_VERSION_NUMBER}
-                                  COMPATIBILITY SameMajorVersion)
-set (CMAKE_SIZEOF_VOID_P ${_Eigen3_CMAKE_SIZEOF_VOID_P})
+
+# NOTE Remove the first code path once the minimum required CMake version is
+# bumped to 3.14 or above.
+if (CMAKE_VERSION VERSION_LESS 3.14)
+  # Remove CMAKE_SIZEOF_VOID_P from Eigen3ConfigVersion.cmake since Eigen does
+  # not depend on architecture specific settings or libraries. More
+  # specifically, an Eigen3Config.cmake generated from a 64 bit target can be
+  # used for 32 bit targets as well (and vice versa).
+  set (_Eigen3_CMAKE_SIZEOF_VOID_P ${CMAKE_SIZEOF_VOID_P})
+  unset (CMAKE_SIZEOF_VOID_P)
+  write_basic_package_version_file (Eigen3ConfigVersion.cmake
+                                    VERSION ${EIGEN_VERSION_NUMBER}
+                                    COMPATIBILITY SameMajorVersion)
+  set (CMAKE_SIZEOF_VOID_P ${_Eigen3_CMAKE_SIZEOF_VOID_P})
+else (CMAKE_VERSION VERSION_LESS 3.14)
+  write_basic_package_version_file (Eigen3ConfigVersion.cmake
+                                    VERSION ${EIGEN_VERSION_NUMBER}
+                                    COMPATIBILITY SameMajorVersion
+                                    ARCH_INDEPENDENT)
+endif (CMAKE_VERSION VERSION_LESS 3.14)
 
 # The Eigen target will be located in the Eigen3 namespace. Other CMake
 # targets can refer to it using Eigen3::Eigen.
