@@ -147,7 +147,7 @@ inline bool getMarketHeader(const std::string& filename, int& sym, bool& iscompl
  * @tparam SparseMatrixType to read into, symmetries are not supported
  * @param mat SparseMatrix to read into, current values are overwritten
  * @param filename to parse matrix from
- * @return returns true if file exists. Returns false if the parsing did not suceed.
+ * @return returns true if file exists. Returns false if the parsing did not succeed.
  */
 template<typename SparseMatrixType>
 bool loadMarket(SparseMatrixType& mat, const std::string& filename)
@@ -227,7 +227,7 @@ bool loadMarket(SparseMatrixType& mat, const std::string& filename)
  * @tparam DenseMatrixType to read into
  * @param mat DenseMatrix to read into, current values are overwritten, symmetries are not supported
  * @param filename to parse matrix from
- * @return true if parsing was successful. Returns false if the parsing did not suceed.
+ * @return true if parsing was successful. Returns false if the parsing did not succeed.
  */
 template<typename DenseType>
 bool loadMarketDense(DenseType& mat, const std::string& filename)
@@ -303,7 +303,7 @@ bool loadMarketVector(VectorType& vec, const std::string& filename)
  * @param mat matrix to write to file
  * @param filename filename to write to 
  * @param sym at the moment no symmetry operations are supported
- * @return true if writing suceeded
+ * @return true if writing succeeded
  */
 template<typename SparseMatrixType>
 bool saveMarket(const SparseMatrixType& mat, const std::string& filename, int sym = 0)
@@ -339,7 +339,7 @@ bool saveMarket(const SparseMatrixType& mat, const std::string& filename, int sy
  * @tparam DenseMatrixType to write to file
  * @param mat matrix to write to file
  * @param filename filename to write to 
- * @return true if writing suceeded
+ * @return true if writing succeeded
  */
 
 template<typename DenseType>
