@@ -663,7 +663,7 @@ template<> EIGEN_STRONG_INLINE Packet4d ploaddup<Packet4d>(const double* from)
 template<> EIGEN_STRONG_INLINE Packet8i ploaddup<Packet8i>(const int* from)
 {
 #ifdef EIGEN_VECTORIZE_AVX2
-  const Packet8i a = _mm256_castsi128_si256(pload<Packet4i>(from));
+  const Packet8i a = _mm256_castsi128_si256(ploadu<Packet4i>(from));
   return _mm256_permutevar8x32_epi32(a, _mm256_setr_epi32(0, 0, 1, 1, 2, 2, 3, 3));
 #else
   __m256 tmp = _mm256_broadcast_ps((const __m128*)(const void*)from);
@@ -1015,14 +1015,14 @@ ptranspose(PacketBlock<Packet8f,4>& kernel) {
 #define MM256_SHUFFLE_EPI32(A, B, M) \
   _mm256_castps_si256(_mm256_shuffle_ps(_mm256_castsi256_ps(A), _mm256_castsi256_ps(B), M))
 
-#ifdef EIGEN_VECTORIZE_AVX2
+#ifndef EIGEN_VECTORIZE_AVX2
 #define MM256_UNPACKLO_EPI32(A, B) \
   _mm256_castps_si256(_mm256_unpacklo_ps(_mm256_castsi256_ps(A), _mm256_castsi256_ps(B)))
 #define MM256_UNPACKHI_EPI32(A, B) \
   _mm256_castps_si256(_mm256_unpackhi_ps(_mm256_castsi256_ps(A), _mm256_castsi256_ps(B)))
 #else
-#define MM256_UNPACKLO_EPI32(A, B) _mm256_unpacklo_ps(A, B)
-#define MM256_UNPACKHI_EPI32(A, B) _mm256_unpackhi_ps(A, B)
+#define MM256_UNPACKLO_EPI32(A, B) _mm256_unpacklo_epi32(A, B)
+#define MM256_UNPACKHI_EPI32(A, B) _mm256_unpackhi_epi32(A, B)
 #endif
 
 
