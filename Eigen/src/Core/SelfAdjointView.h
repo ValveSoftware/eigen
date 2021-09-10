@@ -10,6 +10,8 @@
 #ifndef EIGEN_SELFADJOINTMATRIX_H
 #define EIGEN_SELFADJOINTMATRIX_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 /** \class SelfAdjointView

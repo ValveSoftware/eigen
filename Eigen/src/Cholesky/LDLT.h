@@ -13,6 +13,8 @@
 #ifndef EIGEN_LDLT_H
 #define EIGEN_LDLT_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {

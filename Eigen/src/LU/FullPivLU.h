@@ -10,6 +10,8 @@
 #ifndef EIGEN_LU_H
 #define EIGEN_LU_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {

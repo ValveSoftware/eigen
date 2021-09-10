@@ -10,6 +10,8 @@
 #ifndef EIGEN_PARTIALREDUX_H
 #define EIGEN_PARTIALREDUX_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen { 
 
 namespace internal {

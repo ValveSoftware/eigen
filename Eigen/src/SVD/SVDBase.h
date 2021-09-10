@@ -16,6 +16,8 @@
 #ifndef EIGEN_SVDBASE_H
 #define EIGEN_SVDBASE_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {

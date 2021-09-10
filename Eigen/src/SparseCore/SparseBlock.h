@@ -10,6 +10,8 @@
 #ifndef EIGEN_SPARSE_BLOCK_H
 #define EIGEN_SPARSE_BLOCK_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 // Subset of columns or rows

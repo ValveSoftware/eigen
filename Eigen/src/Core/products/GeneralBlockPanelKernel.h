@@ -11,6 +11,8 @@
 #define EIGEN_GENERAL_BLOCK_PANEL_H
 
 
+#include "../InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {

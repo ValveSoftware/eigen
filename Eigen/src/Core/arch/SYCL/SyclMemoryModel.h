@@ -33,6 +33,8 @@
 #include <set>
 #include <unordered_map>
 
+#include "../../InternalHeaderCheck.h"
+
 namespace Eigen {
 namespace TensorSycl {
 namespace internal {

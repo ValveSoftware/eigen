@@ -10,6 +10,8 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_UINT128_H
 #define EIGEN_CXX11_TENSOR_TENSOR_UINT128_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 namespace internal {
 

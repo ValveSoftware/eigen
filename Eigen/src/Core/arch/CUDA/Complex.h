@@ -43,6 +43,8 @@
   using Eigen::complex_operator_detail::operator==; \
   using Eigen::complex_operator_detail::operator!=;
 
+#include "../../InternalHeaderCheck.h"
+
 namespace Eigen {
 
 // Specialized std::complex overloads.

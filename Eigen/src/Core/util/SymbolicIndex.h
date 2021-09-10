@@ -10,6 +10,8 @@
 #ifndef EIGEN_SYMBOLIC_INDEX_H
 #define EIGEN_SYMBOLIC_INDEX_H
 
+#include "../InternalHeaderCheck.h"
+
 namespace Eigen {
 
 /** \namespace Eigen::symbolic

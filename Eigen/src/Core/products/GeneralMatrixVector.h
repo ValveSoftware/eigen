@@ -10,6 +10,8 @@
 #ifndef EIGEN_GENERAL_MATRIX_VECTOR_H
 #define EIGEN_GENERAL_MATRIX_VECTOR_H
 
+#include "../InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {

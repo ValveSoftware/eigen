@@ -10,6 +10,8 @@
 #ifndef EIGEN_UNARY_FUNCTORS_H
 #define EIGEN_UNARY_FUNCTORS_H
 
+#include "../InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {

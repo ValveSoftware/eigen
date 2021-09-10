@@ -13,6 +13,8 @@
 #ifndef EIGEN_IDRS_H
 #define EIGEN_IDRS_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen
 {
 

@@ -10,6 +10,8 @@
 #ifndef EIGEN_NUMTRAITS_H
 #define EIGEN_NUMTRAITS_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {

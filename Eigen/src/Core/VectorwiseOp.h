@@ -11,6 +11,8 @@
 #ifndef EIGEN_PARTIAL_REDUX_H
 #define EIGEN_PARTIAL_REDUX_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 /** \class PartialReduxExpr

@@ -13,6 +13,8 @@
 // evaluator for thread pool device
 #ifdef EIGEN_USE_THREADS
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 template<typename Indices, typename LeftArgType, typename RightArgType, typename OutputKernelType>

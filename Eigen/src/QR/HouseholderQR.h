@@ -12,6 +12,8 @@
 #ifndef EIGEN_QR_H
 #define EIGEN_QR_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen { 
 
 namespace internal {

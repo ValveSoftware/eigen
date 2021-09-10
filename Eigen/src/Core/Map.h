@@ -11,6 +11,8 @@
 #ifndef EIGEN_MAP_H
 #define EIGEN_MAP_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {

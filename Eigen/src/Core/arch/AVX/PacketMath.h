@@ -10,6 +10,8 @@
 #ifndef EIGEN_PACKET_MATH_AVX_H
 #define EIGEN_PACKET_MATH_AVX_H
 
+#include "../../InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {

@@ -10,6 +10,8 @@
 #ifndef EIGEN_BESSEL_FUNCTIONS_H
 #define EIGEN_BESSEL_FUNCTIONS_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 namespace internal {
 

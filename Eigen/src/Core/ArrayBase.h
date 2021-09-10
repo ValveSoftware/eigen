@@ -10,6 +10,8 @@
 #ifndef EIGEN_ARRAYBASE_H
 #define EIGEN_ARRAYBASE_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen { 
 
 template<typename ExpressionType> class MatrixWrapper;

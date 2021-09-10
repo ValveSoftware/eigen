@@ -10,6 +10,8 @@
 #ifndef EIGEN_BINARY_FUNCTORS_H
 #define EIGEN_BINARY_FUNCTORS_H
 
+#include "../InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {

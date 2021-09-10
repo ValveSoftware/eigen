@@ -12,6 +12,8 @@
 #ifndef EIGEN_ASSIGN_EVALUATOR_H
 #define EIGEN_ASSIGN_EVALUATOR_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 // This implementation is based on Assign.h

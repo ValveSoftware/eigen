@@ -16,6 +16,8 @@ limitations under the License.
 #ifndef EIGEN_BFLOAT16_H
 #define EIGEN_BFLOAT16_H
 
+#include "../../InternalHeaderCheck.h"
+
 #define BF16_PACKET_FUNCTION(PACKET_F, PACKET_BF16, METHOD)         \
   template <>                                                       \
   EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED  \

@@ -19,6 +19,8 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_CONTRACTION_SYCL_H
 #define EIGEN_CXX11_TENSOR_TENSOR_CONTRACTION_SYCL_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace TensorSycl {

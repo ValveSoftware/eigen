@@ -10,6 +10,8 @@
 #ifndef EIGEN_SPARSEVECTOR_H
 #define EIGEN_SPARSEVECTOR_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen { 
 
 /** \ingroup SparseCore_Module

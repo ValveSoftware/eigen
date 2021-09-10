@@ -10,6 +10,8 @@
 #ifndef EIGEN_ARITHMETIC_SEQUENCE_H
 #define EIGEN_ARITHMETIC_SEQUENCE_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {

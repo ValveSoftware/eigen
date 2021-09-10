@@ -16,6 +16,8 @@
 #ifndef EIGEN_ARCH_GENERIC_PACKET_MATH_FUNCTIONS_H
 #define EIGEN_ARCH_GENERIC_PACKET_MATH_FUNCTIONS_H
 
+#include "../../InternalHeaderCheck.h"
+
 namespace Eigen {
 namespace internal {
 

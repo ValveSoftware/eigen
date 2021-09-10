@@ -16,6 +16,8 @@
 #define EIGEN_CXX11_TENSOR_TENSOR_DEVICE_SYCL_H
 #include <unordered_set>
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace TensorSycl {

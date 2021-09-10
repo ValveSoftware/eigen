@@ -10,6 +10,8 @@
 #ifndef EIGEN_COMPLEX_SSE_H
 #define EIGEN_COMPLEX_SSE_H
 
+#include "../../InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {

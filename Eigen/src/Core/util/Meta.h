@@ -11,6 +11,8 @@
 #ifndef EIGEN_META_H
 #define EIGEN_META_H
 
+#include "../InternalHeaderCheck.h"
+
 #if defined(EIGEN_GPU_COMPILE_PHASE)
 
  #include <cfloat>
@@ -31,6 +33,7 @@
 // Define portable (u)int{32,64} types
 #if EIGEN_HAS_CXX11 || EIGEN_ICC_NEEDS_CSTDINT
 #include <cstdint>
+
 namespace Eigen {
 namespace numext {
 typedef std::uint8_t  uint8_t;
@@ -47,6 +50,7 @@ typedef std::int64_t  int64_t;
 // Without c++11, all compilers able to compile Eigen also
 // provide the C99 stdint.h header file.
 #include <stdint.h>
+
 namespace Eigen {
 namespace numext {
 typedef ::uint8_t  uint8_t;

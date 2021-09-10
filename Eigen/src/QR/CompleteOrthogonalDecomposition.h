@@ -10,6 +10,8 @@
 #ifndef EIGEN_COMPLETEORTHOGONALDECOMPOSITION_H
 #define EIGEN_COMPLETEORTHOGONALDECOMPOSITION_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {

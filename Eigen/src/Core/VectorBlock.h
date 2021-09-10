@@ -11,6 +11,8 @@
 #ifndef EIGEN_VECTORBLOCK_H
 #define EIGEN_VECTORBLOCK_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen { 
 
 namespace internal {

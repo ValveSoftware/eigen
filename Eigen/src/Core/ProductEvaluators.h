@@ -13,6 +13,8 @@
 #ifndef EIGEN_PRODUCTEVALUATORS_H
 #define EIGEN_PRODUCTEVALUATORS_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {

@@ -10,6 +10,8 @@
 #ifndef EIGEN_ARRAY_H
 #define EIGEN_ARRAY_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {

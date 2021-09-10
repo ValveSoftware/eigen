@@ -10,6 +10,8 @@
 
 #ifndef EIGEN_QUATERNION_H
 #define EIGEN_QUATERNION_H
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen { 
 
 

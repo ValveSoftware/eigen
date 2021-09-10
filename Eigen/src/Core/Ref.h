@@ -10,6 +10,8 @@
 #ifndef EIGEN_REF_H
 #define EIGEN_REF_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {

@@ -11,6 +11,8 @@
 #ifndef EIGEN_PARTIALLU_H
 #define EIGEN_PARTIALLU_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {

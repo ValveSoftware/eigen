@@ -11,6 +11,8 @@
 #ifndef EIGEN_MATRIX_H
 #define EIGEN_MATRIX_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {

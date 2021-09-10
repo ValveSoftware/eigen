@@ -33,6 +33,8 @@
 
 #include "../../../../Eigen/Core"
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen { 
 
 namespace internal {

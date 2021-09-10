@@ -10,6 +10,8 @@
 #ifndef EIGEN_INDEXED_VIEW_H
 #define EIGEN_INDEXED_VIEW_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {

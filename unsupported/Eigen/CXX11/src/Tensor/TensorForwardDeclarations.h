@@ -10,6 +10,8 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_FORWARD_DECLARATIONS_H
 #define EIGEN_CXX11_TENSOR_TENSOR_FORWARD_DECLARATIONS_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 // MakePointer class is used as a container of the address space of the pointer

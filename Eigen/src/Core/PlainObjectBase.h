@@ -22,6 +22,8 @@
 # define EIGEN_INITIALIZE_COEFFS_IF_THAT_OPTION_IS_ENABLED
 #endif
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {

@@ -13,6 +13,8 @@
 
 #include "./Tridiagonalization.h"
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen { 
 
 template<typename MatrixType_>

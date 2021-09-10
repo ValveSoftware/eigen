@@ -22,6 +22,8 @@
 #endif
 
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 

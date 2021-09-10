@@ -10,6 +10,8 @@
 #ifndef EIGEN_STRIDE_H
 #define EIGEN_STRIDE_H
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 /** \class Stride

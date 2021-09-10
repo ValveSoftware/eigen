@@ -10,6 +10,8 @@
 #ifndef EIGEN_CXX11_THREADPOOL_EVENTCOUNT_H_
 #define EIGEN_CXX11_THREADPOOL_EVENTCOUNT_H_
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen {
 
 // EventCount allows to wait for arbitrary predicates in non-blocking

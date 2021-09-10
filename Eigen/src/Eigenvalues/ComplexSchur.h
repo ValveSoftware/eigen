@@ -14,6 +14,8 @@
 
 #include "./HessenbergDecomposition.h"
 
+#include "./InternalHeaderCheck.h"
+
 namespace Eigen { 
 
 namespace internal {

@@ -10,6 +10,8 @@
 #ifndef EIGEN_COMPLEX_AVX_H
 #define EIGEN_COMPLEX_AVX_H
 
+#include "../../InternalHeaderCheck.h"
+
 namespace Eigen {
 
 namespace internal {
