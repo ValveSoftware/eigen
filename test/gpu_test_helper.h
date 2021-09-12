@@ -233,7 +233,6 @@ auto run_serialized_on_gpu(size_t buffer_capacity_hint,
   host_ptr = Eigen::serialize(host_ptr, args...);
   
   // Copy inputs to host.
-  gpuFree(device_data);
   gpuMalloc((void**)(&device_data), capacity);
   gpuMemcpy(device_data, buffer.data(), input_data_size, gpuMemcpyHostToDevice);
   GPU_CHECK(gpuDeviceSynchronize());
@@ -455,6 +454,7 @@ auto run_with_hint(size_t buffer_capacity_hint,
 #ifdef EIGEN_GPUCC
   return run_on_gpu_with_hint(buffer_capacity_hint, kernel, std::forward<Args>(args)...);
 #else
+  EIGEN_UNUSED_VARIABLE(buffer_capacity_hint)
   return run_on_cpu(kernel, std::forward<Args>(args)...);
 #endif
 }
