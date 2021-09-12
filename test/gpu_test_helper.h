@@ -25,19 +25,24 @@
 namespace Eigen {
 
 namespace internal {
-  
-namespace tuple_impl {
 
+// Note: cannot re-use tuple_impl, since that will cause havoc for
+// tuple_test.
+namespace test_detail {
 // Use std::tuple on CPU, otherwise use the GPU-specific versions.
 #if !EIGEN_USE_CUSTOM_TUPLE
 using std::tuple;
 using std::get;
 using std::make_tuple;
 using std::tie;
+#else
+using tuple_impl::tuple;
+using tuple_impl::get;
+using tuple_impl::make_tuple;
+using
 #endif
 #undef EIGEN_USE_CUSTOM_TUPLE
-
-}
+}  // namespace test_detail
 
 template<size_t N, size_t Idx, typename OutputIndexSequence, typename... Ts>
 struct extract_output_indices_helper;
@@ -131,9 +136,9 @@ template<typename Kernel, typename... Args, size_t... Indices, size_t... OutputI
 EIGEN_DEVICE_FUNC
 void run_serialized(index_sequence<Indices...>, index_sequence<OutputIndices...>,
                     Kernel kernel, uint8_t* buffer, size_t capacity) {
-  using Eigen::internal::tuple_impl::get;
-  using Eigen::internal::tuple_impl::make_tuple;
-  using Eigen::internal::tuple_impl::tuple;
+  using test_detail::get;
+  using test_detail::make_tuple;
+  using test_detail::tuple;
   // Deserialize input size and inputs.
   size_t input_size;
   uint8_t* buff_ptr = Eigen::deserialize(buffer, input_size);
@@ -268,9 +273,9 @@ auto run_serialized_on_gpu(size_t buffer_capacity_hint,
   }
   
   // Deserialize outputs.
-  auto args_tuple = Eigen::internal::tuple_impl::tie(args...);
+  auto args_tuple = test_detail::tie(args...);
   EIGEN_UNUSED_VARIABLE(args_tuple)  // Avoid NVCC compile warning.
-  host_ptr = Eigen::deserialize(host_ptr, Eigen::internal::tuple_impl::get<OutputIndices, Args&...>(args_tuple)...);
+  host_ptr = Eigen::deserialize(host_ptr, test_detail::get<OutputIndices, Args&...>(args_tuple)...);
   
   // Maybe deserialize return value, properly handling void.
   typename void_helper::ReturnType<decltype(kernel(args...))> result;
