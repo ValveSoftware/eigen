@@ -39,7 +39,7 @@ using std::tie;
 using tuple_impl::tuple;
 using tuple_impl::get;
 using tuple_impl::make_tuple;
-using
+using tuple_impl::tie;
 #endif
 #undef EIGEN_USE_CUSTOM_TUPLE
 }  // namespace test_detail
