@@ -98,7 +98,7 @@ class IndexedViewImpl;
   *  - decltype(ArrayXi::LinSpaced(...))
   *  - Any view/expressions of the previous types
   *  - Eigen::ArithmeticSequence
-  *  - Eigen::internal::AllRange      (helper for Eigen::all)
+  *  - Eigen::internal::AllRange     (helper for Eigen::placeholders::all)
   *  - Eigen::internal::SingleRange  (helper for single index)
   *  - etc.
   *
