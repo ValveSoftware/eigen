@@ -2204,7 +2204,6 @@ EIGEN_STRONG_INLINE void pstoreu<bfloat16>(bfloat16* to,
 
 template<> EIGEN_STRONG_INLINE Packet16bf
 ploaddup<Packet16bf>(const bfloat16* from) {
-  Packet16bf r;
   unsigned short a = from[0].value;
   unsigned short b = from[1].value;
   unsigned short c = from[2].value;
