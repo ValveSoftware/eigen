@@ -238,12 +238,9 @@ template<typename MatrixType_> class ComplexEigenSolver
     }
 
   protected:
-    
-    static void check_template_parameters()
-    {
-      EIGEN_STATIC_ASSERT_NON_INTEGER(Scalar);
-    }
-    
+
+    EIGEN_STATIC_ASSERT_NON_INTEGER(Scalar)
+
     EigenvectorType m_eivec;
     EigenvalueType m_eivalues;
     ComplexSchur<MatrixType> m_schur;
@@ -262,8 +259,6 @@ template<typename InputType>
 ComplexEigenSolver<MatrixType>& 
 ComplexEigenSolver<MatrixType>::compute(const EigenBase<InputType>& matrix, bool computeEigenvectors)
 {
-  check_template_parameters();
-  
   // this code is inspired from Jampack
   eigen_assert(matrix.cols() == matrix.rows());
 

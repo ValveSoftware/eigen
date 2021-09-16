@@ -405,10 +405,7 @@ template<typename MatrixType_> class FullPivHouseholderQR
 
   protected:
 
-    static void check_template_parameters()
-    {
-      EIGEN_STATIC_ASSERT_NON_INTEGER(Scalar);
-    }
+    EIGEN_STATIC_ASSERT_NON_INTEGER(Scalar)
 
     void computeInPlace();
 
@@ -460,8 +457,6 @@ FullPivHouseholderQR<MatrixType>& FullPivHouseholderQR<MatrixType>::compute(cons
 template<typename MatrixType>
 void FullPivHouseholderQR<MatrixType>::computeInPlace()
 {
-  check_template_parameters();
-
   using std::abs;
   Index rows = m_qr.rows();
   Index cols = m_qr.cols();

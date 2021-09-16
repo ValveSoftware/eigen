@@ -251,10 +251,7 @@ public:
 
 protected:
 
-  static void check_template_parameters()
-  {
-    EIGEN_STATIC_ASSERT_NON_INTEGER(Scalar);
-  }
+  EIGEN_STATIC_ASSERT_NON_INTEGER(Scalar)
 
   void _check_compute_assertions() const {
     eigen_assert(m_isInitialized && "SVD is not initialized.");
@@ -297,9 +294,7 @@ protected:
       m_computeThinV(false),
       m_computationOptions(0),
       m_rows(-1), m_cols(-1), m_diagSize(0)
-  {
-    check_template_parameters();
-  }
+  { }
 
 
 };

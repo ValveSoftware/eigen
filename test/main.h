@@ -321,35 +321,9 @@ namespace Eigen
     #endif // EIGEN_EXCEPTIONS
   #endif // EIGEN_DEBUG_ASSERTS
 
-  #if defined(TEST_CHECK_STATIC_ASSERTIONS) && defined(EIGEN_EXCEPTIONS)
-    #define EIGEN_STATIC_ASSERT(a,MSG) \
-      if( (!Eigen::internal::copy_bool(a)) && (!no_more_assert) )\
-      {                                       \
-        Eigen::no_more_assert = true;         \
-        if(report_on_cerr_on_assert_failure)  \
-          eigen_plain_assert((a) && #MSG);      \
-        else                                  \
-          EIGEN_THROW_X(Eigen::eigen_static_assert_exception()); \
-      }
-    #define VERIFY_RAISES_STATIC_ASSERT(a) {                    \
-      Eigen::no_more_assert = false;                            \
-      Eigen::report_on_cerr_on_assert_failure = false;          \
-      try {                                                     \
-        a;                                                      \
-        VERIFY(Eigen::should_raise_an_assert && # a);           \
-      }                                                         \
-      catch (Eigen::eigen_static_assert_exception&) { VERIFY(true); }  \
-      Eigen::report_on_cerr_on_assert_failure = true;           \
-    }
-  #endif // TEST_CHECK_STATIC_ASSERTIONS
-
 #ifndef VERIFY_RAISES_ASSERT
   #define VERIFY_RAISES_ASSERT(a) \
     std::cout << "Can't VERIFY_RAISES_ASSERT( " #a " ) with exceptions disabled\n";
-#endif
-#ifndef VERIFY_RAISES_STATIC_ASSERT
-  #define VERIFY_RAISES_STATIC_ASSERT(a) \
-    std::cout << "Can't VERIFY_RAISES_STATIC_ASSERT( " #a " ) with exceptions disabled\n";
 #endif
 
   #if !defined(__CUDACC__) && !defined(__HIPCC__) && !defined(SYCL_DEVICE_ONLY)
@@ -359,7 +333,6 @@ namespace Eigen
 #else // EIGEN_NO_ASSERTION_CHECKING
 
   #define VERIFY_RAISES_ASSERT(a) {}
-  #define VERIFY_RAISES_STATIC_ASSERT(a) {}
 
 #endif // EIGEN_NO_ASSERTION_CHECKING
 

@@ -232,10 +232,7 @@ template<typename MatrixType_> class HouseholderQR
 
   protected:
 
-    static void check_template_parameters()
-    {
-      EIGEN_STATIC_ASSERT_NON_INTEGER(Scalar);
-    }
+    EIGEN_STATIC_ASSERT_NON_INTEGER(Scalar)
 
     void computeInPlace();
 
@@ -405,8 +402,6 @@ void HouseholderQR<MatrixType_>::_solve_impl_transposed(const RhsType &rhs, DstT
 template<typename MatrixType>
 void HouseholderQR<MatrixType>::computeInPlace()
 {
-  check_template_parameters();
-  
   Index rows = m_qr.rows();
   Index cols = m_qr.cols();
   Index size = (std::min)(rows,cols);

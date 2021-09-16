@@ -68,6 +68,7 @@ template<typename VectorType, int Size> class VectorBlock
     };
   public:
     EIGEN_DENSE_PUBLIC_INTERFACE(VectorBlock)
+    EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorBlock)
 
     using Base::operator=;
 
@@ -78,18 +79,14 @@ template<typename VectorType, int Size> class VectorBlock
       : Base(vector,
              IsColVector ? start : 0, IsColVector ? 0 : start,
              IsColVector ? size  : 1, IsColVector ? 1 : size)
-    {
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorBlock);
-    }
+    { }
 
     /** Fixed-size constructor
       */
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
     VectorBlock(VectorType& vector, Index start)
       : Base(vector, IsColVector ? start : 0, IsColVector ? 0 : start)
-    {
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorBlock);
-    }
+    { }
 };
 
 

@@ -7,8 +7,6 @@
 // Public License v. 2.0. If a copy of the MPL was not distributed
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#define EIGEN_NO_STATIC_ASSERT
-
 #include "main.h"
 
 template<typename Scalar, bool is_integer = NumTraits<Scalar>::IsInteger>
@@ -319,16 +317,6 @@ template<typename Scalar> void dynamicVectorConstruction()
     VERIFY(v.rows() == size);
     VERIFY(v.cols() == 1);
     VERIFY_IS_EQUAL(v, (VectorX {{raw[0], raw[1], raw[2], raw[3]}}));
-  }
-
-  {
-    VERIFY_RAISES_ASSERT((VectorX {raw[0], raw[1], raw[2], raw[3]}));
-  }
-  {
-    VERIFY_RAISES_ASSERT((VectorX  {
-      {raw[0], raw[1], raw[2], raw[3]},
-      {raw[0], raw[1], raw[2], raw[3]},
-    }));
   }
 }
 
