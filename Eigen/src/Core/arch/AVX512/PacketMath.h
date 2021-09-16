@@ -2218,7 +2218,6 @@ ploaddup<Packet16bf>(const bfloat16* from) {
 
 template<> EIGEN_STRONG_INLINE Packet16bf
 ploadquad(const bfloat16* from) {
-  Packet16bf r;
   unsigned short a = from[0].value;
   unsigned short b = from[1].value;
   unsigned short c = from[2].value;
