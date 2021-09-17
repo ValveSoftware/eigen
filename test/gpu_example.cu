@@ -111,20 +111,26 @@ EIGEN_DECLARE_TEST(gpu_example)
     // Call subtests with different sized/typed inputs.
     CALL_SUBTEST( test_add(Eigen::Vector3f()) );
     CALL_SUBTEST( test_add(Eigen::Matrix3d()) );
+#if !defined(EIGEN_USE_HIP) // FIXME
     CALL_SUBTEST( test_add(Eigen::MatrixX<int>(10, 10)) );
-    
+#endif
+
     CALL_SUBTEST( test_add(Eigen::Array44f()) );
+#if !defined(EIGEN_USE_HIP)
     CALL_SUBTEST( test_add(Eigen::ArrayXd(20)) );
     CALL_SUBTEST( test_add(Eigen::ArrayXXi(13, 17)) );
-    
+#endif
+
     CALL_SUBTEST( test_multiply(Eigen::Matrix3d(),
                                 Eigen::Matrix3d(),
                                 Eigen::Matrix3d()) );
+#if !defined(EIGEN_USE_HIP)
     CALL_SUBTEST( test_multiply(Eigen::MatrixX<int>(10, 10),
                                 Eigen::MatrixX<int>(10, 10),
                                 Eigen::MatrixX<int>()) );
     CALL_SUBTEST( test_multiply(Eigen::MatrixXf(12, 1),
                                 Eigen::MatrixXf(1, 32),
                                 Eigen::MatrixXf()) );
+#endif
   }
 }
