@@ -8,7 +8,7 @@ ei_set_sitename()
 ei_set_build_string()
 
 add_custom_target(buildtests)
-add_custom_target(check COMMAND "ctest")
+add_custom_target(check COMMAND "ctest" ${EIGEN_CTEST_ARGS})
 add_dependencies(check buildtests)
 
 # Convenience target for only building GPU tests.
