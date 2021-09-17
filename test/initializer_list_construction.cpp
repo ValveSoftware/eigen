@@ -7,6 +7,13 @@
 // Public License v. 2.0. If a copy of the MPL was not distributed
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#if defined(__GNUC__) && __GNUC__ >= 10
+// GCC 10+ has a bug for unsigned char that thinks we're writing past the
+// end of an array when compiled with -O3.  This warning is not triggered for
+// any other types, nor for other compilers, nor for other optimization levels.
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
+
 #include "main.h"
 
 template<typename Scalar, bool is_integer = NumTraits<Scalar>::IsInteger>
