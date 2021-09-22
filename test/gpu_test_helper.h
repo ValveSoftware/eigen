@@ -306,7 +306,7 @@ auto run_on_cpu(Kernel kernel, Args&&... args) -> decltype(kernel(args...)){
  * The kernel must be able to be passed directly as an input to a global
  * function (i.e. empty or POD).  Its inputs must be "Serializable" so we
  * can transfer them to the device, and the output must be a Serializable value
- * type so it can be transfered back from the device.
+ * type so it can be transferred back from the device.
  * 
  * \param kernel kernel to run.
  * \param args ... input arguments, must be "Serializable".
@@ -424,7 +424,7 @@ void print_gpu_device_info()
  * The kernel must be able to be passed directly as an input to a global
  * function (i.e. empty or POD).  Its inputs must be "Serializable" so we
  * can transfer them to the device, and the output must be a Serializable value
- * type so it can be transfered back from the device.
+ * type so it can be transferred back from the device.
  * 
  * \param kernel kernel to run.
  * \param args ... input arguments, must be "Serializable".

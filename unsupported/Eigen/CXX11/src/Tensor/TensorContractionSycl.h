@@ -522,10 +522,10 @@ class TensorContractionKernel {
    * \param rhs_scratch_extract : determines the RHS tile memory. It is either private or local memory based on the
    * selected contraction_type.
    *
-   * \param lhs_extract_index: determins the position of each thread on a local memory for lhs input. When private
+   * \param lhs_extract_index: determines the position of each thread on a local memory for lhs input. When private
    * memory is used this is set to zero as this is not applicable in case of private memory.
    *
-   * \param rhs_extract_index: determins the position of each thread on a local memory for rhs input. When private
+   * \param rhs_extract_index: determines the position of each thread on a local memory for rhs input. When private
    * memory is used this is set to zero as this is not applicable in case of private memory.
    *
    * \param lhs_scratch_compute : determines the  location to load for computation for lhs_local memory. This is the
@@ -1236,7 +1236,7 @@ struct GeneralVectorTensor {
  *
  * \param out_res: determines the output tensor containing the contraction result
  *
- * \param rng: determins the total input data size
+ * \param rng: determines the total input data size
  */
 template <typename OutScalar, typename LhsScalar, typename RhsScalar, typename OutAccessor, typename LhsMapper,
           typename RhsMapper, typename StorageIndex, bool Vectorizable>

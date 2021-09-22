@@ -98,7 +98,7 @@ struct TensorEvaluator<const TensorContractionOp<Indices, LeftArgType, RightArgT
     //     context from the heap.
     //
     // (*) EvalParallelContext & EvalShardedByInnerDimContext owns all the state
-    // and temporary buffers, requried for executing the tensor contraction.
+    // and temporary buffers, required for executing the tensor contraction.
     // They are responsible for cleaning it up after contraction is done.
     static const bool IsEvalInSyncMode =
         std::is_same<DoneCallback, NoCallback>::value;
@@ -700,7 +700,7 @@ struct TensorEvaluator<const TensorContractionOp<Indices, LeftArgType, RightArgT
           !is_rhs && std::is_same<BlockType, LhsBlock>::value;
       static const bool kIsRhs =
           is_rhs && std::is_same<BlockType, RhsBlock>::value;
-      static_assert(kIsLhs || kIsRhs, "Unkown block type");
+      static_assert(kIsLhs || kIsRhs, "Unknown block type");
 
       using Blocks = ThreadLocalBlocks<BlockType>;
 

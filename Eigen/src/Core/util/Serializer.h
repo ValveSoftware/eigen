@@ -21,7 +21,7 @@ namespace Eigen {
 /**
  * Serializes an object to a memory buffer.
  * 
- * Useful for transfering data (e.g. back-and-forth to a device).
+ * Useful for transferring data (e.g. back-and-forth to a device).
  */
 template<typename T, typename EnableIf = void>
 class Serializer;

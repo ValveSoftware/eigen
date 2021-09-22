@@ -649,7 +649,7 @@
 
 
 // The macros EIGEN_HAS_CXX?? defines a rough estimate of available c++ features
-// but in practice we should not rely on them but rather on the availabilty of
+// but in practice we should not rely on them but rather on the availability of
 // individual features as defined later.
 // This is why there is no EIGEN_HAS_CXX17.
 // FIXME: get rid of EIGEN_HAS_CXX14 and maybe even EIGEN_HAS_CXX11.

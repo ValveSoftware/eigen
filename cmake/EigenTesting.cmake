@@ -678,8 +678,8 @@ endmacro()
 # Split all tests listed in EIGEN_TESTS_LIST into num_splits many targets
 # named buildtestspartN with N = { 0, ..., num_splits-1}.
 #
-# The intention behind the existance of this macro is the size of Eigen's
-# testsuite. Together with the relativly big compile-times building all tests
+# The intention behind the existence of this macro is the size of Eigen's
+# testsuite. Together with the relatively big compile-times building all tests
 # can take a substantial amount of time depending on the available hardware.
 # 
 # The last buildtestspartN target will build possible remaining tests.

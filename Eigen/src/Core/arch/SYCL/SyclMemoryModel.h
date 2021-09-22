@@ -168,7 +168,7 @@ class PointerMapper {
   /**
    * Obtain the insertion point in the pointer map for
    * a pointer of the given size.
-   * \param requiredSize Size attemted to reclaim
+   * \param requiredSize Size attempted to reclaim
    */
   typename pointerMap_t::iterator get_insertion_point(size_t requiredSize) {
     typename pointerMap_t::iterator retVal;

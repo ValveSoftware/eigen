@@ -66,7 +66,7 @@ public:
 
 /* Optimized col-major matrix * vector product:
  * This algorithm processes the matrix per vertical panels,
- * which are then processed horizontaly per chunck of 8*PacketSize x 1 vertical segments.
+ * which are then processed horizontally per chunck of 8*PacketSize x 1 vertical segments.
  *
  * Mixing type logic: C += alpha * A * B
  *  |  A  |  B  |alpha| comments

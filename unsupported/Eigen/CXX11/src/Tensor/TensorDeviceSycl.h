@@ -246,7 +246,7 @@ class QueueInterface {
   }
 
   /// The memcpyHostToDevice is used to copy the data from host to device
-  /// The destination pointer could be deleted before the copy happend which is
+  /// The destination pointer could be deleted before the copy happened which is
   /// why a callback function is needed. By default if none is provided, the
   /// function is blocking.
   EIGEN_STRONG_INLINE void memcpyHostToDevice(
@@ -274,7 +274,7 @@ class QueueInterface {
   }
 
   /// The memcpyDeviceToHost is used to copy the data from device to host.
-  /// The source pointer could be deleted before the copy happend which is
+  /// The source pointer could be deleted before the copy happened which is
   /// why a callback function is needed. By default if none is provided, the
   /// function is blocking.
   EIGEN_STRONG_INLINE void memcpyDeviceToHost(
