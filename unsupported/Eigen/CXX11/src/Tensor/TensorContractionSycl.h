@@ -112,7 +112,7 @@ struct TTPanelSize {
   // BC : determines if supporting bank conflict is required
   static EIGEN_CONSTEXPR bool BC = true;
   // DoubleBuffer: determines if double buffering technique should be used (This can be disabled by
-  // EIGEN_SYCL_DISABLE_DOUBLE_BUFFER macro when the device doesnot have sufficient  local memory)
+  // EIGEN_SYCL_DISABLE_DOUBLE_BUFFER macro when the device does not have sufficient local memory)
   static EIGEN_CONSTEXPR bool DoubleBuffer =
 #ifdef EIGEN_SYCL_DISABLE_DOUBLE_BUFFER
       false;
@@ -430,7 +430,7 @@ struct ThreadProperties {
  Otherwise, the result of contraction will be written iin a temporary buffer. This is the case when Tall/Skinny
  contraction is used. So in this case, a final reduction step is required to compute final output.
 
- * \tparam contraction_tp: it is an enum value representing whether the local memroy/no local memory implementation of
+ * \tparam contraction_tp: it is an enum value representing whether the local memory/no local memory implementation of
  the algorithm to be used
  *
  * \param scratch: local memory containing tiles of LHS and RHS tensors for each work-group
@@ -495,7 +495,7 @@ class TensorContractionKernel {
    * the TiledMemory for both local and private memory, the MemHolder structs is used as a helper to abstract out
    * different type of memory needed when local/no_local memory computation is called.
    *
-   * \tparam contraction_type: it is an enum value representing whether the local memroy/no local memory implementation
+   * \tparam contraction_type: it is an enum value representing whether the local memory/no local memory implementation
    of the algorithm to be used
    * \tparam the private memory size
    * \param ptr the tile memory pointer type

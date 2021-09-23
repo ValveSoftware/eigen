@@ -897,7 +897,7 @@ struct TensorEvaluator<const TensorContractionOp<Indices, LeftArgType, RightArgT
         } else {
           // If we can't guarantee that all kernels in `k` slice will be
           // executed sequentially in current thread, it's no longer safe to use
-          // thread local memory in followig slices along the k dimensions.
+          // thread local memory in following slices along the k dimensions.
           eigen_assert(k > 0);
           can_use_thread_local_packed_[n].store(false,
                                                 std::memory_order_relaxed);

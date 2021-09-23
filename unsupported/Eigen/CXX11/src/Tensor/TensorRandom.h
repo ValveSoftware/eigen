@@ -133,7 +133,7 @@ template <typename T> class UniformRandomGenerator {
     m_state = PCG_XSH_RS_state(seed);
     #ifdef EIGEN_USE_SYCL
     // In SYCL it is not possible to build PCG_XSH_RS_state in one step.
-    // Therefor, we need two step to initializate the m_state.
+    // Therefore, we need two steps to initializate the m_state.
     // IN SYCL, the constructor of the functor is s called on the CPU
     // and we get the clock seed here from the CPU. However, This seed is
     //the same for all the thread. As unlike CUDA, the thread.ID, BlockID, etc is not a global function.
@@ -246,7 +246,7 @@ template <typename T> class NormalRandomGenerator {
     m_state = PCG_XSH_RS_state(seed);
     #ifdef EIGEN_USE_SYCL
     // In SYCL it is not possible to build PCG_XSH_RS_state in one step.
-    // Therefor, we need two steps to initializate the m_state.
+    // Therefore, we need two steps to initializate the m_state.
     // IN SYCL, the constructor of the functor is s called on the CPU
     // and we get the clock seed here from the CPU. However, This seed is
     //the same for all the thread. As unlike CUDA, the thread.ID, BlockID, etc is not a global function.

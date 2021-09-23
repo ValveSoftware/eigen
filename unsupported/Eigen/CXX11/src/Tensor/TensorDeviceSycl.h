@@ -715,7 +715,7 @@ class QueueInterface {
   EIGEN_STRONG_INLINE int majorDeviceVersion() const { return 1; }
 
   EIGEN_STRONG_INLINE unsigned long maxSyclThreadsPerMultiProcessor() const {
-    // OpenCL doesnot have such concept
+    // OpenCL does not have such a concept
     return 2;
   }
 
@@ -1035,7 +1035,7 @@ struct SyclDevice : public SyclDeviceBase {
     return queue_stream()->maxWorkItemSizes();
   }
   EIGEN_STRONG_INLINE unsigned long maxSyclThreadsPerMultiProcessor() const {
-    // OpenCL doesnot have such concept
+    // OpenCL does not have such a concept
     return queue_stream()->maxSyclThreadsPerMultiProcessor();
   }
   EIGEN_STRONG_INLINE size_t sharedMemPerBlock() const {

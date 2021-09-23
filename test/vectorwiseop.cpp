@@ -41,7 +41,7 @@ template<typename ArrayType> void vectorwiseop_array(const ArrayType& m)
   VERIFY_IS_APPROX(m2, m1.rowwise() + rowvec);
   VERIFY_IS_APPROX(m2.row(r), m1.row(r) + rowvec);
 
-  // test substraction
+  // test subtraction
   m2 = m1;
   m2.colwise() -= colvec;
   VERIFY_IS_APPROX(m2, m1.colwise() - colvec);
@@ -142,7 +142,7 @@ template<typename MatrixType> void vectorwiseop_matrix(const MatrixType& m)
   VERIFY_IS_APPROX(m2.row(r), m1.row(r) + rowvec);
 
 
-  // test substraction
+  // test subtraction
   m2 = m1;
   m2.colwise() -= colvec;
   VERIFY_IS_APPROX(m2, m1.colwise() - colvec);

@@ -788,7 +788,7 @@ struct igammac_cf_impl {
     Scalar ax = main_igamma_term<Scalar>(a, x);
     // This is independent of mode. If this value is zero,
     // then the function value is zero. If the function value is zero,
-    // then we are in a neighborhood where the function value evalutes to zero,
+    // then we are in a neighborhood where the function value evaluates to zero,
     // so the derivative is zero.
     if (ax == zero) {
       return zero;
@@ -899,7 +899,7 @@ struct igamma_series_impl {
 
     // This is independent of mode. If this value is zero,
     // then the function value is zero. If the function value is zero,
-    // then we are in a neighborhood where the function value evalutes to zero,
+    // then we are in a neighborhood where the function value evaluates to zero,
     // so the derivative is zero.
     if (ax == zero) {
       return zero;

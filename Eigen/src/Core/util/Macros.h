@@ -624,7 +624,7 @@
 #define EIGEN_CPLUSPLUS 0
 #endif
 
-// The macro EIGEN_COMP_CXXVER defines the c++ verson expected by the compiler.
+// The macro EIGEN_COMP_CXXVER defines the c++ version expected by the compiler.
 // For instance, if compiling with gcc and -std=c++17, then EIGEN_COMP_CXXVER
 // is defined to 17.
 #if EIGEN_CPLUSPLUS > 201703L
