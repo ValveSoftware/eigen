@@ -384,40 +384,38 @@ if(EIGEN_TEST_CUDA_CLANG AND NOT CMAKE_CXX_COMPILER MATCHES "clang")
   message(WARNING "EIGEN_TEST_CUDA_CLANG is set, but CMAKE_CXX_COMPILER does not appear to be clang.")
 endif()
 
-if(EIGEN_TEST_CUDA)
+find_package(CUDA 9.0)
+if(CUDA_FOUND AND EIGEN_TEST_CUDA)
+  # Make sure to compile without the -pedantic, -Wundef, -Wnon-virtual-dtor
+  # and -fno-check-new flags since they trigger thousands of compilation warnings
+  # in the CUDA runtime
+  string(REPLACE "-pedantic" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  string(REPLACE "-Wundef" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  string(REPLACE "-Wnon-virtual-dtor" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  string(REPLACE "-fno-check-new" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")  
 
-find_package(CUDA 5.0)
-if(CUDA_FOUND)
-  
-  set(CUDA_PROPAGATE_HOST_FLAGS OFF)
-  
-  set(EIGEN_CUDA_RELAXED_CONSTEXPR "--expt-relaxed-constexpr")
-  if (${CUDA_VERSION} STREQUAL "7.0")
-    set(EIGEN_CUDA_RELAXED_CONSTEXPR "--relaxed-constexpr")
-  endif()
-  
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") 
-    set(CUDA_NVCC_FLAGS "-ccbin ${CMAKE_C_COMPILER}" CACHE STRING "nvcc flags" FORCE)
-  endif()
   if(EIGEN_TEST_CUDA_CLANG)
     string(APPEND CMAKE_CXX_FLAGS " --cuda-path=${CUDA_TOOLKIT_ROOT_DIR}")
     foreach(GPU IN LISTS EIGEN_CUDA_COMPUTE_ARCH)
       string(APPEND CMAKE_CXX_FLAGS " --cuda-gpu-arch=sm_${GPU}")
     endforeach()
+    string(APPEND CMAKE_CXX_FLAGS "${EIGEN_CUDA_FLAGS}")
   else()
-    foreach(GPU IN LISTS EIGEN_CUDA_COMPUTE_ARCH)
-      string(APPEND CUDA_NVCC_FLAGS " -gencode arch=compute_${GPU},code=sm_${GPU}")
+    set(CUDA_PROPAGATE_HOST_FLAGS OFF)
+    set(NVCC_ARCH_FLAGS)
+    foreach(ARCH IN LISTS EIGEN_CUDA_COMPUTE_ARCH)
+      string(APPEND NVCC_ARCH_FLAGS " -gencode arch=compute_${ARCH},code=sm_${ARCH}")
     endforeach()
+    set(CUDA_NVCC_FLAGS  "--expt-relaxed-constexpr -Xcudafe \"--display_error_number\" ${NVCC_ARCH_FLAGS} ${CUDA_NVCC_FLAGS} ${EIGEN_CUDA_FLAGS}")
+    cuda_include_directories("${CMAKE_CURRENT_BINARY_DIR}" "${CUDA_TOOLKIT_ROOT_DIR}/include")
   endif()
-  string(APPEND CUDA_NVCC_FLAGS " ${EIGEN_CUDA_RELAXED_CONSTEXPR}")
+  
   set(EIGEN_ADD_TEST_FILENAME_EXTENSION  "cu")
   
   ei_add_test(gpu_example)
   ei_add_test(gpu_basic)
   
   unset(EIGEN_ADD_TEST_FILENAME_EXTENSION)
-
-endif()
 
 endif()
 

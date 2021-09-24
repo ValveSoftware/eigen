@@ -400,7 +400,8 @@ if(EIGEN_TEST_NO_EXCEPTIONS)
   message(STATUS "Disabling exceptions in tests/examples")
 endif()
 
-set(EIGEN_CUDA_COMPUTE_ARCH 30 CACHE STRING "The CUDA compute architecture level to target when compiling CUDA code")
+set(EIGEN_CUDA_FLAGS "" CACHE STRING "Additional flags to pass to the cuda compiler.")
+set(EIGEN_CUDA_COMPUTE_ARCH 30 CACHE STRING "The CUDA compute architecture(s) to target when compiling CUDA code")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
