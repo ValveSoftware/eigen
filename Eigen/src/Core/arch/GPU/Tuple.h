@@ -218,19 +218,13 @@ struct unwrap_decay {
 };
 
 /**
- * Alternative to std::tuple that can be used on device.
- */
-template<typename... Types>
-using tuple = TupleImpl<sizeof...(Types), Types...>;
-
-/**
  * Utility for determining a tuple's size.
  */
 template<typename Tuple>
 struct tuple_size;
 
 template<typename... Types >
-struct tuple_size< tuple<Types...> > : std::integral_constant<size_t, sizeof...(Types)> {};
+struct tuple_size< TupleImpl<sizeof...(Types), Types...> > : std::integral_constant<size_t, sizeof...(Types)> {};
 
 /**
  * Gets an element of a tuple.
@@ -242,14 +236,14 @@ struct tuple_size< tuple<Types...> > : std::integral_constant<size_t, sizeof...(
 template<size_t Idx, typename... Types>
 EIGEN_CONSTEXPR EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
 const typename tuple_get_impl<Idx, Types...>::ReturnType&
-get(const tuple<Types...>& tuple) {
+get(const TupleImpl<sizeof...(Types), Types...>& tuple) {
   return tuple_get_impl<Idx, Types...>::run(tuple);
 }
 
 template<size_t Idx, typename... Types>
 EIGEN_CONSTEXPR EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
 typename tuple_get_impl<Idx, Types...>::ReturnType&
-get(tuple<Types...>& tuple) {
+get(TupleImpl<sizeof...(Types), Types...>& tuple) {
   return tuple_get_impl<Idx, Types...>::run(tuple);
 }
 
@@ -271,7 +265,7 @@ tuple_cat(Tuples&&... tuples) {
 /**
  * Tie arguments together into a tuple.
  */
-template <typename... Args, typename ReturnType = tuple<Args&...> >
+template <typename... Args, typename ReturnType = TupleImpl<sizeof...(Args), Args&...> >
 EIGEN_CONSTEXPR EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
 ReturnType tie(Args&... args) EIGEN_NOEXCEPT {
     return ReturnType{args...};
@@ -280,7 +274,7 @@ ReturnType tie(Args&... args) EIGEN_NOEXCEPT {
 /**
  * Create a tuple of l-values with the supplied arguments.
  */
-template <typename... Args, typename ReturnType = tuple<typename unwrap_decay<Args>::type...> >
+template <typename... Args, typename ReturnType = TupleImpl<sizeof...(Args), typename unwrap_decay<Args>::type...> >
 EIGEN_CONSTEXPR EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
 ReturnType make_tuple(Args&&... args) {
   return ReturnType{std::forward<Args>(args)...};
@@ -291,9 +285,15 @@ ReturnType make_tuple(Args&&... args) {
  */
 template <typename... Args>
 EIGEN_CONSTEXPR EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
-tuple<Args...> forward_as_tuple(Args&&... args) {
-  return tuple<Args...>(std::forward<Args>(args)...);
+TupleImpl<sizeof...(Args), Args...> forward_as_tuple(Args&&... args) {
+  return TupleImpl<sizeof...(Args), Args...>(std::forward<Args>(args)...);
 }
+
+/**
+ * Alternative to std::tuple that can be used on device.
+ */
+template<typename... Types>
+using tuple = TupleImpl<sizeof...(Types), Types...>;
 
 }  // namespace tuple_impl
 }  // namespace internal

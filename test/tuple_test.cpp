@@ -99,7 +99,7 @@ void basic_tuple_test() {
   VERIFY_IS_EQUAL(x, tuple_impl::get<0>(tuple3));
   VERIFY_IS_EQUAL(y, tuple_impl::get<1>(tuple3));
   VERIFY_IS_EQUAL(z, tuple_impl::get<2>(tuple3));
-  tuple<int, float, double> tuple3c(-2, -2, -2);
+  tuple<int, float, double> tuple3c(-2, -2.0f, -2.0);
   tuple3c = std::move(tuple3b);
   VERIFY_IS_EQUAL(tuple_impl::get<0>(tuple3c), tuple_impl::get<0>(tuple3));
   VERIFY_IS_EQUAL(tuple_impl::get<1>(tuple3c), tuple_impl::get<1>(tuple3));
