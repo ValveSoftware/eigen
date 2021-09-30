@@ -462,15 +462,7 @@ endmacro()
 
 macro(ei_get_compilerver VAR)
     if(MSVC)
-      # on windows system, we use a modified CMake script
-      include(EigenDetermineVSServicePack)
-      EigenDetermineVSServicePack( my_service_pack )
-
-      if( my_service_pack )
-        set(${VAR} ${my_service_pack})
-      else()
-        set(${VAR} "na")
-      endif()
+      set(${VAR} "${CMAKE_CXX_COMPILER_VERSION}")
     elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "PGI")
       set(${VAR} "${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}")
     else()
@@ -605,10 +597,7 @@ macro(ei_set_build_string)
   ei_get_compilerver(LOCAL_COMPILER_VERSION)
   ei_get_cxxflags(LOCAL_COMPILER_FLAGS)
 
-  include(EigenDetermineOSVersion)
-  DetermineOSVersion(OS_VERSION)
-
-  set(TMP_BUILD_STRING ${OS_VERSION}-${LOCAL_COMPILER_VERSION})
+  set(TMP_BUILD_STRING ${CMAKE_SYSTEM}-${LOCAL_COMPILER_VERSION})
 
   if (NOT ${LOCAL_COMPILER_FLAGS} STREQUAL  "")
     set(TMP_BUILD_STRING ${TMP_BUILD_STRING}-${LOCAL_COMPILER_FLAGS})
