@@ -1196,8 +1196,8 @@ namespace Eigen {
   #define EIGEN_USING_STD(FUNC) using std::FUNC;
 #endif
 
-#if EIGEN_COMP_MSVC_STRICT && (EIGEN_COMP_MSVC < 1900 || (EIGEN_COMP_MSVC == 1900 && EIGEN_COMP_NVCC))
-  // For older MSVC versions, as well as 1900 && CUDA 8, using the base operator is necessary,
+#if EIGEN_COMP_MSVC_STRICT && (EIGEN_COMP_MSVC < 1900 || EIGEN_COMP_NVCC)
+  // For older MSVC versions, as well as when compiling with NVCC, using the base operator is necessary,
   //   otherwise we get duplicate definition errors
   // For later MSVC versions, we require explicit operator= definition, otherwise we get
   //   use of implicitly deleted operator errors.
