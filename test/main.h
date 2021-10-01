@@ -370,8 +370,8 @@ inline void verify_impl(bool condition, const char *testname, const char *file, 
 #define VERIFY_IS_NOT_MUCH_SMALLER_THAN(a, b) VERIFY(!test_isMuchSmallerThan(a, b))
 #define VERIFY_IS_APPROX_OR_LESS_THAN(a, b) VERIFY(test_isApproxOrLessThan(a, b))
 #define VERIFY_IS_NOT_APPROX_OR_LESS_THAN(a, b) VERIFY(!test_isApproxOrLessThan(a, b))
-#define VERIFY_IS_CWISE_EQUAL(a, b) VERIFY(test_isCwiseApprox(a, b, true))
-#define VERIFY_IS_CWISE_APPROX(a, b) VERIFY(test_isCwiseApprox(a, b, false))
+#define VERIFY_IS_CWISE_EQUAL(a, b) VERIFY(verifyIsCwiseApprox(a, b, true))
+#define VERIFY_IS_CWISE_APPROX(a, b) VERIFY(verifyIsCwiseApprox(a, b, false))
 
 #define VERIFY_IS_UNITARY(a) VERIFY(test_isUnitary(a))
 
@@ -419,6 +419,9 @@ template<> inline long double test_precision<std::complex<long double> >() { ret
 #define EIGEN_TEST_SCALAR_TEST_OVERLOAD(TYPE)                             \
   inline bool test_isApprox(TYPE a, TYPE b)                               \
   { return internal::isApprox(a, b, test_precision<TYPE>()); }            \
+  inline bool test_isCwiseApprox(TYPE a, TYPE b, bool exact)              \
+  { return a == b || ((numext::isnan)(a) && (numext::isnan)(b)) ||        \
+      (!exact && internal::isApprox(a, b, test_precision<TYPE>())); }     \
   inline bool test_isMuchSmallerThan(TYPE a, TYPE b)                      \
   { return internal::isMuchSmallerThan(a, b, test_precision<TYPE>()); }   \
   inline bool test_isApproxOrLessThan(TYPE a, TYPE b)                     \
@@ -584,6 +587,22 @@ inline bool verifyIsApprox(const Type1& a, const Type2& b)
   if(!ret)
   {
     std::cerr << "Difference too large wrt tolerance " << get_test_precision(a)  << ", relative error is: " << test_relative_error(a,b) << std::endl;
+  }
+  return ret;
+}
+
+// verifyIsCwiseApprox is a wrapper to test_isCwiseApprox that outputs the relative difference magnitude if the test fails.
+template<typename Type1, typename Type2>
+inline bool verifyIsCwiseApprox(const Type1& a, const Type2& b, bool exact)
+{
+  bool ret = test_isCwiseApprox(a,b,exact);
+  if(!ret) {
+    if (exact) {
+      std::cerr << "Values are not an exact match";
+    } else {
+      std::cerr << "Difference too large wrt tolerance " << get_test_precision(a);
+    }
+    std::cerr << ", relative error is: " << test_relative_error(a,b) << std::endl;
   }
   return ret;
 }
