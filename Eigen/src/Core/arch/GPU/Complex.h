@@ -8,8 +8,8 @@
 // Public License v. 2.0. If a copy of the MPL was not distributed
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef EIGEN_COMPLEX_CUDA_H
-#define EIGEN_COMPLEX_CUDA_H
+#ifndef EIGEN_COMPLEX_GPU_H
+#define EIGEN_COMPLEX_GPU_H
 
 // Many std::complex methods such as operator+, operator-, operator* and
 // operator/ are not constexpr. Due to this, GCC and older versions of clang do
@@ -30,7 +30,7 @@
 //  - Compiling with ICC requires defining _USE_COMPLEX_SPECIALIZATION_ prior
 //    to the first inclusion of <complex>.
 
-#if defined(EIGEN_CUDACC) && defined(EIGEN_GPU_COMPILE_PHASE)
+#if defined(EIGEN_GPUCC) && defined(EIGEN_GPU_COMPILE_PHASE)
     
 // ICC already specializes std::complex<float> and std::complex<double>
 // operators, preventing us from making them device functions here.
@@ -266,6 +266,6 @@ EIGEN_USING_STD_COMPLEX_OPERATORS
 
 #endif  // !(EIGEN_COMP_ICC && _USE_COMPLEX_SPECIALIZATION_)
 
-#endif  // EIGEN_CUDACC && EIGEN_GPU_COMPILE_PHASE
+#endif  // EIGEN_GPUCC && EIGEN_GPU_COMPILE_PHASE
 
-#endif  // EIGEN_COMPLEX_CUDA_H
+#endif  // EIGEN_COMPLEX_GPU_H
