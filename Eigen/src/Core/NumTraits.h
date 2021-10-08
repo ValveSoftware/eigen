@@ -93,10 +93,18 @@ EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC Tgt bit_cast(const Src& src) {
 #endif
 
   EIGEN_STATIC_ASSERT(sizeof(Src) == sizeof(Tgt), THIS_TYPE_IS_NOT_SUPPORTED);
-  Tgt tgt;
-  EIGEN_USING_STD(memcpy)
-  memcpy(&tgt, &src, sizeof(Tgt));
-  return tgt;
+
+  // On GPU, the standard memcpy approach is not elided, actually producing an
+  // expensive memcpy. The standard (as used by the CUDA library, and suggested
+  // in multiple forums) seems to be to violate strict aliasing rules.
+  #if defined(EIGEN_GPU_COMPILE_PHASE)
+    return *reinterpret_cast<const Tgt*>(&src);
+  #else
+    Tgt tgt;
+    EIGEN_USING_STD(memcpy)
+    memcpy(&tgt, &src, sizeof(Tgt));
+    return tgt;
+  #endif
 }
 }  // namespace numext
 
