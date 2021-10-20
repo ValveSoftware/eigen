@@ -227,13 +227,19 @@ struct InnerMostDimReducer<Self, Op, true, false> {
 // The following implements tree-based reduction, which improves the accuracy
 // of sum and mean reductions, since each of the n inputs only participates in
 // O(log n) additions.
-static const int kLeafSize = 1024;
+template <typename T>
+EIGEN_DEVICE_FUNC inline Index LeafSize() { return 1024; }
+template <>
+EIGEN_DEVICE_FUNC inline Index LeafSize<half>() { return 200; }
+template <>
+EIGEN_DEVICE_FUNC inline Index LeafSize<bfloat16>() { return 128; }
 
 template <typename Self, typename Op>
 struct InnerMostDimReducer<Self, Op, false, true> {
   static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE typename Self::CoeffReturnType
   reduce(const Self& self, typename Self::Index firstIndex,
          typename Self::Index numValuesToReduce, Op& reducer) {
+    const Index kLeafSize = LeafSize<typename Self::CoeffReturnType>();
     typename Self::CoeffReturnType accum = reducer.initialize();
     if (numValuesToReduce > kLeafSize) {
       const typename Self::Index half = numValuesToReduce / 2;
@@ -254,6 +260,7 @@ struct InnerMostDimReducer<Self, Op, true, true> {
   static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE typename Self::CoeffReturnType
   reduce(const Self& self, typename Self::Index firstIndex,
          typename Self::Index numValuesToReduce, Op& reducer) {
+    const Index kLeafSize = LeafSize<typename Self::CoeffReturnType>();
     const typename Self::Index packetSize =
         internal::unpacket_traits<typename Self::PacketReturnType>::size;
     typename Self::CoeffReturnType accum = reducer.initialize();
