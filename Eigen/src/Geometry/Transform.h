@@ -369,9 +369,11 @@ public:
   }
 
   #ifdef EIGEN_QT_SUPPORT
+  #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
   inline Transform(const QMatrix& other);
   inline Transform& operator=(const QMatrix& other);
   inline QMatrix toQMatrix(void) const;
+  #endif
   inline Transform(const QTransform& other);
   inline Transform& operator=(const QTransform& other);
   inline QTransform toQTransform(void) const;
@@ -734,6 +736,8 @@ typedef Transform<double,3,Projective> Projective3d;
 **************************/
 
 #ifdef EIGEN_QT_SUPPORT
+
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
 /** Initializes \c *this from a QMatrix assuming the dimension is 2.
   *
   * This function is available only if the token EIGEN_QT_SUPPORT is defined.
@@ -778,6 +782,7 @@ QMatrix Transform<Scalar,Dim,Mode,Options>::toQMatrix(void) const
                  m_matrix.coeff(0,1), m_matrix.coeff(1,1),
                  m_matrix.coeff(0,2), m_matrix.coeff(1,2));
 }
+#endif
 
 /** Initializes \c *this from a QTransform assuming the dimension is 2.
   *
