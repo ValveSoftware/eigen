@@ -16,6 +16,16 @@ endif (POLICY CMP0090)
 
 project(Eigen3)
 
+# Remove this block after bumping CMake to v3.21.0
+# PROJECT_IS_TOP_LEVEL is defined then by default
+if(CMAKE_VERSION VERSION_LESS 3.21.0)
+  if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    set(PROJECT_IS_TOP_LEVEL TRUE)
+  else()
+    set(PROJECT_IS_TOP_LEVEL FALSE)
+  endif()
+endif()
+
 set(CMAKE_CXX_STANDARD 11 CACHE STRING "Default C++ standard")
 set(CMAKE_CXX_STANDARD_REQUIRED ON CACHE BOOL "Require C++ standard")
 set(CMAKE_CXX_EXTENSIONS OFF CACHE BOOL "Allow C++ extensions")
@@ -40,7 +50,7 @@ endif()
 
 
 #############################################################################
-# retrieve version information                                               #
+# retrieve version information                                              #
 #############################################################################
 
 # automatically parse the version number
@@ -111,13 +121,11 @@ if(NOT STANDARD_MATH_LIBRARY_FOUND)
     "Can't link to the standard math library. Please report to the Eigen developers, telling them about your platform.")
 
 else()
-
   if(EIGEN_STANDARD_LIBRARIES_TO_LINK_TO)
     set(EIGEN_STANDARD_LIBRARIES_TO_LINK_TO "${EIGEN_STANDARD_LIBRARIES_TO_LINK_TO} ${STANDARD_MATH_LIBRARY}")
   else()
     set(EIGEN_STANDARD_LIBRARIES_TO_LINK_TO "${STANDARD_MATH_LIBRARY}")
   endif()
-
 endif()
 
 if(EIGEN_STANDARD_LIBRARIES_TO_LINK_TO)
@@ -467,8 +475,9 @@ if(EIGEN_BUILD_DOC)
 endif()
 
 
-option(BUILD_TESTING "Enable creation of Eigen tests." ON)
-if(BUILD_TESTING)
+cmake_dependent_option(BUILD_TESTING "Enable creation of tests." ON "PROJECT_IS_TOP_LEVEL" OFF)
+option(EIGEN_BUILD_TESTING "Enable creation of Eigen tests." ${BUILD_TESTING})
+if(EIGEN_BUILD_TESTING)
   include(EigenConfigureTesting)
 
   if(EIGEN_LEAVE_TEST_IN_ALL_TARGET)
@@ -536,7 +545,7 @@ endif()
 
 configure_file(scripts/cdashtesting.cmake.in cdashtesting.cmake @ONLY)
 
-if(BUILD_TESTING)
+if(EIGEN_BUILD_TESTING)
   ei_testing_print_summary()
 endif()
 
@@ -544,34 +553,35 @@ message(STATUS "")
 message(STATUS "Configured Eigen ${EIGEN_VERSION_NUMBER}")
 message(STATUS "")
 
-string(TOLOWER "${CMAKE_GENERATOR}" cmake_generator_tolower)
-if(cmake_generator_tolower MATCHES "makefile")
-  message(STATUS "Available targets (use: make TARGET):")
-else()
-  message(STATUS "Available targets (use: cmake --build . --target TARGET):")
+if(PROJECT_IS_TOP_LEVEL)
+  string(TOLOWER "${CMAKE_GENERATOR}" cmake_generator_tolower)
+  if(cmake_generator_tolower MATCHES "makefile")
+    message(STATUS "Available targets (use: make TARGET):")
+  else()
+    message(STATUS "Available targets (use: cmake --build . --target TARGET):")
+  endif()
+  message(STATUS "---------+--------------------------------------------------------------")
+  message(STATUS "Target   |   Description")
+  message(STATUS "---------+--------------------------------------------------------------")
+  message(STATUS "install  | Install Eigen. Headers will be installed to:")
+  message(STATUS "         |     <CMAKE_INSTALL_PREFIX>/<INCLUDE_INSTALL_DIR>")
+  message(STATUS "         |   Using the following values:")
+  message(STATUS "         |     CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
+  message(STATUS "         |     INCLUDE_INSTALL_DIR:  ${INCLUDE_INSTALL_DIR}")
+  message(STATUS "         |   Change the install location of Eigen headers using:")
+  message(STATUS "         |     cmake . -DCMAKE_INSTALL_PREFIX=yourprefix")
+  message(STATUS "         |   Or:")
+  message(STATUS "         |     cmake . -DINCLUDE_INSTALL_DIR=yourdir")
+  message(STATUS "doc      | Generate the API documentation, requires Doxygen & LaTeX")
+  if(EIGEN_BUILD_TESTING)
+    message(STATUS "check    | Build and run the unit-tests. Read this page:")
+    message(STATUS "         |   http://eigen.tuxfamily.org/index.php?title=Tests")
+  endif()
+  message(STATUS "blas     | Build BLAS library (not the same thing as Eigen)")
+  message(STATUS "uninstall| Remove files installed by the install target")
+  message(STATUS "---------+--------------------------------------------------------------")
+  message(STATUS "")
 endif()
-message(STATUS "---------+--------------------------------------------------------------")
-message(STATUS "Target   |   Description")
-message(STATUS "---------+--------------------------------------------------------------")
-message(STATUS "install  | Install Eigen. Headers will be installed to:")
-message(STATUS "         |     <CMAKE_INSTALL_PREFIX>/<INCLUDE_INSTALL_DIR>")
-message(STATUS "         |   Using the following values:")
-message(STATUS "         |     CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
-message(STATUS "         |     INCLUDE_INSTALL_DIR:  ${INCLUDE_INSTALL_DIR}")
-message(STATUS "         |   Change the install location of Eigen headers using:")
-message(STATUS "         |     cmake . -DCMAKE_INSTALL_PREFIX=yourprefix")
-message(STATUS "         |   Or:")
-message(STATUS "         |     cmake . -DINCLUDE_INSTALL_DIR=yourdir")
-message(STATUS "doc      | Generate the API documentation, requires Doxygen & LaTeX")
-if(BUILD_TESTING)
-  message(STATUS "check    | Build and run the unit-tests. Read this page:")
-  message(STATUS "         |   http://eigen.tuxfamily.org/index.php?title=Tests")
-endif()
-message(STATUS "blas     | Build BLAS library (not the same thing as Eigen)")
-message(STATUS "uninstall| Remove files installed by the install target")
-message(STATUS "---------+--------------------------------------------------------------")
-message(STATUS "")
-
 
 set ( EIGEN_VERSION_STRING ${EIGEN_VERSION_NUMBER} )
 set ( EIGEN_VERSION_MAJOR  ${EIGEN_WORLD_VERSION} )
