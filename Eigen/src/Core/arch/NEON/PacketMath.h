@@ -4028,6 +4028,7 @@ struct packet_traits<Eigen::half> : default_packet_traits {
     HasCos = 0,
     HasLog = 0,
     HasExp = 0,
+    HasTanh = packet_traits<float>::HasTanh,  // tanh<half> calls tanh<float>
     HasSqrt = 1,
     HasRsqrt = 1,
     HasErf = EIGEN_FAST_MATH,
