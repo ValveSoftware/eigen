@@ -468,6 +468,8 @@
   #include <hip/hip_vector_types.h>
   #define EIGEN_HAS_HIP_FP16
   #include <hip/hip_fp16.h>
+  #define EIGEN_HAS_HIP_BF16
+  #include <hip/hip_bfloat16.h>
 #endif
 
 

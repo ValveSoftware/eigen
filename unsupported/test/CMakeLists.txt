@@ -385,6 +385,7 @@ if (EIGEN_TEST_HIP)
         ei_add_test(cxx11_tensor_gpu)
         ei_add_test(cxx11_tensor_contract_gpu)
         ei_add_test(cxx11_tensor_of_float16_gpu)
+        ei_add_test(cxx11_tensor_of_bfloat16_gpu)
         ei_add_test(cxx11_tensor_random_gpu)
 
         unset(EIGEN_ADD_TEST_FILENAME_EXTENSION)
