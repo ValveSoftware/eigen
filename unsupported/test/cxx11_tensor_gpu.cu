@@ -66,47 +66,6 @@ void test_gpu_nullary() {
   gpuFree(d_in2);
 }
 
-// Tests that there are no indexing overflows when computing tensors with the
-// max representable size.
-template <typename IndexType,
-          IndexType N = (std::numeric_limits<IndexType>::max)()>
-void test_gpu_nullary_max_size()
-{
-  typedef int8_t DataType;
-  typedef Tensor<DataType, 1, 0, IndexType> TensorType;
-  typedef Eigen::array<IndexType, 1> ArrayType;
-
-  const IndexType n = N;
-  TensorType in1((ArrayType(n)));
-  in1.setZero();
-
-  std::size_t in1_bytes = in1.size() * sizeof(DataType);
-
-  DataType* d_in1;
-  gpuMalloc((void**)(&d_in1), in1_bytes);
-
-  gpuMemcpy(d_in1, in1.data(), in1_bytes, gpuMemcpyHostToDevice);
-
-  Eigen::GpuStreamDevice stream;
-  Eigen::GpuDevice gpu_device(&stream);
-
-  Eigen::TensorMap<TensorType> gpu_in1(d_in1, ArrayType(n));
-
-  gpu_in1.device(gpu_device) = gpu_in1.constant(123);
-
-  TensorType new1((ArrayType(n)));
-
-  assert(gpuMemcpyAsync(new1.data(), d_in1, in1_bytes, gpuMemcpyDeviceToHost,
-                        gpu_device.stream()) == gpuSuccess);
-  assert(gpuStreamSynchronize(gpu_device.stream()) == gpuSuccess);
-
-  for (IndexType i = 0; i < n; ++i) {
-    VERIFY_IS_EQUAL(new1(ArrayType(i)), 123);
-  }
-
-  gpuFree(d_in1);
-}
-
 void test_gpu_elementwise_small() {
   Tensor<float, 1> in1(Eigen::array<Eigen::DenseIndex, 1>(2));
   Tensor<float, 1> in2(Eigen::array<Eigen::DenseIndex, 1>(2));
@@ -1565,10 +1524,6 @@ void test_gpu_gamma_sample_der_alpha()
 EIGEN_DECLARE_TEST(cxx11_tensor_gpu)
 {
   CALL_SUBTEST_1(test_gpu_nullary());
-  CALL_SUBTEST_1(test_gpu_nullary_max_size<int16_t>());
-  CALL_SUBTEST_1(test_gpu_nullary_max_size<int32_t>());
-  CALL_SUBTEST_1((test_gpu_nullary_max_size<
-                  int64_t, (std::numeric_limits<int32_t>::max)() + 100ll>()));
   CALL_SUBTEST_1(test_gpu_elementwise_small());
   CALL_SUBTEST_1(test_gpu_elementwise());
   CALL_SUBTEST_1(test_gpu_props());

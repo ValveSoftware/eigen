@@ -30,15 +30,13 @@ const T2& choose(Cond<false>, const T1&, const T2& second) {
 template <typename T, typename X, typename Y>
 EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE
 T divup(const X x, const Y y) {
-  // Note: This form is used because it cannot overflow.
-  return static_cast<T>(x == 0 ? 0 : (x - 1) / y + 1);
+  return static_cast<T>((x + y - 1) / y);
 }
 
 template <typename T>
 EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE
 T divup(const T x, const T y) {
-  // Note: This form is used because it cannot overflow.
-  return static_cast<T>(x == 0 ? 0 : (x - 1) / y + 1);
+  return static_cast<T>((x + y - 1) / y);
 }
 
 template <size_t n> struct max_n_1 {

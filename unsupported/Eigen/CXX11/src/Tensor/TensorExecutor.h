@@ -553,39 +553,11 @@ class TensorExecutor<Expression, GpuDevice, Vectorizable, Tiling> {
 };
 
 #if defined(EIGEN_GPUCC)
-// Returns lhs + rhs, saturating to the highest/lowest representable value on
-// overflow/underflow respectively.
-template <typename Index>
-EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE Index saturate_add(Index lhs, Index rhs) {
-  const Index highest = NumTraits<Index>::highest();
-  const Index lowest = NumTraits<Index>::lowest();
-  if (lhs > 0 && rhs > 0) {
-    return (lhs > highest - rhs) ? highest : lhs + rhs;
-  } else if (lhs < 0 && rhs < 0) {
-    return (lhs < lowest - rhs) ? lowest : lhs + rhs;
-  } else {
-    return lhs + rhs;
-  }
-}
-
-#if !defined(EIGEN_USE_HIP)
-// Specialization for int32 using PTX intrinsic.
-template <>
-__device__ EIGEN_ALWAYS_INLINE int32_t saturate_add<int32_t>(int32_t lhs,
-                                                             int32_t rhs) {
-  // add.sat is only supported for s32.
-  int32_t result;
-  asm("add.sat.s32 %0, %1, %2;" : "=r"(result) : "r"(lhs), "r"(rhs));
-  return result;
-}
-#endif
-
 template <typename Evaluator, typename StorageIndex, bool Vectorizable>
 struct EigenMetaKernelEval {
   static EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE
   void run(Evaluator& eval, StorageIndex firstIdx, StorageIndex lastIdx, StorageIndex step_size) {
-    for (StorageIndex i = firstIdx; i < lastIdx;
-         i = saturate_add(i, step_size)) {
+    for (StorageIndex i = firstIdx; i < lastIdx; i += step_size) {
       eval.evalScalar(i);
     }
   }
@@ -601,11 +573,10 @@ struct EigenMetaKernelEval<Evaluator, StorageIndex, true> {
 
     // Use the vector path
     for (StorageIndex i = firstIdx * PacketSize; i < vectorized_size;
-         i = saturate_add(i, vectorized_step_size)) {
+         i += vectorized_step_size) {
       eval.evalPacket(i);
     }
-    for (StorageIndex i = saturate_add(vectorized_size, firstIdx); i < lastIdx;
-         i = saturate_add(i, step_size)) {
+    for (StorageIndex i = vectorized_size + firstIdx; i < lastIdx; i += step_size) {
       eval.evalScalar(i);
     }
   }
@@ -632,11 +603,8 @@ EIGEN_STRONG_INLINE void TensorExecutor<Expression, GpuDevice, Vectorizable, Til
   if (needs_assign) {
 
     const int block_size = device.maxGpuThreadsPerBlock();
-    const int max_blocks =
-        numext::mini<int64_t>(device.getNumGpuMultiProcessors() *
-                              device.maxGpuThreadsPerMultiProcessor(),
-                          NumTraits<StorageIndex>::highest()) /
-        block_size;
+    const int max_blocks = device.getNumGpuMultiProcessors() *
+                           device.maxGpuThreadsPerMultiProcessor() / block_size;
     const StorageIndex size = array_prod(evaluator.dimensions());
     // Create a least one block to ensure we won't crash when tensorflow calls with tensors of size 0.
     const int num_blocks = numext::maxi<int>(numext::mini<int>(max_blocks, divup<int>(size, block_size)), 1);
