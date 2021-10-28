@@ -46,12 +46,13 @@ namespace Eigen {
 
 struct bfloat16;
 
+namespace numext {
 template <>
-EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC Eigen::bfloat16 numext::bit_cast<Eigen::bfloat16, uint16_t>(const uint16_t& src);
+EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC Eigen::bfloat16 bit_cast<Eigen::bfloat16, uint16_t>(const uint16_t& src);
 
 template <>
-EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC uint16_t numext::bit_cast<uint16_t, Eigen::bfloat16>(const Eigen::bfloat16& src);
-
+EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC uint16_t bit_cast<uint16_t, Eigen::bfloat16>(const Eigen::bfloat16& src);
+}  // namespace numext
 namespace bfloat16_impl {
 
 #if defined(EIGEN_USE_HIP_BF16)
