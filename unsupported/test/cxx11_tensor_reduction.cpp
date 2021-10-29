@@ -504,7 +504,11 @@ void test_sum_accuracy() {
     for (int i = 0; i < num_elements; ++i) {
       expected_sum += static_cast<double>(tensor(i));
     }
-    VERIFY_IS_APPROX(sum(), static_cast<ScalarType>(expected_sum));
+    // Scale tolerance to account for # elements.  Otherwise, we periodically fail, since
+    // E[sum] == prescribed_mean == 0 for the first iteration.
+    double err = Eigen::numext::abs(static_cast<double>(sum()) - expected_sum);
+    double tol = Eigen::numext::sqrt(num_elements) * static_cast<double>(test_precision<ScalarType>()) * numext::maxi(1.0, prescribed_mean);
+    VERIFY(err < tol);
   }
 }
 

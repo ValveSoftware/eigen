@@ -633,7 +633,7 @@ static const bool RunningOnGPU = false;
           m_fastOutputStrides[i] = internal::TensorIntDivisor<Index>(m_outputStrides[i]);
         }
       } else {
-        m_outputStrides[NumOutputDims - 1] = 1;
+        m_outputStrides[static_cast<size_t>(NumOutputDims - 1)] = 1;
         for (int i = NumOutputDims - 2; i >= 0; --i) {
           m_outputStrides[i] = m_outputStrides[i + 1] * m_dimensions[i + 1];
           m_fastOutputStrides[i] = internal::TensorIntDivisor<Index>(m_outputStrides[i]);
@@ -680,7 +680,7 @@ static const bool RunningOnGPU = false;
             ? internal::array_prod(input_dims)
             : (static_cast<int>(Layout) == static_cast<int>(ColMajor))
                   ? m_preservedStrides[0]
-                  : m_preservedStrides[NumOutputDims - 1];
+                  : m_preservedStrides[static_cast<size_t>(NumOutputDims - 1)];
   }
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Dimensions& dimensions() const { return m_dimensions; }
