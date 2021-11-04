@@ -309,7 +309,7 @@ public:
 
   /** Constructs and initializes a quaternion from either:
     *  - a rotation matrix expression,
-    *  - a 4D vector expression representing quaternion coefficients.
+    *  - a 4D vector expression representing quaternion coefficients in the order [\c x, \c y, \c z, \c w].
     */
   template<typename Derived>
   EIGEN_DEVICE_FUNC explicit inline Quaternion(const MatrixBase<Derived>& other) { *this = other; }
