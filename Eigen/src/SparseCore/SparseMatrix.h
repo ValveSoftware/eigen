@@ -110,7 +110,7 @@ class SparseMatrix
     using Base::operator+=;
     using Base::operator-=;
 
-    typedef MappedSparseMatrix<Scalar,Flags> Map;
+    typedef MappedSparseMatrix<Scalar,Flags,StorageIndex> Map;
     typedef Diagonal<SparseMatrix> DiagonalReturnType;
     typedef Diagonal<const SparseMatrix> ConstDiagonalReturnType;
     typedef typename Base::InnerIterator InnerIterator;
@@ -126,7 +126,7 @@ class SparseMatrix
     typedef typename Base::IndexVector IndexVector;
     typedef typename Base::ScalarVector ScalarVector;
   protected:
-    typedef SparseMatrix<Scalar,(Flags&~RowMajorBit)|(IsRowMajor?RowMajorBit:0)> TransposedSparseMatrix;
+    typedef SparseMatrix<Scalar,(Flags&~RowMajorBit)|(IsRowMajor?RowMajorBit:0),StorageIndex> TransposedSparseMatrix;
 
     Index m_outerSize;
     Index m_innerSize;
