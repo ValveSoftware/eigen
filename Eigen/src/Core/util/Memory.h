@@ -855,7 +855,7 @@ template<typename T> void swap(scoped_array<T> &a,scoped_array<T> &b)
 /** \class aligned_allocator
 * \ingroup Core_Module
 *
-* \brief STL compatible allocator to use with types requiring a non standrad alignment.
+* \brief STL compatible allocator to use with types requiring a non-standard alignment.
 *
 * The memory is aligned as for dynamically aligned matrix/array types such as MatrixXd.
 * By default, it will thus provide at least 16 bytes alignment and more in following cases:
