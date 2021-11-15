@@ -124,9 +124,6 @@ umeyama(const MatrixBase<Derived>& src, const MatrixBase<OtherDerived>& dst, boo
   const RowMajorMatrixType src_demean = src.colwise() - src_mean;
   const RowMajorMatrixType dst_demean = dst.colwise() - dst_mean;
 
-  // Eq. (36)-(37)
-  const Scalar src_var = src_demean.rowwise().squaredNorm().sum() * one_over_n;
-
   // Eq. (38)
   const MatrixType sigma = one_over_n * dst_demean * src_demean.transpose();
 
@@ -146,6 +143,9 @@ umeyama(const MatrixBase<Derived>& src, const MatrixBase<OtherDerived>& dst, boo
 
   if (with_scaling)
   {
+    // Eq. (36)-(37)
+    const Scalar src_var = src_demean.rowwise().squaredNorm().sum() * one_over_n;
+
     // Eq. (42)
     const Scalar c = Scalar(1)/src_var * svd.singularValues().dot(S);
 
