@@ -1266,17 +1266,17 @@ template<typename TransformType> struct transform_take_affine_part {
   typedef typename TransformType::MatrixType MatrixType;
   typedef typename TransformType::AffinePart AffinePart;
   typedef typename TransformType::ConstAffinePart ConstAffinePart;
-  static inline AffinePart run(MatrixType& m)
+  static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE AffinePart run(MatrixType& m)
   { return m.template block<TransformType::Dim,TransformType::HDim>(0,0); }
-  static inline ConstAffinePart run(const MatrixType& m)
+  static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE ConstAffinePart run(const MatrixType& m)
   { return m.template block<TransformType::Dim,TransformType::HDim>(0,0); }
 };
 
 template<typename Scalar, int Dim, int Options>
 struct transform_take_affine_part<Transform<Scalar,Dim,AffineCompact, Options> > {
   typedef typename Transform<Scalar,Dim,AffineCompact,Options>::MatrixType MatrixType;
-  static inline MatrixType& run(MatrixType& m) { return m; }
-  static inline const MatrixType& run(const MatrixType& m) { return m; }
+  static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE MatrixType& run(MatrixType& m) { return m; }
+  static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const MatrixType& run(const MatrixType& m) { return m; }
 };
 
 /*****************************************************
@@ -1286,7 +1286,7 @@ struct transform_take_affine_part<Transform<Scalar,Dim,AffineCompact, Options> >
 template<typename Other, int Mode, int Options, int Dim, int HDim>
 struct transform_construct_from_matrix<Other, Mode,Options,Dim,HDim, Dim,Dim>
 {
-  static inline void run(Transform<typename Other::Scalar,Dim,Mode,Options> *transform, const Other& other)
+  static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE void run(Transform<typename Other::Scalar,Dim,Mode,Options> *transform, const Other& other)
   {
     transform->linear() = other;
     transform->translation().setZero();
@@ -1297,7 +1297,7 @@ struct transform_construct_from_matrix<Other, Mode,Options,Dim,HDim, Dim,Dim>
 template<typename Other, int Mode, int Options, int Dim, int HDim>
 struct transform_construct_from_matrix<Other, Mode,Options,Dim,HDim, Dim,HDim>
 {
-  static inline void run(Transform<typename Other::Scalar,Dim,Mode,Options> *transform, const Other& other)
+  static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE void run(Transform<typename Other::Scalar,Dim,Mode,Options> *transform, const Other& other)
   {
     transform->affine() = other;
     transform->makeAffine();
@@ -1307,14 +1307,14 @@ struct transform_construct_from_matrix<Other, Mode,Options,Dim,HDim, Dim,HDim>
 template<typename Other, int Mode, int Options, int Dim, int HDim>
 struct transform_construct_from_matrix<Other, Mode,Options,Dim,HDim, HDim,HDim>
 {
-  static inline void run(Transform<typename Other::Scalar,Dim,Mode,Options> *transform, const Other& other)
+  static  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE void run(Transform<typename Other::Scalar,Dim,Mode,Options> *transform, const Other& other)
   { transform->matrix() = other; }
 };
 
 template<typename Other, int Options, int Dim, int HDim>
 struct transform_construct_from_matrix<Other, AffineCompact,Options,Dim,HDim, HDim,HDim>
 {
-  static inline void run(Transform<typename Other::Scalar,Dim,AffineCompact,Options> *transform, const Other& other)
+  static  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE void run(Transform<typename Other::Scalar,Dim,AffineCompact,Options> *transform, const Other& other)
   { transform->matrix() = other.template block<Dim,HDim>(0,0); }
 };
 
