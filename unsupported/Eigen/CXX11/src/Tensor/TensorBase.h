@@ -962,6 +962,11 @@ class TensorBase<Derived, ReadOnlyAccessors>
       return TensorForcedEvalOp<const Derived>(derived());
     }
 
+    // Returns a formatted tensor ready for printing to a stream
+    inline const TensorWithFormat<Derived,DerivedTraits::Layout,DerivedTraits::NumDimensions> format(const TensorIOFormat& fmt) const {
+      return TensorWithFormat<Derived,DerivedTraits::Layout,DerivedTraits::NumDimensions>(derived(), fmt);
+    }
+
     #ifdef EIGEN_READONLY_TENSORBASE_PLUGIN
     #include EIGEN_READONLY_TENSORBASE_PLUGIN
     #endif
