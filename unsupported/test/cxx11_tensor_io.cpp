@@ -90,6 +90,16 @@ void test_tensor_ostream() {
   test_tensor_ostream_impl<Scalar, rank, Layout>::run();
 }
 
+void test_const_tensor_ostream() {
+  Eigen::Tensor<float, 0> t;
+  t.setValues(1);
+  const Eigen::TensorMap<Eigen::Tensor<const float, 0, Eigen::RowMajor>, Eigen::Unaligned> t_const(
+      t.data(), Eigen::DSizes<Eigen::DenseIndex, 0>{});
+  std::ostringstream os;
+  os << t_const.format(Eigen::TensorIOFormat::Plain());
+  VERIFY(os.str() == "1");
+}
+
 EIGEN_DECLARE_TEST(cxx11_tensor_io) {
   CALL_SUBTEST((test_tensor_ostream<float, 0, Eigen::ColMajor>()));
   CALL_SUBTEST((test_tensor_ostream<float, 1, Eigen::ColMajor>()));
@@ -126,4 +136,7 @@ EIGEN_DECLARE_TEST(cxx11_tensor_io) {
 
   CALL_SUBTEST((test_tensor_ostream<std::complex<double>, 2, Eigen::ColMajor>()));
   CALL_SUBTEST((test_tensor_ostream<std::complex<float>, 2, Eigen::ColMajor>()));
+
+  // Test printing TensorMap with const elements.
+  CALL_SUBTEST((test_const_tensor_ostream()));
 }
