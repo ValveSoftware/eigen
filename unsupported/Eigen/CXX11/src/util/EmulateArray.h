@@ -18,6 +18,10 @@
 namespace Eigen {
 template <typename T, size_t n> class array {
  public:
+  typedef T value_type;
+  typedef T* iterator;
+  typedef const T* const_iterator;
+
   EIGEN_DEVICE_FUNC
   EIGEN_STRONG_INLINE T& operator[] (size_t index) { eigen_internal_assert(index < size()); return values[index]; }
   EIGEN_DEVICE_FUNC
@@ -37,6 +41,16 @@ template <typename T, size_t n> class array {
   EIGEN_STRONG_INLINE T& back() { return values[n-1]; }
   EIGEN_DEVICE_FUNC
   EIGEN_STRONG_INLINE const T& back() const { return values[n-1]; }
+
+  EIGEN_DEVICE_FUNC
+  EIGEN_STRONG_INLINE iterator begin() { return values; }
+  EIGEN_DEVICE_FUNC
+  EIGEN_STRONG_INLINE const_iterator begin() const { return values; }
+
+  EIGEN_DEVICE_FUNC
+  EIGEN_STRONG_INLINE iterator end() { return values + n; }
+  EIGEN_DEVICE_FUNC
+  EIGEN_STRONG_INLINE const_iterator end() const { return values + n; }
 
   EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE
   static std::size_t size() { return n; }
