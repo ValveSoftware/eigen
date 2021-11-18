@@ -59,7 +59,8 @@ initSparse(double density,
   sparseMat.setZero();
   //sparseMat.reserve(int(refMat.rows()*refMat.cols()*density));
   sparseMat.reserve(VectorXi::Constant(IsRowMajor ? refMat.rows() : refMat.cols(), int((1.5*density)*(IsRowMajor?refMat.cols():refMat.rows()))));
-  
+
+  Index insert_count = 0;
   for(Index j=0; j<sparseMat.outerSize(); j++)
   {
     //sparseMat.startVec(j);
@@ -89,6 +90,7 @@ initSparse(double density,
       {
         //sparseMat.insertBackByOuterInner(j,i) = v;
         sparseMat.insertByOuterInner(j,i) = v;
+        ++insert_count;
         if (nonzeroCoords)
           nonzeroCoords->push_back(Matrix<StorageIndex,2,1> (ai,aj));
       }
@@ -97,6 +99,9 @@ initSparse(double density,
         zeroCoords->push_back(Matrix<StorageIndex,2,1> (ai,aj));
       }
       refMat(ai,aj) = v;
+
+      // make sure we only insert as many as the sparse matrix supports
+      if(insert_count == NumTraits<StorageIndex>::highest()) return;
     }
   }
   //sparseMat.finalize();
