@@ -298,14 +298,14 @@ struct TensorPrinter {
       }
       for (std::size_t k = 0; k < rank; k++) {
         std::size_t separator_index = (k < fmt.separator.size()) ? k : fmt.separator.size() - 1;
-        if (is_at_end[k] and
-            (!is_at_end_before_newline or fmt.separator[separator_index].find('\n') != std::string::npos)) {
+        if (is_at_end[k] &&
+            (!is_at_end_before_newline || fmt.separator[separator_index].find('\n') != std::string::npos)) {
           separator << fmt.separator[separator_index];
         }
       }
       for (std::size_t k = 0; k < rank; k++) {
         std::size_t spacer_index = (k < fmt.spacer.size()) ? k : fmt.spacer.size() - 1;
-        if (i != 0 and is_at_begin_after_newline and (!is_at_begin[k] or k == 0)) {
+        if (i != 0 && is_at_begin_after_newline && (!is_at_begin[k] || k == 0)) {
           prefix << fmt.spacer[spacer_index];
         }
       }
