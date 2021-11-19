@@ -110,7 +110,7 @@ class SparseMatrix
     using Base::operator+=;
     using Base::operator-=;
 
-    typedef MappedSparseMatrix<Scalar,Flags,StorageIndex> Map;
+    typedef Eigen::Map<SparseMatrix<Scalar,Flags,StorageIndex>> Map;
     typedef Diagonal<SparseMatrix> DiagonalReturnType;
     typedef Diagonal<const SparseMatrix> ConstDiagonalReturnType;
     typedef typename Base::InnerIterator InnerIterator;

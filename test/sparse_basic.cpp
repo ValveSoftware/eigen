@@ -431,12 +431,6 @@ template<typename SparseMatrixType> void sparse_basic(const SparseMatrixType& re
       VERIFY_IS_APPROX(mapMat2+mapMat3, refMat2+refMat3);
       VERIFY_IS_APPROX(mapMat2+mapMat3, refMat2+refMat3);
     }
-    {
-      MappedSparseMatrix<Scalar,SparseMatrixType::Options,StorageIndex> mapMat2(m2.rows(), m2.cols(), m2.nonZeros(), m2.outerIndexPtr(), m2.innerIndexPtr(), m2.valuePtr(), m2.innerNonZeroPtr());
-      MappedSparseMatrix<Scalar,SparseMatrixType::Options,StorageIndex> mapMat3(m3.rows(), m3.cols(), m3.nonZeros(), m3.outerIndexPtr(), m3.innerIndexPtr(), m3.valuePtr(), m3.innerNonZeroPtr());
-      VERIFY_IS_APPROX(mapMat2+mapMat3, refMat2+refMat3);
-      VERIFY_IS_APPROX(mapMat2+mapMat3, refMat2+refMat3);
-    }
 
     Index i = internal::random<Index>(0,rows-1);
     Index j = internal::random<Index>(0,cols-1);

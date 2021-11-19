@@ -53,7 +53,6 @@ const int RandomAccessPattern       = 0x8 | OuterRandomAccessPattern | InnerRand
 
 template<typename Scalar_, int _Flags = 0, typename StorageIndex_ = int>  class SparseMatrix;
 template<typename Scalar_, int _Flags = 0, typename StorageIndex_ = int>  class SparseVector;
-template<typename Scalar_, int _Flags = 0, typename StorageIndex_ = int>  class MappedSparseMatrix;
 
 template<typename MatrixType, unsigned int UpLo>  class SparseSelfAdjointView;
 template<typename Lhs, typename Rhs>              class SparseDiagonalProduct;
