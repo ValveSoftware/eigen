@@ -38,9 +38,10 @@
 #include <cmath>
 #include <cstddef>
 #include <cstring>
+#include <iterator>
+#include <numeric>
 #include <random>
 #include <thread>
-#include <numeric>
 
 #if defined(EIGEN_USE_THREADS) || defined(EIGEN_USE_SYCL)
 #include "ThreadPool"
