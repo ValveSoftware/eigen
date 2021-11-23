@@ -58,10 +58,10 @@ struct TensorIOFormat {
     }
 
     for (std::size_t k = 1; k < prefix.size(); k++) {
-      int i = int(prefix[k].length()) - 1;
-      while (i >= 0 && prefix[k][i] != '\n') {
+      int j = int(prefix[k].length()) - 1;
+      while (j >= 0 && prefix[k][j] != '\n') {
         spacer[k] += ' ';
-        i--;
+        j--;
       }
     }
   }
@@ -137,10 +137,10 @@ class TensorWithFormat<T, ColMajor, rank> {
 
   friend std::ostream& operator<<(std::ostream& os, const TensorWithFormat<T, ColMajor, rank>& wf) {
     // Switch to RowMajor storage and print afterwards
-    typedef typename T::Index Index;
-    std::array<Index, rank> shuffle;
-    std::array<Index, rank> id;
-    std::iota(id.begin(), id.end(), Index(0));
+    typedef typename T::Index IndexType;
+    std::array<IndexType, rank> shuffle;
+    std::array<IndexType, rank> id;
+    std::iota(id.begin(), id.end(), IndexType(0));
     std::copy(id.begin(), id.end(), shuffle.rbegin());
     auto tensor_row_major = wf.t_tensor.swap_layout().shuffle(shuffle);
 
@@ -187,14 +187,14 @@ template <typename Tensor, std::size_t rank>
 struct TensorPrinter {
   static void run(std::ostream& s, const Tensor& _t, const TensorIOFormat& fmt) {
     typedef typename internal::remove_const<typename Tensor::Scalar>::type Scalar;
-    typedef typename Tensor::Index Index;
+    typedef typename Tensor::Index IndexType;
     static const int layout = Tensor::Layout;
     // backwards compatibility case: print tensor after reshaping to matrix of size dim(0) x
     // (dim(1)*dim(2)*...*dim(rank-1)).
     if (fmt.legacy_bit) {
-      const Index total_size = internal::array_prod(_t.dimensions());
+      const IndexType total_size = internal::array_prod(_t.dimensions());
       if (total_size > 0) {
-        const Index first_dim = Eigen::internal::array_get<0>(_t.dimensions());
+        const IndexType first_dim = Eigen::internal::array_get<0>(_t.dimensions());
         Map<const Array<Scalar, Dynamic, Dynamic, layout> > matrix(_t.data(), first_dim,
                                                                    total_size / first_dim);
         s << matrix;
@@ -212,7 +212,7 @@ struct TensorPrinter {
                                                           is_same<Scalar, std::complex<numext::uint8_t> >::value,
                                                       std::complex<int>, const Scalar&>::type>::type PrintType;
 
-    const Index total_size = array_prod(_t.dimensions());
+    const IndexType total_size = array_prod(_t.dimensions());
 
     std::streamsize explicit_precision;
     if (fmt.precision == StreamPrecision) {
@@ -230,30 +230,30 @@ struct TensorPrinter {
     std::streamsize old_precision = 0;
     if (explicit_precision) old_precision = s.precision(explicit_precision);
 
-    Index width = 0;
+    IndexType width = 0;
 
     bool align_cols = !(fmt.flags & DontAlignCols);
     if (align_cols) {
       // compute the largest width
-      for (Index i = 0; i < total_size; i++) {
+      for (IndexType i = 0; i < total_size; i++) {
         std::stringstream sstr;
         sstr.copyfmt(s);
         sstr << static_cast<PrintType>(_t.data()[i]);
-        width = std::max<Index>(width, Index(sstr.str().length()));
+        width = std::max<IndexType>(width, IndexType(sstr.str().length()));
       }
     }
     std::streamsize old_width = s.width();
     char old_fill_character = s.fill();
 
     s << fmt.tenPrefix;
-    for (Index i = 0; i < total_size; i++) {
+    for (IndexType i = 0; i < total_size; i++) {
       std::array<bool, rank> is_at_end{};
       std::array<bool, rank> is_at_begin{};
 
       // is the ith element the end of an coeff (always true), of a row, of a matrix, ...?
       for (std::size_t k = 0; k < rank; k++) {
         if ((i + 1) % (std::accumulate(_t.dimensions().rbegin(), _t.dimensions().rbegin() + k, 1,
-                                       std::multiplies<Index>())) ==
+                                       std::multiplies<IndexType>())) ==
             0) {
           is_at_end[k] = true;
         }
@@ -262,7 +262,7 @@ struct TensorPrinter {
       // is the ith element the begin of an coeff (always true), of a row, of a matrix, ...?
       for (std::size_t k = 0; k < rank; k++) {
         if (i % (std::accumulate(_t.dimensions().rbegin(), _t.dimensions().rbegin() + k, 1,
-                                 std::multiplies<Index>())) ==
+                                 std::multiplies<IndexType>())) ==
             0) {
           is_at_begin[k] = true;
         }
