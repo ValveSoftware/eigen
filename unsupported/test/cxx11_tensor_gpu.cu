@@ -17,7 +17,7 @@
 
 #include <unsupported/Eigen/CXX11/src/Tensor/TensorGpuHipCudaDefines.h>
 
-#define EIGEN_GPU_TEST_C99_MATH  EIGEN_HAS_CXX11
+#define EIGEN_GPU_TEST_C99_MATH  1
 
 using Eigen::Tensor;
 

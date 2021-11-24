@@ -14,8 +14,6 @@
 
 #include "main.h"
 
-#if EIGEN_HAS_CXX11
-
 #ifdef min
 #undef min
 #endif
@@ -26,8 +24,6 @@
 
 #include <unordered_map>
 #define EIGEN_UNORDERED_MAP_SUPPORT
-
-#endif
 
 #include <Eigen/Cholesky>
 #include <Eigen/LU>

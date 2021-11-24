@@ -88,9 +88,7 @@ public:
   FixedInt ( FixedInt<N> (*)() ) {}
 #endif
 
-#if EIGEN_HAS_CXX11
   FixedInt(std::integral_constant<int,N>) {}
-#endif
 };
 
 /** \internal
@@ -178,9 +176,7 @@ template<int N, int DynamicKey> struct cleanup_index_type<VariableAndFixedInt<N>
 // If VariableAndFixedInt matches DynamicKey, then we turn it to a pure runtime-value (aka Index):
 template<int DynamicKey> struct cleanup_index_type<VariableAndFixedInt<DynamicKey>, DynamicKey> { typedef Index type; };
 
-#if EIGEN_HAS_CXX11
 template<int N, int DynamicKey> struct cleanup_index_type<std::integral_constant<int,N>, DynamicKey> { typedef FixedInt<N> type; };
-#endif
 
 } // end namespace internal
 

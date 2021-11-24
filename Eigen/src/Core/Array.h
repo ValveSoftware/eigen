@@ -161,7 +161,6 @@ class Array
     }
 #endif
 
-    #if EIGEN_HAS_CXX11
     /** \copydoc PlainObjectBase(const Scalar& a0, const Scalar& a1, const Scalar& a2, const Scalar& a3, const ArgTypes&... args)
      *
      * Example: \include Array_variadic_ctor_cxx11.cpp
@@ -198,7 +197,6 @@ class Array
       */
     EIGEN_DEVICE_FUNC
     EIGEN_STRONG_INLINE Array(const std::initializer_list<std::initializer_list<Scalar>>& list) : Base(list) {}
-    #endif // end EIGEN_HAS_CXX11
 
     #ifndef EIGEN_PARSED_BY_DOXYGEN
     template<typename T>
@@ -354,8 +352,6 @@ EIGEN_MAKE_ARRAY_TYPEDEFS_ALL_SIZES(std::complex<double>, cd)
 #undef EIGEN_MAKE_ARRAY_TYPEDEFS
 #undef EIGEN_MAKE_ARRAY_FIXED_TYPEDEFS
 
-#if EIGEN_HAS_CXX11
-
 #define EIGEN_MAKE_ARRAY_TYPEDEFS(Size, SizeSuffix)               \
 /** \ingroup arraytypedefs */                                     \
 /** \brief \cpp11 */                                              \
@@ -386,8 +382,6 @@ EIGEN_MAKE_ARRAY_FIXED_TYPEDEFS(4)
 
 #undef EIGEN_MAKE_ARRAY_TYPEDEFS
 #undef EIGEN_MAKE_ARRAY_FIXED_TYPEDEFS
-
-#endif // EIGEN_HAS_CXX11
 
 #define EIGEN_USING_ARRAY_TYPEDEFS_FOR_TYPE_AND_SIZE(TypeSuffix, SizeSuffix) \
 using Eigen::Matrix##SizeSuffix##TypeSuffix; \

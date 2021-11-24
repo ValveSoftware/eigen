@@ -13,8 +13,6 @@
 
 #include "../../../Eigen/Core"
 
-#if EIGEN_HAS_CXX11
-
 #include "../SpecialFunctions"
 
 #include "../../../Eigen/src/Core/util/DisableStupidWarnings.h"
@@ -137,5 +135,4 @@
 
 #include "../../../Eigen/src/Core/util/ReenableStupidWarnings.h"
 
-#endif  // EIGEN_HAS_CXX11
 //#endif // EIGEN_CXX11_TENSOR_MODULE_H

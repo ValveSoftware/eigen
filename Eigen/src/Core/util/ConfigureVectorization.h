@@ -116,7 +116,6 @@
 
   // static alignment is completely disabled with GCC 3, Sun Studio, and QCC/QNX
   #if !EIGEN_GCC_AND_ARCH_DOESNT_WANT_STACK_ALIGNMENT \
-  && !EIGEN_GCC3_OR_OLDER \
   && !EIGEN_COMP_SUNCC \
   && !EIGEN_OS_QNX
     #define EIGEN_ARCH_WANTS_STACK_ALIGNMENT 1

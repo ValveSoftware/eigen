@@ -10,7 +10,6 @@
 
 #ifndef EIGEN_MACROS_H
 #define EIGEN_MACROS_H
-
 #include "../InternalHeaderCheck.h"
 
 //------------------------------------------------------------------------------------------
@@ -213,14 +212,6 @@
   #define EIGEN_GNUC_AT_MOST(x,y)  0
   #define EIGEN_GNUC_AT(x,y)       0
 #endif
-
-// FIXME: could probably be removed as we do not support gcc 3.x anymore
-#if EIGEN_COMP_GNUC && (__GNUC__ <= 3)
-#define EIGEN_GCC3_OR_OLDER 1
-#else
-#define EIGEN_GCC3_OR_OLDER 0
-#endif
-
 
 
 //------------------------------------------------------------------------------------------
@@ -577,13 +568,6 @@
 // Detect Compiler/Architecture/OS specific features
 //------------------------------------------------------------------------------------------
 
-#if EIGEN_GNUC_AT_MOST(4,3) && !EIGEN_COMP_CLANG
-  // see bug 89
-  #define EIGEN_SAFE_TO_USE_STANDARD_ASSERT_MACRO 0
-#else
-  #define EIGEN_SAFE_TO_USE_STANDARD_ASSERT_MACRO 1
-#endif
-
 // Cross compiler wrapper around LLVM's __has_builtin
 #ifdef __has_builtin
 #  define EIGEN_HAS_BUILTIN(x) __has_builtin(x)
@@ -652,11 +636,10 @@
 // but in practice we should not rely on them but rather on the availability of
 // individual features as defined later.
 // This is why there is no EIGEN_HAS_CXX17.
-// FIXME: get rid of EIGEN_HAS_CXX14 and maybe even EIGEN_HAS_CXX11.
+// FIXME: get rid of EIGEN_HAS_CXX14.
 #if EIGEN_MAX_CPP_VER>=11 && EIGEN_COMP_CXXVER>=11
-#define EIGEN_HAS_CXX11 1
 #else
-#define EIGEN_HAS_CXX11 0
+#error This compiler appears to be too old to be supported by Eigen
 #endif
 
 #if EIGEN_MAX_CPP_VER>=14 && EIGEN_COMP_CXXVER>=14
@@ -694,7 +677,7 @@
 // Does the compiler support result_of?
 // result_of was deprecated in c++17 and removed in c++ 20
 #ifndef EIGEN_HAS_STD_RESULT_OF
-#if EIGEN_HAS_CXX11 && EIGEN_COMP_CXXVER < 17
+#if EIGEN_COMP_CXXVER < 17
 #define EIGEN_HAS_STD_RESULT_OF 1
 #else
 #define EIGEN_HAS_STD_RESULT_OF 0
@@ -705,7 +688,7 @@
 #ifndef EIGEN_HAS_STD_HASH
 // The std::hash struct is defined in C++11 but is not labelled as a __device__
 // function and is not constexpr, so cannot be used on device.
-#if EIGEN_HAS_CXX11 && !defined(EIGEN_GPU_COMPILE_PHASE)
+#if !defined(EIGEN_GPU_COMPILE_PHASE)
 #define EIGEN_HAS_STD_HASH 1
 #else
 #define EIGEN_HAS_STD_HASH 0
@@ -721,7 +704,7 @@
 #endif
 
 #ifndef EIGEN_HAS_ALIGNAS
-#if EIGEN_MAX_CPP_VER>=11 && EIGEN_HAS_CXX11 &&   \
+#if EIGEN_MAX_CPP_VER>=11 &&                      \
       (     __has_feature(cxx_alignas)            \
         ||  EIGEN_HAS_CXX14                       \
         || (EIGEN_COMP_MSVC >= 1800)              \
@@ -740,7 +723,7 @@
 // - full support of type traits was added only to GCC 5.1.0.
 // - 20150626 corresponds to the last release of 4.x libstdc++
 #ifndef EIGEN_HAS_TYPE_TRAITS
-#if EIGEN_MAX_CPP_VER>=11 && (EIGEN_HAS_CXX11 || EIGEN_COMP_MSVC >= 1700) \
+#if EIGEN_MAX_CPP_VER>=11                                     \
   && ((!EIGEN_COMP_GNUC_STRICT) || EIGEN_GNUC_AT_LEAST(5, 1)) \
   && ((!defined(__GLIBCXX__))   || __GLIBCXX__ > 20150626)
 #define EIGEN_HAS_TYPE_TRAITS 1
@@ -1000,38 +983,12 @@
     #define eigen_plain_assert(x)
   #endif
 #else
-  #if EIGEN_SAFE_TO_USE_STANDARD_ASSERT_MACRO
     namespace Eigen {
     namespace internal {
     inline bool copy_bool(bool b) { return b; }
     }
     }
     #define eigen_plain_assert(x) assert(x)
-  #else
-    // work around bug 89
-    #include <cstdlib>   // for abort
-    #include <iostream>  // for std::cerr
-
-    namespace Eigen {
-    namespace internal {
-    // trivial function copying a bool. Must be EIGEN_DONT_INLINE, so we implement it after including Eigen headers.
-    // see bug 89.
-    namespace {
-    EIGEN_DONT_INLINE bool copy_bool(bool b) { return b; }
-    }
-    inline void assert_fail(const char *condition, const char *function, const char *file, int line)
-    {
-      std::cerr << "assertion failed: " << condition << " in function " << function << " at " << file << ":" << line << std::endl;
-      abort();
-    }
-    }
-    }
-    #define eigen_plain_assert(x) \
-      do { \
-        if(!Eigen::internal::copy_bool(x)) \
-          Eigen::internal::assert_fail(EIGEN_MAKESTRING(x), __PRETTY_FUNCTION__, __FILE__, __LINE__); \
-      } while(false)
-  #endif
 #endif
 
 // eigen_assert can be overridden
@@ -1226,11 +1183,7 @@ namespace Eigen {
  * \brief Macro to explicitly define the default copy constructor.
  * This is necessary, because the implicit definition is deprecated if the copy-assignment is overridden.
  */
-#if EIGEN_HAS_CXX11
 #define EIGEN_DEFAULT_COPY_CONSTRUCTOR(CLASS) EIGEN_DEVICE_FUNC CLASS(const CLASS&) = default;
-#else
-#define EIGEN_DEFAULT_COPY_CONSTRUCTOR(CLASS)
-#endif
 
 
 
@@ -1250,15 +1203,9 @@ namespace Eigen {
  *
  * Hiding the default destructor lead to problems in C++03 mode together with boost::multiprecision
  */
-#if EIGEN_HAS_CXX11
 #define EIGEN_DEFAULT_EMPTY_CONSTRUCTOR_AND_DESTRUCTOR(Derived)  \
     EIGEN_DEVICE_FUNC Derived() = default; \
     EIGEN_DEVICE_FUNC ~Derived() = default;
-#else
-#define EIGEN_DEFAULT_EMPTY_CONSTRUCTOR_AND_DESTRUCTOR(Derived)  \
-    EIGEN_DEVICE_FUNC Derived() {}; \
-    /* EIGEN_DEVICE_FUNC ~Derived() {}; */
-#endif
 
 
 

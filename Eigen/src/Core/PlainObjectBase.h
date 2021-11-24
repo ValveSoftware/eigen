@@ -527,7 +527,6 @@ class PlainObjectBase : public internal::dense_xpr_base<Derived>::type
 //       EIGEN_INITIALIZE_COEFFS_IF_THAT_OPTION_IS_ENABLED
     }
 
-    #if EIGEN_HAS_CXX11
     /** \brief Construct a row of column vector with fixed size from an arbitrary number of coefficients. \cpp11
       *
       * \only_for_vectors
@@ -587,7 +586,6 @@ class PlainObjectBase : public internal::dense_xpr_base<Derived>::type
         }
       }
     }
-    #endif  // end EIGEN_HAS_CXX11
 
     /** \sa PlainObjectBase::operator=(const EigenBase<OtherDerived>&) */
     template<typename OtherDerived>

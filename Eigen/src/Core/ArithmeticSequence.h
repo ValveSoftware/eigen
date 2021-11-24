@@ -16,7 +16,7 @@ namespace Eigen {
 
 namespace internal {
 
-#if (!EIGEN_HAS_CXX11) || !((!EIGEN_COMP_GNUC) || EIGEN_COMP_GNUC>=48)
+#if !((!EIGEN_COMP_GNUC) || EIGEN_COMP_GNUC>=48)
 template<typename T> struct aseq_negate {};
 
 template<> struct aseq_negate<Index> {
@@ -140,7 +140,7 @@ protected:
 
 public:
 
-#if EIGEN_HAS_CXX11 && ((!EIGEN_COMP_GNUC) || EIGEN_COMP_GNUC>=48)
+#if (!EIGEN_COMP_GNUC) || EIGEN_COMP_GNUC>=48
   auto reverse() const -> decltype(Eigen::seqN(m_first+(m_size+fix<-1>())*m_incr,m_size,-m_incr)) {
     return seqN(m_first+(m_size+fix<-1>())*m_incr,m_size,-m_incr);
   }
@@ -202,7 +202,6 @@ auto seq(FirstType f, LastType l);
 
 #else // EIGEN_PARSED_BY_DOXYGEN
 
-#if EIGEN_HAS_CXX11
 template<typename FirstType,typename LastType>
 auto seq(FirstType f, LastType l) -> decltype(seqN(typename internal::cleanup_index_type<FirstType>::type(f),
                                                    (  typename internal::cleanup_index_type<LastType>::type(l)
@@ -228,102 +227,11 @@ auto seq(FirstType f, LastType l, IncrType incr)
               CleanedIncrType(incr));
 }
 
-#else // EIGEN_HAS_CXX11
-
-template<typename FirstType,typename LastType>
-typename internal::enable_if<!(symbolic::is_symbolic<FirstType>::value || symbolic::is_symbolic<LastType>::value),
-                             ArithmeticSequence<typename internal::cleanup_index_type<FirstType>::type,Index> >::type
-seq(FirstType f, LastType l)
-{
-  return seqN(typename internal::cleanup_index_type<FirstType>::type(f),
-              Index((typename internal::cleanup_index_type<LastType>::type(l)-typename internal::cleanup_index_type<FirstType>::type(f)+fix<1>())));
-}
-
-template<typename FirstTypeDerived,typename LastType>
-typename internal::enable_if<!symbolic::is_symbolic<LastType>::value,
-    ArithmeticSequence<FirstTypeDerived, symbolic::AddExpr<symbolic::AddExpr<symbolic::NegateExpr<FirstTypeDerived>,symbolic::ValueExpr<> >,
-                                                            symbolic::ValueExpr<internal::FixedInt<1> > > > >::type
-seq(const symbolic::BaseExpr<FirstTypeDerived> &f, LastType l)
-{
-  return seqN(f.derived(),(typename internal::cleanup_index_type<LastType>::type(l)-f.derived()+fix<1>()));
-}
-
-template<typename FirstType,typename LastTypeDerived>
-typename internal::enable_if<!symbolic::is_symbolic<FirstType>::value,
-    ArithmeticSequence<typename internal::cleanup_index_type<FirstType>::type,
-                        symbolic::AddExpr<symbolic::AddExpr<LastTypeDerived,symbolic::ValueExpr<> >,
-                                          symbolic::ValueExpr<internal::FixedInt<1> > > > >::type
-seq(FirstType f, const symbolic::BaseExpr<LastTypeDerived> &l)
-{
-  return seqN(typename internal::cleanup_index_type<FirstType>::type(f),(l.derived()-typename internal::cleanup_index_type<FirstType>::type(f)+fix<1>()));
-}
-
-template<typename FirstTypeDerived,typename LastTypeDerived>
-ArithmeticSequence<FirstTypeDerived,
-                    symbolic::AddExpr<symbolic::AddExpr<LastTypeDerived,symbolic::NegateExpr<FirstTypeDerived> >,symbolic::ValueExpr<internal::FixedInt<1> > > >
-seq(const symbolic::BaseExpr<FirstTypeDerived> &f, const symbolic::BaseExpr<LastTypeDerived> &l)
-{
-  return seqN(f.derived(),(l.derived()-f.derived()+fix<1>()));
-}
-
-
-template<typename FirstType,typename LastType, typename IncrType>
-typename internal::enable_if<!(symbolic::is_symbolic<FirstType>::value || symbolic::is_symbolic<LastType>::value),
-    ArithmeticSequence<typename internal::cleanup_index_type<FirstType>::type,Index,typename internal::cleanup_seq_incr<IncrType>::type> >::type
-seq(FirstType f, LastType l, IncrType incr)
-{
-  typedef typename internal::cleanup_seq_incr<IncrType>::type CleanedIncrType;
-  return seqN(typename internal::cleanup_index_type<FirstType>::type(f),
-              Index((typename internal::cleanup_index_type<LastType>::type(l)-typename internal::cleanup_index_type<FirstType>::type(f)+CleanedIncrType(incr))/CleanedIncrType(incr)), incr);
-}
-
-template<typename FirstTypeDerived,typename LastType, typename IncrType>
-typename internal::enable_if<!symbolic::is_symbolic<LastType>::value,
-    ArithmeticSequence<FirstTypeDerived,
-                        symbolic::QuotientExpr<symbolic::AddExpr<symbolic::AddExpr<symbolic::NegateExpr<FirstTypeDerived>,
-                                                                                   symbolic::ValueExpr<> >,
-                                                                 symbolic::ValueExpr<typename internal::cleanup_seq_incr<IncrType>::type> >,
-                                              symbolic::ValueExpr<typename internal::cleanup_seq_incr<IncrType>::type> >,
-                        typename internal::cleanup_seq_incr<IncrType>::type> >::type
-seq(const symbolic::BaseExpr<FirstTypeDerived> &f, LastType l, IncrType incr)
-{
-  typedef typename internal::cleanup_seq_incr<IncrType>::type CleanedIncrType;
-  return seqN(f.derived(),(typename internal::cleanup_index_type<LastType>::type(l)-f.derived()+CleanedIncrType(incr))/CleanedIncrType(incr), incr);
-}
-
-template<typename FirstType,typename LastTypeDerived, typename IncrType>
-typename internal::enable_if<!symbolic::is_symbolic<FirstType>::value,
-    ArithmeticSequence<typename internal::cleanup_index_type<FirstType>::type,
-                        symbolic::QuotientExpr<symbolic::AddExpr<symbolic::AddExpr<LastTypeDerived,symbolic::ValueExpr<> >,
-                                                                 symbolic::ValueExpr<typename internal::cleanup_seq_incr<IncrType>::type> >,
-                                               symbolic::ValueExpr<typename internal::cleanup_seq_incr<IncrType>::type> >,
-                        typename internal::cleanup_seq_incr<IncrType>::type> >::type
-seq(FirstType f, const symbolic::BaseExpr<LastTypeDerived> &l, IncrType incr)
-{
-  typedef typename internal::cleanup_seq_incr<IncrType>::type CleanedIncrType;
-  return seqN(typename internal::cleanup_index_type<FirstType>::type(f),
-              (l.derived()-typename internal::cleanup_index_type<FirstType>::type(f)+CleanedIncrType(incr))/CleanedIncrType(incr), incr);
-}
-
-template<typename FirstTypeDerived,typename LastTypeDerived, typename IncrType>
-ArithmeticSequence<FirstTypeDerived,
-                    symbolic::QuotientExpr<symbolic::AddExpr<symbolic::AddExpr<LastTypeDerived,
-                                                                               symbolic::NegateExpr<FirstTypeDerived> >,
-                                                             symbolic::ValueExpr<typename internal::cleanup_seq_incr<IncrType>::type> >,
-                                          symbolic::ValueExpr<typename internal::cleanup_seq_incr<IncrType>::type> >,
-                    typename internal::cleanup_seq_incr<IncrType>::type>
-seq(const symbolic::BaseExpr<FirstTypeDerived> &f, const symbolic::BaseExpr<LastTypeDerived> &l, IncrType incr)
-{
-  typedef typename internal::cleanup_seq_incr<IncrType>::type CleanedIncrType;
-  return seqN(f.derived(),(l.derived()-f.derived()+CleanedIncrType(incr))/CleanedIncrType(incr), incr);
-}
-#endif // EIGEN_HAS_CXX11
 
 #endif // EIGEN_PARSED_BY_DOXYGEN
 
 namespace placeholders {
 
-#if EIGEN_HAS_CXX11 || defined(EIGEN_PARSED_BY_DOXYGEN)
 /** \cpp11
   * \returns a symbolic ArithmeticSequence representing the last \a size elements with increment \a incr.
   *
@@ -349,7 +257,6 @@ auto lastN(SizeType size)
 {
   return seqN(Eigen::placeholders::last+fix<1>()-size, size);
 }
-#endif
 
 }  // namespace placeholders
 
@@ -407,9 +314,7 @@ namespace indexing {
   using Eigen::seqN;
   using Eigen::placeholders::all;
   using Eigen::placeholders::last;
-  #if EIGEN_HAS_CXX11
   using Eigen::placeholders::lastN;
-  #endif
   using Eigen::placeholders::lastp1;
 }
 

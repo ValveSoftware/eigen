@@ -7,16 +7,6 @@
 // Public License v. 2.0. If a copy of the MPL was not distributed
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifdef EIGEN_TEST_PART_2
-#define EIGEN_MAX_CPP_VER 03
-
-// see indexed_view.cpp
-#if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8))
-  #pragma GCC diagnostic ignored "-Wdeprecated"
-#endif
-
-#endif
-
 #include "main.h"
 
 using Eigen::placeholders::last;
@@ -84,5 +74,4 @@ void check_symbolic_index()
 EIGEN_DECLARE_TEST(symbolic_index)
 {
   CALL_SUBTEST_1( check_symbolic_index() );
-  CALL_SUBTEST_2( check_symbolic_index() );
 }
