@@ -204,11 +204,6 @@ template<typename Derived> class DenseBase
     typedef typename internal::conditional<internal::is_same<typename internal::traits<Derived>::XprKind,MatrixXpr >::value,
                                  PlainMatrix, PlainArray>::type PlainObject;
 
-    /** \returns the number of nonzero coefficients which is in practice the number
-      * of stored coefficients. */
-    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
-    inline Index nonZeros() const { return size(); }
-
     /** \returns the outer size.
       *
       * \note For a vector, this returns just 1. For a matrix (non-vector), this is the major dimension
