@@ -377,8 +377,8 @@ template<typename Derived> class DenseBase
     EIGEN_DEVICE_FUNC bool isZero(const RealScalar& prec = NumTraits<Scalar>::dummy_precision()) const;
     EIGEN_DEVICE_FUNC bool isOnes(const RealScalar& prec = NumTraits<Scalar>::dummy_precision()) const;
 
-    inline bool hasNaN() const;
-    inline bool allFinite() const;
+    EIGEN_DEVICE_FUNC inline bool hasNaN() const;
+    EIGEN_DEVICE_FUNC inline bool allFinite() const;
 
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
     Derived& operator*=(const Scalar& other);
