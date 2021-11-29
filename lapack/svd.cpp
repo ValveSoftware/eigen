@@ -10,6 +10,7 @@
 #include "lapack_common.h"
 #include <Eigen/SVD>
 
+
 // computes the singular values/vectors a general M-by-N matrix A using divide-and-conquer
 EIGEN_LAPACK_FUNC(gesdd,(char *jobz, int *m, int* n, Scalar* a, int *lda, RealScalar *s, Scalar *u, int *ldu, Scalar *vt, int *ldvt, Scalar* /*work*/, int* lwork,
                          EIGEN_LAPACK_ARG_IF_COMPLEX(RealScalar */*rwork*/) int * /*iwork*/, int *info))
@@ -47,38 +48,95 @@ EIGEN_LAPACK_FUNC(gesdd,(char *jobz, int *m, int* n, Scalar* a, int *lda, RealSc
   
   PlainMatrixType mat(*m,*n);
   mat = matrix(a,*m,*n,*lda);
-  
-  int option = *jobz=='A' ? ComputeFullU|ComputeFullV
-             : *jobz=='S' ? ComputeThinU|ComputeThinV
-             : *jobz=='O' ? ComputeThinU|ComputeThinV
-             : 0;
-
-  BDCSVD<PlainMatrixType> svd(mat,option);
-  
-  make_vector(s,diag_size) = svd.singularValues().head(diag_size);
 
   if(*jobz=='A')
   {
-    matrix(u,*m,*m,*ldu)   = svd.matrixU();
-    matrix(vt,*n,*n,*ldvt) = svd.matrixV().adjoint();
+    BDCSVD<PlainMatrixType, ComputeFullU|ComputeFullV> svd(mat);
+    make_vector(s,diag_size) = svd.singularValues().head(diag_size);
+    matrix(u,*m,*m,*ldu)     = svd.matrixU();
+    matrix(vt,*n,*n,*ldvt)   = svd.matrixV().adjoint();
   }
   else if(*jobz=='S')
   {
+    BDCSVD<PlainMatrixType, ComputeThinU|ComputeThinV> svd(mat);
+    make_vector(s,diag_size)      = svd.singularValues().head(diag_size);
     matrix(u,*m,diag_size,*ldu)   = svd.matrixU();
     matrix(vt,diag_size,*n,*ldvt) = svd.matrixV().adjoint();
   }
   else if(*jobz=='O' && *m>=*n)
   {
-    matrix(a,*m,*n,*lda)   = svd.matrixU();
-    matrix(vt,*n,*n,*ldvt) = svd.matrixV().adjoint();
+    BDCSVD<PlainMatrixType, ComputeThinU|ComputeThinV> svd(mat);
+    make_vector(s,diag_size) = svd.singularValues().head(diag_size);
+    matrix(a,*m,*n,*lda)     = svd.matrixU();
+    matrix(vt,*n,*n,*ldvt)   = svd.matrixV().adjoint();
   }
   else if(*jobz=='O')
   {
+    BDCSVD<PlainMatrixType, ComputeThinU|ComputeThinV> svd(mat);
+    make_vector(s,diag_size)    = svd.singularValues().head(diag_size);
     matrix(u,*m,*m,*ldu)        = svd.matrixU();
     matrix(a,diag_size,*n,*lda) = svd.matrixV().adjoint();
   }
+  else 
+  {
+    BDCSVD<PlainMatrixType> svd(mat);
+    make_vector(s,diag_size)    = svd.singularValues().head(diag_size);
+  }
     
   return 0;
+}
+
+
+template<typename MatrixType, int Options>
+void gesvdAssignmentHelper(MatrixType& mat, char* jobu, char* jobv, int* m, int* n, int diag_size, Scalar* a, int* lda, RealScalar* s, Scalar* u, int* ldu, Scalar* vt, int* ldvt)
+{
+  JacobiSVD<MatrixType, Options> svd(mat);
+  make_vector(s,diag_size) = svd.singularValues().head(diag_size);
+  {
+        if(*jobu=='A') matrix(u,*m,*m,*ldu)           = svd.matrixU();
+  else  if(*jobu=='S') matrix(u,*m,diag_size,*ldu)    = svd.matrixU();
+  else  if(*jobu=='O') matrix(a,*m,diag_size,*lda)    = svd.matrixU();
+  }
+  {
+        if(*jobv=='A') matrix(vt,*n,*n,*ldvt)         = svd.matrixV().adjoint();
+  else  if(*jobv=='S') matrix(vt,diag_size,*n,*ldvt)  = svd.matrixV().adjoint();
+  else  if(*jobv=='O') matrix(a,diag_size,*n,*lda)    = svd.matrixV().adjoint();
+  }
+}
+
+template<typename MatrixType, int Options, typename ...Args>
+void gesvdSetVOptions(MatrixType& mat, char* jobu, char* jobv, Args... args)
+{
+  if (*jobv=='A')
+  {
+    gesvdAssignmentHelper<MatrixType, Options | ComputeFullV>(mat, jobu, jobv, args...);
+  }
+  else if (*jobv=='S' || *jobv=='O')
+  {
+    gesvdAssignmentHelper<MatrixType, Options | ComputeThinV>(mat, jobu, jobv, args...);
+  }
+  else 
+  {
+    gesvdAssignmentHelper<MatrixType, Options>(mat, jobu, jobv, args...);
+  }
+}
+
+
+template<typename MatrixType, typename ...Args>
+void gesvdSetUOptions(MatrixType& mat, char* jobu, char* jobv, Args... args)
+{
+  if (*jobu=='A')
+  {
+    gesvdSetVOptions<MatrixType, ComputeFullU>(mat, jobu, jobv, args...);
+  }
+  else if (*jobu=='S' || *jobu=='O')
+  {
+    gesvdSetVOptions<MatrixType, ComputeThinU>(mat, jobu, jobv, args...);
+  }
+  else 
+  {
+    gesvdSetVOptions<MatrixType, 0>(mat, jobu, jobv, args...);
+  }
 }
 
 // computes the singular values/vectors a general M-by-N matrix A using two sided jacobi algorithm
@@ -117,22 +175,8 @@ EIGEN_LAPACK_FUNC(gesvd,(char *jobu, char *jobv, int *m, int* n, Scalar* a, int 
   
   PlainMatrixType mat(*m,*n);
   mat = matrix(a,*m,*n,*lda);
+
+  gesvdSetUOptions<PlainMatrixType>(mat, jobu, jobv, m, n, diag_size, a, lda, s, u, ldu, vt, ldvt); 
   
-  int option = (*jobu=='A' ? ComputeFullU : *jobu=='S' || *jobu=='O' ? ComputeThinU : 0)
-             | (*jobv=='A' ? ComputeFullV : *jobv=='S' || *jobv=='O' ? ComputeThinV : 0);
-  
-  JacobiSVD<PlainMatrixType> svd(mat,option);
-  
-  make_vector(s,diag_size) = svd.singularValues().head(diag_size);
-  {
-        if(*jobu=='A') matrix(u,*m,*m,*ldu)           = svd.matrixU();
-  else  if(*jobu=='S') matrix(u,*m,diag_size,*ldu)    = svd.matrixU();
-  else  if(*jobu=='O') matrix(a,*m,diag_size,*lda)    = svd.matrixU();
-  }
-  {
-        if(*jobv=='A') matrix(vt,*n,*n,*ldvt)         = svd.matrixV().adjoint();
-  else  if(*jobv=='S') matrix(vt,diag_size,*n,*ldvt)  = svd.matrixV().adjoint();
-  else  if(*jobv=='O') matrix(a,diag_size,*n,*lda)    = svd.matrixV().adjoint();
-  }
   return 0;
 }

@@ -39,15 +39,15 @@ namespace Eigen {
 
 /** \internal Specialization for the data types supported by LAPACKe */
 
-#define EIGEN_LAPACKE_SVD(EIGTYPE, LAPACKE_TYPE, LAPACKE_RTYPE, LAPACKE_PREFIX, EIGCOLROW, LAPACKE_COLROW) \
+#define EIGEN_LAPACKE_SVD(EIGTYPE, LAPACKE_TYPE, LAPACKE_RTYPE, LAPACKE_PREFIX, EIGCOLROW, LAPACKE_COLROW, OPTIONS) \
 template<> inline \
-JacobiSVD<Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW, Dynamic, Dynamic>, ColPivHouseholderQRPreconditioner>& \
-JacobiSVD<Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW, Dynamic, Dynamic>, ColPivHouseholderQRPreconditioner>::compute(const Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW, Dynamic, Dynamic>& matrix, unsigned int computationOptions) \
+JacobiSVD<Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW, Dynamic, Dynamic>, OPTIONS>& \
+JacobiSVD<Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW, Dynamic, Dynamic>, OPTIONS>::compute(const Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW, Dynamic, Dynamic>& matrix) \
 { \
   typedef Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW, Dynamic, Dynamic> MatrixType; \
   /*typedef MatrixType::Scalar Scalar;*/ \
   /*typedef MatrixType::RealScalar RealScalar;*/ \
-  allocate(matrix.rows(), matrix.cols(), computationOptions); \
+  allocate(matrix.rows(), matrix.cols()); \
 \
   /*const RealScalar precision = RealScalar(2) * NumTraits<Scalar>::epsilon();*/ \
   m_nonzeroSingularValues = m_diagSize; \
@@ -56,14 +56,14 @@ JacobiSVD<Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW, Dynamic, Dynamic>, ColPiv
   lapack_int matrix_order = LAPACKE_COLROW; \
   char jobu, jobvt; \
   LAPACKE_TYPE *u, *vt, dummy; \
-  jobu  = (m_computeFullU) ? 'A' : (m_computeThinU) ? 'S' : 'N'; \
-  jobvt = (m_computeFullV) ? 'A' : (m_computeThinV) ? 'S' : 'N'; \
+  jobu  = (ShouldComputeFullU) ? 'A' : (ShouldComputeThinU) ? 'S' : 'N'; \
+  jobvt = (ShouldComputeFullV) ? 'A' : (ShouldComputeThinV) ? 'S' : 'N'; \
   if (computeU()) { \
     ldu  = internal::convert_index<lapack_int>(m_matrixU.outerStride()); \
     u    = (LAPACKE_TYPE*)m_matrixU.data(); \
   } else { ldu=1; u=&dummy; }\
   MatrixType localV; \
-  lapack_int vt_rows = (m_computeFullV) ? internal::convert_index<lapack_int>(m_cols) : (m_computeThinV) ? internal::convert_index<lapack_int>(m_diagSize) : 1; \
+  lapack_int vt_rows = (ShouldComputeFullV) ? internal::convert_index<lapack_int>(m_cols) : (ShouldComputeThinV) ? internal::convert_index<lapack_int>(m_diagSize) : 1; \
   if (computeV()) { \
     localV.resize(vt_rows, m_cols); \
     ldvt  = internal::convert_index<lapack_int>(localV.outerStride()); \
@@ -78,15 +78,26 @@ JacobiSVD<Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW, Dynamic, Dynamic>, ColPiv
   return *this; \
 }
 
-EIGEN_LAPACKE_SVD(double,   double,                double, d, ColMajor, LAPACK_COL_MAJOR)
-EIGEN_LAPACKE_SVD(float,    float,                 float , s, ColMajor, LAPACK_COL_MAJOR)
-EIGEN_LAPACKE_SVD(dcomplex, lapack_complex_double, double, z, ColMajor, LAPACK_COL_MAJOR)
-EIGEN_LAPACKE_SVD(scomplex, lapack_complex_float,  float , c, ColMajor, LAPACK_COL_MAJOR)
+#define EIGEN_LAPACK_SVD_OPTIONS(OPTIONS) \
+  EIGEN_LAPACKE_SVD(double,   double,                double, d, ColMajor, LAPACK_COL_MAJOR, OPTIONS) \
+  EIGEN_LAPACKE_SVD(float,    float,                 float , s, ColMajor, LAPACK_COL_MAJOR, OPTIONS) \
+  EIGEN_LAPACKE_SVD(dcomplex, lapack_complex_double, double, z, ColMajor, LAPACK_COL_MAJOR, OPTIONS) \
+  EIGEN_LAPACKE_SVD(scomplex, lapack_complex_float,  float , c, ColMajor, LAPACK_COL_MAJOR, OPTIONS) \
+\
+  EIGEN_LAPACKE_SVD(double,   double,                double, d, RowMajor, LAPACK_ROW_MAJOR, OPTIONS) \
+  EIGEN_LAPACKE_SVD(float,    float,                 float , s, RowMajor, LAPACK_ROW_MAJOR, OPTIONS) \
+  EIGEN_LAPACKE_SVD(dcomplex, lapack_complex_double, double, z, RowMajor, LAPACK_ROW_MAJOR, OPTIONS) \
+  EIGEN_LAPACKE_SVD(scomplex, lapack_complex_float,  float , c, RowMajor, LAPACK_ROW_MAJOR, OPTIONS)
 
-EIGEN_LAPACKE_SVD(double,   double,                double, d, RowMajor, LAPACK_ROW_MAJOR)
-EIGEN_LAPACKE_SVD(float,    float,                 float , s, RowMajor, LAPACK_ROW_MAJOR)
-EIGEN_LAPACKE_SVD(dcomplex, lapack_complex_double, double, z, RowMajor, LAPACK_ROW_MAJOR)
-EIGEN_LAPACKE_SVD(scomplex, lapack_complex_float,  float , c, RowMajor, LAPACK_ROW_MAJOR)
+EIGEN_LAPACK_SVD_OPTIONS(0)
+EIGEN_LAPACK_SVD_OPTIONS(ComputeThinU)
+EIGEN_LAPACK_SVD_OPTIONS(ComputeThinV)
+EIGEN_LAPACK_SVD_OPTIONS(ComputeFullU)
+EIGEN_LAPACK_SVD_OPTIONS(ComputeFullV)
+EIGEN_LAPACK_SVD_OPTIONS(ComputeThinU | ComputeThinV)
+EIGEN_LAPACK_SVD_OPTIONS(ComputeFullU | ComputeFullV)
+EIGEN_LAPACK_SVD_OPTIONS(ComputeThinU | ComputeFullV)
+EIGEN_LAPACK_SVD_OPTIONS(ComputeFullU | ComputeThinV)
 
 } // end namespace Eigen
 
