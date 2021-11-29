@@ -269,7 +269,6 @@ class Matrix
       : Base(internal::constructor_without_unaligned_array_assert())
     { EIGEN_INITIALIZE_COEFFS_IF_THAT_OPTION_IS_ENABLED }
 
-#if EIGEN_HAS_RVALUE_REFERENCES
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
     Matrix(Matrix&& other) EIGEN_NOEXCEPT_IF(std::is_nothrow_move_constructible<Scalar>::value)
       : Base(std::move(other)) {}
@@ -279,7 +278,6 @@ class Matrix
       Base::operator=(std::move(other));
       return *this;
     }
-#endif
 
     /** \copydoc PlainObjectBase(const Scalar&, const Scalar&, const Scalar&,  const Scalar&, const ArgTypes&... args)
      *

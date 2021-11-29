@@ -225,10 +225,8 @@ template<typename T, int Size, int Rows_, int Cols_, int Options_> class DenseSt
     EIGEN_DEVICE_FUNC DenseStorage(const DenseStorage&) = default;
 #endif
     EIGEN_DEVICE_FUNC DenseStorage& operator=(const DenseStorage&) = default;
-#if EIGEN_HAS_RVALUE_REFERENCES
     EIGEN_DEVICE_FUNC DenseStorage(DenseStorage&&) = default;
     EIGEN_DEVICE_FUNC DenseStorage& operator=(DenseStorage&&) = default;
-#endif
     EIGEN_DEVICE_FUNC DenseStorage(Index size, Index rows, Index cols) {
       EIGEN_INTERNAL_DENSE_STORAGE_CTOR_PLUGIN({})
       eigen_internal_assert(size==rows*cols && rows==Rows_ && cols==Cols_);
@@ -422,7 +420,6 @@ template<typename T, int Options_> class DenseStorage<T, Dynamic, Dynamic, Dynam
       }
       return *this;
     }
-#if EIGEN_HAS_RVALUE_REFERENCES
     EIGEN_DEVICE_FUNC
     DenseStorage(DenseStorage&& other) EIGEN_NOEXCEPT
       : m_data(std::move(other.m_data))
@@ -441,7 +438,6 @@ template<typename T, int Options_> class DenseStorage<T, Dynamic, Dynamic, Dynam
       numext::swap(m_cols, other.m_cols);
       return *this;
     }
-#endif
     EIGEN_DEVICE_FUNC ~DenseStorage() { internal::conditional_aligned_delete_auto<T,(Options_&DontAlign)==0>(m_data, m_rows*m_cols); }
     EIGEN_DEVICE_FUNC void swap(DenseStorage& other)
     {
@@ -505,7 +501,6 @@ template<typename T, int Rows_, int Options_> class DenseStorage<T, Dynamic, Row
       }
       return *this;
     }
-#if EIGEN_HAS_RVALUE_REFERENCES
     EIGEN_DEVICE_FUNC
     DenseStorage(DenseStorage&& other) EIGEN_NOEXCEPT
       : m_data(std::move(other.m_data))
@@ -521,7 +516,6 @@ template<typename T, int Rows_, int Options_> class DenseStorage<T, Dynamic, Row
       numext::swap(m_cols, other.m_cols);
       return *this;
     }
-#endif
     EIGEN_DEVICE_FUNC ~DenseStorage() { internal::conditional_aligned_delete_auto<T,(Options_&DontAlign)==0>(m_data, Rows_*m_cols); }
     EIGEN_DEVICE_FUNC void swap(DenseStorage& other) {
       numext::swap(m_data,other.m_data);
@@ -581,7 +575,6 @@ template<typename T, int Cols_, int Options_> class DenseStorage<T, Dynamic, Dyn
       }
       return *this;
     }
-#if EIGEN_HAS_RVALUE_REFERENCES
     EIGEN_DEVICE_FUNC
     DenseStorage(DenseStorage&& other) EIGEN_NOEXCEPT
       : m_data(std::move(other.m_data))
@@ -597,7 +590,6 @@ template<typename T, int Cols_, int Options_> class DenseStorage<T, Dynamic, Dyn
       numext::swap(m_rows, other.m_rows);
       return *this;
     }
-#endif
     EIGEN_DEVICE_FUNC ~DenseStorage() { internal::conditional_aligned_delete_auto<T,(Options_&DontAlign)==0>(m_data, Cols_*m_rows); }
     EIGEN_DEVICE_FUNC void swap(DenseStorage& other) {
       numext::swap(m_data,other.m_data);

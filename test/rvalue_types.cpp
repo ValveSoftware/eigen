@@ -17,7 +17,6 @@
 
 using internal::UIntPtr;
 
-#if EIGEN_HAS_RVALUE_REFERENCES
 template <typename MatrixType>
 void rvalue_copyassign(const MatrixType& m)
 {
@@ -112,14 +111,6 @@ void rvalue_move(const MatrixType& m)
     g_dst = std::move(g_src);
     VERIFY_IS_EQUAL(g_dst, m);
 }
-#else
-template <typename MatrixType>
-void rvalue_copyassign(const MatrixType&) {}
-template<typename TranspositionsType>
-void rvalue_transpositions(Index) {}
-template <typename MatrixType>
-void rvalue_move(const MatrixType&) {}
-#endif
 
 EIGEN_DECLARE_TEST(rvalue_types)
 {

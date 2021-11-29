@@ -147,7 +147,6 @@ class Array
     }
 #endif
 
-#if EIGEN_HAS_RVALUE_REFERENCES
     EIGEN_DEVICE_FUNC
     Array(Array&& other) EIGEN_NOEXCEPT_IF(std::is_nothrow_move_constructible<Scalar>::value)
       : Base(std::move(other))
@@ -159,7 +158,6 @@ class Array
       Base::operator=(std::move(other));
       return *this;
     }
-#endif
 
     /** \copydoc PlainObjectBase(const Scalar& a0, const Scalar& a1, const Scalar& a2, const Scalar& a3, const ArgTypes&... args)
      *

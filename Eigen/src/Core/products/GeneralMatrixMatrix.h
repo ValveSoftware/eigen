@@ -150,9 +150,6 @@ static void run(Index rows, Index cols, Index depth,
       // Release all the sub blocks A'_i of A' for the current thread,
       // i.e., we simply decrement the number of users by 1
       for(Index i=0; i<threads; ++i)
-#if !EIGEN_HAS_CXX11_ATOMIC
-        #pragma omp atomic
-#endif
         info[i].users -= 1;
     }
   }

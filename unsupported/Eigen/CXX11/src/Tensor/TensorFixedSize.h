@@ -318,12 +318,10 @@ class TensorFixedSize : public TensorBase<TensorFixedSize<Scalar_, Dimensions_, 
     {
     }
 
-#if EIGEN_HAS_RVALUE_REFERENCES
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorFixedSize(Self&& other)
       : m_storage(other.m_storage)
     {
     }
-#endif
 
     template<typename OtherDerived>
     EIGEN_DEVICE_FUNC

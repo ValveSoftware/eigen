@@ -501,7 +501,6 @@ class PlainObjectBase : public internal::dense_xpr_base<Derived>::type
     }
 #endif
 
-#if EIGEN_HAS_RVALUE_REFERENCES
     EIGEN_DEVICE_FUNC
     PlainObjectBase(PlainObjectBase&& other) EIGEN_NOEXCEPT
       : m_storage( std::move(other.m_storage) )
@@ -514,7 +513,6 @@ class PlainObjectBase : public internal::dense_xpr_base<Derived>::type
       m_storage = std::move(other.m_storage);
       return *this;
     }
-#endif
 
     /** Copy constructor */
     EIGEN_DEVICE_FUNC

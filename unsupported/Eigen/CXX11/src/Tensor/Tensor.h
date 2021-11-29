@@ -402,7 +402,6 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
       internal::TensorExecutor<const Assign, DefaultDevice>::run(assign, DefaultDevice());
     }
 
-    #if EIGEN_HAS_RVALUE_REFERENCES
     EIGEN_DEVICE_FUNC
     EIGEN_STRONG_INLINE Tensor(Self&& other)
       : m_storage(std::move(other.m_storage))
@@ -414,7 +413,6 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
       m_storage = std::move(other.m_storage);
       return *this;
     }
-    #endif
 
     EIGEN_DEVICE_FUNC
     EIGEN_STRONG_INLINE Tensor& operator=(const Tensor& other)

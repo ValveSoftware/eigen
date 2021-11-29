@@ -28,7 +28,7 @@
 #endif
 
 // Recent versions of ICC require <cstdint> for pointer types below.
-#define EIGEN_ICC_NEEDS_CSTDINT (EIGEN_COMP_ICC>=1600 && EIGEN_COMP_CXXVER >= 11)
+#define EIGEN_ICC_NEEDS_CSTDINT (EIGEN_COMP_ICC>=1600)
 
 // Define portable (u)int{32,64} types
 #include <cstdint>
