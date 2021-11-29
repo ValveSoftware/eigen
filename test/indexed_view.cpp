@@ -414,6 +414,18 @@ void check_indexed_view()
     VERIFY( MATCH( A(all,1)(1), "101"));
   }
 
+#if EIGEN_HAS_STATIC_ARRAY_TEMPLATE
+  // bug #2375: indexing over matrices of dim >128 should compile on gcc
+  {
+    Matrix<double, 513, 3> large_mat = Matrix<double, 513, 3>::Random();
+    std::array<int, 2> test_indices = {0, 1};
+    Matrix<double, 513, 2> thin_slice = large_mat(all, test_indices);
+    for(int col = 0; col < int(test_indices.size()); ++col)
+      for(int row = 0; row < large_mat.rows(); ++row)
+        VERIFY_IS_EQUAL( thin_slice(row, col), large_mat(row, col) );
+  }
+#endif
+
   //Bug IndexView with a single static row should be RowMajor:
   {
     // A(1, seq(0,2,1)).cwiseAbs().colwise().replicate(2).eval();
