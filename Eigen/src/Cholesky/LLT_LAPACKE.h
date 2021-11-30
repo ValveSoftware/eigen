@@ -35,7 +35,7 @@
 
 #include "./InternalHeaderCheck.h"
 
-namespace Eigen { 
+namespace Eigen {
 
 namespace internal {
 
@@ -106,7 +106,11 @@ namespace lapacke_llt_helpers {
     template<typename MatrixType>
     static Index blocked(MatrixType& m)
     {
-      eigen_assert(m.rows()==m.cols());
+      eigen_assert(m.rows() == m.cols());
+      if(m.rows() == 0) {
+        return -1;
+      }
+
       /* Set up parameters for ?potrf */
       lapack_int size = convert_index<lapack_int>(m.rows());
       lapack_int StorageOrder = MatrixType::Flags&RowMajorBit?RowMajor:ColMajor;
