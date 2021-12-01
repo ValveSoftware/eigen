@@ -7,11 +7,6 @@
 // Public License v. 2.0. If a copy of the MPL was not distributed
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifdef EIGEN_TEST_PART_2
-// Make sure we also check c++11 max implementation
-#define EIGEN_MAX_CPP_VER 11
-#endif
-
 #include <valarray>
 #include <vector>
 #include "main.h"
@@ -84,11 +79,7 @@ void check_indexed_view()
   ArrayXd a = ArrayXd::LinSpaced(n,0,n-1);
   Array<double,1,Dynamic> b = a.transpose();
 
-  #if EIGEN_COMP_CXXVER>=14
   ArrayXXi A = ArrayXXi::NullaryExpr(n,n, std::ref(encode));
-  #else
-  ArrayXXi A = ArrayXXi::NullaryExpr(n,n, std::ptr_fun(&encode));
-  #endif
 
   for(Index i=0; i<n; ++i)
     for(Index j=0; j<n; ++j)
@@ -299,7 +290,6 @@ void check_indexed_view()
 
   VERIFY_IS_APPROX( (A(std::array<int,3>{{1,3,5}}, std::array<int,4>{{9,6,3,0}})), A(seqN(1,3,2), seqN(9,4,-3)) );
 
-#if EIGEN_HAS_STATIC_ARRAY_TEMPLATE
   VERIFY_IS_APPROX( A({3, 1, 6, 5}, all), A(std::array<int,4>{{3, 1, 6, 5}}, all) );
   VERIFY_IS_APPROX( A(all,{3, 1, 6, 5}), A(all,std::array<int,4>{{3, 1, 6, 5}}) );
   VERIFY_IS_APPROX( A({1,3,5},{3, 1, 6, 5}), A(std::array<int,3>{{1,3,5}},std::array<int,4>{{3, 1, 6, 5}}) );
@@ -312,7 +302,6 @@ void check_indexed_view()
 
   VERIFY_IS_APPROX( b({3, 1, 6, 5}), b(std::array<int,4>{{3, 1, 6, 5}}) );
   VERIFY_IS_EQUAL( b({1,3,5}).SizeAtCompileTime, 3 );
-#endif
 
   // check mat(i,j) with weird types for i and j
   {
@@ -438,7 +427,6 @@ EIGEN_DECLARE_TEST(indexed_view)
 {
 //   for(int i = 0; i < g_repeat; i++) {
     CALL_SUBTEST_1( check_indexed_view() );
-    CALL_SUBTEST_2( check_indexed_view() );
 //   }
 
   // static checks of some internals:

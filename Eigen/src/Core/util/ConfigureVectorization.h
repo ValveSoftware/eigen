@@ -30,27 +30,13 @@
  *
  * If we made alignment depend on whether or not EIGEN_VECTORIZE is defined, it would be impossible to link
  * vectorized and non-vectorized code.
- * 
- * FIXME: this code can be cleaned up once we switch to proper C++11 only.
  */
 #if (defined EIGEN_CUDACC)
   #define EIGEN_ALIGN_TO_BOUNDARY(n) __align__(n)
   #define EIGEN_ALIGNOF(x) __alignof(x)
-#elif EIGEN_HAS_ALIGNAS
+#else
   #define EIGEN_ALIGN_TO_BOUNDARY(n) alignas(n)
   #define EIGEN_ALIGNOF(x) alignof(x)
-#elif EIGEN_COMP_GNUC || EIGEN_COMP_PGI || EIGEN_COMP_IBM || EIGEN_COMP_ARM
-  #define EIGEN_ALIGN_TO_BOUNDARY(n) __attribute__((aligned(n)))
-  #define EIGEN_ALIGNOF(x) __alignof(x)
-#elif EIGEN_COMP_MSVC
-  #define EIGEN_ALIGN_TO_BOUNDARY(n) __declspec(align(n))
-  #define EIGEN_ALIGNOF(x) __alignof(x)
-#elif EIGEN_COMP_SUNCC
-  // FIXME not sure about this one:
-  #define EIGEN_ALIGN_TO_BOUNDARY(n) __attribute__((aligned(n)))
-  #define EIGEN_ALIGNOF(x) __alignof(x)
-#else
-  #error Please tell me what is the equivalent of alignas(n) and alignof(x) for your compiler
 #endif
 
 // If the user explicitly disable vectorization, then we also disable alignment
@@ -200,14 +186,12 @@
 // removed as gcc 4.1 and msvc 2008 are not supported anyways.
 #if EIGEN_COMP_MSVC
   #include <malloc.h> // for _aligned_malloc -- need it regardless of whether vectorization is enabled
-  #if (EIGEN_COMP_MSVC >= 1500) // 2008 or later
-    // a user reported that in 64-bit mode, MSVC doesn't care to define _M_IX86_FP.
-    #if (defined(_M_IX86_FP) && (_M_IX86_FP >= 2)) || EIGEN_ARCH_x86_64
-      #define EIGEN_SSE2_ON_MSVC_2008_OR_LATER
-    #endif
+  // a user reported that in 64-bit mode, MSVC doesn't care to define _M_IX86_FP.
+  #if (defined(_M_IX86_FP) && (_M_IX86_FP >= 2)) || EIGEN_ARCH_x86_64
+    #define EIGEN_SSE2_ON_MSVC_2008_OR_LATER
   #endif
 #else
-  #if (defined __SSE2__) && ( (!EIGEN_COMP_GNUC) || EIGEN_COMP_ICC || EIGEN_GNUC_AT_LEAST(4,2) )
+  #if (defined __SSE2__) && ( (!EIGEN_COMP_GNUC) || EIGEN_COMP_ICC || EIGEN_COMP_GNUC )
     #define EIGEN_SSE2_ON_NON_MSVC_BUT_NOT_OLD_GCC
   #endif
 #endif

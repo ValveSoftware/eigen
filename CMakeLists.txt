@@ -26,7 +26,7 @@ if(CMAKE_VERSION VERSION_LESS 3.21.0)
   endif()
 endif()
 
-set(CMAKE_CXX_STANDARD 11 CACHE STRING "Default C++ standard")
+set(CMAKE_CXX_STANDARD 14 CACHE STRING "Default C++ standard")
 set(CMAKE_CXX_STANDARD_REQUIRED ON CACHE BOOL "Require C++ standard")
 set(CMAKE_CXX_EXTENSIONS OFF CACHE BOOL "Allow C++ extensions")
 

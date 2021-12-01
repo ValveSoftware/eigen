@@ -371,7 +371,7 @@ struct invoke_result {
 #endif
 
 // C++14 integer/index_sequence.
-#if defined(__cpp_lib_integer_sequence) && __cpp_lib_integer_sequence >= 201304L && EIGEN_MAX_CPP_VER >= 14
+#if defined(__cpp_lib_integer_sequence) && __cpp_lib_integer_sequence >= 201304L
 
 using std::integer_sequence;
 using std::make_integer_sequence;

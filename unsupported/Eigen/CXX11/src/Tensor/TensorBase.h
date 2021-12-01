@@ -1012,7 +1012,6 @@ class TensorBase : public TensorBase<Derived, ReadOnlyAccessors> {
       return derived() = this->template random<RandomGenerator>();
     }
 
-#if EIGEN_HAS_VARIADIC_TEMPLATES
     EIGEN_DEVICE_FUNC
     EIGEN_STRONG_INLINE Derived& setValues(
         const typename internal::Initializer<Derived, NumDimensions>::InitList& vals) {
@@ -1020,7 +1019,6 @@ class TensorBase : public TensorBase<Derived, ReadOnlyAccessors> {
       internal::initialize_tensor<Derived, NumDimensions>(eval, vals);
       return derived();
     }
-#endif  // EIGEN_HAS_VARIADIC_TEMPLATES
 
     template<typename OtherDerived> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
     Derived& operator+=(const OtherDerived& other) {

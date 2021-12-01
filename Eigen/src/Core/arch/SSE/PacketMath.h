@@ -247,18 +247,9 @@ template<> struct scalar_div_cost<float,true> { enum { value = 7 }; };
 template<> struct scalar_div_cost<double,true> { enum { value = 8 }; };
 #endif
 
-#if EIGEN_COMP_MSVC==1500
-// Workaround MSVC 9 internal compiler error.
-// TODO: It has been detected with win64 builds (amd64), so let's check whether it also happens in 32bits+SSE mode
-// TODO: let's check whether there does not exist a better fix, like adding a pset0() function. (it crashed on pset1(0)).
-template<> EIGEN_STRONG_INLINE Packet4f pset1<Packet4f>(const float&  from) { return _mm_set_ps(from,from,from,from); }
-template<> EIGEN_STRONG_INLINE Packet2d pset1<Packet2d>(const double& from) { return _mm_set_pd(from,from); }
-template<> EIGEN_STRONG_INLINE Packet4i pset1<Packet4i>(const int&    from) { return _mm_set_epi32(from,from,from,from); }
-#else
 template<> EIGEN_STRONG_INLINE Packet4f pset1<Packet4f>(const float&  from) { return _mm_set_ps1(from); }
 template<> EIGEN_STRONG_INLINE Packet2d pset1<Packet2d>(const double& from) { return _mm_set1_pd(from); }
 template<> EIGEN_STRONG_INLINE Packet4i pset1<Packet4i>(const int&    from) { return _mm_set1_epi32(from); }
-#endif
 template<> EIGEN_STRONG_INLINE Packet16b pset1<Packet16b>(const bool&    from) { return _mm_set1_epi8(static_cast<char>(from)); }
 
 template<> EIGEN_STRONG_INLINE Packet4f pset1frombits<Packet4f>(unsigned int from) { return _mm_castsi128_ps(pset1<Packet4i>(from)); }
@@ -721,15 +712,7 @@ template<> EIGEN_STRONG_INLINE Packet16b pload<Packet16b>(const bool*     from) 
 #if EIGEN_COMP_MSVC
   template<> EIGEN_STRONG_INLINE Packet4f ploadu<Packet4f>(const float*  from) {
     EIGEN_DEBUG_UNALIGNED_LOAD
-    #if (EIGEN_COMP_MSVC==1600)
-    // NOTE Some version of MSVC10 generates bad code when using _mm_loadu_ps
-    // (i.e., it does not generate an unaligned load!!
-    __m128 res = _mm_loadl_pi(_mm_set1_ps(0.0f), (const __m64*)(from));
-    res = _mm_loadh_pi(res, (const __m64*)(from+2));
-    return res;
-    #else
     return _mm_loadu_ps(from);
-    #endif
   }
 #else
 // NOTE: with the code below, MSVC's compiler crashes!

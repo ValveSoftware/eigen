@@ -21,15 +21,6 @@
 
 namespace Eigen {
 
-// On WINCE, std::abs is defined for int only, so let's defined our own overloads:
-// This issue has been confirmed with MSVC 2008 only, but the issue might exist for more recent versions too.
-#if EIGEN_OS_WINCE && EIGEN_COMP_MSVC && EIGEN_COMP_MSVC<=1500
-long        abs(long        x) { return (labs(x));  }
-double      abs(double      x) { return (fabs(x));  }
-float       abs(float       x) { return (fabsf(x)); }
-long double abs(long double x) { return (fabsl(x)); }
-#endif
-
 namespace internal {
 
 /** \internal \class global_math_functions_filtering_base
@@ -963,7 +954,7 @@ inline EIGEN_MATHFUNC_RETVAL(random, Scalar) random()
 // Implementation of is* functions
 
 // std::is* do not work with fast-math and gcc, std::is* are available on MSVC 2013 and newer, as well as in clang.
-#if (EIGEN_HAS_CXX11_MATH && !(EIGEN_COMP_GNUC_STRICT && __FINITE_MATH_ONLY__)) || (EIGEN_COMP_MSVC>=1800) || (EIGEN_COMP_CLANG)
+#if (EIGEN_HAS_CXX11_MATH && !(EIGEN_COMP_GNUC_STRICT && __FINITE_MATH_ONLY__)) || (EIGEN_COMP_MSVC) || (EIGEN_COMP_CLANG)
 #define EIGEN_USE_STD_FPCLASSIFY 1
 #else
 #define EIGEN_USE_STD_FPCLASSIFY 0
@@ -1049,7 +1040,7 @@ EIGEN_DEVICE_FUNC inline bool isinf_impl(const float& x)       { return isinf_ms
 
 #elif (defined __FINITE_MATH_ONLY__ && __FINITE_MATH_ONLY__ && EIGEN_COMP_GNUC)
 
-#if EIGEN_GNUC_AT_LEAST(5,0)
+#if EIGEN_COMP_GNUC
   #define EIGEN_TMP_NOOPT_ATTRIB EIGEN_DEVICE_FUNC inline __attribute__((optimize("no-finite-math-only")))
 #else
   // NOTE the inline qualifier and noinline attribute are both needed: the former is to avoid linking issue (duplicate symbol),

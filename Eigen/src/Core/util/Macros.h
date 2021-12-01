@@ -129,10 +129,6 @@
 
 // For the record, here is a table summarizing the possible values for EIGEN_COMP_MSVC:
 //  name        ver   MSC_VER
-//  2008         9      1500
-//  2010        10      1600
-//  2012        11      1700
-//  2013        12      1800
 //  2015        14      1900
 //  "15"        15      1900
 //  2017-14.1   15.0    1910
@@ -140,6 +136,9 @@
 //  2017-14.12  15.5    1912
 //  2017-14.13  15.6    1913
 //  2017-14.14  15.7    1914
+//  2017        15.8    1915
+//  2017        15.9    1916
+//  2019 RTW    16.0    1920
 
 /// \internal EIGEN_COMP_MSVC_LANG set to _MSVC_LANG if the compiler is Microsoft Visual C++, 0 otherwise.
 #if defined(_MSVC_LANG)
@@ -581,16 +580,6 @@
 # define __has_feature(x) 0
 #endif
 
-// Some old compilers do not support template specializations like:
-// template<typename T,int N> void foo(const T x[N]);
-#if !(   EIGEN_COMP_CLANG && (   (EIGEN_COMP_CLANG<309)                                                       \
-                              || (defined(__apple_build_version__) && (__apple_build_version__ < 9000000)))  \
-      || EIGEN_COMP_GNUC_STRICT && EIGEN_COMP_GNUC<49)
-#define EIGEN_HAS_STATIC_ARRAY_TEMPLATE 1
-#else
-#define EIGEN_HAS_STATIC_ARRAY_TEMPLATE 0
-#endif
-
 // The macro EIGEN_CPLUSPLUS is a replacement for __cplusplus/_MSVC_LANG that
 // works for both platforms, indicating the C++ standard version number.
 //
@@ -624,7 +613,7 @@
 #endif
 
 #ifndef EIGEN_HAS_CXX14_VARIABLE_TEMPLATES
-  #if defined(__cpp_variable_templates) && __cpp_variable_templates >= 201304 && EIGEN_MAX_CPP_VER>=14
+  #if defined(__cpp_variable_templates) && __cpp_variable_templates >= 201304
     #define EIGEN_HAS_CXX14_VARIABLE_TEMPLATES 1
   #else
     #define EIGEN_HAS_CXX14_VARIABLE_TEMPLATES 0
@@ -636,15 +625,11 @@
 // but in practice we should not rely on them but rather on the availability of
 // individual features as defined later.
 // This is why there is no EIGEN_HAS_CXX17.
-// FIXME: get rid of EIGEN_HAS_CXX14.
-#if EIGEN_MAX_CPP_VER<11 || EIGEN_COMP_CXXVER<11 || (EIGEN_COMP_MSVC && EIGEN_COMP_MSVC < 1700) || (EIGEN_COMP_ICC && EIGEN_COMP_ICC < 1400)
+#if EIGEN_MAX_CPP_VER<14 || EIGEN_COMP_CXXVER<14 || (EIGEN_COMP_MSVC && EIGEN_COMP_MSVC < 1900) || \
+  (EIGEN_COMP_ICC && EIGEN_COMP_ICC < 1500) || (EIGEN_COMP_NVCC && EIGEN_COMP_NVCC < 80000) ||     \
+  (EIGEN_COMP_CLANG && ((EIGEN_COMP_CLANG<309) || (defined(__apple_build_version__) && (__apple_build_version__ < 9000000)))) || \
+  (EIGEN_COMP_GNUC_STRICT && EIGEN_COMP_GNUC<51)
 #error This compiler appears to be too old to be supported by Eigen
-#endif
-
-#if EIGEN_MAX_CPP_VER>=14 && EIGEN_COMP_CXXVER>=14
-#define EIGEN_HAS_CXX14 1
-#else
-#define EIGEN_HAS_CXX14 0
 #endif
 
 // Does the compiler support C99?
@@ -654,7 +639,7 @@
 #if ((defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901))       \
   || (defined(__GNUC__) && defined(_GLIBCXX_USE_C99)) \
   || (defined(_LIBCPP_VERSION) && !defined(_MSC_VER)) \
-  || (EIGEN_COMP_MSVC >= 1900) || defined(SYCL_DEVICE_ONLY))
+  || (EIGEN_COMP_MSVC) || defined(SYCL_DEVICE_ONLY))
   #define EIGEN_HAS_C99_MATH 1
 #else
   #define EIGEN_HAS_C99_MATH 0
@@ -690,27 +675,11 @@
 #endif
 #endif
 
-#ifndef EIGEN_HAS_ALIGNAS
-#if (     __has_feature(cxx_alignas)            \
-        ||  EIGEN_HAS_CXX14                       \
-        || (EIGEN_COMP_MSVC >= 1800)              \
-        || (EIGEN_GNUC_AT_LEAST(4,8))             \
-        || (EIGEN_COMP_CLANG>=305)                \
-        || (EIGEN_COMP_ICC>=1500)                 \
-        || (EIGEN_COMP_PGI>=1500)                 \
-        || (EIGEN_COMP_SUNCC>=0x5130))
-#define EIGEN_HAS_ALIGNAS 1
-#else
-#define EIGEN_HAS_ALIGNAS 0
-#endif
-#endif
-
 // Does the compiler support type_traits?
 // - full support of type traits was added only to GCC 5.1.0.
 // - 20150626 corresponds to the last release of 4.x libstdc++
 #ifndef EIGEN_HAS_TYPE_TRAITS
-#if ((!EIGEN_COMP_GNUC_STRICT) || EIGEN_GNUC_AT_LEAST(5, 1)) \
-  && ((!defined(__GLIBCXX__))   || __GLIBCXX__ > 20150626)
+#if (!defined(__GLIBCXX__)) || __GLIBCXX__ > 20150626
 #define EIGEN_HAS_TYPE_TRAITS 1
 #define EIGEN_INCLUDE_TYPE_TRAITS
 #else
@@ -718,29 +687,14 @@
 #endif
 #endif
 
-// Does the compiler support variadic templates?
-#ifndef EIGEN_HAS_VARIADIC_TEMPLATES
-#if (!defined(__NVCC__) || !EIGEN_ARCH_ARM_OR_ARM64 || (EIGEN_COMP_NVCC >= 80000) )
-    // ^^ Disable the use of variadic templates when compiling with versions of nvcc older than 8.0 on ARM devices:
-    //    this prevents nvcc from crashing when compiling Eigen on Tegra X1
-#define EIGEN_HAS_VARIADIC_TEMPLATES 1
-#elif defined(SYCL_DEVICE_ONLY)
-#define EIGEN_HAS_VARIADIC_TEMPLATES 1
-#else
-#define EIGEN_HAS_VARIADIC_TEMPLATES 0
-#endif
-#endif
-
 // Does the compiler fully support const expressions? (as in c++14)
 #ifndef EIGEN_HAS_CONSTEXPR
   #if defined(EIGEN_CUDACC)
   // Const expressions are supported provided that c++11 is enabled and we're using either clang or nvcc 7.5 or above
-    #if EIGEN_MAX_CPP_VER>=14 && (EIGEN_COMP_CLANG || EIGEN_COMP_NVCC >= 70500)
+    #if (EIGEN_COMP_CLANG || EIGEN_COMP_NVCC >= 70500)
       #define EIGEN_HAS_CONSTEXPR 1
     #endif
-  #elif EIGEN_MAX_CPP_VER>=14 && (__has_feature(cxx_relaxed_constexpr) || (EIGEN_COMP_CXXVER >= 14) || \
-    (EIGEN_GNUC_AT_LEAST(4,8) && (EIGEN_COMP_CXXVER >= 11)) || \
-    (EIGEN_COMP_CLANG >= 306 && (EIGEN_COMP_CXXVER >= 11)))
+  #else
     #define EIGEN_HAS_CONSTEXPR 1
   #endif
 
@@ -759,8 +713,7 @@
 // Does the compiler support C++11 math?
 // Let's be conservative and enable the default C++11 implementation only if we are sure it exists
 #ifndef EIGEN_HAS_CXX11_MATH
-  #if ((EIGEN_COMP_CXXVER > 11) || (EIGEN_COMP_GNUC_STRICT || EIGEN_COMP_CLANG || EIGEN_COMP_MSVC || EIGEN_COMP_ICC)  \
-      && (EIGEN_ARCH_i386_OR_x86_64) && (EIGEN_OS_GNULINUX || EIGEN_OS_WIN_STRICT || EIGEN_OS_MAC))
+  #if (EIGEN_ARCH_i386_OR_x86_64 && (EIGEN_OS_GNULINUX || EIGEN_OS_WIN_STRICT || EIGEN_OS_MAC))
     #define EIGEN_HAS_CXX11_MATH 1
   #else
     #define EIGEN_HAS_CXX11_MATH 0
@@ -844,15 +797,11 @@
 #endif
 #endif
 
-// EIGEN_ALWAYS_INLINE is the stronget, it has the effect of making the function inline and adding every possible
+// EIGEN_ALWAYS_INLINE is the strongest, it has the effect of making the function inline and adding every possible
 // attribute to maximize inlining. This should only be used when really necessary: in particular,
 // it uses __attribute__((always_inline)) on GCC, which most of the time is useless and can severely harm compile times.
 // FIXME with the always_inline attribute,
-// gcc 3.4.x and 4.1 reports the following compilation error:
-//   Eval.h:91: sorry, unimplemented: inlining failed in call to 'const Eigen::Eval<Derived> Eigen::MatrixBase<Scalar, Derived>::eval() const'
-//    : function body not available
-//   See also bug 1367
-#if EIGEN_GNUC_AT_LEAST(4,2) && !defined(SYCL_DEVICE_ONLY)
+#if EIGEN_COMP_GNUC && !defined(SYCL_DEVICE_ONLY)
 #define EIGEN_ALWAYS_INLINE __attribute__((always_inline)) inline
 #else
 #define EIGEN_ALWAYS_INLINE EIGEN_STRONG_INLINE
@@ -1094,8 +1043,8 @@ namespace Eigen {
   #define EIGEN_USING_STD(FUNC) using std::FUNC;
 #endif
 
-#if EIGEN_COMP_MSVC_STRICT && (EIGEN_COMP_MSVC < 1900 || EIGEN_COMP_NVCC)
-  // For older MSVC versions, as well as when compiling with NVCC, using the base operator is necessary,
+#if EIGEN_COMP_MSVC_STRICT && EIGEN_COMP_NVCC
+  // Wwhen compiling with NVCC, using the base operator is necessary,
   //   otherwise we get duplicate definition errors
   // For later MSVC versions, we require explicit operator= definition, otherwise we get
   //   use of implicitly deleted operator errors.
@@ -1251,16 +1200,9 @@ namespace Eigen {
   CwiseBinaryOp<EIGEN_CAT(EIGEN_CAT(internal::scalar_,OPNAME),_op)<SCALAR,typename internal::traits<EXPR>::Scalar>, \
                 const typename internal::plain_constant_type<EXPR,SCALAR>::type, const EXPR>
 
-// Workaround for MSVC 2010 (see ML thread "patch with compile for for MSVC 2010")
-#if EIGEN_COMP_MSVC_STRICT && (EIGEN_COMP_MSVC_STRICT<=1600)
-#define EIGEN_MSVC10_WORKAROUND_BINARYOP_RETURN_TYPE(X) typename internal::enable_if<true,X>::type
-#else
-#define EIGEN_MSVC10_WORKAROUND_BINARYOP_RETURN_TYPE(X) X
-#endif
-
 #define EIGEN_MAKE_SCALAR_BINARY_OP_ONTHERIGHT(METHOD,OPNAME) \
   template <typename T> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE \
-  EIGEN_MSVC10_WORKAROUND_BINARYOP_RETURN_TYPE(const EIGEN_EXPR_BINARYOP_SCALAR_RETURN_TYPE(Derived,typename internal::promote_scalar_arg<Scalar EIGEN_COMMA T EIGEN_COMMA EIGEN_SCALAR_BINARY_SUPPORTED(OPNAME,Scalar,T)>::type,OPNAME))\
+  const EIGEN_EXPR_BINARYOP_SCALAR_RETURN_TYPE(Derived,typename internal::promote_scalar_arg<Scalar EIGEN_COMMA T EIGEN_COMMA EIGEN_SCALAR_BINARY_SUPPORTED(OPNAME,Scalar,T)>::type,OPNAME)\
   (METHOD)(const T& scalar) const { \
     typedef typename internal::promote_scalar_arg<Scalar,T,EIGEN_SCALAR_BINARY_SUPPORTED(OPNAME,Scalar,T)>::type PromotedT; \
     return EIGEN_EXPR_BINARYOP_SCALAR_RETURN_TYPE(Derived,PromotedT,OPNAME)(derived(), \
@@ -1269,7 +1211,7 @@ namespace Eigen {
 
 #define EIGEN_MAKE_SCALAR_BINARY_OP_ONTHELEFT(METHOD,OPNAME) \
   template <typename T> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE friend \
-  EIGEN_MSVC10_WORKAROUND_BINARYOP_RETURN_TYPE(const EIGEN_SCALAR_BINARYOP_EXPR_RETURN_TYPE(typename internal::promote_scalar_arg<Scalar EIGEN_COMMA T EIGEN_COMMA EIGEN_SCALAR_BINARY_SUPPORTED(OPNAME,T,Scalar)>::type,Derived,OPNAME)) \
+  const EIGEN_SCALAR_BINARYOP_EXPR_RETURN_TYPE(typename internal::promote_scalar_arg<Scalar EIGEN_COMMA T EIGEN_COMMA EIGEN_SCALAR_BINARY_SUPPORTED(OPNAME,T,Scalar)>::type,Derived,OPNAME) \
   (METHOD)(const T& scalar, const StorageBaseType& matrix) { \
     typedef typename internal::promote_scalar_arg<Scalar,T,EIGEN_SCALAR_BINARY_SUPPORTED(OPNAME,T,Scalar)>::type PromotedT; \
     return EIGEN_SCALAR_BINARYOP_EXPR_RETURN_TYPE(PromotedT,Derived,OPNAME)( \
@@ -1314,7 +1256,6 @@ namespace Eigen {
 #define EIGEN_EXCEPTION_SPEC(X) noexcept(false)
 
 
-#if EIGEN_HAS_VARIADIC_TEMPLATES
 // The all function is used to enable a variadic version of eigen_assert which can take a parameter pack as its input.
 namespace Eigen {
 namespace internal {
@@ -1326,7 +1267,6 @@ bool all(T t, Ts ... ts){ return t && all(ts...); }
 
 }
 }
-#endif
 
 // provide override and final specifiers if they are available:
 #define EIGEN_OVERRIDE override

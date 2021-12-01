@@ -452,10 +452,8 @@ void test_stl_iterators(int rows=Rows, int cols=Cols)
     using VecOp = VectorwiseOp<ArrayXXi, 0>;
     STATIC_CHECK(( internal::is_same<VecOp::const_iterator, decltype(std::declval<const VecOp&>().cbegin())>::value ));
     STATIC_CHECK(( internal::is_same<VecOp::const_iterator, decltype(std::declval<const VecOp&>().cend  ())>::value ));
-    #if EIGEN_COMP_CXXVER>=14
-      STATIC_CHECK(( internal::is_same<VecOp::const_iterator, decltype(std::cbegin(std::declval<const VecOp&>()))>::value ));
-      STATIC_CHECK(( internal::is_same<VecOp::const_iterator, decltype(std::cend  (std::declval<const VecOp&>()))>::value ));
-    #endif
+    STATIC_CHECK(( internal::is_same<VecOp::const_iterator, decltype(std::cbegin(std::declval<const VecOp&>()))>::value ));
+    STATIC_CHECK(( internal::is_same<VecOp::const_iterator, decltype(std::cend  (std::declval<const VecOp&>()))>::value ));
   }
 }
 
