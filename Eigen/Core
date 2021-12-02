@@ -67,6 +67,7 @@
 #endif
 
 #ifdef EIGEN_HAS_OPENMP
+#include <atomic>
 #include <omp.h>
 #endif
 

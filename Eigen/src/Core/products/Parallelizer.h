@@ -10,8 +10,6 @@
 #ifndef EIGEN_PARALLELIZER_H
 #define EIGEN_PARALLELIZER_H
 
-#include <atomic>
-
 #include "../InternalHeaderCheck.h"
 
 namespace Eigen {
@@ -78,14 +76,14 @@ namespace internal {
 
 template<typename Index> struct GemmParallelInfo
 {
-  GemmParallelInfo() : sync(-1), users(0), lhs_start(0), lhs_length(0) {}
 
-  // volatile is not enough on all architectures (see bug 1572)
-  // to guarantee that when thread A says to thread B that it is
-  // done with packing a block, then all writes have been really
-  // carried out... C++11 memory model+atomic guarantees this.
+#ifdef EIGEN_HAS_OPENMP
+  GemmParallelInfo() : sync(-1), users(0), lhs_start(0), lhs_length(0) {}
   std::atomic<Index> sync;
   std::atomic<int> users;
+#else
+  GemmParallelInfo() : lhs_start(0), lhs_length(0) {}
+#endif
 
   Index lhs_start;
   Index lhs_length;
