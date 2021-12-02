@@ -22,6 +22,7 @@
   *  - a constrained conjugate gradient
   *  - a Householder GMRES implementation
   *  - an IDR(s) implementation
+  *  - a BiCGSTAB(L) implementation
   *  - a DGMRES implementation
   *  - a MINRES implementation
   *
@@ -87,6 +88,7 @@
 #include "src/IterativeSolvers/DGMRES.h"
 #include "src/IterativeSolvers/MINRES.h"
 #include "src/IterativeSolvers/IDRS.h"
+#include "src/IterativeSolvers/BiCGSTABL.h"
 
 #include "../../Eigen/src/Core/util/ReenableStupidWarnings.h"
 
