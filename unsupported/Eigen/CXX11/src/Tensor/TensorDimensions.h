@@ -182,18 +182,6 @@ template <std::ptrdiff_t V1=0, std::ptrdiff_t V2=0, std::ptrdiff_t V3=0, std::pt
     // todo: add assertion
   }
 
-  EIGEN_DEVICE_FUNC explicit Sizes(const DenseIndex) {
-  }
-  EIGEN_DEVICE_FUNC Sizes(const DenseIndex, const DenseIndex) {
-  }
-  EIGEN_DEVICE_FUNC Sizes(const DenseIndex, const DenseIndex, const DenseIndex) {
-  }
-  EIGEN_DEVICE_FUNC Sizes(const DenseIndex, const DenseIndex, const DenseIndex, const DenseIndex) {
-  }
-  EIGEN_DEVICE_FUNC Sizes(const DenseIndex, const DenseIndex, const DenseIndex, const DenseIndex, const DenseIndex) {
-  }
-#endif
-
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Index operator[] (const Index index) const {
     switch (index) {
       case 0:
