@@ -39,44 +39,12 @@ namespace Eigen {
 
 namespace internal {
 
-namespace lapacke_llt_helpers {
-
-  // -------------------------------------------------------------------------------------------------------------------
-  //        Translation from Eigen to Lapacke types
-  // -------------------------------------------------------------------------------------------------------------------
-
-  // For complex numbers, the types in Eigen and Lapacke are different, but layout compatible.
-  template<typename Scalar> struct translate_type;
-  template<> struct translate_type<float> { using type = float; };
-  template<> struct translate_type<double> { using type = double; };
-  template<> struct translate_type<dcomplex> { using type = lapack_complex_double; };
-  template<> struct translate_type<scomplex> { using type = lapack_complex_float; };
-
-  // -------------------------------------------------------------------------------------------------------------------
-  //        Dispatch for potrf handling double, float, complex double, complex float types
-  // -------------------------------------------------------------------------------------------------------------------
-
-  inline lapack_int potrf(lapack_int matrix_order, char uplo, lapack_int size, double* a, lapack_int lda) {
-    return LAPACKE_dpotrf( matrix_order, uplo, size, a, lda );
-  }
-
-  inline lapack_int potrf(lapack_int matrix_order, char uplo, lapack_int size, float* a, lapack_int lda) {
-    return LAPACKE_spotrf( matrix_order, uplo, size, a, lda );
-  }
-
-  inline lapack_int potrf(lapack_int matrix_order, char uplo, lapack_int size, lapack_complex_double* a, lapack_int lda) {
-    return LAPACKE_zpotrf( matrix_order, uplo, size, a, lda );
-  }
-
-  inline lapack_int potrf(lapack_int matrix_order, char uplo, lapack_int size, lapack_complex_float* a, lapack_int lda) {
-    return LAPACKE_cpotrf( matrix_order, uplo, size, a, lda );
-  }
-
+namespace lapacke_helpers {
   // -------------------------------------------------------------------------------------------------------------------
   //        Dispatch for rank update handling upper and lower parts
   // -------------------------------------------------------------------------------------------------------------------
 
-  template<unsigned Mode>
+  template<UpLoType Mode>
   struct rank_update {};
 
   template<>
@@ -100,9 +68,8 @@ namespace lapacke_llt_helpers {
   //        Generic lapacke llt implementation that hands of to the dispatches
   // -------------------------------------------------------------------------------------------------------------------
 
-  template<typename Scalar, unsigned Mode>
+  template<typename Scalar, UpLoType Mode>
   struct lapacke_llt {
-    using BlasType = typename translate_type<Scalar>::type;
     template<typename MatrixType>
     static Index blocked(MatrixType& m)
     {
@@ -110,15 +77,13 @@ namespace lapacke_llt_helpers {
       if(m.rows() == 0) {
         return -1;
       }
-
       /* Set up parameters for ?potrf */
-      lapack_int size = convert_index<lapack_int>(m.rows());
-      lapack_int StorageOrder = MatrixType::Flags&RowMajorBit?RowMajor:ColMajor;
-      lapack_int matrix_order = StorageOrder==RowMajor ? LAPACK_ROW_MAJOR : LAPACK_COL_MAJOR;
+      lapack_int size = to_lapack(m.rows());
+      lapack_int matrix_order = lapack_storage_of(m);
       Scalar* a = &(m.coeffRef(0,0));
-      lapack_int lda = convert_index<lapack_int>(m.outerStride());
+      lapack_int lda = to_lapack(m.outerStride());
 
-      lapack_int info = potrf( matrix_order, Mode == Lower ? 'L' : 'U', size, (BlasType*)a, lda );
+      lapack_int info = potrf(matrix_order, translate_mode<Mode>, size, to_lapack(a), lda );
       info = (info==0) ? -1 : info>0 ? info-1 : size;
       return info;
     }
@@ -130,7 +95,7 @@ namespace lapacke_llt_helpers {
     }
   };
 }
-// end namespace lapacke_llt_helpers
+// end namespace lapacke_helpers
 
 /*
  * Here, we just put the generic implementation from lapacke_llt into a full specialization of the llt_inplace
@@ -139,13 +104,13 @@ namespace lapacke_llt_helpers {
  */
 
 #define EIGEN_LAPACKE_LLT(EIGTYPE) \
-template<> struct llt_inplace<EIGTYPE, Lower> : public lapacke_llt_helpers::lapacke_llt<EIGTYPE, Lower> {}; \
-template<> struct llt_inplace<EIGTYPE, Upper> : public lapacke_llt_helpers::lapacke_llt<EIGTYPE, Upper> {};
+template<> struct llt_inplace<EIGTYPE, Lower> : public lapacke_helpers::lapacke_llt<EIGTYPE, Lower> {}; \
+template<> struct llt_inplace<EIGTYPE, Upper> : public lapacke_helpers::lapacke_llt<EIGTYPE, Upper> {};
 
 EIGEN_LAPACKE_LLT(double)
 EIGEN_LAPACKE_LLT(float)
-EIGEN_LAPACKE_LLT(dcomplex)
-EIGEN_LAPACKE_LLT(scomplex)
+EIGEN_LAPACKE_LLT(std::complex<double>)
+EIGEN_LAPACKE_LLT(std::complex<float>)
 
 #undef EIGEN_LAPACKE_LLT
 
