@@ -35,8 +35,8 @@ template <typename Vector, typename RealScalar>
 typename Vector::Scalar omega(const Vector& t, const Vector& s, RealScalar angle) {
   using numext::abs;
   typedef typename Vector::Scalar Scalar;
-  const RealScalar ns = s.StableNorm();
-  const RealScalar nt = t.StableNorm();
+  const RealScalar ns = s.stableNorm();
+  const RealScalar nt = t.stableNorm();
   const Scalar ts = t.dot(s);
   const RealScalar rho = abs(ts / (nt * ns));
 
@@ -77,7 +77,7 @@ bool idrs(const MatrixType& A, const Rhs& b, Dest& x, const Preconditioner& prec
     P = (qr.householderQ() * DenseMatrixType::Identity(N, S));
   }
 
-  const RealScalar normb = b.StableNorm();
+  const RealScalar normb = b.stableNorm();
 
   if (internal::isApprox(normb, RealScalar(0))) {
     // Solution is the zero vector
@@ -110,7 +110,7 @@ bool idrs(const MatrixType& A, const Rhs& b, Dest& x, const Preconditioner& prec
     r_s = r;
   }
 
-  RealScalar normr = r.StableNorm();
+  RealScalar normr = r.stableNorm();
 
   if (normr <= tolb) {
     // Initial guess is a good enough solution
@@ -166,7 +166,7 @@ bool idrs(const MatrixType& A, const Rhs& b, Dest& x, const Preconditioner& prec
       Scalar beta = f(k) / M(k, k);
       r = r - beta * G.col(k);
       x = x + beta * U.col(k);
-      normr = r.StableNorm();
+      normr = r.stableNorm();
 
       if (replacement && normr > tolb / mp) {
         trueres = true;
@@ -176,10 +176,10 @@ bool idrs(const MatrixType& A, const Rhs& b, Dest& x, const Preconditioner& prec
       if (smoothing) {
         t = r_s - r;
         // gamma is a Scalar, but the conversion is not allowed
-        Scalar gamma = t.dot(r_s) / t.StableNorm();
+        Scalar gamma = t.dot(r_s) / t.stableNorm();
         r_s = r_s - gamma * t;
         x_s = x_s - gamma * (x_s - x);
-        normr = r_s.StableNorm();
+        normr = r_s.stableNorm();
       }
 
       if (normr < tolb || iter == maxit) {
@@ -214,7 +214,7 @@ bool idrs(const MatrixType& A, const Rhs& b, Dest& x, const Preconditioner& prec
 
     r = r - om * t;
     x = x + om * v;
-    normr = r.StableNorm();
+    normr = r.stableNorm();
 
     if (replacement && normr > tolb / mp) {
       trueres = true;
@@ -230,10 +230,10 @@ bool idrs(const MatrixType& A, const Rhs& b, Dest& x, const Preconditioner& prec
     // Smoothing:
     if (smoothing) {
       t = r_s - r;
-      Scalar gamma = t.dot(r_s) / t.StableNorm();
+      Scalar gamma = t.dot(r_s) / t.stableNorm();
       r_s = r_s - gamma * t;
       x_s = x_s - gamma * (x_s - x);
-      normr = r_s.StableNorm();
+      normr = r_s.stableNorm();
     }
 
     iter++;
