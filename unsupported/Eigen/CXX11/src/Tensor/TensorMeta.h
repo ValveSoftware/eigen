@@ -264,7 +264,6 @@ template <typename Idx> struct IndexPair {
 };
 
 
-#ifdef EIGEN_HAS_SFINAE
 namespace internal {
 
   template<typename IndexType, typename Index, Index... Is>
@@ -308,9 +307,6 @@ namespace internal {
   };
 
 }
-#endif
-
-
 
 }  // namespace Eigen
 

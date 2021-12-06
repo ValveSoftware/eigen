@@ -983,11 +983,7 @@ namespace internal {
 template <typename Derived, typename OtherDerived, bool IsVector>
 struct conservative_resize_like_impl
 {
-  #if EIGEN_HAS_TYPE_TRAITS
   static const bool IsRelocatable = std::is_trivially_copyable<typename Derived::Scalar>::value;
-  #else
-  static const bool IsRelocatable = !NumTraits<typename Derived::Scalar>::RequireInitialization;
-  #endif
   static void run(DenseBase<Derived>& _this, Index rows, Index cols)
   {
     if (_this.rows() == rows && _this.cols() == cols) return;

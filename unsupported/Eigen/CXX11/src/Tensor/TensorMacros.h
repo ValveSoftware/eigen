@@ -26,15 +26,6 @@
  *   void foo(){}
  */
 
-// SFINAE requires variadic templates
-#if !defined(EIGEN_GPUCC)
-#ifdef EIGEN_COMP_GNUC
-  #define EIGEN_HAS_SFINAE
-#else
-  #define EIGEN_HAS_SFINAE
-#endif
-#endif
-
 #define EIGEN_SFINAE_ENABLE_IF( __condition__ ) \
     typename internal::enable_if< ( __condition__ ) , int >::type = 0
 

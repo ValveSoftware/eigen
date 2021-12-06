@@ -612,14 +612,6 @@
   #define EIGEN_COMP_CXXVER 03
 #endif
 
-#ifndef EIGEN_HAS_CXX14_VARIABLE_TEMPLATES
-  #if defined(__cpp_variable_templates) && __cpp_variable_templates >= 201304
-    #define EIGEN_HAS_CXX14_VARIABLE_TEMPLATES 1
-  #else
-    #define EIGEN_HAS_CXX14_VARIABLE_TEMPLATES 0
-  #endif
-#endif
-
 
 // The macros EIGEN_HAS_CXX?? defines a rough estimate of available c++ features
 // but in practice we should not rely on them but rather on the availability of
@@ -672,18 +664,6 @@
 #define EIGEN_HAS_STD_INVOKE_RESULT 1
 #else
 #define EIGEN_HAS_STD_INVOKE_RESULT 0
-#endif
-#endif
-
-// Does the compiler support type_traits?
-// - full support of type traits was added only to GCC 5.1.0.
-// - 20150626 corresponds to the last release of 4.x libstdc++
-#ifndef EIGEN_HAS_TYPE_TRAITS
-#if (!defined(__GLIBCXX__)) || __GLIBCXX__ > 20150626
-#define EIGEN_HAS_TYPE_TRAITS 1
-#define EIGEN_INCLUDE_TYPE_TRAITS
-#else
-#define EIGEN_HAS_TYPE_TRAITS 0
 #endif
 #endif
 
@@ -982,14 +962,8 @@ namespace Eigen {
       // General, NEON.
       // Clang doesn't like "r",
       //    error: non-trivial scalar-to-vector conversion, possible invalid
-      //           constraint for vector type
-      // GCC < 5 doesn't like "g",
-      //    error: 'asm' operand requires impossible reload
-      #if EIGEN_COMP_GNUC_STRICT && EIGEN_GNUC_AT_MOST(5, 0)
-        #define EIGEN_OPTIMIZATION_BARRIER(X)  __asm__  ("" : "+r,w" (X));
-      #else
-        #define EIGEN_OPTIMIZATION_BARRIER(X)  __asm__  ("" : "+g,w" (X));
-      #endif
+      //           constraint for vector typ
+      #define EIGEN_OPTIMIZATION_BARRIER(X)  __asm__  ("" : "+g,w" (X));
     #elif EIGEN_ARCH_i386_OR_x86_64
       // General, SSE.
       #define EIGEN_OPTIMIZATION_BARRIER(X)  __asm__  ("" : "+g,x" (X));
@@ -1249,7 +1223,6 @@ namespace Eigen {
 #endif
 
 
-#define EIGEN_INCLUDE_TYPE_TRAITS
 #define EIGEN_NOEXCEPT noexcept
 #define EIGEN_NOEXCEPT_IF(x) noexcept(x)
 #define EIGEN_NO_THROW noexcept(true)

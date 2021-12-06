@@ -16,59 +16,6 @@ namespace Eigen {
 
 namespace internal {
 
-#if !((!EIGEN_COMP_GNUC) || EIGEN_COMP_GNUC>=48)
-template<typename T> struct aseq_negate {};
-
-template<> struct aseq_negate<Index> {
-  typedef Index type;
-};
-
-template<int N> struct aseq_negate<FixedInt<N> > {
-  typedef FixedInt<-N> type;
-};
-
-// Compilation error in the following case:
-template<> struct aseq_negate<FixedInt<DynamicIndex> > {};
-
-template<typename FirstType,typename SizeType,typename IncrType,
-         bool FirstIsSymbolic=symbolic::is_symbolic<FirstType>::value,
-         bool SizeIsSymbolic =symbolic::is_symbolic<SizeType>::value>
-struct aseq_reverse_first_type {
-  typedef Index type;
-};
-
-template<typename FirstType,typename SizeType,typename IncrType>
-struct aseq_reverse_first_type<FirstType,SizeType,IncrType,true,true> {
-  typedef symbolic::AddExpr<FirstType,
-                            symbolic::ProductExpr<symbolic::AddExpr<SizeType,symbolic::ValueExpr<FixedInt<-1> > >,
-                                                  symbolic::ValueExpr<IncrType> >
-                           > type;
-};
-
-template<typename SizeType,typename IncrType,typename EnableIf = void>
-struct aseq_reverse_first_type_aux {
-  typedef Index type;
-};
-
-template<typename SizeType,typename IncrType>
-struct aseq_reverse_first_type_aux<SizeType,IncrType,typename internal::enable_if<bool((SizeType::value+IncrType::value)|0x1)>::type> {
-  typedef FixedInt<(SizeType::value-1)*IncrType::value> type;
-};
-
-template<typename FirstType,typename SizeType,typename IncrType>
-struct aseq_reverse_first_type<FirstType,SizeType,IncrType,true,false> {
-  typedef typename aseq_reverse_first_type_aux<SizeType,IncrType>::type Aux;
-  typedef symbolic::AddExpr<FirstType,symbolic::ValueExpr<Aux> > type;
-};
-
-template<typename FirstType,typename SizeType,typename IncrType>
-struct aseq_reverse_first_type<FirstType,SizeType,IncrType,false,true> {
-  typedef symbolic::AddExpr<symbolic::ProductExpr<symbolic::AddExpr<SizeType,symbolic::ValueExpr<FixedInt<-1> > >,
-                                                  symbolic::ValueExpr<IncrType> >,
-                            symbolic::ValueExpr<> > type;
-};
-#endif
-
 // Helper to cleanup the type of the increment:
 template<typename T> struct cleanup_seq_incr {
   typedef typename cleanup_index_type<T,DynamicIndex>::type type;
@@ -139,21 +86,9 @@ protected:
   IncrType  m_incr;
 
 public:
-
-#if (!EIGEN_COMP_GNUC) || EIGEN_COMP_GNUC>=48
   auto reverse() const -> decltype(Eigen::seqN(m_first+(m_size+fix<-1>())*m_incr,m_size,-m_incr)) {
     return seqN(m_first+(m_size+fix<-1>())*m_incr,m_size,-m_incr);
   }
-#else
-protected:
-  typedef typename internal::aseq_negate<IncrType>::type ReverseIncrType;
-  typedef typename internal::aseq_reverse_first_type<FirstType,SizeType,IncrType>::type ReverseFirstType;
-public:
-  ArithmeticSequence<ReverseFirstType,SizeType,ReverseIncrType>
-  reverse() const {
-    return seqN(m_first+(m_size+fix<-1>())*m_incr,m_size,-m_incr);
-  }
-#endif
 };
 
 /** \returns an ArithmeticSequence starting at \a first, of length \a size, and increment \a incr
