@@ -266,9 +266,9 @@ template <typename Idx> struct IndexPair {
 
 namespace internal {
 
-  template<typename IndexType, typename Index, Index... Is>
+  template<typename IndexType, typename Index, Index First, Index... Is>
   EIGEN_CONSTEXPR EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
-  array<Index, sizeof...(Is)> customIndices2Array(IndexType& idx, numeric_list<Index, Is...>) {
+  array<Index, 1 + sizeof...(Is)> customIndices2Array(IndexType& idx, numeric_list<Index, First, Is...>) {
     return { idx[Is]... };
   }
   template<typename IndexType, typename Index>
