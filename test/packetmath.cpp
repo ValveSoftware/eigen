@@ -48,7 +48,7 @@ inline bool REF_MUL(const bool& a, const bool& b) {
 
 template <typename T>
 inline T REF_FREXP(const T& x, T& exp) {
-  int iexp;
+  int iexp = 0;
   EIGEN_USING_STD(frexp)
   const T out = static_cast<T>(frexp(x, &iexp));
   exp = static_cast<T>(iexp);
@@ -713,6 +713,7 @@ void packetmath_real() {
   for (int i = 0; i < size; ++i) {
     data1[i] = Scalar(internal::random<double>(-87, 88));
     data2[i] = Scalar(internal::random<double>(-87, 88));
+    data1[0] = -NumTraits<Scalar>::infinity();
   }
   CHECK_CWISE1_IF(PacketTraits::HasExp, std::exp, internal::pexp);
   
