@@ -440,17 +440,6 @@ foreach(var INCLUDE_INSTALL_DIR CMAKEPACKAGE_INSTALL_DIR PKGCONFIG_INSTALL_DIR)
   endif()
 endforeach()
 
-# similar to set_target_properties but append the property instead of overwriting it
-macro(ei_add_target_property target prop value)
-
-  get_target_property(previous ${target} ${prop})
-  # if the property wasn't previously set, ${previous} is now "previous-NOTFOUND" which cmake allows catching with plain if()
-  if(NOT previous)
-    set(previous "")
-  endif()
-  set_target_properties(${target} PROPERTIES ${prop} "${previous} ${value}")
-endmacro()
-
 install(FILES
   signature_of_eigen3_matrix_library
   DESTINATION ${INCLUDE_INSTALL_DIR} COMPONENT Devel
