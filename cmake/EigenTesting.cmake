@@ -28,7 +28,7 @@ macro(ei_add_test_internal testname testname_with_suffix)
     set(is_gpu_test ON)
     if(EIGEN_TEST_HIP)
       hip_reset_flags()
-      hip_add_executable(${targetname} ${filename} HIPCC_OPTIONS "-DEIGEN_USE_HIP ${ARGV2}")
+      hip_add_executable(${targetname} ${filename} HIPCC_OPTIONS "-DEIGEN_USE_HIP -std=c++14 ${ARGV2}")
     elseif(EIGEN_TEST_CUDA_CLANG)
       set_source_files_properties(${filename} PROPERTIES LANGUAGE CXX)
       
