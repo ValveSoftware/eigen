@@ -674,8 +674,8 @@ template<typename Derived> class DenseBase
        * Only do it when debugging Eigen, as this borders on paranoia and could slow compilation down
        */
 #ifdef EIGEN_INTERNAL_DEBUGGING
-      EIGEN_STATIC_ASSERT((EIGEN_IMPLIES(MaxRowsAtCompileTime==1 && MaxColsAtCompileTime!=1, int(IsRowMajor))
-                        && EIGEN_IMPLIES(MaxColsAtCompileTime==1 && MaxRowsAtCompileTime!=1, int(!IsRowMajor))),
+      EIGEN_STATIC_ASSERT((internal::check_implication(MaxRowsAtCompileTime==1 && MaxColsAtCompileTime!=1, int(IsRowMajor))
+                        && internal::check_implication(MaxColsAtCompileTime==1 && MaxRowsAtCompileTime!=1, int(!IsRowMajor))),
                           INVALID_STORAGE_ORDER_FOR_THIS_VECTOR_EXPRESSION)
 #endif
     }

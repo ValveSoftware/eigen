@@ -245,11 +245,11 @@ struct vectorization_logic
             >(InnerVectorizedTraversal,CompleteUnrolling)));
 
     VERIFY((test_assign<
-            Map<Matrix<Scalar,EIGEN_PLAIN_ENUM_MAX(2,PacketSize),EIGEN_PLAIN_ENUM_MAX(2,PacketSize)>, AlignedMax, InnerStride<3*PacketSize> >,
-            Matrix<Scalar,EIGEN_PLAIN_ENUM_MAX(2,PacketSize),EIGEN_PLAIN_ENUM_MAX(2,PacketSize)>
+            Map<Matrix<Scalar, internal::plain_enum_max(2,PacketSize), internal::plain_enum_max(2, PacketSize)>, AlignedMax, InnerStride<3*PacketSize> >,
+            Matrix<Scalar, internal::plain_enum_max(2, PacketSize), internal::plain_enum_max(2, PacketSize)>
             >(DefaultTraversal,PacketSize>=8?InnerUnrolling:CompleteUnrolling)));
 
-    VERIFY((test_assign(Matrix11(), Matrix<Scalar,PacketSize,EIGEN_PLAIN_ENUM_MIN(2,PacketSize)>()*Matrix<Scalar,EIGEN_PLAIN_ENUM_MIN(2,PacketSize),PacketSize>(),
+    VERIFY((test_assign(Matrix11(), Matrix<Scalar,PacketSize, internal::plain_enum_min(2, PacketSize)>()*Matrix<Scalar, internal::plain_enum_min(2, PacketSize),PacketSize>(),
                         InnerVectorizedTraversal, CompleteUnrolling)));
     #endif
 
@@ -407,8 +407,8 @@ struct vectorization_logic_half
     }
 
     VERIFY((test_assign<
-            Map<Matrix<Scalar,EIGEN_PLAIN_ENUM_MAX(2,PacketSize),EIGEN_PLAIN_ENUM_MAX(2,PacketSize)>, AlignedMax, InnerStride<3*PacketSize> >,
-            Matrix<Scalar,EIGEN_PLAIN_ENUM_MAX(2,PacketSize),EIGEN_PLAIN_ENUM_MAX(2,PacketSize)>
+            Map<Matrix<Scalar, plain_enum_max(2,PacketSize), plain_enum_max(2,PacketSize)>, AlignedMax, InnerStride<3*PacketSize> >,
+            Matrix<Scalar, plain_enum_max(2,PacketSize), plain_enum_max(2,PacketSize)>
             >(DefaultTraversal,PacketSize>4?InnerUnrolling:CompleteUnrolling)));
 
     VERIFY((test_assign(Matrix57(), Matrix<Scalar,5*PacketSize,3>()*Matrix<Scalar,3,7>(),

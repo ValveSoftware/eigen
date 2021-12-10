@@ -646,8 +646,9 @@ struct plain_col_type
 template<typename ExpressionType, typename Scalar = typename ExpressionType::Scalar>
 struct plain_diag_type
 {
-  enum { diag_size = EIGEN_SIZE_MIN_PREFER_DYNAMIC(ExpressionType::RowsAtCompileTime, ExpressionType::ColsAtCompileTime),
-         max_diag_size = EIGEN_SIZE_MIN_PREFER_FIXED(ExpressionType::MaxRowsAtCompileTime, ExpressionType::MaxColsAtCompileTime)
+  enum { diag_size = internal::min_size_prefer_dynamic(ExpressionType::RowsAtCompileTime, ExpressionType::ColsAtCompileTime),
+         max_diag_size = min_size_prefer_fixed(ExpressionType::MaxRowsAtCompileTime,
+                                               ExpressionType::MaxColsAtCompileTime)
   };
   typedef Matrix<Scalar, diag_size, 1, ExpressionType::PlainObject::Options & ~RowMajor, max_diag_size, 1> MatrixDiagType;
   typedef Array<Scalar, diag_size, 1, ExpressionType::PlainObject::Options & ~RowMajor, max_diag_size, 1> ArrayDiagType;

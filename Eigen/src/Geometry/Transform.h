@@ -319,12 +319,12 @@ public:
     check_template_params();
     // prevent conversions as:
     // Affine | AffineCompact | Isometry = Projective
-    EIGEN_STATIC_ASSERT(EIGEN_IMPLIES(OtherMode==int(Projective), Mode==int(Projective)),
+    EIGEN_STATIC_ASSERT(internal::check_implication(OtherMode==int(Projective), Mode==int(Projective)),
                         YOU_PERFORMED_AN_INVALID_TRANSFORMATION_CONVERSION)
 
     // prevent conversions as:
     // Isometry = Affine | AffineCompact
-    EIGEN_STATIC_ASSERT(EIGEN_IMPLIES(OtherMode==int(Affine)||OtherMode==int(AffineCompact), Mode!=int(Isometry)),
+    EIGEN_STATIC_ASSERT(internal::check_implication(OtherMode==int(Affine)||OtherMode==int(AffineCompact), Mode!=int(Isometry)),
                         YOU_PERFORMED_AN_INVALID_TRANSFORMATION_CONVERSION)
 
     enum { ModeIsAffineCompact = Mode == int(AffineCompact),
@@ -1404,7 +1404,7 @@ struct transform_right_product_impl< TransformType, MatrixType, 2, 1> // rhs is 
     Dim = TransformType::Dim,
     HDim = TransformType::HDim,
     OtherRows = MatrixType::RowsAtCompileTime,
-    WorkingRows = EIGEN_PLAIN_ENUM_MIN(TransformMatrix::RowsAtCompileTime,HDim)
+    WorkingRows = plain_enum_min(TransformMatrix::RowsAtCompileTime, HDim)
   };
 
   typedef typename MatrixType::PlainObject ResultType;

@@ -916,8 +916,8 @@ struct random_default_impl<Scalar, false, true>
 #else
     enum { rand_bits = meta_floor_log2<(unsigned int)(RAND_MAX)+1>::value,
            scalar_bits = sizeof(Scalar) * CHAR_BIT,
-           shift = EIGEN_PLAIN_ENUM_MAX(0, int(rand_bits) - int(scalar_bits)),
-           offset = NumTraits<Scalar>::IsSigned ? (1 << (EIGEN_PLAIN_ENUM_MIN(rand_bits,scalar_bits)-1)) : 0
+           shift = plain_enum_max(0, int(rand_bits) - int(scalar_bits)),
+           offset = NumTraits<Scalar>::IsSigned ? (1 << (plain_enum_min(rand_bits, scalar_bits)-1)) : 0
     };
     return Scalar((std::rand() >> shift) - offset);
 #endif

@@ -136,8 +136,8 @@ class PlainObjectBase : public internal::dense_xpr_base<Derived>::type
     enum { NeedsToAlign = (SizeAtCompileTime != Dynamic) && (internal::traits<Derived>::Alignment>0) };
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(NeedsToAlign)
 
-    EIGEN_STATIC_ASSERT(EIGEN_IMPLIES(MaxRowsAtCompileTime==1 && MaxColsAtCompileTime!=1, (int(Options)&RowMajor)==RowMajor), INVALID_MATRIX_TEMPLATE_PARAMETERS)
-    EIGEN_STATIC_ASSERT(EIGEN_IMPLIES(MaxColsAtCompileTime==1 && MaxRowsAtCompileTime!=1, (int(Options)&RowMajor)==0), INVALID_MATRIX_TEMPLATE_PARAMETERS)
+    EIGEN_STATIC_ASSERT(internal::check_implication(MaxRowsAtCompileTime==1 && MaxColsAtCompileTime!=1, (int(Options)&RowMajor)==RowMajor), INVALID_MATRIX_TEMPLATE_PARAMETERS)
+    EIGEN_STATIC_ASSERT(internal::check_implication(MaxColsAtCompileTime==1 && MaxRowsAtCompileTime!=1, (int(Options)&RowMajor)==0), INVALID_MATRIX_TEMPLATE_PARAMETERS)
     EIGEN_STATIC_ASSERT((RowsAtCompileTime == Dynamic) || (RowsAtCompileTime >= 0), INVALID_MATRIX_TEMPLATE_PARAMETERS)
     EIGEN_STATIC_ASSERT((ColsAtCompileTime == Dynamic) || (ColsAtCompileTime >= 0), INVALID_MATRIX_TEMPLATE_PARAMETERS)
     EIGEN_STATIC_ASSERT((MaxRowsAtCompileTime == Dynamic) || (MaxRowsAtCompileTime >= 0), INVALID_MATRIX_TEMPLATE_PARAMETERS)
@@ -282,10 +282,10 @@ class PlainObjectBase : public internal::dense_xpr_base<Derived>::type
     EIGEN_DEVICE_FUNC
     EIGEN_STRONG_INLINE void resize(Index rows, Index cols)
     {
-      eigen_assert(EIGEN_IMPLIES(RowsAtCompileTime!=Dynamic,rows==RowsAtCompileTime)
-                   && EIGEN_IMPLIES(ColsAtCompileTime!=Dynamic,cols==ColsAtCompileTime)
-                   && EIGEN_IMPLIES(RowsAtCompileTime==Dynamic && MaxRowsAtCompileTime!=Dynamic,rows<=MaxRowsAtCompileTime)
-                   && EIGEN_IMPLIES(ColsAtCompileTime==Dynamic && MaxColsAtCompileTime!=Dynamic,cols<=MaxColsAtCompileTime)
+      eigen_assert(internal::check_implication(RowsAtCompileTime!=Dynamic, rows==RowsAtCompileTime)
+                   && internal::check_implication(ColsAtCompileTime!=Dynamic, cols==ColsAtCompileTime)
+                   && internal::check_implication(RowsAtCompileTime==Dynamic && MaxRowsAtCompileTime!=Dynamic, rows<=MaxRowsAtCompileTime)
+                   && internal::check_implication(ColsAtCompileTime==Dynamic && MaxColsAtCompileTime!=Dynamic, cols<=MaxColsAtCompileTime)
                    && rows>=0 && cols>=0 && "Invalid sizes when resizing a matrix or array.");
       internal::check_rows_cols_for_overflow<MaxSizeAtCompileTime>::run(rows, cols);
       #ifdef EIGEN_INITIALIZE_COEFFS

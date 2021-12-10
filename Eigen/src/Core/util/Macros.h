@@ -1107,35 +1107,6 @@ namespace Eigen {
   typedef typename Base::PacketScalar PacketScalar;
 
 
-#define EIGEN_PLAIN_ENUM_MIN(a,b) (((int)a <= (int)b) ? (int)a : (int)b)
-#define EIGEN_PLAIN_ENUM_MAX(a,b) (((int)a >= (int)b) ? (int)a : (int)b)
-
-// EIGEN_SIZE_MIN_PREFER_DYNAMIC gives the min between compile-time sizes. 0 has absolute priority, followed by 1,
-// followed by Dynamic, followed by other finite values. The reason for giving Dynamic the priority over
-// finite values is that min(3, Dynamic) should be Dynamic, since that could be anything between 0 and 3.
-#define EIGEN_SIZE_MIN_PREFER_DYNAMIC(a,b) (((int)a == 0 || (int)b == 0) ? 0 \
-                           : ((int)a == 1 || (int)b == 1) ? 1 \
-                           : ((int)a == Dynamic || (int)b == Dynamic) ? Dynamic \
-                           : ((int)a <= (int)b) ? (int)a : (int)b)
-
-// EIGEN_SIZE_MIN_PREFER_FIXED is a variant of EIGEN_SIZE_MIN_PREFER_DYNAMIC comparing MaxSizes. The difference is that finite values
-// now have priority over Dynamic, so that min(3, Dynamic) gives 3. Indeed, whatever the actual value is
-// (between 0 and 3), it is not more than 3.
-#define EIGEN_SIZE_MIN_PREFER_FIXED(a,b)  (((int)a == 0 || (int)b == 0) ? 0 \
-                           : ((int)a == 1 || (int)b == 1) ? 1 \
-                           : ((int)a == Dynamic && (int)b == Dynamic) ? Dynamic \
-                           : ((int)a == Dynamic) ? (int)b \
-                           : ((int)b == Dynamic) ? (int)a \
-                           : ((int)a <= (int)b) ? (int)a : (int)b)
-
-// see EIGEN_SIZE_MIN_PREFER_DYNAMIC. No need for a separate variant for MaxSizes here.
-#define EIGEN_SIZE_MAX(a,b) (((int)a == Dynamic || (int)b == Dynamic) ? Dynamic \
-                           : ((int)a >= (int)b) ? (int)a : (int)b)
-
-#define EIGEN_LOGICAL_XOR(a,b) (((a) || (b)) && !((a) && (b)))
-
-#define EIGEN_IMPLIES(a,b) (!(a) || (b))
-
 #if EIGEN_HAS_BUILTIN(__builtin_expect) || EIGEN_COMP_GNUC
 #define EIGEN_PREDICT_FALSE(x) (__builtin_expect(x, false))
 #define EIGEN_PREDICT_TRUE(x) (__builtin_expect(false || (x), true))
