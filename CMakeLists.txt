@@ -109,6 +109,8 @@ find_package(StandardMathLibrary)
 
 set(EIGEN_TEST_CUSTOM_LINKER_FLAGS  "" CACHE STRING "Additional linker flags when linking unit tests.")
 set(EIGEN_TEST_CUSTOM_CXX_FLAGS     "" CACHE STRING "Additional compiler flags when compiling unit tests.")
+# convert space separated argument into CMake lists for downstream consumption
+separate_arguments(EIGEN_TEST_CUSTOM_CXX_FLAGS NATIVE_COMMAND ${EIGEN_TEST_CUSTOM_CXX_FLAGS})
 
 set(EIGEN_STANDARD_LIBRARIES_TO_LINK_TO "")
 
