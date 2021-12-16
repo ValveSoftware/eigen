@@ -646,7 +646,7 @@ inline constexpr int max_size_prefer_dynamic(A a, B b) {
 
 /// \internal Calculate logical XOR at compile time
 inline constexpr bool logical_xor(bool a, bool b) {
-  return (a || b) && !(a && b);
+  return a != b;
 }
 
 /// \internal Calculate logical IMPLIES at compile time
