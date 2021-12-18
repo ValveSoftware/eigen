@@ -494,7 +494,7 @@ EIGEN_UNUSED
 Packet pexp_double(const Packet _x)
 {
   Packet x = _x;
-  const Packet cst_zero = pset1<Packet>(0.0f);
+  const Packet cst_zero = pset1<Packet>(0.0);
   const Packet cst_1 = pset1<Packet>(1.0);
   const Packet cst_2 = pset1<Packet>(2.0);
   const Packet cst_half = pset1<Packet>(0.5);
