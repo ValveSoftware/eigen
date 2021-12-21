@@ -201,7 +201,7 @@ template<typename MatrixType_, int UpLo_> class LLT
       * This method is provided for compatibility with other matrix decompositions, thus enabling generic code such as:
       * \code x = decomposition.adjoint().solve(b) \endcode
       */
-    const LLT& adjoint() const EIGEN_NOEXCEPT { return *this; };
+    const LLT& adjoint() const EIGEN_NOEXCEPT { return *this; }
 
     inline EIGEN_CONSTEXPR Index rows() const EIGEN_NOEXCEPT { return m_matrix.rows(); }
     inline EIGEN_CONSTEXPR Index cols() const EIGEN_NOEXCEPT { return m_matrix.cols(); }

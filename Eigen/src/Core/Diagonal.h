@@ -20,8 +20,8 @@ namespace Eigen {
   *
   * \brief Expression of a diagonal/subdiagonal/superdiagonal in a matrix
   *
-  * \param MatrixType the type of the object in which we are taking a sub/main/super diagonal
-  * \param DiagIndex the index of the sub/super diagonal. The default is 0 and it means the main diagonal.
+  * \tparam MatrixType the type of the object in which we are taking a sub/main/super diagonal
+  * \tparam DiagIndex the index of the sub/super diagonal. The default is 0 and it means the main diagonal.
   *              A positive value means a superdiagonal, a negative value means a subdiagonal.
   *              You can also use DynamicIndex so the index can be set at runtime.
   *

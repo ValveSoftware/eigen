@@ -46,7 +46,7 @@ class Serializer<T, typename std::enable_if<
   /**
    * Serializes a value to a byte buffer.
    * \param dest the destination buffer.
-   * \param T the value to serialize.
+   * \param value the value to serialize.
    * \return the next memory address past the end of the serialized data.
    */
   EIGEN_DEVICE_FUNC uint8_t* serialize(uint8_t* dest, const T& value) {

@@ -118,9 +118,9 @@ class DiagonalBase : public EigenBase<Derived>
   *
   * \brief Represents a diagonal matrix with its storage
   *
-  * \param Scalar_ the type of coefficients
-  * \param SizeAtCompileTime the dimension of the matrix, or Dynamic
-  * \param MaxSizeAtCompileTime the dimension of the matrix, or Dynamic. This parameter is optional and defaults
+  * \tparam Scalar_ the type of coefficients
+  * \tparam SizeAtCompileTime the dimension of the matrix, or Dynamic
+  * \tparam MaxSizeAtCompileTime the dimension of the matrix, or Dynamic. This parameter is optional and defaults
   *        to SizeAtCompileTime. Most of the time, you do not need to specify it.
   *
   * \sa class DiagonalWrapper
@@ -261,7 +261,7 @@ class DiagonalMatrix
   *
   * \brief Expression of a diagonal matrix
   *
-  * \param DiagonalVectorType_ the type of the vector of diagonal coefficients
+  * \tparam DiagonalVectorType_ the type of the vector of diagonal coefficients
   *
   * This class is an expression of a diagonal matrix, but not storing its own vector of diagonal coefficients,
   * instead wrapping an existing vector expression. It is the return type of MatrixBase::asDiagonal()
