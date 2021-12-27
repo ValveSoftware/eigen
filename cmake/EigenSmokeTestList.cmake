@@ -128,4 +128,5 @@ set(ei_smoke_test_list
   unalignedassert
   unalignedcount
   vectorwiseop_1
-  visitor_1)
+  visitor_1
+  vectorization_logic_1)
