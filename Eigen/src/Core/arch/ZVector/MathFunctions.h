@@ -13,8 +13,8 @@
  * Julien Pommier's sse math library: http://gruntthepeon.free.fr/ssemath/
  */
 
-#ifndef EIGEN_MATH_FUNCTIONS_ALTIVEC_H
-#define EIGEN_MATH_FUNCTIONS_ALTIVEC_H
+#ifndef EIGEN_MATH_FUNCTIONS_ZVECTOR_H
+#define EIGEN_MATH_FUNCTIONS_ZVECTOR_H
 
 #include "../../InternalHeaderCheck.h"
 
@@ -232,4 +232,4 @@ ptanh<Packet4f>(const Packet4f& x) {
 
 }  // end namespace Eigen
 
-#endif  // EIGEN_MATH_FUNCTIONS_ALTIVEC_H
+#endif  // EIGEN_MATH_FUNCTIONS_ZVECTOR_H
