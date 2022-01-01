@@ -141,12 +141,14 @@ void run_serialized(index_sequence<Indices...>, index_sequence<OutputIndices...>
   using test_detail::tuple;
   // Deserialize input size and inputs.
   size_t input_size;
-  uint8_t* buff_ptr = Eigen::deserialize(buffer, input_size);
+  const uint8_t* read_ptr = buffer;
+  const uint8_t* read_end = buffer + capacity;
+  read_ptr = Eigen::deserialize(read_ptr, read_end, input_size);
   // Create value-type instances to populate.
   auto args = make_tuple(typename std::decay<Args>::type{}...);
   EIGEN_UNUSED_VARIABLE(args) // Avoid NVCC compile warning.
   // NVCC 9.1 requires us to spell out the template parameters explicitly.
-  buff_ptr = Eigen::deserialize(buff_ptr, get<Indices, typename std::decay<Args>::type...>(args)...);
+  read_ptr = Eigen::deserialize(read_ptr, read_end, get<Indices, typename std::decay<Args>::type...>(args)...);
   
   // Call function, with void->Void conversion so we are guaranteed a complete
   // output type.
@@ -158,12 +160,15 @@ void run_serialized(index_sequence<Indices...>, index_sequence<OutputIndices...>
   output_size += Eigen::serialize_size(result);
   
   // Always serialize required buffer size.
-  buff_ptr = Eigen::serialize(buffer, output_size);
+  uint8_t* write_ptr = buffer;
+  uint8_t* write_end = buffer + capacity;
+  write_ptr = Eigen::serialize(write_ptr, write_end, output_size);
+  // Null `write_ptr` can be safely passed along.
   // Serialize outputs if they fit in the buffer.
   if (output_size <= capacity) {
     // Collect outputs and result.
-    buff_ptr = Eigen::serialize(buff_ptr, get<OutputIndices, typename std::decay<Args>::type...>(args)...);
-    buff_ptr = Eigen::serialize(buff_ptr, result);
+    write_ptr = Eigen::serialize(write_ptr, write_end, get<OutputIndices, typename std::decay<Args>::type...>(args)...);
+    write_ptr = Eigen::serialize(write_ptr, write_end, result);
   }
 }
 
