@@ -61,6 +61,9 @@ set(ei_smoke_test_list
   mapped_matrix_1
   mapstaticmethods_1
   mapstride_1
+  unaryviewstride_1
+  unaryviewstride_2
+  unaryviewstride_3
   matrix_square_root_1
   meta
   minres_2

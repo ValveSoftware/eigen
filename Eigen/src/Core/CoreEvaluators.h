@@ -812,11 +812,11 @@ protected:
 
 // -------------------- CwiseUnaryView --------------------
 
-template<typename UnaryOp, typename ArgType>
-struct unary_evaluator<CwiseUnaryView<UnaryOp, ArgType>, IndexBased>
-  : evaluator_base<CwiseUnaryView<UnaryOp, ArgType> >
+template<typename UnaryOp, typename ArgType, typename StrideType>
+struct unary_evaluator<CwiseUnaryView<UnaryOp, ArgType, StrideType>, IndexBased>
+  : evaluator_base<CwiseUnaryView<UnaryOp, ArgType, StrideType> >
 {
-  typedef CwiseUnaryView<UnaryOp, ArgType> XprType;
+  typedef CwiseUnaryView<UnaryOp, ArgType, StrideType> XprType;
 
   enum {
     CoeffReadCost = int(evaluator<ArgType>::CoeffReadCost) + int(functor_traits<UnaryOp>::Cost),
