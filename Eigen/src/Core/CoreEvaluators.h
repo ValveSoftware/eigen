@@ -902,7 +902,8 @@ struct mapbase_evaluator : evaluator_base<Derived>
       m_innerStride(map.innerStride()),
       m_outerStride(map.outerStride())
   {
-    EIGEN_STATIC_ASSERT(check_implication(evaluator<Derived>::Flags&PacketAccessBit, internal::inner_stride_at_compile_time<Derived>::ret==1),
+    EIGEN_STATIC_ASSERT(check_implication((evaluator<Derived>::Flags & PacketAccessBit) != 0,
+                                          internal::inner_stride_at_compile_time<Derived>::ret == 1),
                         PACKET_ACCESS_REQUIRES_TO_HAVE_INNER_STRIDE_FIXED_TO_1);
     EIGEN_INTERNAL_CHECK_COST_VALUE(CoeffReadCost);
   }
