@@ -101,17 +101,22 @@ pexp<Packet4d>(const Packet4d& _x) {
 template <>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
 Packet8f psqrt<Packet8f>(const Packet8f& _x) {
-  Packet8f minus_half_x = pmul(_x, pset1<Packet8f>(-0.5f));
-  Packet8f denormal_mask = pandnot(
-      pcmp_lt(_x, pset1<Packet8f>((std::numeric_limits<float>::min)())),
-      pcmp_lt(_x, pzero(_x)));
+  const Packet8f minus_half_x = pmul(_x, pset1<Packet8f>(-0.5f));
+  const Packet8f negative_mask = pcmp_lt(_x, pzero(_x));
+  const Packet8f denormal_mask =
+      pandnot(pcmp_lt(_x, pset1<Packet8f>((std::numeric_limits<float>::min)())),
+              negative_mask);
 
   // Compute approximate reciprocal sqrt.
-  Packet8f x = _mm256_rsqrt_ps(_x);
+  Packet8f rs = _mm256_rsqrt_ps(_x);
+  // Flush negative arguments to zero. This is a workaround which ensures
+  // that sqrt of a negative denormal returns -NaN, despite _mm256_rsqrt_ps
+  // returning -Inf for such values.
+  const Packet8f x_flushed = pandnot(_x, negative_mask);
   // Do a single step of Newton's iteration.
-  x = pmul(x, pmadd(minus_half_x, pmul(x,x), pset1<Packet8f>(1.5f)));
+  rs = pmul(rs, pmadd(minus_half_x, pmul(rs,rs), pset1<Packet8f>(1.5f)));
   // Flush results for denormals to zero.
-  return pandnot(pmul(_x,x), denormal_mask);
+  return pandnot(pmul(x_flushed, rs), denormal_mask);
 }
 
 #else

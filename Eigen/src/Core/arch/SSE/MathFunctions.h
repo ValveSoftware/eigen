@@ -75,8 +75,6 @@ Packet4f pcos<Packet4f>(const Packet4f& _x)
   return pcos_float(_x);
 }
 
-#if EIGEN_FAST_MATH
-
 // Functions for sqrt.
 // The EIGEN_FAST_MATH version uses the _mm_rsqrt_ps approximation and one step
 // of Newton's method, at a cost of 1-2 bits of precision as opposed to the
@@ -85,11 +83,13 @@ Packet4f pcos<Packet4f>(const Packet4f& _x)
 // it can be inlined and pipelined with other computations, further reducing its
 // effective latency. This is similar to Quake3's fast inverse square root.
 // For detail see here: http://www.beyond3d.com/content/articles/8/
-template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
+#if EIGEN_FAST_MATH
+template<>
+EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
 Packet4f psqrt<Packet4f>(const Packet4f& _x)
 {
-  Packet4f minus_half_x = pmul(_x, pset1<Packet4f>(-0.5f));
-  Packet4f denormal_mask = pandnot(
+  const Packet4f minus_half_x = pmul(_x, pset1<Packet4f>(-0.5f));
+  const Packet4f denormal_mask = pandnot(
       pcmp_lt(_x, pset1<Packet4f>((std::numeric_limits<float>::min)())),
       pcmp_lt(_x, pzero(_x)));
 
