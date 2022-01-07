@@ -275,7 +275,7 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
 
     EIGEN_DEVICE_FUNC
     EIGEN_STRONG_INLINE Tensor(const Self& other)
-      : m_storage(other.m_storage)
+      : Base(other), m_storage(other.m_storage)
     {
     }
 
