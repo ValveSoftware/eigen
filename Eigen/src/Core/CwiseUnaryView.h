@@ -23,10 +23,10 @@ struct traits<CwiseUnaryView<ViewOp, MatrixType, StrideType> >
                      ViewOp(const typename traits<MatrixType>::Scalar&)
                    >::type Scalar;
   typedef typename MatrixType::Nested MatrixTypeNested;
-  typedef typename remove_all<MatrixTypeNested>::type _MatrixTypeNested;
+  typedef typename remove_all<MatrixTypeNested>::type MatrixTypeNested_;
   enum {
     FlagsLvalueBit = is_lvalue<MatrixType>::value ? LvalueBit : 0,
-    Flags = traits<_MatrixTypeNested>::Flags & (RowMajorBit | FlagsLvalueBit | DirectAccessBit), // FIXME DirectAccessBit should not be handled by expressions
+    Flags = traits<MatrixTypeNested_>::Flags & (RowMajorBit | FlagsLvalueBit | DirectAccessBit), // FIXME DirectAccessBit should not be handled by expressions
     MatrixTypeInnerStride =  inner_stride_at_compile_time<MatrixType>::ret,
     // need to cast the sizeof's from size_t to int explicitly, otherwise:
     // "error: no integral type can represent all of the enumerator values

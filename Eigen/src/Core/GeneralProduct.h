@@ -52,17 +52,17 @@ template<int Size, int MaxSize> struct product_size_category
 
 template<typename Lhs, typename Rhs> struct product_type
 {
-  typedef typename remove_all<Lhs>::type _Lhs;
-  typedef typename remove_all<Rhs>::type _Rhs;
+  typedef typename remove_all<Lhs>::type Lhs_;
+  typedef typename remove_all<Rhs>::type Rhs_;
   enum {
-    MaxRows = traits<_Lhs>::MaxRowsAtCompileTime,
-    Rows    = traits<_Lhs>::RowsAtCompileTime,
-    MaxCols = traits<_Rhs>::MaxColsAtCompileTime,
-    Cols    = traits<_Rhs>::ColsAtCompileTime,
-    MaxDepth = min_size_prefer_fixed(traits<_Lhs>::MaxColsAtCompileTime,
-                                     traits<_Rhs>::MaxRowsAtCompileTime),
-    Depth = min_size_prefer_fixed(traits<_Lhs>::ColsAtCompileTime,
-                                  traits<_Rhs>::RowsAtCompileTime)
+    MaxRows = traits<Lhs_>::MaxRowsAtCompileTime,
+    Rows    = traits<Lhs_>::RowsAtCompileTime,
+    MaxCols = traits<Rhs_>::MaxColsAtCompileTime,
+    Cols    = traits<Rhs_>::ColsAtCompileTime,
+    MaxDepth = min_size_prefer_fixed(traits<Lhs_>::MaxColsAtCompileTime,
+                                     traits<Rhs_>::MaxRowsAtCompileTime),
+    Depth = min_size_prefer_fixed(traits<Lhs_>::ColsAtCompileTime,
+                                  traits<Rhs_>::RowsAtCompileTime)
   };
 
   // the splitting into different lines of code here, introducing the _select enums and the typedef below,

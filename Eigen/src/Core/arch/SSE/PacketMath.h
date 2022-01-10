@@ -108,16 +108,16 @@ EIGEN_STRONG_INLINE Packet2d vec2d_unpackhi(const Packet2d& a, const Packet2d& b
 #define vec2d_duplane(a,p) \
   vec2d_swizzle2(a,a,(p<<1)|p)
 
-#define _EIGEN_DECLARE_CONST_Packet4f(NAME,X) \
+#define EIGEN_DECLARE_CONST_Packet4f(NAME,X) \
   const Packet4f p4f_##NAME = pset1<Packet4f>(X)
 
-#define _EIGEN_DECLARE_CONST_Packet2d(NAME,X) \
+#define EIGEN_DECLARE_CONST_Packet2d(NAME,X) \
   const Packet2d p2d_##NAME = pset1<Packet2d>(X)
 
-#define _EIGEN_DECLARE_CONST_Packet4f_FROM_INT(NAME,X) \
+#define EIGEN_DECLARE_CONST_Packet4f_FROM_INT(NAME,X) \
   const Packet4f p4f_##NAME = pset1frombits<Packet4f>(X)
 
-#define _EIGEN_DECLARE_CONST_Packet4i(NAME,X) \
+#define EIGEN_DECLARE_CONST_Packet4i(NAME,X) \
   const Packet4i p4i_##NAME = pset1<Packet4i>(X)
 
 

@@ -136,10 +136,10 @@ Packet4d psqrt<Packet4d>(const Packet4d& _x) {
 #if EIGEN_FAST_MATH
 template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
 Packet8f prsqrt<Packet8f>(const Packet8f& _x) {
-  _EIGEN_DECLARE_CONST_Packet8f_FROM_INT(inf, 0x7f800000);
-  _EIGEN_DECLARE_CONST_Packet8f(one_point_five, 1.5f);
-  _EIGEN_DECLARE_CONST_Packet8f(minus_half, -0.5f);
-  _EIGEN_DECLARE_CONST_Packet8f_FROM_INT(flt_min, 0x00800000);
+  EIGEN_DECLARE_CONST_Packet8f_FROM_INT(inf, 0x7f800000);
+  EIGEN_DECLARE_CONST_Packet8f(one_point_five, 1.5f);
+  EIGEN_DECLARE_CONST_Packet8f(minus_half, -0.5f);
+  EIGEN_DECLARE_CONST_Packet8f_FROM_INT(flt_min, 0x00800000);
 
   Packet8f neg_half = pmul(_x, p8f_minus_half);
 
@@ -169,14 +169,14 @@ Packet8f prsqrt<Packet8f>(const Packet8f& _x) {
 #else
 template <> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
 Packet8f prsqrt<Packet8f>(const Packet8f& _x) {
-  _EIGEN_DECLARE_CONST_Packet8f(one, 1.0f);
+  EIGEN_DECLARE_CONST_Packet8f(one, 1.0f);
   return _mm256_div_ps(p8f_one, _mm256_sqrt_ps(_x));
 }
 #endif
 
 template <> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
 Packet4d prsqrt<Packet4d>(const Packet4d& _x) {
-  _EIGEN_DECLARE_CONST_Packet4d(one, 1.0);
+  EIGEN_DECLARE_CONST_Packet4d(one, 1.0);
   return _mm256_div_pd(p4d_one, _mm256_sqrt_pd(_x));
 }
 

@@ -30,7 +30,7 @@ struct traits<TensorReshapingOp<NewDimensions, XprType> > : public traits<XprTyp
   typedef typename XprTraits::StorageKind StorageKind;
   typedef typename XprTraits::Index Index;
   typedef typename XprType::Nested Nested;
-  typedef typename remove_reference<Nested>::type _Nested;
+  typedef typename remove_reference<Nested>::type Nested_;
   static const int NumDimensions = array_size<NewDimensions>::value;
   static const int Layout = XprTraits::Layout;
   typedef typename XprTraits::PointerType PointerType;
@@ -317,7 +317,7 @@ struct traits<TensorSlicingOp<StartIndices, Sizes, XprType> > : public traits<Xp
   typedef typename XprTraits::StorageKind StorageKind;
   typedef typename XprTraits::Index Index;
   typedef typename XprType::Nested Nested;
-  typedef typename remove_reference<Nested>::type _Nested;
+  typedef typename remove_reference<Nested>::type Nested_;
   static const int NumDimensions = array_size<StartIndices>::value;
   static const int Layout = XprTraits::Layout;
   typedef typename XprTraits::PointerType PointerType;
@@ -813,7 +813,7 @@ struct traits<TensorStridingSlicingOp<StartIndices, StopIndices, Strides, XprTyp
   typedef typename XprTraits::StorageKind StorageKind;
   typedef typename XprTraits::Index Index;
   typedef typename XprType::Nested Nested;
-  typedef typename remove_reference<Nested>::type _Nested;
+  typedef typename remove_reference<Nested>::type Nested_;
   static const int NumDimensions = array_size<StartIndices>::value;
   static const int Layout = XprTraits::Layout;
   typedef typename XprTraits::PointerType PointerType;

@@ -118,10 +118,10 @@ Packet16b psqrt<Packet16b>(const Packet16b& x) { return x; }
 
 template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
 Packet4f prsqrt<Packet4f>(const Packet4f& _x) {
-  _EIGEN_DECLARE_CONST_Packet4f(one_point_five, 1.5f);
-  _EIGEN_DECLARE_CONST_Packet4f(minus_half, -0.5f);
-  _EIGEN_DECLARE_CONST_Packet4f_FROM_INT(inf, 0x7f800000u);
-  _EIGEN_DECLARE_CONST_Packet4f_FROM_INT(flt_min, 0x00800000u);
+  EIGEN_DECLARE_CONST_Packet4f(one_point_five, 1.5f);
+  EIGEN_DECLARE_CONST_Packet4f(minus_half, -0.5f);
+  EIGEN_DECLARE_CONST_Packet4f_FROM_INT(inf, 0x7f800000u);
+  EIGEN_DECLARE_CONST_Packet4f_FROM_INT(flt_min, 0x00800000u);
 
   Packet4f neg_half = pmul(_x, p4f_minus_half);
 

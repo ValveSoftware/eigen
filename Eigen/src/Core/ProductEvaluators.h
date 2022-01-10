@@ -841,19 +841,19 @@ public:
     StorageOrder_ = (Derived::MaxRowsAtCompileTime==1 && Derived::MaxColsAtCompileTime!=1) ? RowMajor
                   : (Derived::MaxColsAtCompileTime==1 && Derived::MaxRowsAtCompileTime!=1) ? ColMajor
                   : MatrixFlags & RowMajorBit ? RowMajor : ColMajor,
-    _SameStorageOrder = StorageOrder_ == (MatrixFlags & RowMajorBit ? RowMajor : ColMajor),
+    SameStorageOrder_ = StorageOrder_ == (MatrixFlags & RowMajorBit ? RowMajor : ColMajor),
 
-    _ScalarAccessOnDiag =  !((int(StorageOrder_) == ColMajor && int(ProductOrder) == OnTheLeft)
+    ScalarAccessOnDiag_ =  !((int(StorageOrder_) == ColMajor && int(ProductOrder) == OnTheLeft)
                            ||(int(StorageOrder_) == RowMajor && int(ProductOrder) == OnTheRight)),
-    _SameTypes = is_same<typename MatrixType::Scalar, typename DiagonalType::Scalar>::value,
+    SameTypes_ = is_same<typename MatrixType::Scalar, typename DiagonalType::Scalar>::value,
     // FIXME currently we need same types, but in the future the next rule should be the one
-    //_Vectorizable = bool(int(MatrixFlags)&PacketAccessBit) && ((!_PacketOnDiag) || (_SameTypes && bool(int(DiagFlags)&PacketAccessBit))),
-    _Vectorizable =   bool(int(MatrixFlags)&PacketAccessBit)
-                  &&  _SameTypes
-                  && (_SameStorageOrder || (MatrixFlags&LinearAccessBit)==LinearAccessBit)
-                  && (_ScalarAccessOnDiag || (bool(int(DiagFlags)&PacketAccessBit))),
-    _LinearAccessMask = (MatrixType::RowsAtCompileTime==1 || MatrixType::ColsAtCompileTime==1) ? LinearAccessBit : 0,
-    Flags = ((HereditaryBits|_LinearAccessMask) & (unsigned int)(MatrixFlags)) | (_Vectorizable ? PacketAccessBit : 0),
+    //Vectorizable_ = bool(int(MatrixFlags)&PacketAccessBit) && ((!_PacketOnDiag) || (SameTypes_ && bool(int(DiagFlags)&PacketAccessBit))),
+    Vectorizable_ =   bool(int(MatrixFlags)&PacketAccessBit)
+                  &&  SameTypes_
+                  && (SameStorageOrder_ || (MatrixFlags&LinearAccessBit)==LinearAccessBit)
+                  && (ScalarAccessOnDiag_ || (bool(int(DiagFlags)&PacketAccessBit))),
+    LinearAccessMask_ = (MatrixType::RowsAtCompileTime==1 || MatrixType::ColsAtCompileTime==1) ? LinearAccessBit : 0,
+    Flags = ((HereditaryBits|LinearAccessMask_) & (unsigned int)(MatrixFlags)) | (Vectorizable_ ? PacketAccessBit : 0),
     Alignment = evaluator<MatrixType>::Alignment,
 
     AsScalarProduct =     (DiagonalType::SizeAtCompileTime==1)
