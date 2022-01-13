@@ -87,7 +87,7 @@ public:
     eigen_assert(incr==1);
   }
 
-  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE void prefetch(int i) const {
+  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE void prefetch(Index i) const {
     internal::prefetch(&operator()(i));
   }
 
@@ -98,6 +98,11 @@ public:
   template<typename PacketType>
   EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE PacketType loadPacket(Index i) const {
     return ploadt<PacketType, AlignmentType>(m_data + i);
+  }
+
+  template<typename PacketType, int AlignmentT>
+  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE PacketType load(Index i) const {
+    return ploadt<PacketType, AlignmentT>(m_data + i);
   }
 
   template<typename PacketType>
@@ -189,6 +194,9 @@ public:
     return VectorMapper(&operator()(i, j));
   }
 
+  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE void prefetch(Index i, Index j) const {
+    internal::prefetch(&operator()(i, j));
+  }
 
   EIGEN_DEVICE_FUNC
   EIGEN_ALWAYS_INLINE Scalar& operator()(Index i, Index j) const {
@@ -282,6 +290,10 @@ public:
 
   EIGEN_DEVICE_FUNC  EIGEN_ALWAYS_INLINE LinearMapper getLinearMapper(Index i, Index j) const {
     return LinearMapper(&operator()(i, j), m_incr.value());
+  }
+
+  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE void prefetch(Index i, Index j) const {
+    internal::prefetch(&operator()(i, j));
   }
 
   EIGEN_DEVICE_FUNC
