@@ -175,10 +175,10 @@ struct vectorwise_reverse_inplace_impl<Vertical>
   template<typename ExpressionType>
   static void run(ExpressionType &xpr)
   {
-    const int HalfAtCompileTime = ExpressionType::RowsAtCompileTime==Dynamic?Dynamic:ExpressionType::RowsAtCompileTime/2;
+    constexpr Index HalfAtCompileTime = ExpressionType::RowsAtCompileTime==Dynamic?Dynamic:ExpressionType::RowsAtCompileTime/2;
     Index half = xpr.rows()/2;
-    xpr.topRows(fix<HalfAtCompileTime>(half))
-       .swap(xpr.bottomRows(fix<HalfAtCompileTime>(half)).colwise().reverse());
+    xpr.template topRows<HalfAtCompileTime>(half)
+       .swap(xpr.template bottomRows<HalfAtCompileTime>(half).colwise().reverse());
   }
 };
 
@@ -188,10 +188,10 @@ struct vectorwise_reverse_inplace_impl<Horizontal>
   template<typename ExpressionType>
   static void run(ExpressionType &xpr)
   {
-    const int HalfAtCompileTime = ExpressionType::ColsAtCompileTime==Dynamic?Dynamic:ExpressionType::ColsAtCompileTime/2;
+    constexpr Index HalfAtCompileTime = ExpressionType::ColsAtCompileTime==Dynamic?Dynamic:ExpressionType::ColsAtCompileTime/2;
     Index half = xpr.cols()/2;
-    xpr.leftCols(fix<HalfAtCompileTime>(half))
-       .swap(xpr.rightCols(fix<HalfAtCompileTime>(half)).rowwise().reverse());
+    xpr.template leftCols<HalfAtCompileTime>(half)
+       .swap(xpr.template rightCols<HalfAtCompileTime>(half).rowwise().reverse());
   }
 };
 
