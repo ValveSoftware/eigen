@@ -1002,11 +1002,17 @@ namespace Eigen {
       // General, Altivec, VSX.
       #define EIGEN_OPTIMIZATION_BARRIER(X)  __asm__  ("" : "+r,v,wa" (X));
     #elif EIGEN_ARCH_ARM_OR_ARM64
-      // General, NEON.
-      // Clang doesn't like "r",
-      //    error: non-trivial scalar-to-vector conversion, possible invalid
-      //           constraint for vector typ
-      #define EIGEN_OPTIMIZATION_BARRIER(X)  __asm__  ("" : "+g,w" (X));
+      #ifdef __ARM_FP
+        // General, VFP or NEON.
+        // Clang doesn't like "r",
+        //    error: non-trivial scalar-to-vector conversion, possible invalid
+        //           constraint for vector typ
+        #define EIGEN_OPTIMIZATION_BARRIER(X)  __asm__  ("" : "+g,w" (X));
+      #else
+        // Arm without VFP or NEON.
+        // "w" constraint will not compile.
+        #define EIGEN_OPTIMIZATION_BARRIER(X)  __asm__  ("" : "+g" (X));
+      #endif
     #elif EIGEN_ARCH_i386_OR_x86_64
       // General, SSE.
       #define EIGEN_OPTIMIZATION_BARRIER(X)  __asm__  ("" : "+g,x" (X));
