@@ -134,7 +134,7 @@ struct traits<DiagonalMatrix<Scalar_,SizeAtCompileTime,MaxSizeAtCompileTime> >
   typedef Matrix<Scalar_,SizeAtCompileTime,1,0,MaxSizeAtCompileTime,1> DiagonalVectorType;
   typedef DiagonalShape StorageKind;
   enum {
-    Flags = LvalueBit | NoPreferredStorageOrderBit
+    Flags = LvalueBit | NoPreferredStorageOrderBit | NestByRefBit
   };
 };
 }
