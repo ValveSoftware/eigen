@@ -388,7 +388,6 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
       // Nothing to do: rank 0 tensors have fixed size
     }
 
-#ifdef EIGEN_HAS_INDEX_LIST
     template <typename FirstType, typename... OtherTypes>
     EIGEN_DEVICE_FUNC
     void resize(const Eigen::IndexList<FirstType, OtherTypes...>& dimensions) {
@@ -398,7 +397,6 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
       }
       resize(dims);
     }
-#endif
 
     /** Custom Dimension */
     template<typename CustomDimension,

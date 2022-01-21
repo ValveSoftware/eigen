@@ -59,7 +59,7 @@ struct extract_output_indices_helper;
  * \tparam Ts the remaining types.
  */
 template<size_t N, size_t Idx, size_t... OutputIndices, typename T1, typename... Ts>
-struct extract_output_indices_helper<N, Idx, index_sequence<OutputIndices...>, T1, Ts...> {
+struct extract_output_indices_helper<N, Idx, std::index_sequence<OutputIndices...>, T1, Ts...> {
   using type = typename
     extract_output_indices_helper<
       N - 1, Idx + 1,
@@ -67,21 +67,21 @@ struct extract_output_indices_helper<N, Idx, index_sequence<OutputIndices...>, T
         // If is a non-const l-value reference, append index.
         std::is_lvalue_reference<T1>::value 
           && !std::is_const<typename std::remove_reference<T1>::type>::value,
-        index_sequence<OutputIndices..., Idx>,
-        index_sequence<OutputIndices...> >::type,
+        std::index_sequence<OutputIndices..., Idx>,
+        std::index_sequence<OutputIndices...> >::type,
       Ts...>::type;
 };
 
 // Base case.
 template<size_t Idx, size_t... OutputIndices>
-struct extract_output_indices_helper<0, Idx, index_sequence<OutputIndices...> > {
-  using type = index_sequence<OutputIndices...>;
+struct extract_output_indices_helper<0, Idx, std::index_sequence<OutputIndices...> > {
+  using type = std::index_sequence<OutputIndices...>;
 };
 
 // Extracts a set of indices into Types... that correspond to non-const
 // l-value references.
 template<typename... Types>
-using extract_output_indices = typename extract_output_indices_helper<sizeof...(Types), 0, index_sequence<>, Types...>::type;
+using extract_output_indices = typename extract_output_indices_helper<sizeof...(Types), 0, std::index_sequence<>, Types...>::type;
 
 // Helper struct for dealing with Generic functors that may return void.
 struct void_helper {
@@ -134,7 +134,7 @@ struct void_helper {
 // output_buffer_size is populated.
 template<typename Kernel, typename... Args, size_t... Indices, size_t... OutputIndices>
 EIGEN_DEVICE_FUNC
-void run_serialized(index_sequence<Indices...>, index_sequence<OutputIndices...>,
+void run_serialized(std::index_sequence<Indices...>, std::index_sequence<OutputIndices...>,
                     Kernel kernel, uint8_t* buffer, size_t capacity) {
   using test_detail::get;
   using test_detail::make_tuple;
@@ -175,7 +175,7 @@ void run_serialized(index_sequence<Indices...>, index_sequence<OutputIndices...>
 template<typename Kernel, typename... Args>
 EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
 void run_serialized(Kernel kernel, uint8_t* buffer, size_t capacity) {
-  run_serialized<Kernel, Args...> (make_index_sequence<sizeof...(Args)>{},
+  run_serialized<Kernel, Args...> (std::make_index_sequence<sizeof...(Args)>{},
                                    extract_output_indices<Args...>{},
                                    kernel, buffer, capacity);
 }
@@ -206,8 +206,8 @@ void run_serialized_on_gpu_meta_kernel(const Kernel kernel, uint8_t* buffer, siz
 // buffer is not large enough to hold the outputs.
 template<typename Kernel, typename... Args, size_t... Indices, size_t... OutputIndices>
 auto run_serialized_on_gpu(size_t buffer_capacity_hint,
-                           index_sequence<Indices...>, 
-                           index_sequence<OutputIndices...>,
+                           std::index_sequence<Indices...>,
+                           std::index_sequence<OutputIndices...>,
                            Kernel kernel, Args&&... args) -> decltype(kernel(args...)) {  
   // Compute the required serialization buffer capacity.
   // Round up input size to next power of two to give a little extra room
@@ -323,7 +323,7 @@ template<typename Kernel, typename... Args>
 auto run_on_gpu(Kernel kernel, Args&&... args) -> decltype(kernel(args...)){  
   return internal::run_serialized_on_gpu<Kernel, Args...>(
       /*buffer_capacity_hint=*/ 0,
-      internal::make_index_sequence<sizeof...(Args)>{},
+      std::make_index_sequence<sizeof...(Args)>{},
       internal::extract_output_indices<Args...>{},
       kernel, std::forward<Args>(args)...);
 }
@@ -347,7 +347,7 @@ auto run_on_gpu_with_hint(size_t buffer_capacity_hint,
     Kernel kernel, Args&&... args) -> decltype(kernel(args...)){  
   return internal::run_serialized_on_gpu<Kernel, Args...>(
       buffer_capacity_hint,
-      internal::make_index_sequence<sizeof...(Args)>{},
+      std::make_index_sequence<sizeof...(Args)>{},
       internal::extract_output_indices<Args...>{},
       kernel, std::forward<Args>(args)...);
 }

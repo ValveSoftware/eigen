@@ -681,16 +681,6 @@
 #endif
 #endif
 
-// Does the compiler support result_of?
-// result_of was deprecated in c++17 and removed in c++ 20
-#ifndef EIGEN_HAS_STD_RESULT_OF
-#if EIGEN_COMP_CXXVER < 17
-#define EIGEN_HAS_STD_RESULT_OF 1
-#else
-#define EIGEN_HAS_STD_RESULT_OF 0
-#endif
-#endif
-
 // Does the compiler support std::hash?
 #ifndef EIGEN_HAS_STD_HASH
 // The std::hash struct is defined in C++11 but is not labelled as a __device__
@@ -710,28 +700,7 @@
 #endif
 #endif
 
-// Does the compiler fully support const expressions? (as in c++14)
-#ifndef EIGEN_HAS_CONSTEXPR
-  #if defined(EIGEN_CUDACC)
-  // Const expressions are supported provided that c++11 is enabled and we're using either clang or nvcc 7.5 or above
-    #if (EIGEN_COMP_CLANG || EIGEN_COMP_NVCC >= 70500)
-      #define EIGEN_HAS_CONSTEXPR 1
-    #endif
-  #else
-    #define EIGEN_HAS_CONSTEXPR 1
-  #endif
-
-  #ifndef EIGEN_HAS_CONSTEXPR
-    #define EIGEN_HAS_CONSTEXPR 0
-  #endif
-
-#endif // EIGEN_HAS_CONSTEXPR
-
-#if EIGEN_HAS_CONSTEXPR
 #define EIGEN_CONSTEXPR constexpr
-#else
-#define EIGEN_CONSTEXPR
-#endif
 
 // Does the compiler support C++11 math?
 // Let's be conservative and enable the default C++11 implementation only if we are sure it exists
@@ -760,7 +729,7 @@
 #endif
 #endif
 
-#if defined(EIGEN_CUDACC) && EIGEN_HAS_CONSTEXPR
+#if defined(EIGEN_CUDACC)
   // While available already with c++11, this is useful mostly starting with c++14 and relaxed constexpr rules
   #if defined(__NVCC__)
     // nvcc considers constexpr functions as __host__ __device__ with the option --expt-relaxed-constexpr

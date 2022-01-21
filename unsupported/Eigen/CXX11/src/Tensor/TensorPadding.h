@@ -512,35 +512,20 @@ struct TensorEvaluator<const TensorPaddingOp<PaddingDimensions, ArgType>, Device
 
   EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE bool isPaddingAtIndexForDim(
       Index index, int dim_index) const {
-#if defined(EIGEN_HAS_INDEX_LIST)
     return (!internal::index_pair_first_statically_eq<PaddingDimensions>(dim_index, 0) &&
             index < m_padding[dim_index].first) ||
         (!internal::index_pair_second_statically_eq<PaddingDimensions>(dim_index, 0) &&
          index >= m_dimensions[dim_index] - m_padding[dim_index].second);
-#else
-    return (index < m_padding[dim_index].first) ||
-           (index >= m_dimensions[dim_index] - m_padding[dim_index].second);
-#endif
   }
 
   EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE bool isLeftPaddingCompileTimeZero(
       int dim_index) const {
-#if defined(EIGEN_HAS_INDEX_LIST)
     return internal::index_pair_first_statically_eq<PaddingDimensions>(dim_index, 0);
-#else
-    EIGEN_UNUSED_VARIABLE(dim_index);
-    return false;
-#endif
   }
 
   EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE bool isRightPaddingCompileTimeZero(
       int dim_index) const {
-#if defined(EIGEN_HAS_INDEX_LIST)
     return internal::index_pair_second_statically_eq<PaddingDimensions>(dim_index, 0);
-#else
-    EIGEN_UNUSED_VARIABLE(dim_index);
-    return false;
-#endif
   }
 
 

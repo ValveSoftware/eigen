@@ -109,13 +109,9 @@ struct TensorEvaluator<const TensorReshapingOp<NewDimensions, ArgType>, Device>
 
   // clang-format off
   static const ReshapingKind kind =
-#if defined(EIGEN_HAS_INDEX_LIST)
         (NumOutputDims == 2 && internal::index_statically_eq<NewDimensions>(/*index=*/0, /*value=*/1)) ? OneByN
       : (NumOutputDims == 2 && internal::index_statically_eq<NewDimensions>(/*index=*/1, /*value=*/1)) ? NByOne
       : Runtime;
-#else
-        Runtime;
-#endif
   // clang-format on
 
   enum {
