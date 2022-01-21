@@ -253,13 +253,6 @@ prsqrt<Packet16f>(const Packet16f& _x) {
   // return rsqrt(+inf) = 0, rsqrt(x) = NaN if x < 0, and rsqrt(0) = +inf.
   return _mm512_mask_blend_ps(not_finite_pos_mask, y_newton, y_approx);
 }
-#else
-
-template <>
-EIGEN_STRONG_INLINE Packet16f prsqrt<Packet16f>(const Packet16f& x) {
-  EIGEN_DECLARE_CONST_Packet16f(one, 1.0f);
-  return _mm512_div_ps(p16f_one, _mm512_sqrt_ps(x));
-}
 #endif
 
 F16_PACKET_FUNCTION(Packet16f, Packet16h, prsqrt)
@@ -304,12 +297,17 @@ prsqrt<Packet8d>(const Packet8d& _x) {
   // return rsqrt(+inf) = 0, rsqrt(x) = NaN if x < 0, and rsqrt(0) = +inf.
   return _mm512_mask_blend_pd(not_finite_pos_mask, y_newton, y_approx);
 }
+
+template<> EIGEN_STRONG_INLINE Packet16f preciprocal<Packet16f>(const Packet16f& a) {
+#ifdef EIGEN_VECTORIZE_AVX512ER
+  return _mm512_rcp28_ps(a));
 #else
-template <>
-EIGEN_STRONG_INLINE Packet8d prsqrt<Packet8d>(const Packet8d& x) {
-  EIGEN_DECLARE_CONST_Packet8d(one, 1.0f);
-  return _mm512_div_pd(p8d_one, _mm512_sqrt_pd(x));
+  return generic_reciprocal_newton_step<Packet16f, /*Steps=*/1>::run(a, _mm512_rcp14_ps(a));
+#endif
 }
+
+F16_PACKET_FUNCTION(Packet16f, Packet16h, preciprocal)
+BF16_PACKET_FUNCTION(Packet16f, Packet16bf, preciprocal)
 #endif
 
 template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED

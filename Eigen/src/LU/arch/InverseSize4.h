@@ -58,10 +58,10 @@ struct compute_inverse_size4<Architecture::Target, float, MatrixType, ResultType
 
     const float* data = matrix.data();
     const Index stride = matrix.innerStride();
-    Packet4f L1_ = ploadt<Packet4f,MatrixAlignment>(data);
-    Packet4f L2_ = ploadt<Packet4f,MatrixAlignment>(data + stride*4);
-    Packet4f L3_ = ploadt<Packet4f,MatrixAlignment>(data + stride*8);
-    Packet4f L4_ = ploadt<Packet4f,MatrixAlignment>(data + stride*12);
+    Packet4f L1 = ploadt<Packet4f,MatrixAlignment>(data);
+    Packet4f L2 = ploadt<Packet4f,MatrixAlignment>(data + stride*4);
+    Packet4f L3 = ploadt<Packet4f,MatrixAlignment>(data + stride*8);
+    Packet4f L4 = ploadt<Packet4f,MatrixAlignment>(data + stride*12);
 
     // Four 2x2 sub-matrices of the input matrix
     // input = [[A, B],
@@ -70,17 +70,17 @@ struct compute_inverse_size4<Architecture::Target, float, MatrixType, ResultType
 
     if (!StorageOrdersMatch)
     {
-      A = vec4f_unpacklo(L1_, L2_);
-      B = vec4f_unpacklo(L3_, L4_);
-      C = vec4f_unpackhi(L1_, L2_);
-      D = vec4f_unpackhi(L3_, L4_);
+      A = vec4f_unpacklo(L1, L2);
+      B = vec4f_unpacklo(L3, L4);
+      C = vec4f_unpackhi(L1, L2);
+      D = vec4f_unpackhi(L3, L4);
     }
     else
     {
-      A = vec4f_movelh(L1_, L2_);
-      B = vec4f_movehl(L2_, L1_);
-      C = vec4f_movelh(L3_, L4_);
-      D = vec4f_movehl(L4_, L3_);
+      A = vec4f_movelh(L1, L2);
+      B = vec4f_movehl(L2, L1);
+      C = vec4f_movelh(L3, L4);
+      D = vec4f_movehl(L4, L3);
     }
 
     Packet4f AB, DC;
@@ -120,7 +120,7 @@ struct compute_inverse_size4<Architecture::Target, float, MatrixType, ResultType
     Packet4f det = vec4f_duplane(psub(padd(d1, d2), d), 0);
 
     // reciprocal of the determinant of the input matrix, rd = 1/det
-    Packet4f rd = pdiv(pset1<Packet4f>(1.0f), det);
+    Packet4f rd = preciprocal(det);
 
     // Four sub-matrices of the inverse
     Packet4f iA, iB, iC, iD;

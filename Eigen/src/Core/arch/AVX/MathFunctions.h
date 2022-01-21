@@ -166,19 +166,12 @@ Packet8f prsqrt<Packet8f>(const Packet8f& _x) {
   return pselect<Packet8f>(not_normal_finite_mask, y_approx, y_newton);
 }
 
-#else
-template <> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
-Packet8f prsqrt<Packet8f>(const Packet8f& _x) {
-  EIGEN_DECLARE_CONST_Packet8f(one, 1.0f);
-  return _mm256_div_ps(p8f_one, _mm256_sqrt_ps(_x));
+template<> EIGEN_STRONG_INLINE Packet8f preciprocal<Packet8f>(const Packet8f& a) {
+  return generic_reciprocal_newton_step<Packet8f, /*Steps=*/1>::run(a, _mm256_rcp_ps(a));
 }
+
 #endif
 
-template <> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
-Packet4d prsqrt<Packet4d>(const Packet4d& _x) {
-  EIGEN_DECLARE_CONST_Packet4d(one, 1.0);
-  return _mm256_div_pd(p4d_one, _mm256_sqrt_pd(_x));
-}
 
 F16_PACKET_FUNCTION(Packet8f, Packet8h, psin)
 F16_PACKET_FUNCTION(Packet8f, Packet8h, pcos)
@@ -190,6 +183,7 @@ F16_PACKET_FUNCTION(Packet8f, Packet8h, pexp)
 F16_PACKET_FUNCTION(Packet8f, Packet8h, ptanh)
 F16_PACKET_FUNCTION(Packet8f, Packet8h, psqrt)
 F16_PACKET_FUNCTION(Packet8f, Packet8h, prsqrt)
+F16_PACKET_FUNCTION(Packet8f, Packet8h, preciprocal)
 
 template <>
 EIGEN_STRONG_INLINE Packet8h pfrexp(const Packet8h& a, Packet8h& exponent) {
@@ -214,6 +208,7 @@ BF16_PACKET_FUNCTION(Packet8f, Packet8bf, pexp)
 BF16_PACKET_FUNCTION(Packet8f, Packet8bf, ptanh)
 BF16_PACKET_FUNCTION(Packet8f, Packet8bf, psqrt)
 BF16_PACKET_FUNCTION(Packet8f, Packet8bf, prsqrt)
+BF16_PACKET_FUNCTION(Packet8f, Packet8bf, preciprocal)
 
 template <>
 EIGEN_STRONG_INLINE Packet8bf pfrexp(const Packet8bf& a, Packet8bf& exponent) {

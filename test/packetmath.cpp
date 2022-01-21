@@ -28,6 +28,10 @@ inline T REF_DIV(const T& a, const T& b) {
   return a / b;
 }
 template <typename T>
+inline T REF_RECIPROCAL(const T& a) {
+  return T(1) / a;
+}
+template <typename T>
 inline T REF_ABS_DIFF(const T& a, const T& b) {
   return a > b ? a - b : b - a;
 }
@@ -464,8 +468,10 @@ void packetmath() {
   CHECK_CWISE2_IF(PacketTraits::HasMul, REF_MUL, internal::pmul);
   CHECK_CWISE2_IF(PacketTraits::HasDiv, REF_DIV, internal::pdiv);
 
-  if (PacketTraits::HasNegate) CHECK_CWISE1(internal::negate, internal::pnegate);
+  CHECK_CWISE1_IF(PacketTraits::HasNegate, internal::negate, internal::pnegate);
+  CHECK_CWISE1_IF(PacketTraits::HasReciprocal, REF_RECIPROCAL, internal::preciprocal);
   CHECK_CWISE1(numext::conj, internal::pconj);
+
 
   for (int offset = 0; offset < 3; ++offset) {
     for (int i = 0; i < PacketSize; ++i) ref[i] = data1[offset];

@@ -723,13 +723,18 @@ struct scalar_inverse_op {
   EIGEN_DEVICE_FUNC inline Scalar operator() (const Scalar& a) const { return Scalar(1)/a; }
   template<typename Packet>
   EIGEN_DEVICE_FUNC inline const Packet packetOp(const Packet& a) const
-  { return internal::pdiv(pset1<Packet>(Scalar(1)),a); }
+  { return internal::preciprocal(a); }
 };
 template <typename Scalar>
 struct functor_traits<scalar_inverse_op<Scalar> > {
   enum {
     PacketAccess = packet_traits<Scalar>::HasDiv,
-    Cost = scalar_div_cost<Scalar, PacketAccess>::value
+    // If packet_traits<Scalar>::HasReciprocal then the Estimated cost is that
+    // of computing an approximation plus a single Newton-Raphson step, which
+    // consists of 1 pmul + 1 pmadd.
+    Cost = (packet_traits<Scalar>::HasReciprocal
+                ? 4 * NumTraits<Scalar>::MulCost
+                : scalar_div_cost<Scalar, PacketAccess>::value)
   };
 };
 
@@ -1033,7 +1038,7 @@ struct scalar_logistic_op {
   }
 };
 
-// TODO(rmlarsen): Enable the following on host when integer_packet is defined 
+// TODO(rmlarsen): Enable the following on host when integer_packet is defined
 // for the relevant packet types.
 #ifdef EIGEN_GPU_CC
 

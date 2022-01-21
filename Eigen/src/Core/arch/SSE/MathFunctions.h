@@ -148,20 +148,12 @@ Packet4f prsqrt<Packet4f>(const Packet4f& _x) {
   return pselect<Packet4f>(not_normal_finite_mask, y_approx, y_newton);
 }
 
-#else
-
-template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
-Packet4f prsqrt<Packet4f>(const Packet4f& x) {
-  // Unfortunately we can't use the much faster mm_rsqrt_ps since it only provides an approximation.
-  return _mm_div_ps(pset1<Packet4f>(1.0f), _mm_sqrt_ps(x));
-}
-
 #endif
 
-template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
-Packet2d prsqrt<Packet2d>(const Packet2d& x) {
-  return _mm_div_pd(pset1<Packet2d>(1.0), _mm_sqrt_pd(x));
+template<> EIGEN_STRONG_INLINE Packet4f preciprocal<Packet4f>(const Packet4f& a) {
+  return generic_reciprocal_newton_step<Packet4f, /*Steps=*/1>::run(a, _mm_rcp_ps(a));
 }
+
 
 // Hyperbolic Tangent function.
 template <>

@@ -65,6 +65,7 @@ struct default_packet_traits
     HasCmp       = 0,
 
     HasDiv    = 0,
+    HasReciprocal = 0,
     HasSqrt   = 0,
     HasRsqrt  = 0,
     HasExp    = 0,
@@ -816,13 +817,6 @@ Packet plog2(const Packet& a) {
 template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
 Packet psqrt(const Packet& a) { return numext::sqrt(a); }
 
-/** \internal \returns the reciprocal square-root of \a a (coeff-wise) */
-template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-Packet prsqrt(const Packet& a) {
-  typedef typename internal::unpacket_traits<Packet>::type Scalar;
-  return pdiv(pset1<Packet>(Scalar(1)), psqrt(a));
-}
-
 /** \internal \returns the rounded value of \a a (coeff-wise) */
 template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
 Packet pround(const Packet& a) { using numext::round; return round(a); }
@@ -1033,6 +1027,19 @@ template <size_t N> struct Selector {
 template<typename Packet> EIGEN_DEVICE_FUNC inline Packet
 pblend(const Selector<unpacket_traits<Packet>::size>& ifPacket, const Packet& thenPacket, const Packet& elsePacket) {
   return ifPacket.select[0] ? thenPacket : elsePacket;
+}
+
+/** \internal \returns 1 / a (coeff-wise) */
+template <typename Packet>
+EIGEN_DEVICE_FUNC inline Packet preciprocal(const Packet& a) {
+  using Scalar = typename unpacket_traits<Packet>::type;
+  return pdiv(pset1<Packet>(Scalar(1)), a);
+}
+
+/** \internal \returns the reciprocal square-root of \a a (coeff-wise) */
+template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
+Packet prsqrt(const Packet& a) {
+  return preciprocal<Packet>(psqrt(a));
 }
 
 } // end namespace internal
