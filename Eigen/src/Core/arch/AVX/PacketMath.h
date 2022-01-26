@@ -540,30 +540,46 @@ template<> EIGEN_STRONG_INLINE Packet8i pdiv<Packet8i>(const Packet8i& /*a*/, co
 }
 
 #ifdef EIGEN_VECTORIZE_FMA
-template<> EIGEN_STRONG_INLINE Packet8f pmadd(const Packet8f& a, const Packet8f& b, const Packet8f& c) {
-#if ( (EIGEN_COMP_GNUC_STRICT && EIGEN_COMP_GNUC<80) || (EIGEN_COMP_CLANG) )
-  // Clang stupidly generates a vfmadd213ps instruction plus some vmovaps on registers,
-  //  and even register spilling with clang>=6.0 (bug 1637).
-  // Gcc stupidly generates a vfmadd132ps instruction.
-  // So let's enforce it to generate a vfmadd231ps instruction since the most common use
-  //  case is to accumulate the result of the product.
-  Packet8f res = c;
-  __asm__("vfmadd231ps %[a], %[b], %[c]" : [c] "+x" (res) : [a] "x" (a), [b] "x" (b));
-  return res;
-#else
-  return _mm256_fmadd_ps(a,b,c);
-#endif
+
+template <>
+EIGEN_STRONG_INLINE Packet8f pmadd(const Packet8f& a, const Packet8f& b, const Packet8f& c) {
+  return _mm256_fmadd_ps(a, b, c);
 }
-template<> EIGEN_STRONG_INLINE Packet4d pmadd(const Packet4d& a, const Packet4d& b, const Packet4d& c) {
-#if ( (EIGEN_COMP_GNUC_STRICT && EIGEN_COMP_GNUC<80) || (EIGEN_COMP_CLANG) )
-  // see above
-  Packet4d res = c;
-  __asm__("vfmadd231pd %[a], %[b], %[c]" : [c] "+x" (res) : [a] "x" (a), [b] "x" (b));
-  return res;
-#else
-  return _mm256_fmadd_pd(a,b,c);
-#endif
+template <>
+EIGEN_STRONG_INLINE Packet4d pmadd(const Packet4d& a, const Packet4d& b, const Packet4d& c) {
+  return _mm256_fmadd_pd(a, b, c);
 }
+
+template <>
+EIGEN_STRONG_INLINE Packet8f pmsub(const Packet8f& a, const Packet8f& b, const Packet8f& c) {
+  return _mm256_fmsub_ps(a, b, c);
+}
+
+template <>
+EIGEN_STRONG_INLINE Packet4d pmsub(const Packet4d& a, const Packet4d& b, const Packet4d& c) {
+  return _mm256_fmsub_pd(a, b, c);
+}
+
+template <>
+EIGEN_STRONG_INLINE Packet8f pnmadd(const Packet8f& a, const Packet8f& b, const Packet8f& c) {
+  return _mm256_fnmadd_ps(a, b, c);
+}
+
+template <>
+EIGEN_STRONG_INLINE Packet4d pnmadd(const Packet4d& a, const Packet4d& b, const Packet4d& c) {
+  return _mm256_fnmadd_pd(a, b, c);
+}
+
+template <>
+EIGEN_STRONG_INLINE Packet8f pnmsub(const Packet8f& a, const Packet8f& b, const Packet8f& c) {
+  return _mm256_fnmsub_ps(a, b, c);
+}
+
+template <>
+EIGEN_STRONG_INLINE Packet4d pnmsub(const Packet4d& a, const Packet4d& b, const Packet4d& c) {
+  return _mm256_fnmsub_pd(a, b, c);
+}
+
 #endif
 
 template<> EIGEN_STRONG_INLINE Packet8f pcmp_le(const Packet8f& a, const Packet8f& b) { return _mm256_cmp_ps(a,b,_CMP_LE_OQ); }

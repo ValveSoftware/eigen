@@ -24,6 +24,22 @@ inline T REF_MUL(const T& a, const T& b) {
   return a * b;
 }
 template <typename T>
+inline T REF_MADD(const T& a, const T& b, const T& c) {
+  return a * b + c;
+}
+template <typename T>
+inline T REF_MSUB(const T& a, const T& b, const T& c) {
+  return a * b - c;
+}
+template <typename T>
+inline T REF_NMADD(const T& a, const T& b, const T& c) {
+  return (-a * b) + c;
+}
+template <typename T>
+inline T REF_NMSUB(const T& a, const T& b, const T& c) {
+  return (-a * b)  - c;
+}
+template <typename T>
 inline T REF_DIV(const T& a, const T& b) {
   return a / b;
 }
@@ -48,6 +64,10 @@ inline bool REF_SUB(const bool& a, const bool& b) {
 template <>
 inline bool REF_MUL(const bool& a, const bool& b) {
   return a && b;
+}
+template <>
+inline bool REF_MADD(const bool& a, const bool& b, const bool& c) {
+  return (a && b) || c;
 }
 
 template <typename T>
@@ -622,6 +642,12 @@ void packetmath() {
   }
   CHECK_CWISE1_IF(PacketTraits::HasSqrt, numext::sqrt, internal::psqrt);
   CHECK_CWISE1_IF(PacketTraits::HasRsqrt, numext::rsqrt, internal::prsqrt);
+  CHECK_CWISE3_IF(true, REF_MADD, internal::pmadd);
+  if (!std::is_same<Scalar, bool>::value) {
+    CHECK_CWISE3_IF(true, REF_MSUB, internal::pmsub);
+    CHECK_CWISE3_IF(true, REF_NMADD, internal::pnmadd);
+    CHECK_CWISE3_IF(true, REF_NMSUB, internal::pnmsub);
+  }
 }
 
 // Notice that this definition works for complex types as well.
