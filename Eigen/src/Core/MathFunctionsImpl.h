@@ -18,9 +18,18 @@ namespace Eigen {
 namespace internal {
 
 /** \internal Fast reciprocal using Newton-Raphson's method.
- We assume that the starting guess provided in approx_a_recip has at least
- half the leading mantissa bits in the correct result, such that a single
- Newton-Raphson step is sufficient to get within 1-2 ulps of the currect result.
+
+ Preconditions:
+   1. The starting guess provided in approx_a_recip must have at least half
+      the leading mantissa bits in the correct result, such that a single
+      Newton-Raphson step is sufficient to get within 1-2 ulps of the currect
+      result.
+   2. If a is zero, approx_a_recip must be infinite with the same sign as a.
+   3. If a is infinite, approx_a_recip must be zero with the same sign as a.
+
+   If the preconditions are satisfied, which they are for for the _*_rcp_ps
+   instructions on x86, the result has a maximum relative error of 2 ulps,
+   and correctly handles reciprocals of zero and infinity.
 */
 template <typename Packet, int Steps>
 struct generic_reciprocal_newton_step {
@@ -29,12 +38,15 @@ struct generic_reciprocal_newton_step {
   run(const Packet& a, const Packet& approx_a_recip) {
     using Scalar = typename unpacket_traits<Packet>::type;
     const Packet two = pset1<Packet>(Scalar(2));
-    const Packet neg_a = pnegate(a);
     // Refine the approximation using one Newton-Raphson step:
     //   x_{i} = x_{i-1} * (2 - a * x_{i-1})
-    const Packet x =
-        generic_reciprocal_newton_step<Packet,Steps - 1>::run(a, approx_a_recip);
-    return pmul(x, pmadd(neg_a, x, two));
+     const Packet x =
+         generic_reciprocal_newton_step<Packet,Steps - 1>::run(a, approx_a_recip);
+     const Packet tmp = pnmadd(a, x, two);
+     // If tmp is NaN, it means that a is either +/-0 or +/-Inf.
+     // In this case return the approximation directly.
+     const Packet is_not_nan = pcmp_eq(tmp, tmp);
+     return pselect(is_not_nan, pmul(x, tmp), x);
   }
 };
 

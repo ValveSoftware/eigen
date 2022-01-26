@@ -1007,6 +1007,23 @@ void packetmath_real() {
       VERIFY_IS_EQUAL(data2[0], Scalar(1));
     }
   }
+  if (PacketTraits::HasReciprocal && PacketSize >= 2) {
+    test::packet_helper<PacketTraits::HasReciprocal, Packet> h;
+    const Scalar inf = NumTraits<Scalar>::infinity();
+    const Scalar zero = Scalar(0);
+    data1[0] = zero;
+    data1[1] = -zero;
+    h.store(data2, internal::preciprocal(h.load(data1)));
+    VERIFY_IS_EQUAL(data2[0], inf);
+    VERIFY_IS_EQUAL(data2[1], -inf);
+
+    data1[0] = inf;
+    data1[1] = -inf;
+    h.store(data2, internal::preciprocal(h.load(data1)));
+    VERIFY_IS_EQUAL(data2[0], zero);
+    VERIFY_IS_EQUAL(data2[1], -zero);
+
+  }
 }
 
 #define CAST_CHECK_CWISE1_IF(COND, REFOP, POP, SCALAR, REFTYPE) if(COND) { \
