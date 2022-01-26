@@ -297,7 +297,7 @@ static Index llt_rank_update_lower(MatrixType& mat, const VectorType& vec, const
       if(rs)
       {
         temp.tail(rs) -= (wj/Ljj) * mat.col(j).tail(rs);
-        if(gamma != 0)
+        if(!numext::is_exactly_zero(gamma))
           mat.col(j).tail(rs) = (nLjj/Ljj) * mat.col(j).tail(rs) + (nLjj * sigma*numext::conj(wj)/gamma)*temp.tail(rs);
       }
     }

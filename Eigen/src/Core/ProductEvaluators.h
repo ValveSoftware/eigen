@@ -460,7 +460,7 @@ protected:
   void eval_dynamic_impl(Dst& dst, const LhsT& lhs, const RhsT& rhs, const Func &func, const Scalar&  s /* == 1 */, false_type)
   {
     EIGEN_UNUSED_VARIABLE(s);
-    eigen_internal_assert(s==Scalar(1));
+    eigen_internal_assert(numext::is_exactly_one(s));
     call_restricted_packet_assignment_no_alias(dst, lhs.lazyProduct(rhs), func);
   }
 

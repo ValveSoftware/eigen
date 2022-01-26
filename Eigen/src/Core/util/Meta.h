@@ -397,6 +397,8 @@ struct aligned_storage {
 
 } // end namespace internal
 
+template<typename T> struct NumTraits;
+
 namespace numext {
 
 #if defined(EIGEN_GPU_COMPILE_PHASE)
@@ -428,6 +430,20 @@ bool equal_strict(const float& x,const float& y) { return std::equal_to<float>()
 template<> EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC
 bool equal_strict(const double& x,const double& y) { return std::equal_to<double>()(x,y); }
 #endif
+
+/**
+ * \internal Performs an exact comparison of x to zero, e.g. to decide whether a term can be ignored.
+ * Use this to to bypass -Wfloat-equal warnings when exact zero is what needs to be tested.
+*/
+template<typename X> EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC
+bool is_exactly_zero(const X& x) { return equal_strict(x, typename NumTraits<X>::Literal{0}); }
+
+/**
+ * \internal Performs an exact comparison of x to one, e.g. to decide whether a factor needs to be multiplied.
+ * Use this to to bypass -Wfloat-equal warnings when exact one is what needs to be tested.
+*/
+template<typename X> EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC
+bool is_exactly_one(const X& x) { return equal_strict(x, typename NumTraits<X>::Literal{1}); }
 
 template<typename X, typename Y> EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC
 bool not_equal_strict(const X& x,const Y& y) { return x != y; }
