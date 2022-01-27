@@ -643,7 +643,7 @@ void packetmath() {
   CHECK_CWISE1_IF(PacketTraits::HasSqrt, numext::sqrt, internal::psqrt);
   CHECK_CWISE1_IF(PacketTraits::HasRsqrt, numext::rsqrt, internal::prsqrt);
   CHECK_CWISE3_IF(true, REF_MADD, internal::pmadd);
-  if (!std::is_same<Scalar, bool>::value) {
+  if (!std::is_same<Scalar, bool>::value && NumTraits<Scalar>::IsSigned)) {
     CHECK_CWISE3_IF(true, REF_MSUB, internal::pmsub);
     CHECK_CWISE3_IF(true, REF_NMADD, internal::pnmadd);
     CHECK_CWISE3_IF(true, REF_NMSUB, internal::pnmsub);
