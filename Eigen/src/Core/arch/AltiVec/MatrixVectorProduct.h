@@ -416,7 +416,7 @@ EIGEN_STRONG_INLINE void gemv_col(
 #endif
 
     // TODO: improve the following heuristic:
-    const Index block_cols = cols < 128 ? cols : (lhsStride * sizeof(LhsScalar) < 32000 ? 16 : 16);
+    const Index block_cols = cols < 128 ? cols : (lhsStride * sizeof(LhsScalar) < 16000 ? 16 : 8);
     ResPacket palpha = pset1<ResPacket>(alpha);
 
     for (Index j2 = 0; j2 < cols; j2 += block_cols)
@@ -1622,7 +1622,7 @@ EIGEN_STRONG_INLINE void gemv_complex_col(
     const Index n1 = rows - 1 * ResPacketSize + 1;
 
     // TODO: improve the following heuristic:
-    const Index block_cols = cols < 128 ? cols : (lhsStride * sizeof(LhsScalar) < 32000 ? 16 : 16);
+    const Index block_cols = cols < 128 ? cols : (lhsStride * sizeof(LhsScalar) < 16000 ? 16 : 8);
 
     typedef alpha_store<PResPacket, ResPacket, ResScalar, Scalar> AlphaData;
     AlphaData alpha_data(alpha);
