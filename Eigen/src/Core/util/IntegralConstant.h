@@ -31,10 +31,8 @@ template<int N> class VariableAndFixedInt;
   *  - arithmetic and some bitwise operators: -, +, *, /, %, &, |
   *  - c++98/14 compatibility with fix<N> and fix<N>() syntax to define integral constants.
   *
-  * It is strongly discouraged to directly deal with this class FixedInt. Instances are expcected to
-  * be created by the user using Eigen::fix<N> or Eigen::fix<N>(). In C++98-11, the former syntax does
-  * not create a FixedInt<N> instance but rather a point to function that needs to be \em cleaned-up
-  * using the generic helper:
+  * It is strongly discouraged to directly deal with this class FixedInt. Instances are expected to
+  * be created by the user using Eigen::fix<N> or Eigen::fix<N>().
   * \code
   * internal::cleanup_index_type<T>::type
   * internal::cleanup_index_type<T,DynamicKey>::type
@@ -190,14 +188,6 @@ static const internal::FixedInt<N> fix{};
   * where internal::FixedInt<N> is an internal template class similar to
   * <a href="http://en.cppreference.com/w/cpp/types/integral_constant">\c std::integral_constant </a><tt> <int,N> </tt>
   * Here, \c fix<N> is thus an object of type \c internal::FixedInt<N>.
-  *
-  * In c++98/11, it is implemented as a function:
-  * \code
-  * template<int N> inline internal::FixedInt<N> fix();
-  * \endcode
-  * Here internal::FixedInt<N> is thus a pointer to function.
-  *
-  * If for some reason you want a true object in c++98 then you can write: \code fix<N>() \endcode which is also valid in c++14.
   *
   * \sa fix<N>(int), seq, seqN
   */

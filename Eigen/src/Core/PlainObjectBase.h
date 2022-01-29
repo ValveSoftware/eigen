@@ -548,12 +548,11 @@ class PlainObjectBase : public internal::dense_xpr_base<Derived>::type
 //       EIGEN_INITIALIZE_COEFFS_IF_THAT_OPTION_IS_ENABLED
     }
 
-    /** \brief Construct a row of column vector with fixed size from an arbitrary number of coefficients. \cpp11
+    /** \brief Construct a row of column vector with fixed size from an arbitrary number of coefficients.
       *
       * \only_for_vectors
       *
       * This constructor is for 1D array or vectors with more than 4 coefficients.
-      * There exists C++98 analogue constructors for fixed-size array/vector having 1, 2, 3, or 4 coefficients.
       *
       * \warning To construct a column (resp. row) vector of fixed length, the number of values passed to this
       * constructor must match the the fixed number of rows (resp. columns) of \c *this.
@@ -574,7 +573,7 @@ class PlainObjectBase : public internal::dense_xpr_base<Derived>::type
     }
 
     /** \brief Constructs a Matrix or Array and initializes it by elements given by an initializer list of initializer
-      * lists \cpp11
+      * lists
       */
     EIGEN_DEVICE_FUNC
     explicit EIGEN_STRONG_INLINE PlainObjectBase(const std::initializer_list<std::initializer_list<Scalar>>& list)
