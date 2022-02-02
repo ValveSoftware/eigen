@@ -21,6 +21,36 @@
 namespace Eigen {
 
 namespace internal {
+
+enum OptionsMasks {
+  QRPreconditionerBits = NoQRPreconditioner | HouseholderQRPreconditioner | ColPivHouseholderQRPreconditioner |
+                         FullPivHouseholderQRPreconditioner,
+  ComputationOptionsBits = ComputeThinU | ComputeFullU | ComputeThinV | ComputeFullV
+};
+
+constexpr int get_qr_preconditioner(int options) { return options & QRPreconditionerBits; }
+
+constexpr int get_computation_options(int options) { return options & ComputationOptionsBits; }
+
+constexpr int should_svd_compute_thin_u(int options) { return options & ComputeThinU; }
+constexpr int should_svd_compute_full_u(int options) { return options & ComputeFullU; }
+constexpr int should_svd_compute_thin_v(int options) { return options & ComputeThinV; }
+constexpr int should_svd_compute_full_v(int options) { return options & ComputeFullV; }
+
+template <typename MatrixType, int Options>
+void check_svd_constructor_assertions(unsigned int computationOptions) {
+  EIGEN_STATIC_ASSERT((Options & ComputationOptionsBits) == 0,
+                      "SVDBase: Cannot request U or V using both static and runtime options, even if they match. "
+                      "Requesting unitaries at runtime through the constructor is DEPRECATED: "
+                      "If possible, prefer requesting unitaries statically, using the Options template parameter.");
+  eigen_assert(
+      !(should_svd_compute_thin_u(computationOptions) && MatrixType::ColsAtCompileTime != Dynamic) &&
+      !(should_svd_compute_thin_v(computationOptions) && MatrixType::ColsAtCompileTime != Dynamic) &&
+      "SVDBase: If U or V are requested at runtime through the constructor, then thin U and V are only available when "
+      "your matrix has a dynamic number of columns.");
+  (void)computationOptions;
+}
+
 template<typename Derived> struct traits<SVDBase<Derived> >
  : traits<Derived>
 {
@@ -28,6 +58,32 @@ template<typename Derived> struct traits<SVDBase<Derived> >
   typedef SolverStorage StorageKind;
   typedef int StorageIndex;
   enum { Flags = 0 };
+};
+
+template <typename MatrixType, int Options>
+struct svd_traits : traits<MatrixType> {
+  static constexpr bool ShouldComputeFullU = internal::should_svd_compute_full_u(Options);
+  static constexpr bool ShouldComputeThinU = internal::should_svd_compute_thin_u(Options);
+  static constexpr bool ShouldComputeFullV = internal::should_svd_compute_full_v(Options);
+  static constexpr bool ShouldComputeThinV = internal::should_svd_compute_thin_v(Options);
+  enum {
+    DiagSizeAtCompileTime =
+        internal::min_size_prefer_dynamic(MatrixType::RowsAtCompileTime, MatrixType::ColsAtCompileTime),
+    MaxDiagSizeAtCompileTime =
+        internal::min_size_prefer_dynamic(MatrixType::MaxRowsAtCompileTime, MatrixType::MaxColsAtCompileTime),
+    MatrixUColsAtCompileTime = ShouldComputeFullU   ? MatrixType::RowsAtCompileTime
+                               : ShouldComputeThinU ? DiagSizeAtCompileTime
+                                                    : Dynamic,
+    MatrixVColsAtCompileTime = ShouldComputeFullV   ? MatrixType::ColsAtCompileTime
+                               : ShouldComputeThinV ? DiagSizeAtCompileTime
+                                                    : Dynamic,
+    MatrixUMaxColsAtCompileTime = ShouldComputeFullU   ? MatrixType::MaxRowsAtCompileTime
+                                  : ShouldComputeThinU ? MaxDiagSizeAtCompileTime
+                                                       : Dynamic,
+    MatrixVMaxColsAtCompileTime = ShouldComputeFullV   ? MatrixType::MaxColsAtCompileTime
+                                  : ShouldComputeThinV ? MaxDiagSizeAtCompileTime
+                                                       : Dynamic
+  };
 };
 }
 
@@ -74,20 +130,38 @@ public:
   typedef typename NumTraits<typename MatrixType::Scalar>::Real RealScalar;
   typedef typename Eigen::internal::traits<SVDBase>::StorageIndex StorageIndex;
   typedef Eigen::Index Index; ///< \deprecated since Eigen 3.3
+
+  static constexpr bool ShouldComputeFullU = internal::traits<Derived>::ShouldComputeFullU;
+  static constexpr bool ShouldComputeThinU = internal::traits<Derived>::ShouldComputeThinU;
+  static constexpr bool ShouldComputeFullV = internal::traits<Derived>::ShouldComputeFullV;
+  static constexpr bool ShouldComputeThinV = internal::traits<Derived>::ShouldComputeThinV;
+
   enum {
     RowsAtCompileTime = MatrixType::RowsAtCompileTime,
     ColsAtCompileTime = MatrixType::ColsAtCompileTime,
-    DiagSizeAtCompileTime = internal::min_size_prefer_dynamic(RowsAtCompileTime,ColsAtCompileTime),
+    DiagSizeAtCompileTime = internal::min_size_prefer_dynamic(RowsAtCompileTime, ColsAtCompileTime),
     MaxRowsAtCompileTime = MatrixType::MaxRowsAtCompileTime,
     MaxColsAtCompileTime = MatrixType::MaxColsAtCompileTime,
-    MaxDiagSizeAtCompileTime = internal::min_size_prefer_fixed(MaxRowsAtCompileTime,MaxColsAtCompileTime),
-    MatrixOptions = MatrixType::Options
+    MaxDiagSizeAtCompileTime = internal::min_size_prefer_fixed(MaxRowsAtCompileTime, MaxColsAtCompileTime),
+    MatrixOptions = MatrixType::Options,
+    MatrixUColsAtCompileTime = internal::traits<Derived>::MatrixUColsAtCompileTime,
+    MatrixVColsAtCompileTime = internal::traits<Derived>::MatrixVColsAtCompileTime,
+    MatrixUMaxColsAtCompileTime = internal::traits<Derived>::MatrixUMaxColsAtCompileTime,
+    MatrixVMaxColsAtCompileTime = internal::traits<Derived>::MatrixVMaxColsAtCompileTime
   };
 
-  typedef Matrix<Scalar, RowsAtCompileTime, RowsAtCompileTime, MatrixOptions, MaxRowsAtCompileTime, MaxRowsAtCompileTime> MatrixUType;
-  typedef Matrix<Scalar, ColsAtCompileTime, ColsAtCompileTime, MatrixOptions, MaxColsAtCompileTime, MaxColsAtCompileTime> MatrixVType;
+  EIGEN_STATIC_ASSERT(!(ShouldComputeFullU && ShouldComputeThinU), "SVDBase: Cannot request both full and thin U")
+  EIGEN_STATIC_ASSERT(!(ShouldComputeFullV && ShouldComputeThinV), "SVDBase: Cannot request both full and thin V")
+
+  typedef
+      typename internal::make_proper_matrix_type<Scalar, RowsAtCompileTime, MatrixUColsAtCompileTime, MatrixOptions,
+                                                 MaxRowsAtCompileTime, MatrixUMaxColsAtCompileTime>::type MatrixUType;
+  typedef
+      typename internal::make_proper_matrix_type<Scalar, ColsAtCompileTime, MatrixVColsAtCompileTime, MatrixOptions,
+                                                 MaxColsAtCompileTime, MatrixVMaxColsAtCompileTime>::type MatrixVType;
+
   typedef typename internal::plain_diag_type<MatrixType, RealScalar>::type SingularValuesType;
-  
+
   Derived& derived() { return *static_cast<Derived*>(this); }
   const Derived& derived() const { return *static_cast<const Derived*>(this); }
 
@@ -266,7 +340,7 @@ protected:
   }
 
   // return true if already allocated
-  bool allocate(Index rows, Index cols, unsigned int computationOptions) ;
+  bool allocate(Index rows, Index cols, unsigned int computationOptions);
 
   MatrixUType m_matrixU;
   MatrixVType m_matrixV;
@@ -284,19 +358,18 @@ protected:
    * Default constructor of SVDBase
    */
   SVDBase()
-    : m_info(Success),
-      m_isInitialized(false),
-      m_isAllocated(false),
-      m_usePrescribedThreshold(false),
-      m_computeFullU(false),
-      m_computeThinU(false),
-      m_computeFullV(false),
-      m_computeThinV(false),
-      m_computationOptions(0),
-      m_rows(-1), m_cols(-1), m_diagSize(0)
-  { }
-
-
+      : m_info(Success),
+        m_isInitialized(false),
+        m_isAllocated(false),
+        m_usePrescribedThreshold(false),
+        m_computeFullU(false),
+        m_computeThinU(false),
+        m_computeFullV(false),
+        m_computeThinV(false),
+        m_computationOptions(0),
+        m_rows(-1),
+        m_cols(-1),
+        m_diagSize(0) {}
 };
 
 #ifndef EIGEN_PARSED_BY_DOXYGEN
@@ -330,9 +403,8 @@ void SVDBase<Derived>::_solve_impl_transposed(const RhsType &rhs, DstType &dst) 
 }
 #endif
 
-template<typename MatrixType>
-bool SVDBase<MatrixType>::allocate(Index rows, Index cols, unsigned int computationOptions)
-{
+template <typename Derived>
+bool SVDBase<Derived>::allocate(Index rows, Index cols, unsigned int computationOptions) {
   eigen_assert(rows >= 0 && cols >= 0);
 
   if (m_isAllocated &&
@@ -349,14 +421,13 @@ bool SVDBase<MatrixType>::allocate(Index rows, Index cols, unsigned int computat
   m_isInitialized = false;
   m_isAllocated = true;
   m_computationOptions = computationOptions;
-  m_computeFullU = (computationOptions & ComputeFullU) != 0;
-  m_computeThinU = (computationOptions & ComputeThinU) != 0;
-  m_computeFullV = (computationOptions & ComputeFullV) != 0;
-  m_computeThinV = (computationOptions & ComputeThinV) != 0;
+  m_computeFullU = ShouldComputeFullU || internal::should_svd_compute_full_u(computationOptions);
+  m_computeThinU = ShouldComputeThinU || internal::should_svd_compute_thin_u(computationOptions);
+  m_computeFullV = ShouldComputeFullV || internal::should_svd_compute_full_v(computationOptions);
+  m_computeThinV = ShouldComputeThinV || internal::should_svd_compute_thin_v(computationOptions);
+
   eigen_assert(!(m_computeFullU && m_computeThinU) && "SVDBase: you can't ask for both full and thin U");
   eigen_assert(!(m_computeFullV && m_computeThinV) && "SVDBase: you can't ask for both full and thin V");
-  eigen_assert(internal::check_implication(m_computeThinU || m_computeThinV, MatrixType::ColsAtCompileTime==Dynamic) &&
-	       "SVDBase: thin U and V are only available when your matrix has a dynamic number of columns.");
 
   m_diagSize = (std::min)(m_rows, m_cols);
   m_singularValues.resize(m_diagSize);
