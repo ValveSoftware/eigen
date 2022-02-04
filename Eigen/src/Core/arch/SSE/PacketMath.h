@@ -512,7 +512,7 @@ template<> EIGEN_STRONG_INLINE Packet4f pmax<Packet4f>(const Packet4f& a, const 
 #endif
 }
 template<> EIGEN_STRONG_INLINE Packet2d pmax<Packet2d>(const Packet2d& a, const Packet2d& b) {
-#if EIGEN_COMP_GNUC && EIGEN_COMP_GNUC < 63
+#if EIGEN_COMP_GNUC_STRICT && EIGEN_COMP_GNUC < 63
   // There appears to be a bug in GCC, by which the optimizer may
   // flip the argument order in calls to _mm_max_pd, so we have to
   // resort to inline ASM here. This is supposed to be fixed in gcc6.3,
