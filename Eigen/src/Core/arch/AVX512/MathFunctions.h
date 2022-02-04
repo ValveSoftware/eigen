@@ -17,7 +17,8 @@ namespace Eigen {
 namespace internal {
 
 // Disable the code for older versions of gcc that don't support many of the required avx512 instrinsics.
-#if EIGEN_GNUC_AT_LEAST(5, 3) || EIGEN_COMP_CLANG  || EIGEN_COMP_MSVC >= 1923
+#if EIGEN_GNUC_AT_LEAST(5, 3) || EIGEN_COMP_CLANG || EIGEN_COMP_MSVC >= 1923 || EIGEN_COMP_ICC >= 1900
+#define EIGEN_HAS_AVX512_MATH 1
 
 #define EIGEN_DECLARE_CONST_Packet16f(NAME, X) \
   const Packet16f p16f_##NAME = pset1<Packet16f>(X)
@@ -326,7 +327,9 @@ Packet16f pexpm1<Packet16f>(const Packet16f& _x) {
 F16_PACKET_FUNCTION(Packet16f, Packet16h, pexpm1)
 BF16_PACKET_FUNCTION(Packet16f, Packet16bf, pexpm1)
 
-#endif
+#else
+#define EIGEN_HAS_AVX512_MATH 0
+#endif  // EIGEN_HAS_AVX512_MATH
 
 
 template <>
