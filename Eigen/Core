@@ -31,7 +31,7 @@
 #endif
 
 // Handle NVCC/CUDA/SYCL
-#if defined(__CUDACC__) || defined(__SYCL_DEVICE_ONLY__)
+#if defined(EIGEN_CUDACC) || defined(__SYCL_DEVICE_ONLY__)
   // Do not try asserts on CUDA and SYCL!
   #ifndef EIGEN_NO_DEBUG
   #define EIGEN_NO_DEBUG
@@ -46,7 +46,7 @@
   #endif
 
   // All functions callable from CUDA code must be qualified with __device__
-  #ifdef __CUDACC__
+  #ifdef EIGEN_CUDACC
     // Do not try to vectorize on CUDA and SYCL!
     #ifndef EIGEN_DONT_VECTORIZE
     #define EIGEN_DONT_VECTORIZE
@@ -245,7 +245,7 @@
   #define EIGEN_HAS_FP16_C
 #endif
 
-#if defined __CUDACC__
+#if defined EIGEN_CUDACC
   #define EIGEN_VECTORIZE_CUDA
   #include <vector_types.h>
   #if EIGEN_CUDACC_VER >= 70500
