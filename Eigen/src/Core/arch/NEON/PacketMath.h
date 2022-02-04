@@ -707,9 +707,9 @@ template<> EIGEN_STRONG_INLINE Packet4ui pset1<Packet4ui>(const uint32_t& from) 
 template<> EIGEN_STRONG_INLINE Packet2l pset1<Packet2l>(const int64_t& from) { return vdupq_n_s64(from); }
 template<> EIGEN_STRONG_INLINE Packet2ul pset1<Packet2ul>(const uint64_t& from) { return vdupq_n_u64(from); }
 
-template<> EIGEN_STRONG_INLINE Packet2f pset1frombits<Packet2f>(unsigned int from)
+template<> EIGEN_STRONG_INLINE Packet2f pset1frombits<Packet2f>(uint32_t from)
 { return vreinterpret_f32_u32(vdup_n_u32(from)); }
-template<> EIGEN_STRONG_INLINE Packet4f pset1frombits<Packet4f>(unsigned int from)
+template<> EIGEN_STRONG_INLINE Packet4f pset1frombits<Packet4f>(uint32_t from)
 { return vreinterpretq_f32_u32(vdupq_n_u32(from)); }
 
 template<> EIGEN_STRONG_INLINE Packet2f plset<Packet2f>(const float& a)

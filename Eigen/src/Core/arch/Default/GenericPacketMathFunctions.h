@@ -171,8 +171,8 @@ EIGEN_UNUSED
 Packet plog_impl_float(const Packet _x)
 {
   const Packet cst_1              = pset1<Packet>(1.0f);
-  const Packet cst_minus_inf      = pset1frombits<Packet>( 0xff800000u);
-  const Packet cst_pos_inf        = pset1frombits<Packet>( 0x7f800000u);
+  const Packet cst_minus_inf      = pset1frombits<Packet>(static_cast<Eigen::numext::uint32_t>(0xff800000u));
+  const Packet cst_pos_inf        = pset1frombits<Packet>(static_cast<Eigen::numext::uint32_t>(0x7f800000u));
 
   const Packet cst_cephes_SQRTHF = pset1<Packet>(0.707106781186547524f);
   Packet e, x;
@@ -538,7 +538,7 @@ Packet pexp_double(const Packet _x)
 //    aligned on 8-bits, and (2) replicating the storage of the bits of 2/pi.
 //  - Avoid a branch in rounding and extraction of the remaining fractional part.
 // Overall, I measured a speed up higher than x2 on x86-64.
-inline float trig_reduce_huge (float xf, int *quadrant)
+inline float trig_reduce_huge (float xf, Eigen::numext::int32_t *quadrant)
 {
   using Eigen::numext::int32_t;
   using Eigen::numext::uint32_t;
@@ -605,7 +605,7 @@ Packet psincos_float(const Packet& _x)
   const Packet  cst_2oPI            = pset1<Packet>(0.636619746685028076171875f); // 2/PI
   const Packet  cst_rounding_magic  = pset1<Packet>(12582912); // 2^23 for rounding
   const PacketI csti_1              = pset1<PacketI>(1);
-  const Packet  cst_sign_mask       = pset1frombits<Packet>(0x80000000u);
+  const Packet  cst_sign_mask       = pset1frombits<Packet>(static_cast<Eigen::numext::uint32_t>(0x80000000u));
 
   Packet x = pabs(_x);
 
@@ -661,7 +661,7 @@ Packet psincos_float(const Packet& _x)
     const int PacketSize = unpacket_traits<Packet>::size;
     EIGEN_ALIGN_TO_BOUNDARY(sizeof(Packet)) float vals[PacketSize];
     EIGEN_ALIGN_TO_BOUNDARY(sizeof(Packet)) float x_cpy[PacketSize];
-    EIGEN_ALIGN_TO_BOUNDARY(sizeof(Packet)) int y_int2[PacketSize];
+    EIGEN_ALIGN_TO_BOUNDARY(sizeof(Packet)) Eigen::numext::int32_t y_int2[PacketSize];
     pstoreu(vals, pabs(_x));
     pstoreu(x_cpy, x);
     pstoreu(y_int2, y_int);
