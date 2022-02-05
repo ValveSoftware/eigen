@@ -42,11 +42,6 @@ template<typename T> struct evaluator_traits;
 
 template< typename T> struct evaluator;
 
-template<typename T> struct has_trivially_copyable_storage
-{
-  static const bool value = false;
-};
-
 } // end namespace internal
 
 template<typename T> struct NumTraits;
