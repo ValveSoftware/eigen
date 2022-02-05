@@ -946,18 +946,35 @@ void packetmath_real() {
       VERIFY((numext::isnan)(data2[0]));
       VERIFY((numext::isnan)(data2[1]));
     }
+
     if (PacketTraits::HasSqrt) {
-      test::packet_helper<PacketTraits::HasSqrt, Packet> h;
       data1[0] = Scalar(-1.0f);
       if (std::numeric_limits<Scalar>::has_denorm == std::denorm_present) {
         data1[1] = -std::numeric_limits<Scalar>::denorm_min();
       } else {
         data1[1] = -((std::numeric_limits<Scalar>::min)());
       }
-      h.store(data2, internal::psqrt(h.load(data1)));
-      VERIFY((numext::isnan)(data2[0]));
-      VERIFY((numext::isnan)(data2[1]));
+      CHECK_CWISE1(numext::sqrt, internal::psqrt);
+
+      data1[0] = Scalar(0.0f);
+      data1[1] = NumTraits<Scalar>::infinity();
+      CHECK_CWISE1(numext::sqrt, internal::psqrt);
     }
+
+    if (PacketTraits::HasRsqrt) {
+      data1[0] = Scalar(-1.0f);
+      if (std::numeric_limits<Scalar>::has_denorm == std::denorm_present) {
+        data1[1] = -std::numeric_limits<Scalar>::denorm_min();
+      } else {
+        data1[1] = -((std::numeric_limits<Scalar>::min)());
+      }
+      CHECK_CWISE1(numext::rsqrt, internal::prsqrt);
+
+      data1[0] = Scalar(0.0f);
+      data1[1] = NumTraits<Scalar>::infinity();
+      CHECK_CWISE1(numext::rsqrt, internal::prsqrt);
+    }
+
     // TODO(rmlarsen): Re-enable for half and bfloat16.
     if (PacketTraits::HasCos
         && !internal::is_same<Scalar, half>::value

@@ -155,49 +155,18 @@ EIGEN_STRONG_INLINE Packet16bf pldexp(const Packet16bf& a, const Packet16bf& exp
   return F32ToBf16(pldexp<Packet16f>(Bf16ToF32(a), Bf16ToF32(exponent)));
 }
 
-// Functions for sqrt.
-// The EIGEN_FAST_MATH version uses the _mm_rsqrt_ps approximation and one step
-// of Newton's method, at a cost of 1-2 bits of precision as opposed to the
-// exact solution. The main advantage of this approach is not just speed, but
-// also the fact that it can be inlined and pipelined with other computations,
-// further reducing its effective latency.
 #if EIGEN_FAST_MATH
 template <>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED Packet16f
 psqrt<Packet16f>(const Packet16f& _x) {
-  Packet16f neg_half = pmul(_x, pset1<Packet16f>(-.5f));
-  __mmask16 denormal_mask = _mm512_kand(
-      _mm512_cmp_ps_mask(_x, pset1<Packet16f>((std::numeric_limits<float>::min)()),
-                        _CMP_LT_OQ),
-      _mm512_cmp_ps_mask(_x, _mm512_setzero_ps(), _CMP_GE_OQ));
-
-  Packet16f x = _mm512_rsqrt14_ps(_x);
-
-  // Do a single step of Newton's iteration.
-  x = pmul(x, pmadd(neg_half, pmul(x, x), pset1<Packet16f>(1.5f)));
-
-  // Flush results for denormals to zero.
-  return _mm512_mask_blend_ps(denormal_mask, pmul(_x,x), _mm512_setzero_ps());
+  return generic_sqrt_newton_step<Packet16f>::run(_x, _mm512_rsqrt14_ps(_x));
 }
 
 template <>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED Packet8d
 psqrt<Packet8d>(const Packet8d& _x) {
-  Packet8d neg_half = pmul(_x, pset1<Packet8d>(-.5));
-  __mmask16 denormal_mask = _mm512_kand(
-      _mm512_cmp_pd_mask(_x, pset1<Packet8d>((std::numeric_limits<double>::min)()),
-                        _CMP_LT_OQ),
-      _mm512_cmp_pd_mask(_x, _mm512_setzero_pd(), _CMP_GE_OQ));
-
-  Packet8d x = _mm512_rsqrt14_pd(_x);
-
-  // Do a single step of Newton's iteration.
-  x = pmul(x, pmadd(neg_half, pmul(x, x), pset1<Packet8d>(1.5)));
-
-  // Do a second step of Newton's iteration.
-  x = pmul(x, pmadd(neg_half, pmul(x, x), pset1<Packet8d>(1.5)));
-
-  return _mm512_mask_blend_pd(denormal_mask, pmul(_x,x), _mm512_setzero_pd());
+  // Double requires 2 Newton-Raphson steps for convergence.
+  return generic_sqrt_newton_step<Packet8d, /*Steps=*/2>::run(_x, _mm512_rsqrt14_pd(_x));
 }
 #else
 template <>
@@ -226,31 +195,7 @@ EIGEN_STRONG_INLINE Packet16f prsqrt<Packet16f>(const Packet16f& x) {
 template <>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED Packet16f
 prsqrt<Packet16f>(const Packet16f& _x) {
-  EIGEN_DECLARE_CONST_Packet16f_FROM_INT(inf, 0x7f800000);
-  EIGEN_DECLARE_CONST_Packet16f(one_point_five, 1.5f);
-  EIGEN_DECLARE_CONST_Packet16f(minus_half, -0.5f);
-
-  Packet16f neg_half = pmul(_x, p16f_minus_half);
-
-  // Identity infinite, negative and denormal arguments.
-  __mmask16 inf_mask = _mm512_cmp_ps_mask(_x, p16f_inf, _CMP_EQ_OQ);
-  __mmask16 not_pos_mask = _mm512_cmp_ps_mask(_x, _mm512_setzero_ps(), _CMP_LE_OQ);
-  __mmask16 not_finite_pos_mask = not_pos_mask | inf_mask;
-
-  // Compute an approximate result using the rsqrt intrinsic, forcing +inf
-  // for denormals for consistency with AVX and SSE implementations.
-  Packet16f y_approx = _mm512_rsqrt14_ps(_x);
-
-  // Do a single step of Newton-Raphson iteration to improve the approximation.
-  // This uses the formula y_{n+1} = y_n * (1.5 - y_n * (0.5 * x) * y_n).
-  // It is essential to evaluate the inner term like this because forming
-  // y_n^2 may over- or underflow.
-  Packet16f y_newton = pmul(y_approx, pmadd(y_approx, pmul(neg_half, y_approx), p16f_one_point_five));
-
-  // Select the result of the Newton-Raphson step for positive finite arguments.
-  // For other arguments, choose the output of the intrinsic. This will
-  // return rsqrt(+inf) = 0, rsqrt(x) = NaN if x < 0, and rsqrt(0) = +inf.
-  return _mm512_mask_blend_ps(not_finite_pos_mask, y_newton, y_approx);
+  return generic_rsqrt_newton_step<Packet16f, /*Steps=*/1>::run(_x, _mm512_rsqrt14_ps(_x));
 }
 #endif
 
