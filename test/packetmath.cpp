@@ -954,11 +954,11 @@ void packetmath_real() {
       } else {
         data1[1] = -((std::numeric_limits<Scalar>::min)());
       }
-      CHECK_CWISE1(numext::sqrt, internal::psqrt);
+      CHECK_CWISE1_IF(PacketTraits::HasSqrt, numext::sqrt, internal::psqrt);
 
       data1[0] = Scalar(0.0f);
       data1[1] = NumTraits<Scalar>::infinity();
-      CHECK_CWISE1(numext::sqrt, internal::psqrt);
+      CHECK_CWISE1_IF(PacketTraits::HasSqrt, numext::sqrt, internal::psqrt);
     }
 
     if (PacketTraits::HasRsqrt) {
@@ -968,11 +968,11 @@ void packetmath_real() {
       } else {
         data1[1] = -((std::numeric_limits<Scalar>::min)());
       }
-      CHECK_CWISE1(numext::rsqrt, internal::prsqrt);
+      CHECK_CWISE1_IF(PacketTraits::HasRsqrt, numext::rsqrt, internal::prsqrt);
 
       data1[0] = Scalar(0.0f);
       data1[1] = NumTraits<Scalar>::infinity();
-      CHECK_CWISE1(numext::rsqrt, internal::prsqrt);
+      CHECK_CWISE1_IF(PacketTraits::HasRsqrt, numext::rsqrt, internal::prsqrt);
     }
 
     // TODO(rmlarsen): Re-enable for half and bfloat16.
