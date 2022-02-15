@@ -470,16 +470,21 @@ class Matrix
 
 #define EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, Size, SizeSuffix)   \
 /** \ingroup matrixtypedefs */                                    \
+/** \brief `Size`&times;`Size` matrix of type `Type`. */          \
 typedef Matrix<Type, Size, Size> Matrix##SizeSuffix##TypeSuffix;  \
 /** \ingroup matrixtypedefs */                                    \
+/** \brief `Size`&times;`1` vector of type `Type`. */             \
 typedef Matrix<Type, Size, 1>    Vector##SizeSuffix##TypeSuffix;  \
 /** \ingroup matrixtypedefs */                                    \
+/** \brief `1`&times;`Size` vector of type `Type`. */             \
 typedef Matrix<Type, 1, Size>    RowVector##SizeSuffix##TypeSuffix;
 
 #define EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, Size)         \
 /** \ingroup matrixtypedefs */                                    \
+/** \brief `Size`&times;`Dynamic` matrix of type `Type`. */       \
 typedef Matrix<Type, Size, Dynamic> Matrix##Size##X##TypeSuffix;  \
 /** \ingroup matrixtypedefs */                                    \
+/** \brief `Dynamic`&times;`Size` matrix of type `Type`. */       \
 typedef Matrix<Type, Dynamic, Size> Matrix##X##Size##TypeSuffix;
 
 #define EIGEN_MAKE_TYPEDEFS_ALL_SIZES(Type, TypeSuffix) \
@@ -501,28 +506,28 @@ EIGEN_MAKE_TYPEDEFS_ALL_SIZES(std::complex<double>, cd)
 #undef EIGEN_MAKE_TYPEDEFS
 #undef EIGEN_MAKE_FIXED_TYPEDEFS
 
-#define EIGEN_MAKE_TYPEDEFS(Size, SizeSuffix)                     \
-/** \ingroup matrixtypedefs */                                    \
-/** \brief \cpp11 */                                              \
-template <typename Type>                                          \
-using Matrix##SizeSuffix = Matrix<Type, Size, Size>;              \
-/** \ingroup matrixtypedefs */                                    \
-/** \brief \cpp11 */                                              \
-template <typename Type>                                          \
-using Vector##SizeSuffix = Matrix<Type, Size, 1>;                 \
-/** \ingroup matrixtypedefs */                                    \
-/** \brief \cpp11 */                                              \
-template <typename Type>                                          \
+#define EIGEN_MAKE_TYPEDEFS(Size, SizeSuffix)                        \
+/** \ingroup matrixtypedefs */                                       \
+/** \brief \cpp11 `Size`&times;`Size` matrix of type `Type`.*/       \
+template <typename Type>                                             \
+using Matrix##SizeSuffix = Matrix<Type, Size, Size>;                 \
+/** \ingroup matrixtypedefs */                                       \
+/** \brief \cpp11 `Size`&times;`1` vector of type `Type`.*/          \
+template <typename Type>                                             \
+using Vector##SizeSuffix = Matrix<Type, Size, 1>;                    \
+/** \ingroup matrixtypedefs */                                       \
+/** \brief \cpp11 `1`&times;`Size` vector of type `Type`.*/          \
+template <typename Type>                                             \
 using RowVector##SizeSuffix = Matrix<Type, 1, Size>;
 
-#define EIGEN_MAKE_FIXED_TYPEDEFS(Size)                           \
-/** \ingroup matrixtypedefs */                                    \
-/** \brief \cpp11 */                                              \
-template <typename Type>                                          \
-using Matrix##Size##X = Matrix<Type, Size, Dynamic>;              \
-/** \ingroup matrixtypedefs */                                    \
-/** \brief \cpp11 */                                              \
-template <typename Type>                                          \
+#define EIGEN_MAKE_FIXED_TYPEDEFS(Size)                            \
+/** \ingroup matrixtypedefs */                                     \
+/** \brief \cpp11 `Size`&times;`Dynamic` matrix of type `Type` */  \
+template <typename Type>                                           \
+using Matrix##Size##X = Matrix<Type, Size, Dynamic>;               \
+/** \ingroup matrixtypedefs */                                     \
+/** \brief \cpp11 `Dynamic`&times;`Size` matrix of type `Type`. */ \
+template <typename Type>                                           \
 using Matrix##X##Size = Matrix<Type, Dynamic, Size>;
 
 EIGEN_MAKE_TYPEDEFS(2, 2)
@@ -534,12 +539,12 @@ EIGEN_MAKE_FIXED_TYPEDEFS(3)
 EIGEN_MAKE_FIXED_TYPEDEFS(4)
 
 /** \ingroup matrixtypedefs
-  * \brief \cpp11 */
+  * \brief \cpp11 `Size`&times;`1` vector of type `Type`. */
 template <typename Type, int Size>
 using Vector = Matrix<Type, Size, 1>;
 
 /** \ingroup matrixtypedefs
-  * \brief \cpp11 */
+  * \brief \cpp11 `1`&times;`Size` vector of type `Type`. */
 template <typename Type, int Size>
 using RowVector = Matrix<Type, 1, Size>;
 
