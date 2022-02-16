@@ -71,18 +71,14 @@ struct svd_traits : traits<MatrixType> {
         internal::min_size_prefer_dynamic(MatrixType::RowsAtCompileTime, MatrixType::ColsAtCompileTime),
     MaxDiagSizeAtCompileTime =
         internal::min_size_prefer_dynamic(MatrixType::MaxRowsAtCompileTime, MatrixType::MaxColsAtCompileTime),
-    MatrixUColsAtCompileTime = ShouldComputeFullU   ? MatrixType::RowsAtCompileTime
-                               : ShouldComputeThinU ? DiagSizeAtCompileTime
-                                                    : Dynamic,
-    MatrixVColsAtCompileTime = ShouldComputeFullV   ? MatrixType::ColsAtCompileTime
-                               : ShouldComputeThinV ? DiagSizeAtCompileTime
-                                                    : Dynamic,
-    MatrixUMaxColsAtCompileTime = ShouldComputeFullU   ? MatrixType::MaxRowsAtCompileTime
-                                  : ShouldComputeThinU ? MaxDiagSizeAtCompileTime
-                                                       : Dynamic,
-    MatrixVMaxColsAtCompileTime = ShouldComputeFullV   ? MatrixType::MaxColsAtCompileTime
-                                  : ShouldComputeThinV ? MaxDiagSizeAtCompileTime
-                                                       : Dynamic
+    MatrixUColsAtCompileTime = ShouldComputeThinU ? DiagSizeAtCompileTime
+                                                  : MatrixType::RowsAtCompileTime,
+    MatrixVColsAtCompileTime = ShouldComputeThinV ? DiagSizeAtCompileTime
+                                                  : MatrixType::ColsAtCompileTime,
+    MatrixUMaxColsAtCompileTime = ShouldComputeThinU ? MaxDiagSizeAtCompileTime
+                                                     : MatrixType::MaxRowsAtCompileTime,
+    MatrixVMaxColsAtCompileTime = ShouldComputeThinV ? MaxDiagSizeAtCompileTime
+                                                     : MatrixType::MaxColsAtCompileTime
   };
 };
 }
