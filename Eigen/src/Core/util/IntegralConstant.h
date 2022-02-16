@@ -53,7 +53,14 @@ template<int N> class FixedInt
 public:
   static const int value = N;
   EIGEN_CONSTEXPR operator int() const { return value; }
-  FixedInt() {}
+  
+  EIGEN_CONSTEXPR
+  FixedInt() = default;
+  
+  EIGEN_CONSTEXPR
+  FixedInt(std::integral_constant<int,N>) {}
+  
+  EIGEN_CONSTEXPR
   FixedInt( VariableAndFixedInt<N> other) {
     #ifndef EIGEN_INTERNAL_DEBUGGING
     EIGEN_UNUSED_VARIABLE(other);
@@ -61,28 +68,41 @@ public:
     eigen_internal_assert(int(other)==N);
   }
 
+  EIGEN_CONSTEXPR
   FixedInt<-N> operator-() const { return FixedInt<-N>(); }
+  
   template<int M>
+  EIGEN_CONSTEXPR
   FixedInt<N+M> operator+( FixedInt<M>) const { return FixedInt<N+M>(); }
+  
   template<int M>
+  EIGEN_CONSTEXPR
   FixedInt<N-M> operator-( FixedInt<M>) const { return FixedInt<N-M>(); }
+  
   template<int M>
+  EIGEN_CONSTEXPR
   FixedInt<N*M> operator*( FixedInt<M>) const { return FixedInt<N*M>(); }
+  
   template<int M>
+  EIGEN_CONSTEXPR
   FixedInt<N/M> operator/( FixedInt<M>) const { return FixedInt<N/M>(); }
+  
   template<int M>
+  EIGEN_CONSTEXPR
   FixedInt<N%M> operator%( FixedInt<M>) const { return FixedInt<N%M>(); }
+  
   template<int M>
+  EIGEN_CONSTEXPR
   FixedInt<N|M> operator|( FixedInt<M>) const { return FixedInt<N|M>(); }
+  
   template<int M>
+  EIGEN_CONSTEXPR
   FixedInt<N&M> operator&( FixedInt<M>) const { return FixedInt<N&M>(); }
 
   // Needed in C++14 to allow fix<N>():
-  FixedInt operator() () const { return *this; }
+  EIGEN_CONSTEXPR FixedInt operator() () const { return *this; }
 
   VariableAndFixedInt<N> operator() (int val) const { return VariableAndFixedInt<N>(val); }
-
-  FixedInt(std::integral_constant<int,N>) {}
 };
 
 /** \internal
@@ -163,7 +183,7 @@ template<int N, int DynamicKey> struct cleanup_index_type<std::integral_constant
 #ifndef EIGEN_PARSED_BY_DOXYGEN
 
 template<int N>
-static const internal::FixedInt<N> fix{};
+constexpr internal::FixedInt<N> fix{};
 
 #else // EIGEN_PARSED_BY_DOXYGEN
 
