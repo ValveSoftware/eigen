@@ -152,15 +152,18 @@ public:
    * Like the default constructor but with preallocation of the internal data
    * according to the specified problem size and the \a computationOptions.
    *
-   * <b>Note: This constructor is deprecated.</b>
    * One \b cannot request unitiaries using both the \a Options template parameter
    * and the constructor. If possible, prefer using the \a Options template parameter.
    *
    * \param computationOptions specifification for computing Thin/Full unitaries U/V
    * \sa BDCSVD()
+   *
+   * \deprecated Will be removed in the next major Eigen version. Options should
+   * be specified in the \a Options template parameter.
    */
+  EIGEN_DEPRECATED
   BDCSVD(Index rows, Index cols, unsigned int computationOptions) : m_algoswap(16), m_numIters(0) {
-    internal::check_svd_constructor_assertions<MatrixType, Options>(computationOptions);
+    internal::check_svd_options_assertions<MatrixType, Options>(computationOptions);
     allocate(rows, cols, computationOptions);
   }
 
@@ -176,15 +179,18 @@ public:
   /** \brief Constructor performing the decomposition of given matrix using specified options
    *         for computing unitaries.
    *
-   *  <b>Note: This constructor is deprecated.</b>
    *  One \b cannot request unitiaries using both the \a Options template parameter
    *  and the constructor. If possible, prefer using the \a Options template parameter.
    *
    * \param matrix the matrix to decompose
    * \param computationOptions specifification for computing Thin/Full unitaries U/V
+   *
+   * \deprecated Will be removed in the next major Eigen version. Options should
+   * be specified in the \a Options template parameter.
    */
+  EIGEN_DEPRECATED
   BDCSVD(const MatrixType& matrix, unsigned int computationOptions) : m_algoswap(16), m_numIters(0) {
-    internal::check_svd_constructor_assertions<MatrixType, Options>(computationOptions);
+    internal::check_svd_options_assertions<MatrixType, Options>(computationOptions);
     compute_impl(matrix, computationOptions);
   }
 
@@ -196,6 +202,21 @@ public:
    * \param matrix the matrix to decompose
    */
   BDCSVD& compute(const MatrixType& matrix) { return compute_impl(matrix, m_computationOptions); }
+  
+  /** \brief Method performing the decomposition of given matrix, as specified by
+   *         the `computationOptions` parameter.
+   *
+   * \param matrix the matrix to decompose
+   * \param computationOptions specify whether to compute Thin/Full unitaries U/V
+   * 
+   * \deprecated Will be removed in the next major Eigen version. Options should
+   * be specified in the \a Options template parameter.
+   */
+  EIGEN_DEPRECATED
+  BDCSVD& compute(const MatrixType& matrix, unsigned int computationOptions) {
+    internal::check_svd_options_assertions<MatrixType, Options>(computationOptions);
+    return compute_impl(matrix, computationOptions);
+  }
 
   void setSwitchSize(int s)
   {

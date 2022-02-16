@@ -557,15 +557,18 @@ class JacobiSVD : public SVDBase<JacobiSVD<MatrixType_, Options> > {
    * Like the default constructor but with preallocation of the internal data
    * according to the specified problem size.
    *
-   * <b>Note: This constructor is deprecated.</b>
-   * one \b cannot request unitaries using both the \a Options template parameter
+   * One \b cannot request unitaries using both the \a Options template parameter
    * and the constructor. If possible, prefer using the \a Options template parameter.
    *
    * \param computationOptions specify whether to compute Thin/Full unitaries U/V
    * \sa JacobiSVD()
+   *
+   * \deprecated Will be removed in the next major Eigen version. Options should
+   * be specified in the \a Options template parameter.
    */
+  EIGEN_DEPRECATED
   JacobiSVD(Index rows, Index cols, unsigned int computationOptions) {
-    internal::check_svd_constructor_assertions<MatrixType, Options>(computationOptions);
+    internal::check_svd_options_assertions<MatrixType, Options>(computationOptions);
     allocate(rows, cols, computationOptions);
   }
 
@@ -579,15 +582,18 @@ class JacobiSVD : public SVDBase<JacobiSVD<MatrixType_, Options> > {
   /** \brief Constructor performing the decomposition of given matrix using specified options
    *         for computing unitaries.
    *
-   *  <b>Note: This constructor is deprecated.</b>
    *  One \b cannot request unitiaries using both the \a Options template parameter
    *  and the constructor. If possible, prefer using the \a Options template parameter.
    *
    * \param matrix the matrix to decompose
    * \param computationOptions specify whether to compute Thin/Full unitaries U/V
+   *
+   * \deprecated Will be removed in the next major Eigen version. Options should
+   * be specified in the \a Options template parameter.
    */
+  EIGEN_DEPRECATED
   JacobiSVD(const MatrixType& matrix, unsigned int computationOptions) {
-    internal::check_svd_constructor_assertions<MatrixType, Options>(computationOptions);
+    internal::check_svd_options_assertions<MatrixType, Options>(computationOptions);
     compute_impl(matrix, computationOptions);
   }
 
@@ -597,6 +603,21 @@ class JacobiSVD : public SVDBase<JacobiSVD<MatrixType_, Options> > {
    * \param matrix the matrix to decompose
    */
   JacobiSVD& compute(const MatrixType& matrix) { return compute_impl(matrix, m_computationOptions); }
+
+  /** \brief Method performing the decomposition of given matrix, as specified by
+   *         the `computationOptions` parameter.
+   *
+   * \param matrix the matrix to decompose
+   * \param computationOptions specify whether to compute Thin/Full unitaries U/V
+   * 
+   * \deprecated Will be removed in the next major Eigen version. Options should
+   * be specified in the \a Options template parameter.
+   */
+  EIGEN_DEPRECATED
+  JacobiSVD& compute(const MatrixType& matrix, unsigned int computationOptions) {
+    internal::check_svd_options_assertions<MatrixType, Options>(m_computationOptions);
+    return compute_impl(matrix, computationOptions);
+  }
 
   using Base::computeU;
   using Base::computeV;

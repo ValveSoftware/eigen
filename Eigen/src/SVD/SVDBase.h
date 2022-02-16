@@ -38,15 +38,15 @@ constexpr int should_svd_compute_thin_v(int options) { return options & ComputeT
 constexpr int should_svd_compute_full_v(int options) { return options & ComputeFullV; }
 
 template <typename MatrixType, int Options>
-void check_svd_constructor_assertions(unsigned int computationOptions) {
+void check_svd_options_assertions(unsigned int computationOptions) {
   EIGEN_STATIC_ASSERT((Options & ComputationOptionsBits) == 0,
                       "SVDBase: Cannot request U or V using both static and runtime options, even if they match. "
-                      "Requesting unitaries at runtime through the constructor is DEPRECATED: "
-                      "If possible, prefer requesting unitaries statically, using the Options template parameter.");
+                      "Requesting unitaries at runtime is DEPRECATED: "
+                      "Prefer requesting unitaries statically, using the Options template parameter.");
   eigen_assert(
       !(should_svd_compute_thin_u(computationOptions) && MatrixType::ColsAtCompileTime != Dynamic) &&
       !(should_svd_compute_thin_v(computationOptions) && MatrixType::ColsAtCompileTime != Dynamic) &&
-      "SVDBase: If U or V are requested at runtime through the constructor, then thin U and V are only available when "
+      "SVDBase: If U or V are requested at runtime, then thin U and V are only available when "
       "your matrix has a dynamic number of columns.");
   (void)computationOptions;
 }
