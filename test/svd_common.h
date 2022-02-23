@@ -480,8 +480,9 @@ void svd_compute_checks(const MatrixType& m) {
   }
 }
 
+// Deprecated behavior.
 template <typename SvdType, typename MatrixType>
-void svd_check_constructor_options(const MatrixType& m, unsigned int computationOptions) {
+void svd_check_runtime_options(const MatrixType& m, unsigned int computationOptions) {
   const bool fixedRowAndThinU = SvdType::RowsAtCompileTime != Dynamic && (computationOptions & ComputeThinU) != 0 && m.cols() < m.rows();
   const bool fixedColAndThinV = SvdType::ColsAtCompileTime != Dynamic && (computationOptions & ComputeThinV) != 0 && m.rows() < m.cols();
   if (fixedRowAndThinU || fixedColAndThinV) {
@@ -527,18 +528,19 @@ void svd_option_checks(const MatrixType& m) {
   svd_check_full(m, fullSvd);
   svd_compare_to_full<MatrixType, FullSvdType, QRPreconditioner | ComputeFullU | ComputeFullV>(m, fullSvd);
 
+  // Deprecated behavior.
   typedef SVD_STATIC_OPTIONS(MatrixType, QRPreconditioner) DynamicSvd;
-  svd_check_constructor_options<DynamicSvd>(m, 0);
-  svd_check_constructor_options<DynamicSvd>(m, ComputeThinU);
-  svd_check_constructor_options<DynamicSvd>(m, ComputeThinV);
-  svd_check_constructor_options<DynamicSvd>(m, ComputeThinU | ComputeThinV);
+  svd_check_runtime_options<DynamicSvd>(m, 0);
+  svd_check_runtime_options<DynamicSvd>(m, ComputeThinU);
+  svd_check_runtime_options<DynamicSvd>(m, ComputeThinV);
+  svd_check_runtime_options<DynamicSvd>(m, ComputeThinU | ComputeThinV);
 
-  svd_check_constructor_options<DynamicSvd>(m, ComputeFullU);
-  svd_check_constructor_options<DynamicSvd>(m, ComputeFullV);
-  svd_check_constructor_options<DynamicSvd>(m, ComputeFullU | ComputeFullV);
+  svd_check_runtime_options<DynamicSvd>(m, ComputeFullU);
+  svd_check_runtime_options<DynamicSvd>(m, ComputeFullV);
+  svd_check_runtime_options<DynamicSvd>(m, ComputeFullU | ComputeFullV);
 
-  svd_check_constructor_options<DynamicSvd>(m, ComputeThinU | ComputeFullV);
-  svd_check_constructor_options<DynamicSvd>(m, ComputeFullU | ComputeThinV);
+  svd_check_runtime_options<DynamicSvd>(m, ComputeThinU | ComputeFullV);
+  svd_check_runtime_options<DynamicSvd>(m, ComputeFullU | ComputeThinV);
 }
 
 template <typename MatrixType, int QRPreconditioner = 0>
@@ -609,6 +611,7 @@ void svd_verify_constructor_options_assert(const MatrixType& m, bool fullOnly = 
   svd2.singularValues();
   VERIFY_RAISES_ASSERT(svd2.solve(rhs))
 
+  // Deprecated behavior.
   SvdType svd3(a, ComputeFullU);
   svd3.matrixU();
   VERIFY_RAISES_ASSERT(svd3.matrixV())
