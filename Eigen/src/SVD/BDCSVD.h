@@ -163,7 +163,7 @@ public:
    */
   EIGEN_DEPRECATED
   BDCSVD(Index rows, Index cols, unsigned int computationOptions) : m_algoswap(16), m_numIters(0) {
-    internal::check_svd_options_assertions<MatrixType, Options>(computationOptions);
+    internal::check_svd_options_assertions<MatrixType, Options>(computationOptions, rows, cols);
     allocate(rows, cols, computationOptions);
   }
 
@@ -190,7 +190,7 @@ public:
    */
   EIGEN_DEPRECATED
   BDCSVD(const MatrixType& matrix, unsigned int computationOptions) : m_algoswap(16), m_numIters(0) {
-    internal::check_svd_options_assertions<MatrixType, Options>(computationOptions);
+    internal::check_svd_options_assertions<MatrixType, Options>(computationOptions, matrix.rows(), matrix.cols());
     compute_impl(matrix, computationOptions);
   }
 
@@ -214,7 +214,7 @@ public:
    */
   EIGEN_DEPRECATED
   BDCSVD& compute(const MatrixType& matrix, unsigned int computationOptions) {
-    internal::check_svd_options_assertions<MatrixType, Options>(computationOptions);
+    internal::check_svd_options_assertions<MatrixType, Options>(computationOptions, matrix.rows(), matrix.cols());
     return compute_impl(matrix, computationOptions);
   }
 

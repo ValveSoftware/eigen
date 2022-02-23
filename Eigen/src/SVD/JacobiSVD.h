@@ -568,7 +568,7 @@ class JacobiSVD : public SVDBase<JacobiSVD<MatrixType_, Options> > {
    */
   EIGEN_DEPRECATED
   JacobiSVD(Index rows, Index cols, unsigned int computationOptions) {
-    internal::check_svd_options_assertions<MatrixType, Options>(computationOptions);
+    internal::check_svd_options_assertions<MatrixType, Options>(computationOptions, rows, cols);
     allocate(rows, cols, computationOptions);
   }
 
@@ -593,7 +593,7 @@ class JacobiSVD : public SVDBase<JacobiSVD<MatrixType_, Options> > {
    */
   EIGEN_DEPRECATED
   JacobiSVD(const MatrixType& matrix, unsigned int computationOptions) {
-    internal::check_svd_options_assertions<MatrixType, Options>(computationOptions);
+    internal::check_svd_options_assertions<MatrixType, Options>(computationOptions, matrix.rows(), matrix.cols());
     compute_impl(matrix, computationOptions);
   }
 
@@ -615,7 +615,7 @@ class JacobiSVD : public SVDBase<JacobiSVD<MatrixType_, Options> > {
    */
   EIGEN_DEPRECATED
   JacobiSVD& compute(const MatrixType& matrix, unsigned int computationOptions) {
-    internal::check_svd_options_assertions<MatrixType, Options>(m_computationOptions);
+    internal::check_svd_options_assertions<MatrixType, Options>(m_computationOptions, matrix.rows(), matrix.cols());
     return compute_impl(matrix, computationOptions);
   }
 

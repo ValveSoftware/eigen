@@ -37,18 +37,19 @@ constexpr int should_svd_compute_full_u(int options) { return options & ComputeF
 constexpr int should_svd_compute_thin_v(int options) { return options & ComputeThinV; }
 constexpr int should_svd_compute_full_v(int options) { return options & ComputeFullV; }
 
-template <typename MatrixType, int Options>
-void check_svd_options_assertions(unsigned int computationOptions) {
+template<typename MatrixType, int Options>
+void check_svd_options_assertions(unsigned int computationOptions, Index rows, Index cols) {
   EIGEN_STATIC_ASSERT((Options & ComputationOptionsBits) == 0,
                       "SVDBase: Cannot request U or V using both static and runtime options, even if they match. "
                       "Requesting unitaries at runtime is DEPRECATED: "
                       "Prefer requesting unitaries statically, using the Options template parameter.");
-  eigen_assert(
-      !(should_svd_compute_thin_u(computationOptions) && MatrixType::ColsAtCompileTime != Dynamic) &&
-      !(should_svd_compute_thin_v(computationOptions) && MatrixType::ColsAtCompileTime != Dynamic) &&
-      "SVDBase: If U or V are requested at runtime, then thin U and V are only available when "
-      "your matrix has a dynamic number of columns.");
+  eigen_assert(!(should_svd_compute_thin_u(computationOptions) && cols < rows && MatrixType::RowsAtCompileTime != Dynamic) &&
+               !(should_svd_compute_thin_v(computationOptions) && rows < cols && MatrixType::ColsAtCompileTime != Dynamic) &&
+               "SVDBase: If thin U is requested at runtime, your matrix must have more rows than columns or a dynamic number of rows."
+               "Similarly, if thin V is requested at runtime, you matrix must have more columns than rows or a dynamic number of columns.");
   (void)computationOptions;
+  (void)rows;
+  (void)cols;
 }
 
 template<typename Derived> struct traits<SVDBase<Derived> >
