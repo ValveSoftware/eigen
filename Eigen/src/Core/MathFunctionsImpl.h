@@ -84,19 +84,19 @@ struct generic_rsqrt_newton_step {
     const Packet one_point_five = pset1<Packet>(Scalar(1.5));
     const Packet minus_half = pset1<Packet>(Scalar(-0.5));
     const Packet minus_half_a = pmul(minus_half, a);
-    const Packet neg_mask = pcmp_lt(a, pzero(a));
+    const Scalar norm_min = (std::numeric_limits<Scalar>::min)();
+    const Packet denorm_mask = pcmp_lt(a, pset1<Packet>(norm_min));
     Packet x =
          generic_rsqrt_newton_step<Packet,Steps - 1>::run(a, approx_rsqrt);
      const Packet tmp = pmul(minus_half_a, x);
      // If tmp is NaN, it means that a is either 0 or Inf.
-     // In this case return the approximation directly.
-     const Packet is_not_nan = pcmp_eq(tmp, tmp);
-     // If a is negative, return NaN.
-     x = por(x, neg_mask);
+     // In this case return the approximation directly. Do the same for
+     // positive subnormals. Otherwise return the Newton iterate.
+     const Packet return_x_newton = pandnot(pcmp_eq(tmp, tmp), denorm_mask);
     // Refine the approximation using one Newton-Raphson step:
     //   x_{n+1} = x_n * (1.5 - x_n * ((0.5 * a) * x_n)).
      const Packet x_newton  = pmul(x, pmadd(tmp, x, one_point_five));
-     return pselect(is_not_nan, x_newton, x);
+     return pselect(return_x_newton, x_newton, x);
   }
 };
 
@@ -133,9 +133,11 @@ struct generic_sqrt_newton_step {
     using Scalar = typename unpacket_traits<Packet>::type;
     const Packet one_point_five = pset1<Packet>(Scalar(1.5));
     const Packet negative_mask = pcmp_lt(a, pzero(a));
-    const Packet minus_half_a = pmul(a, pset1<Packet>(Scalar(-0.5)));
-    // Set negative arguments to NaN.
-    const Packet a_poisoned = por(a, negative_mask);
+    const Scalar norm_min = (std::numeric_limits<Scalar>::min)();
+    const Packet denorm_mask = pcmp_lt(a, pset1<Packet>(norm_min));
+    // Set negative arguments to NaN and positive subnormals to zero.
+    const Packet a_poisoned = por(pandnot(a, denorm_mask), negative_mask);
+    const Packet minus_half_a = pmul(a_poisoned, pset1<Packet>(Scalar(-0.5)));
 
     // Do a single step of Newton's iteration for reciprocal square root:
     //   x_{n+1} = x_n * (1.5 - x_n * ((0.5 * a) * x_n)).
@@ -150,11 +152,9 @@ struct generic_sqrt_newton_step {
 
     // Return sqrt(x) = x * rsqrt(x) for non-zero finite positive arguments.
     // Return a itself for 0 or +inf, NaN for negative arguments.
-    return pselect(return_rsqrt, pmul(a_poisoned, rsqrt), por(a, negative_mask));
+    return pselect(return_rsqrt, pmul(a_poisoned, rsqrt), a_poisoned);
   }
 };
-
-
 
 /** \internal \returns the hyperbolic tan of \a a (coeff-wise)
     Doesn't do anything fancy, just a 13/6-degree rational interpolant which

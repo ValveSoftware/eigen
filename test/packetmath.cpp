@@ -657,6 +657,72 @@ Scalar log2(Scalar x) {
   return Scalar(EIGEN_LOG2E) * std::log(x);
 }
 
+// TODO(rmlarsen): Run this test for more functions.
+template <bool Cond, typename Scalar, typename Packet, typename REF_FUNCTOR_T, typename FUNCTOR_T>
+void packetmath_test_IEEE_corner_cases(const REF_FUNCTOR_T& ref_fun,
+                                       const FUNCTOR_T& fun) {
+  const int PacketSize = internal::unpacket_traits<Packet>::size;
+  const Scalar norm_min = (std::numeric_limits<Scalar>::min)();
+
+  constexpr int size = PacketSize * 2;
+  EIGEN_ALIGN_MAX Scalar data1[size];
+  EIGEN_ALIGN_MAX Scalar data2[size];
+  EIGEN_ALIGN_MAX Scalar ref[size];
+  for (int i = 0; i < size; ++i) {
+    data1[i] = data2[i] = ref[i] = Scalar(0);
+  }
+
+  // Test for subnormals.
+  if (std::numeric_limits<Scalar>::has_denorm == std::denorm_present) {
+
+    // When EIGEN_FAST_MATH is 1 we relax the conditions slightly, and allow the function
+    // to return the same value for subnormals as the reference would return for zero with
+    // the same sign as the input.
+    // TODO(rmlarsen): Currently we ignore the error that occurs if the input is equal to
+    // denorm_min. Specifically, the term 0.5*x in the Newton iteration for reciprocal sqrt
+    // underflows to zero and the result ends up a factor of 2 too large.
+#if EIGEN_FAST_MATH
+    // TODO(rmlarsen): Remove factor of 2 here if we can fix the underflow in reciprocal sqrt.
+    data1[0] = Scalar(2) * std::numeric_limits<Scalar>::denorm_min();
+    data1[1] = -data1[0];
+    test::packet_helper<Cond, Packet> h;
+    h.store(data2, fun(h.load(data1)));
+    for (int i=0; i < 2; ++i) {
+      const Scalar ref_zero = ref_fun(data1[i] < 0 ? -Scalar(0) : Scalar(0));
+      const Scalar ref_val = ref_fun(data1[i]);
+      // TODO(rmlarsen): Remove debug cruft.
+      //      std::cerr << "x = " << data1[i] << "y = " << data2[i] << ", ref_val = " << ref_val << ", ref_zero " << ref_zero << std::endl;
+      VERIFY(((std::isnan)(data2[i]) && (std::isnan)(ref_val)) || data2[i] == ref_zero ||
+             verifyIsApprox(data2[i], ref_val));
+    }
+#else
+    data1[0] = std::numeric_limits<Scalar>::denorm_min();
+    data1[1] = -data1[0];
+    CHECK_CWISE1_IF(Cond, ref_fun, fun);
+#endif
+  }
+
+  // Test for smallest normalized floats.
+  data1[0] = norm_min;
+  data1[1] = -data1[0];
+  CHECK_CWISE1_IF(Cond, ref_fun, fun);
+
+  // Test for zeros.
+  data1[0] = Scalar(0.0);
+  data1[1] = -data1[0];
+  CHECK_CWISE1_IF(Cond, ref_fun, fun);
+
+  // Test for infinities.
+  data1[0] = NumTraits<Scalar>::infinity();
+  data1[1] = -data1[0];
+  CHECK_CWISE1_IF(Cond, ref_fun, fun);
+
+  // Test for quiet NaNs.
+  data1[0] = std::numeric_limits<Scalar>::quiet_NaN();
+  data1[1] = -std::numeric_limits<Scalar>::quiet_NaN();
+  CHECK_CWISE1_IF(Cond, ref_fun, fun);
+}
+
 template <typename Scalar, typename Packet>
 void packetmath_real() {
   typedef internal::packet_traits<Scalar> PacketTraits;
@@ -947,33 +1013,8 @@ void packetmath_real() {
       VERIFY((numext::isnan)(data2[1]));
     }
 
-    if (PacketTraits::HasSqrt) {
-      data1[0] = Scalar(-1.0f);
-      if (std::numeric_limits<Scalar>::has_denorm == std::denorm_present) {
-        data1[1] = -std::numeric_limits<Scalar>::denorm_min();
-      } else {
-        data1[1] = -((std::numeric_limits<Scalar>::min)());
-      }
-      CHECK_CWISE1_IF(PacketTraits::HasSqrt, numext::sqrt, internal::psqrt);
-
-      data1[0] = Scalar(0.0f);
-      data1[1] = NumTraits<Scalar>::infinity();
-      CHECK_CWISE1_IF(PacketTraits::HasSqrt, numext::sqrt, internal::psqrt);
-    }
-
-    if (PacketTraits::HasRsqrt) {
-      data1[0] = Scalar(-1.0f);
-      if (std::numeric_limits<Scalar>::has_denorm == std::denorm_present) {
-        data1[1] = -std::numeric_limits<Scalar>::denorm_min();
-      } else {
-        data1[1] = -((std::numeric_limits<Scalar>::min)());
-      }
-      CHECK_CWISE1_IF(PacketTraits::HasRsqrt, numext::rsqrt, internal::prsqrt);
-
-      data1[0] = Scalar(0.0f);
-      data1[1] = NumTraits<Scalar>::infinity();
-      CHECK_CWISE1_IF(PacketTraits::HasRsqrt, numext::rsqrt, internal::prsqrt);
-    }
+    packetmath_test_IEEE_corner_cases<PacketTraits::HasSqrt, Scalar, Packet>(numext::sqrt<Scalar>, internal::psqrt<Packet>);
+    packetmath_test_IEEE_corner_cases<PacketTraits::HasRsqrt, Scalar, Packet>(numext::rsqrt<Scalar>, internal::prsqrt<Packet>);
 
     // TODO(rmlarsen): Re-enable for half and bfloat16.
     if (PacketTraits::HasCos

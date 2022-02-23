@@ -75,29 +75,19 @@ Packet4f pcos<Packet4f>(const Packet4f& _x)
   return pcos_float(_x);
 }
 
-#if EIGEN_FAST_MATH
-template<>
-EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
-Packet4f psqrt<Packet4f>(const Packet4f& _x)
-{
-  return generic_sqrt_newton_step<Packet4f>::run(_x, _mm_rsqrt_ps(_x));
-}
-
-#else
-
+// Notice that for newer processors, it is counterproductive to use Newton
+// iteration for square root. In particular, Skylake and Zen2 processors
+// have approximately doubled throughput of the _mm_sqrt_ps instruction
+// compared to their predecessors.
 template<>EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
 Packet4f psqrt<Packet4f>(const Packet4f& x) { return _mm_sqrt_ps(x); }
-
-#endif
-
 template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
 Packet2d psqrt<Packet2d>(const Packet2d& x) { return _mm_sqrt_pd(x); }
-
 template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
 Packet16b psqrt<Packet16b>(const Packet16b& x) { return x; }
 
 #if EIGEN_FAST_MATH
-
+// Even on Skylake, using Newton iteration is a win for reciprocal square root.
 template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
 Packet4f prsqrt<Packet4f>(const Packet4f& x) {
   return generic_rsqrt_newton_step<Packet4f, /*Steps=*/1>::run(x, _mm_rsqrt_ps(x));
@@ -105,7 +95,7 @@ Packet4f prsqrt<Packet4f>(const Packet4f& x) {
 
 #ifdef EIGEN_VECTORIZE_FMA
 // Trying to speed up reciprocal using Newton-Raphson is counterproductive
-// unless FMA is available. Without FMA pdiv(pset1<Packet>(Scalar(1),a) is
+// unless FMA is available. Without FMA pdiv(pset1<Packet>(Scalar(1),a)) is
 // 30% faster.
 template<> EIGEN_STRONG_INLINE Packet4f preciprocal<Packet4f>(const Packet4f& x) {
   return generic_reciprocal_newton_step<Packet4f, /*Steps=*/1>::run(x, _mm_rcp_ps(x));

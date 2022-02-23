@@ -89,28 +89,22 @@ pexp<Packet4d>(const Packet4d& _x) {
   return pexp_double(_x);
 }
 
-#if EIGEN_FAST_MATH
 
-template <>
-EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
-Packet8f psqrt<Packet8f>(const Packet8f& _x) {
-  return generic_sqrt_newton_step<Packet8f>::run(_x, _mm256_rsqrt_ps(_x));
-}
-
-#else
-
+// Notice that for newer processors, it is counterproductive to use Newton
+// iteration for square root. In particular, Skylake and Zen2 processors
+// have approximately doubled throughput of the _mm_sqrt_ps instruction
+// compared to their predecessors.
 template <> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
 Packet8f psqrt<Packet8f>(const Packet8f& _x) {
   return _mm256_sqrt_ps(_x);
 }
-
-#endif
-
 template <> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
 Packet4d psqrt<Packet4d>(const Packet4d& _x) {
   return _mm256_sqrt_pd(_x);
 }
 
+
+// Even on Skylake, using Newton iteration is a win for reciprocal square root.
 #if EIGEN_FAST_MATH
 template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
 Packet8f prsqrt<Packet8f>(const Packet8f& a) {
