@@ -377,10 +377,10 @@ template <typename Scalar, typename Packet>
 void packetmath_minus_zero_add() {
   const int PacketSize = internal::unpacket_traits<Packet>::size;
   const int size = 2 * PacketSize;
-  EIGEN_ALIGN_MAX Scalar data1[size];
-  EIGEN_ALIGN_MAX Scalar data2[size];
-  EIGEN_ALIGN_MAX Scalar ref[size];
-
+  EIGEN_ALIGN_MAX Scalar data1[size] = {};
+  EIGEN_ALIGN_MAX Scalar data2[size] = {};
+  EIGEN_ALIGN_MAX Scalar ref[size] = {};
+  
   for (int i = 0; i < PacketSize; ++i) {
     data1[i] = Scalar(-0.0);
     data1[i + PacketSize] = Scalar(-0.0);
