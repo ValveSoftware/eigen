@@ -13,8 +13,10 @@
 // We explicitly disable deprecated declarations for this set of tests
 // because we purposely verify assertions for the deprecated SVD runtime
 // option behavior.
-#ifdef __GNUC__
+#if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#elif defined(_MSC_VER)
+#pragma warning( disable : 4996 )
 #endif
 
 // discard stack allocation as that too bypasses malloc
