@@ -76,6 +76,12 @@ inline T REF_FREXP(const T& x, T& exp) {
   EIGEN_USING_STD(frexp)
   const T out = static_cast<T>(frexp(x, &iexp));
   exp = static_cast<T>(iexp);
+  
+  // The exponent value is unspecified if the input is inf or NaN, but MSVC
+  // seems to set it to 1.  We need to set it back to zero for consistency.
+  if (!(numext::isfinite)(x)) {
+    exp = T(0);
+  }
   return out;
 }
 
