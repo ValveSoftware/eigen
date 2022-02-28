@@ -106,7 +106,8 @@ void msvc_workaround()
 {
   const Foo::Bar a;
   const Foo::Bar b;
-  std::max EIGEN_NOT_A_MACRO (a,b);
+  const Foo::Bar c = std::max EIGEN_NOT_A_MACRO (a,b);
+  EIGEN_UNUSED_VARIABLE(c)
 }
 
 EIGEN_DECLARE_TEST(jacobisvd)

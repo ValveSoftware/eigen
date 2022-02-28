@@ -113,9 +113,8 @@ void svd_least_square(const MatrixType& m) {
   RhsType rhs = RhsType::Random(rows, internal::random<Index>(1, cols));
   SvdType svd(m);
 
-  if (internal::is_same<RealScalar, double>::value)
-    svd.setThreshold(1e-8);
-  else if(internal::is_same<RealScalar,float>::value)  svd.setThreshold(2e-4);
+  if (internal::is_same<RealScalar, double>::value)  svd.setThreshold(RealScalar(1e-8));
+  else if(internal::is_same<RealScalar,float>::value)  svd.setThreshold(RealScalar(2e-4));
 
   SolutionType x = svd.solve(rhs);
    

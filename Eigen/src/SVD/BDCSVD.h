@@ -75,7 +75,7 @@ struct allocate_small_svd<MatrixType, 0> {
  *
  * \tparam MatrixType_ the type of the matrix of which we are computing the SVD decomposition
  *
- * \tparam Options this optional parameter allows one to specify options for computing unitaries \a U and \a V.
+ * \tparam Options_ this optional parameter allows one to specify options for computing unitaries \a U and \a V.
  *                  Possible values are #ComputeThinU, #ComputeThinV, #ComputeFullU, #ComputeFullV.
  *                  It is not possible to request both the thin and full version of \a U or \a V.
  *                  By default, unitaries are not computed.
@@ -93,8 +93,8 @@ struct allocate_small_svd<MatrixType, 0> {
  *
  * \sa class JacobiSVD
  */
-template <typename MatrixType_, int Options>
-class BDCSVD : public SVDBase<BDCSVD<MatrixType_, Options> > {
+template <typename MatrixType_, int Options_>
+class BDCSVD : public SVDBase<BDCSVD<MatrixType_, Options_> > {
   typedef SVDBase<BDCSVD> Base;
 
 public:
@@ -104,17 +104,19 @@ public:
   using Base::computeV;
 
   typedef MatrixType_ MatrixType;
-  typedef typename MatrixType::Scalar Scalar;
-  typedef typename NumTraits<typename MatrixType::Scalar>::Real RealScalar;
+  typedef typename Base::Scalar Scalar;
+  typedef typename Base::RealScalar RealScalar;
   typedef typename NumTraits<RealScalar>::Literal Literal;
+  
   enum {
-    RowsAtCompileTime = MatrixType::RowsAtCompileTime,
-    ColsAtCompileTime = MatrixType::ColsAtCompileTime,
-    DiagSizeAtCompileTime = internal::min_size_prefer_dynamic(RowsAtCompileTime, ColsAtCompileTime),
-    MaxRowsAtCompileTime = MatrixType::MaxRowsAtCompileTime,
-    MaxColsAtCompileTime = MatrixType::MaxColsAtCompileTime,
-    MaxDiagSizeAtCompileTime = internal::min_size_prefer_fixed(MaxRowsAtCompileTime, MaxColsAtCompileTime),
-    MatrixOptions = MatrixType::Options
+    Options = Options_,
+    RowsAtCompileTime = Base::RowsAtCompileTime,
+    ColsAtCompileTime = Base::ColsAtCompileTime,
+    DiagSizeAtCompileTime = Base::DiagSizeAtCompileTime,
+    MaxRowsAtCompileTime = Base::MaxRowsAtCompileTime,
+    MaxColsAtCompileTime = Base::MaxColsAtCompileTime,
+    MaxDiagSizeAtCompileTime = Base::MaxDiagSizeAtCompileTime,
+    MatrixOptions = Base::MatrixOptions
   };
 
   typedef typename Base::MatrixUType MatrixUType;

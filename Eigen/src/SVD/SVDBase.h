@@ -32,10 +32,10 @@ constexpr int get_qr_preconditioner(int options) { return options & QRPreconditi
 
 constexpr int get_computation_options(int options) { return options & ComputationOptionsBits; }
 
-constexpr int should_svd_compute_thin_u(int options) { return options & ComputeThinU; }
-constexpr int should_svd_compute_full_u(int options) { return options & ComputeFullU; }
-constexpr int should_svd_compute_thin_v(int options) { return options & ComputeThinV; }
-constexpr int should_svd_compute_full_v(int options) { return options & ComputeFullV; }
+constexpr bool should_svd_compute_thin_u(int options) { return (options & ComputeThinU) != 0; }
+constexpr bool should_svd_compute_full_u(int options) { return (options & ComputeFullU) != 0; }
+constexpr bool should_svd_compute_thin_v(int options) { return (options & ComputeThinV) != 0; }
+constexpr bool should_svd_compute_full_v(int options) { return (options & ComputeFullV) != 0; }
 
 template<typename MatrixType, int Options>
 void check_svd_options_assertions(unsigned int computationOptions, Index rows, Index cols) {
@@ -61,8 +61,9 @@ template<typename Derived> struct traits<SVDBase<Derived> >
   enum { Flags = 0 };
 };
 
-template <typename MatrixType, int Options>
+template <typename MatrixType, int Options_>
 struct svd_traits : traits<MatrixType> {
+  static constexpr int Options = Options_;
   static constexpr bool ShouldComputeFullU = internal::should_svd_compute_full_u(Options);
   static constexpr bool ShouldComputeThinU = internal::should_svd_compute_thin_u(Options);
   static constexpr bool ShouldComputeFullV = internal::should_svd_compute_full_v(Options);

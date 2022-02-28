@@ -510,23 +510,24 @@ struct traits<JacobiSVD<MatrixType_, Options> > : svd_traits<MatrixType_, Option
  *
  * \sa MatrixBase::jacobiSvd()
  */
-template <typename MatrixType_, int Options>
-class JacobiSVD : public SVDBase<JacobiSVD<MatrixType_, Options> > {
+template <typename MatrixType_, int Options_>
+class JacobiSVD : public SVDBase<JacobiSVD<MatrixType_, Options_> > {
   typedef SVDBase<JacobiSVD> Base;
 
  public:
   typedef MatrixType_ MatrixType;
-  typedef typename MatrixType::Scalar Scalar;
-  typedef typename NumTraits<typename MatrixType::Scalar>::Real RealScalar;
+  typedef typename Base::Scalar Scalar;
+  typedef typename Base::RealScalar RealScalar;
   enum {
+    Options = Options_,
     QRPreconditioner = internal::get_qr_preconditioner(Options),
-    RowsAtCompileTime = MatrixType::RowsAtCompileTime,
-    ColsAtCompileTime = MatrixType::ColsAtCompileTime,
-    DiagSizeAtCompileTime = internal::min_size_prefer_dynamic(RowsAtCompileTime, ColsAtCompileTime),
-    MaxRowsAtCompileTime = MatrixType::MaxRowsAtCompileTime,
-    MaxColsAtCompileTime = MatrixType::MaxColsAtCompileTime,
-    MaxDiagSizeAtCompileTime = internal::min_size_prefer_fixed(MaxRowsAtCompileTime, MaxColsAtCompileTime),
-    MatrixOptions = MatrixType::Options
+    RowsAtCompileTime = Base::RowsAtCompileTime,
+    ColsAtCompileTime = Base::ColsAtCompileTime,
+    DiagSizeAtCompileTime = Base::DiagSizeAtCompileTime,
+    MaxRowsAtCompileTime = Base::MaxRowsAtCompileTime,
+    MaxColsAtCompileTime = Base::MaxColsAtCompileTime,
+    MaxDiagSizeAtCompileTime = Base::MaxDiagSizeAtCompileTime,
+    MatrixOptions = Base::MatrixOptions
   };
 
   typedef typename Base::MatrixUType MatrixUType;
@@ -591,7 +592,7 @@ class JacobiSVD : public SVDBase<JacobiSVD<MatrixType_, Options> > {
    * \deprecated Will be removed in the next major Eigen version. Options should
    * be specified in the \a Options template parameter.
    */
-  EIGEN_DEPRECATED
+  // EIGEN_DEPRECATED // TODO(cantonios): re-enable after fixing a few 3p libraries that error on deprecation warnings.
   JacobiSVD(const MatrixType& matrix, unsigned int computationOptions) {
     internal::check_svd_options_assertions<MatrixType, Options>(computationOptions, matrix.rows(), matrix.cols());
     compute_impl(matrix, computationOptions);
@@ -655,9 +656,9 @@ class JacobiSVD : public SVDBase<JacobiSVD<MatrixType_, Options> > {
                       "JacobiSVD: can't compute thin U or thin V with the FullPivHouseholderQR preconditioner. "
                       "Use the ColPivHouseholderQR preconditioner instead.")
 
-  template <typename MatrixType__, int Options_, bool IsComplex_>
+  template <typename MatrixType__, int Options__, bool IsComplex_>
   friend struct internal::svd_precondition_2x2_block_to_be_real;
-  template <typename MatrixType__, int Options_, int QRPreconditioner_, int Case_, bool DoAnything_>
+  template <typename MatrixType__, int Options__, int QRPreconditioner_, int Case_, bool DoAnything_>
   friend struct internal::qr_preconditioner_impl;
 
   internal::qr_preconditioner_impl<MatrixType, Options, QRPreconditioner, internal::PreconditionIfMoreColsThanRows>
