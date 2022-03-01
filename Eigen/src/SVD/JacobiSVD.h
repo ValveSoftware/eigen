@@ -518,6 +518,7 @@ class JacobiSVD : public SVDBase<JacobiSVD<MatrixType_, Options_> > {
   typedef MatrixType_ MatrixType;
   typedef typename Base::Scalar Scalar;
   typedef typename Base::RealScalar RealScalar;
+  typedef typename Base::Index Index;
   enum {
     Options = Options_,
     QRPreconditioner = internal::get_qr_preconditioner(Options),
@@ -670,7 +671,7 @@ class JacobiSVD : public SVDBase<JacobiSVD<MatrixType_, Options_> > {
 };
 
 template <typename MatrixType, int Options>
-void JacobiSVD<MatrixType, Options>::allocate(Eigen::Index rows, Eigen::Index cols, unsigned int computationOptions) {
+void JacobiSVD<MatrixType, Options>::allocate(Index rows, Index cols, unsigned int computationOptions) {
   if (Base::allocate(rows, cols, computationOptions)) return;
 
   eigen_assert(!(ShouldComputeThinU && int(QRPreconditioner) == int(FullPivHouseholderQRPreconditioner)) &&

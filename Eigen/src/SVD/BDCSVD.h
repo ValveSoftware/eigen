@@ -107,7 +107,7 @@ public:
   typedef typename Base::Scalar Scalar;
   typedef typename Base::RealScalar RealScalar;
   typedef typename NumTraits<RealScalar>::Literal Literal;
-  
+  typedef typename Base::Index Index;
   enum {
     Options = Options_,
     RowsAtCompileTime = Base::RowsAtCompileTime,
@@ -271,7 +271,7 @@ private:
 
 // Method to allocate and initialize matrix and attributes
 template <typename MatrixType, int Options>
-void BDCSVD<MatrixType, Options>::allocate(Eigen::Index rows, Eigen::Index cols, unsigned int computationOptions) {
+void BDCSVD<MatrixType, Options>::allocate(Index rows, Index cols, unsigned int computationOptions) {
   if (Base::allocate(rows, cols, computationOptions))
     return;
 
@@ -477,8 +477,8 @@ void BDCSVD<MatrixType, Options>::computeBaseCase(SVDType& svd, Index n, Index f
 //@param shift : Each time one takes the left submatrix, one must add 1 to the shift. Why? Because! We actually want the last column of the U submatrix
 // to become the first column (*coeff) and to shift all the other columns to the right. There are more details on the reference paper.
 template <typename MatrixType, int Options>
-void BDCSVD<MatrixType, Options>::divide(Eigen::Index firstCol, Eigen::Index lastCol, Eigen::Index firstRowW,
-                                         Eigen::Index firstColW, Eigen::Index shift) {
+void BDCSVD<MatrixType, Options>::divide(Index firstCol, Index lastCol, Index firstRowW,
+                                         Index firstColW, Index shift) {
   // requires rows = cols + 1;
   using std::pow;
   using std::sqrt;
@@ -655,7 +655,7 @@ void BDCSVD<MatrixType, Options>::divide(Eigen::Index firstCol, Eigen::Index las
 // handling of round-off errors, be consistent in ordering
 // For instance, to solve the secular equation using FMM, see http://www.stat.uchicago.edu/~lekheng/courses/302/classics/greengard-rokhlin.pdf
 template <typename MatrixType, int Options>
-void BDCSVD<MatrixType, Options>::computeSVDofM(Eigen::Index firstCol, Eigen::Index n, MatrixXr& U,
+void BDCSVD<MatrixType, Options>::computeSVDofM(Index firstCol, Index n, MatrixXr& U,
                                                 VectorType& singVals, MatrixXr& V) {
   const RealScalar considerZero = (std::numeric_limits<RealScalar>::min)();
   using std::abs;
@@ -1174,8 +1174,8 @@ void BDCSVD<MatrixType, Options>::computeSingVecs(const ArrayRef& zhat, const Ar
 // i >= 1, di almost null and zi non null.
 // We use a rotation to zero out zi applied to the left of M
 template <typename MatrixType, int Options>
-void BDCSVD<MatrixType, Options>::deflation43(Eigen::Index firstCol, Eigen::Index shift, Eigen::Index i,
-                                              Eigen::Index size) {
+void BDCSVD<MatrixType, Options>::deflation43(Index firstCol, Index shift, Index i,
+                                              Index size) {
   using std::abs;
   using std::sqrt;
   using std::pow;
@@ -1202,9 +1202,9 @@ void BDCSVD<MatrixType, Options>::deflation43(Eigen::Index firstCol, Eigen::Inde
 // We apply two rotations to have zj = 0;
 // TODO deflation44 is still broken and not properly tested
 template <typename MatrixType, int Options>
-void BDCSVD<MatrixType, Options>::deflation44(Eigen::Index firstColu, Eigen::Index firstColm, Eigen::Index firstRowW,
-                                              Eigen::Index firstColW, Eigen::Index i, Eigen::Index j,
-                                              Eigen::Index size) {
+void BDCSVD<MatrixType, Options>::deflation44(Index firstColu, Index firstColm, Index firstRowW,
+                                              Index firstColW, Index i, Index j,
+                                              Index size) {
   using std::abs;
   using std::sqrt;
   using std::conj;
@@ -1242,8 +1242,8 @@ void BDCSVD<MatrixType, Options>::deflation44(Eigen::Index firstColu, Eigen::Ind
 
 // acts on block from (firstCol+shift, firstCol+shift) to (lastCol+shift, lastCol+shift) [inclusive]
 template <typename MatrixType, int Options>
-void BDCSVD<MatrixType, Options>::deflation(Eigen::Index firstCol, Eigen::Index lastCol, Eigen::Index k,
-                                            Eigen::Index firstRowW, Eigen::Index firstColW, Eigen::Index shift) {
+void BDCSVD<MatrixType, Options>::deflation(Index firstCol, Index lastCol, Index k,
+                                            Index firstRowW, Index firstColW, Index shift) {
   using std::sqrt;
   using std::abs;
   const Index length = lastCol + 1 - firstCol;
