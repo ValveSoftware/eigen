@@ -682,6 +682,7 @@ void packetmath_test_IEEE_corner_cases(const RefFunctorT& ref_fun,
                                        const FunctorT& fun) {
   const int PacketSize = internal::unpacket_traits<Packet>::size;
   const Scalar norm_min = (std::numeric_limits<Scalar>::min)();
+  const Scalar norm_max = (std::numeric_limits<Scalar>::max)();
 
   constexpr int size = PacketSize * 2;
   EIGEN_ALIGN_MAX Scalar data1[size];
@@ -694,35 +695,34 @@ void packetmath_test_IEEE_corner_cases(const RefFunctorT& ref_fun,
   // Test for subnormals.
   if (std::numeric_limits<Scalar>::has_denorm == std::denorm_present) {
 
-    // When EIGEN_FAST_MATH is 1 we relax the conditions slightly, and allow the function
-    // to return the same value for subnormals as the reference would return for zero with
-    // the same sign as the input.
-    // TODO(rmlarsen): Currently we ignore the error that occurs if the input is equal to
-    // denorm_min. Specifically, the term 0.5*x in the Newton iteration for reciprocal sqrt
-    // underflows to zero and the result ends up a factor of 2 too large.
-#if EIGEN_FAST_MATH
-    // TODO(rmlarsen): Remove factor of 2 here if we can fix the underflow in reciprocal sqrt.
-    data1[0] = Scalar(2) * std::numeric_limits<Scalar>::denorm_min();
-    data1[1] = -data1[0];
-    test::packet_helper<Cond, Packet> h;
-    h.store(data2, fun(h.load(data1)));
-    for (int i=0; i < 2; ++i) {
-      const Scalar ref_zero = ref_fun(data1[i] < 0 ? -Scalar(0) : Scalar(0));
-      const Scalar ref_val = ref_fun(data1[i]);
-      // TODO(rmlarsen): Remove debug cruft.
-      //      std::cerr << "x = " << data1[i] << "y = " << data2[i] << ", ref_val = " << ref_val << ", ref_zero " << ref_zero << std::endl;
-      VERIFY(((std::isnan)(data2[i]) && (std::isnan)(ref_val)) || data2[i] == ref_zero ||
-             verifyIsApprox(data2[i], ref_val));
+    for (int scale = 1; scale < 5; ++scale) {
+      // When EIGEN_FAST_MATH is 1 we relax the conditions slightly, and allow the function
+      // to return the same value for subnormals as the reference would return for zero with
+      // the same sign as the input.
+      #if EIGEN_FAST_MATH
+        data1[0] = Scalar(scale) * std::numeric_limits<Scalar>::denorm_min();
+        data1[1] = -data1[0];
+        test::packet_helper<Cond, Packet> h;
+        h.store(data2, fun(h.load(data1)));
+        for (int i=0; i < PacketSize; ++i) {
+          const Scalar ref_zero = ref_fun(data1[i] < 0 ? -Scalar(0) : Scalar(0));
+          const Scalar ref_val = ref_fun(data1[i]);
+          VERIFY(((std::isnan)(data2[i]) && (std::isnan)(ref_val)) || data2[i] == ref_zero ||
+                verifyIsApprox(data2[i], ref_val));
+        }
+      #else
+        CHECK_CWISE1_IF(Cond, ref_fun, fun);
+      #endif
     }
-#else
-    data1[0] = std::numeric_limits<Scalar>::denorm_min();
-    data1[1] = -data1[0];
-    CHECK_CWISE1_IF(Cond, ref_fun, fun);
-#endif
   }
 
   // Test for smallest normalized floats.
   data1[0] = norm_min;
+  data1[1] = -data1[0];
+  CHECK_CWISE1_IF(Cond, ref_fun, fun);
+  
+  // Test for largest floats.
+  data1[0] = norm_max;
   data1[1] = -data1[0];
   CHECK_CWISE1_IF(Cond, ref_fun, fun);
 

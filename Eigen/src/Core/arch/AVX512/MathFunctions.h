@@ -207,44 +207,16 @@ BF16_PACKET_FUNCTION(Packet16f, Packet16bf, prsqrt)
 template <>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED Packet8d
 prsqrt<Packet8d>(const Packet8d& _x) {
-  EIGEN_DECLARE_CONST_Packet8d(one_point_five, 1.5);
-  EIGEN_DECLARE_CONST_Packet8d(minus_half, -0.5);
-  EIGEN_DECLARE_CONST_Packet8d_FROM_INT64(inf, 0x7ff0000000000000LL);
-
-  Packet8d neg_half = pmul(_x, p8d_minus_half);
-
-  // Identity infinite, negative and denormal arguments.
-  __mmask8 inf_mask = _mm512_cmp_pd_mask(_x, p8d_inf, _CMP_EQ_OQ);
-  __mmask8 not_pos_mask = _mm512_cmp_pd_mask(_x, _mm512_setzero_pd(), _CMP_LE_OQ);
-  __mmask8 not_finite_pos_mask = not_pos_mask | inf_mask;
-
-  // Compute an approximate result using the rsqrt intrinsic, forcing +inf
-  // for denormals for consistency with AVX and SSE implementations.
-#if defined(EIGEN_VECTORIZE_AVX512ER)
-  Packet8d y_approx = _mm512_rsqrt28_pd(_x);
-#else
-  Packet8d y_approx = _mm512_rsqrt14_pd(_x);
-#endif
-  // Do one or two steps of Newton-Raphson's to improve the approximation, depending on the
-  // starting accuracy (either 2^-14 or 2^-28, depending on whether AVX512ER is available).
-  // The Newton-Raphson algorithm has quadratic convergence and roughly doubles the number
-  // of correct digits for each step.
-  // This uses the formula y_{n+1} = y_n * (1.5 - y_n * (0.5 * x) * y_n).
-  // It is essential to evaluate the inner term like this because forming
-  // y_n^2 may over- or underflow.
-  Packet8d y_newton = pmul(y_approx, pmadd(neg_half, pmul(y_approx, y_approx), p8d_one_point_five));
-#if !defined(EIGEN_VECTORIZE_AVX512ER)
-  y_newton = pmul(y_newton, pmadd(y_newton, pmul(neg_half, y_newton), p8d_one_point_five));
-#endif
-  // Select the result of the Newton-Raphson step for positive finite arguments.
-  // For other arguments, choose the output of the intrinsic. This will
-  // return rsqrt(+inf) = 0, rsqrt(x) = NaN if x < 0, and rsqrt(0) = +inf.
-  return _mm512_mask_blend_pd(not_finite_pos_mask, y_newton, y_approx);
+  #ifdef EIGEN_VECTORIZE_AVX512ER
+    return generic_rsqrt_newton_step<Packet8d, /*Steps=*/1>::run(_x, _mm512_rsqrt28_pd(_x));
+  #else
+    return generic_rsqrt_newton_step<Packet8d, /*Steps=*/2>::run(_x, _mm512_rsqrt14_pd(_x));
+  #endif
 }
 
 template<> EIGEN_STRONG_INLINE Packet16f preciprocal<Packet16f>(const Packet16f& a) {
 #ifdef EIGEN_VECTORIZE_AVX512ER
-  return _mm512_rcp28_ps(a));
+  return _mm512_rcp28_ps(a);
 #else
   return generic_reciprocal_newton_step<Packet16f, /*Steps=*/1>::run(a, _mm512_rcp14_ps(a));
 #endif

@@ -83,20 +83,20 @@ struct generic_rsqrt_newton_step {
     using Scalar = typename unpacket_traits<Packet>::type;
     const Packet one_point_five = pset1<Packet>(Scalar(1.5));
     const Packet minus_half = pset1<Packet>(Scalar(-0.5));
-    const Packet minus_half_a = pmul(minus_half, a);
-    const Scalar norm_min = (std::numeric_limits<Scalar>::min)();
-    const Packet denorm_mask = pcmp_lt(a, pset1<Packet>(norm_min));
-    Packet x =
-         generic_rsqrt_newton_step<Packet,Steps - 1>::run(a, approx_rsqrt);
-     const Packet tmp = pmul(minus_half_a, x);
-     // If tmp is NaN, it means that a is either 0 or Inf.
-     // In this case return the approximation directly. Do the same for
-     // positive subnormals. Otherwise return the Newton iterate.
-     const Packet return_x_newton = pandnot(pcmp_eq(tmp, tmp), denorm_mask);
+    
     // Refine the approximation using one Newton-Raphson step:
-    //   x_{n+1} = x_n * (1.5 - x_n * ((0.5 * a) * x_n)).
-     const Packet x_newton  = pmul(x, pmadd(tmp, x, one_point_five));
-     return pselect(return_x_newton, x_newton, x);
+    //   x_{n+1} = x_n * (1.5 + (-0.5 * x_n) * (a * x_n)).
+    // The approximation is expressed this way to avoid over/under-flows.  
+    Packet x_newton  = pmul(approx_rsqrt, pmadd(pmul(minus_half, approx_rsqrt), pmul(a, approx_rsqrt), one_point_five));
+    for (int step = 1; step < Steps; ++step) {
+      x_newton  = pmul(x_newton, pmadd(pmul(minus_half, x_newton), pmul(a, x_newton), one_point_five));
+    }
+    
+    // If approx_rsqrt is 0 or +/-inf, we should return it as is.  Note:
+    // on intel, approx_rsqrt can be inf for small denormal values.
+    const Packet return_approx = por(pcmp_eq(approx_rsqrt, pzero(a)),
+                                     pcmp_eq(pabs(approx_rsqrt), pset1<Packet>(NumTraits<Scalar>::infinity())));
+    return pselect(return_approx, approx_rsqrt, x_newton);
   }
 };
 
@@ -132,27 +132,21 @@ struct generic_sqrt_newton_step {
   run(const Packet& a, const Packet& approx_rsqrt) {
     using Scalar = typename unpacket_traits<Packet>::type;
     const Packet one_point_five = pset1<Packet>(Scalar(1.5));
-    const Packet negative_mask = pcmp_lt(a, pzero(a));
-    const Scalar norm_min = (std::numeric_limits<Scalar>::min)();
-    const Packet denorm_mask = pcmp_lt(a, pset1<Packet>(norm_min));
-    // Set negative arguments to NaN and positive subnormals to zero.
-    const Packet a_poisoned = por(pandnot(a, denorm_mask), negative_mask);
-    const Packet minus_half_a = pmul(a_poisoned, pset1<Packet>(Scalar(-0.5)));
-
+    const Packet minus_half = pset1<Packet>(Scalar(-0.5));
+    // If a is inf or zero, return a directly.
+    const Packet inf_mask = pcmp_eq(a, pset1<Packet>(NumTraits<Scalar>::infinity()));
+    const Packet return_a = por(pcmp_eq(a, pzero(a)), inf_mask);
     // Do a single step of Newton's iteration for reciprocal square root:
-    //   x_{n+1} = x_n * (1.5 - x_n * ((0.5 * a) * x_n)).
-    const Packet tmp = pmul(approx_rsqrt, minus_half_a);
-    // If tmp is NaN, it means that the argument was either 0 or +inf,
-    // and we should return the argument itself as the result.
-    const Packet return_rsqrt = pcmp_eq(tmp, tmp);
-    Packet rsqrt = pmul(approx_rsqrt, pmadd(tmp, approx_rsqrt, one_point_five));
+    //   x_{n+1} = x_n * (1.5 + (-0.5 * x_n) * (a * x_n))).
+    // The Newton's step is computed this way to avoid over/under-flows.
+    Packet rsqrt = pmul(approx_rsqrt, pmadd(pmul(minus_half, approx_rsqrt), pmul(a, approx_rsqrt), one_point_five));
     for (int step = 1; step < Steps; ++step) {
-      rsqrt = pmul(rsqrt, pmadd(pmul(rsqrt, minus_half_a), rsqrt, one_point_five));
+      rsqrt = pmul(rsqrt, pmadd(pmul(minus_half, rsqrt), pmul(a, rsqrt), one_point_five));
     }
 
     // Return sqrt(x) = x * rsqrt(x) for non-zero finite positive arguments.
     // Return a itself for 0 or +inf, NaN for negative arguments.
-    return pselect(return_rsqrt, pmul(a_poisoned, rsqrt), a_poisoned);
+    return pselect(return_a, a, pmul(a, rsqrt));
   }
 };
 

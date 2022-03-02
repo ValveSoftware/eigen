@@ -108,6 +108,12 @@ Packet4d psqrt<Packet4d>(const Packet4d& _x) {
 #if EIGEN_FAST_MATH
 template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
 Packet8f prsqrt<Packet8f>(const Packet8f& a) {
+  // _mm256_rsqrt_ps returns -inf for negative denormals.
+  // _mm512_rsqrt**_ps returns -NaN for negative denormals.  We may want
+  // consistency here.
+  // const Packet8f rsqrt = pselect(pcmp_lt(a, pzero(a)),
+  //                                pset1<Packet8f>(-NumTraits<float>::quiet_NaN()),
+  //                                _mm256_rsqrt_ps(a));
   return generic_rsqrt_newton_step<Packet8f, /*Steps=*/1>::run(a, _mm256_rsqrt_ps(a));
 }
 
