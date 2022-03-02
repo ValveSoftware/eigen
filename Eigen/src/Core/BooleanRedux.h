@@ -20,7 +20,7 @@ template<typename Derived, int UnrollCount, int InnerSize>
 struct all_unroller
 {
   enum {
-    IsRowMajor = (Derived::Flags & RowMajor),
+    IsRowMajor = (int(Derived::Flags) & int(RowMajor)),
     i = (UnrollCount-1) / InnerSize,
     j = (UnrollCount-1) % InnerSize
   };
@@ -47,7 +47,7 @@ template<typename Derived, int UnrollCount, int InnerSize>
 struct any_unroller
 {
   enum {
-    IsRowMajor = (Derived::Flags & RowMajor),
+    IsRowMajor = (int(Derived::Flags) & int(RowMajor)),
     i = (UnrollCount-1) / InnerSize,
     j = (UnrollCount-1) % InnerSize
   };
@@ -86,7 +86,7 @@ EIGEN_DEVICE_FUNC inline bool DenseBase<Derived>::all() const
   enum {
     unroll = SizeAtCompileTime != Dynamic
           && SizeAtCompileTime * (int(Evaluator::CoeffReadCost) + int(NumTraits<Scalar>::AddCost)) <= EIGEN_UNROLLING_LIMIT,
-    IsRowMajor = (internal::traits<Derived>::Flags & RowMajor),
+    IsRowMajor = (int(internal::traits<Derived>::Flags) & int(RowMajor)),
     InnerSizeAtCompileTime = IsRowMajor ? internal::traits<Derived>::ColsAtCompileTime : internal::traits<Derived>::RowsAtCompileTime
   };
   Evaluator evaluator(derived());
@@ -112,7 +112,7 @@ EIGEN_DEVICE_FUNC inline bool DenseBase<Derived>::any() const
   enum {
     unroll = SizeAtCompileTime != Dynamic
           && SizeAtCompileTime * (int(Evaluator::CoeffReadCost) + int(NumTraits<Scalar>::AddCost)) <= EIGEN_UNROLLING_LIMIT,
-    IsRowMajor = (internal::traits<Derived>::Flags & RowMajor),
+    IsRowMajor = (int(internal::traits<Derived>::Flags) & int(RowMajor)),
     InnerSizeAtCompileTime = IsRowMajor ? internal::traits<Derived>::ColsAtCompileTime : internal::traits<Derived>::RowsAtCompileTime
   };
   Evaluator evaluator(derived());
