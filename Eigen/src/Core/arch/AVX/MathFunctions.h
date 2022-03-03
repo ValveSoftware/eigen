@@ -21,47 +21,47 @@ namespace Eigen {
 namespace internal {
 
 template <>
-EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED Packet8f
+EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS Packet8f
 psin<Packet8f>(const Packet8f& _x) {
   return psin_float(_x);
 }
 
 template <>
-EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED Packet8f
+EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS Packet8f
 pcos<Packet8f>(const Packet8f& _x) {
   return pcos_float(_x);
 }
 
 template <>
-EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED Packet8f
+EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS Packet8f
 plog<Packet8f>(const Packet8f& _x) {
   return plog_float(_x);
 }
 
 template <>
-EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED Packet4d
+EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS Packet4d
 plog<Packet4d>(const Packet4d& _x) {
   return plog_double(_x);
 }
 
 template <>
-EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED Packet8f
+EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS Packet8f
 plog2<Packet8f>(const Packet8f& _x) {
   return plog2_float(_x);
 }
 
 template <>
-EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED Packet4d
+EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS Packet4d
 plog2<Packet4d>(const Packet4d& _x) {
   return plog2_double(_x);
 }
 
-template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
+template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
 Packet8f plog1p<Packet8f>(const Packet8f& _x) {
   return generic_plog1p(_x);
 }
 
-template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
+template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
 Packet8f pexpm1<Packet8f>(const Packet8f& _x) {
   return generic_expm1(_x);
 }
@@ -70,21 +70,21 @@ Packet8f pexpm1<Packet8f>(const Packet8f& _x) {
 // "m = floor(x/log(2)+1/2)" and "r" is the remainder. The result is then
 // "exp(x) = 2^m*exp(r)" where exp(r) is in the range [-1,1).
 template <>
-EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED Packet8f
+EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS Packet8f
 pexp<Packet8f>(const Packet8f& _x) {
   return pexp_float(_x);
 }
 
 // Hyperbolic Tangent function.
 template <>
-EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED Packet8f
+EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS Packet8f
 ptanh<Packet8f>(const Packet8f& _x) {
   return internal::generic_fast_tanh_float(_x);
 }
 
 // Exponential function for doubles.
 template <>
-EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED Packet4d
+EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS Packet4d
 pexp<Packet4d>(const Packet4d& _x) {
   return pexp_double(_x);
 }
@@ -94,11 +94,11 @@ pexp<Packet4d>(const Packet4d& _x) {
 // iteration for square root. In particular, Skylake and Zen2 processors
 // have approximately doubled throughput of the _mm_sqrt_ps instruction
 // compared to their predecessors.
-template <> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
+template <> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
 Packet8f psqrt<Packet8f>(const Packet8f& _x) {
   return _mm256_sqrt_ps(_x);
 }
-template <> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
+template <> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
 Packet4d psqrt<Packet4d>(const Packet4d& _x) {
   return _mm256_sqrt_pd(_x);
 }
@@ -106,7 +106,7 @@ Packet4d psqrt<Packet4d>(const Packet4d& _x) {
 
 // Even on Skylake, using Newton iteration is a win for reciprocal square root.
 #if EIGEN_FAST_MATH
-template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED
+template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
 Packet8f prsqrt<Packet8f>(const Packet8f& a) {
   // _mm256_rsqrt_ps returns -inf for negative denormals.
   // _mm512_rsqrt**_ps returns -NaN for negative denormals.  We may want

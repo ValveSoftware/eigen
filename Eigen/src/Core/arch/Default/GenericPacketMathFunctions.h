@@ -167,7 +167,6 @@ struct pldexp_fast_impl {
 //               polynomial interpolants -> ... -> profit!
 template <typename Packet, bool base2>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-EIGEN_UNUSED
 Packet plog_impl_float(const Packet _x)
 {
   const Packet cst_1              = pset1<Packet>(1.0f);
@@ -231,7 +230,6 @@ Packet plog_impl_float(const Packet _x)
 
 template <typename Packet>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-EIGEN_UNUSED
 Packet plog_float(const Packet _x)
 {
   return plog_impl_float<Packet, /* base2 */ false>(_x);
@@ -239,7 +237,6 @@ Packet plog_float(const Packet _x)
 
 template <typename Packet>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-EIGEN_UNUSED
 Packet plog2_float(const Packet _x)
 {
   return plog_impl_float<Packet, /* base2 */ true>(_x);
@@ -256,7 +253,6 @@ Packet plog2_float(const Packet _x)
  */
 template <typename Packet, bool base2>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-EIGEN_UNUSED
 Packet plog_impl_double(const Packet _x)
 {
   Packet x = _x;
@@ -347,7 +343,6 @@ Packet plog_impl_double(const Packet _x)
 
 template <typename Packet>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-EIGEN_UNUSED
 Packet plog_double(const Packet _x)
 {
   return plog_impl_double<Packet, /* base2 */ false>(_x);
@@ -355,7 +350,6 @@ Packet plog_double(const Packet _x)
 
 template <typename Packet>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-EIGEN_UNUSED
 Packet plog2_double(const Packet _x)
 {
   return plog_impl_double<Packet, /* base2 */ true>(_x);
@@ -412,7 +406,6 @@ Packet generic_expm1(const Packet& x)
 // exp(r) is computed using a 6th order minimax polynomial approximation.
 template <typename Packet>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-EIGEN_UNUSED
 Packet pexp_float(const Packet _x)
 {
   const Packet cst_zero   = pset1<Packet>(0.0f);
@@ -461,7 +454,6 @@ Packet pexp_float(const Packet _x)
 
 template <typename Packet>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-EIGEN_UNUSED
 Packet pexp_double(const Packet _x)
 {
   Packet x = _x;
@@ -594,7 +586,6 @@ inline float trig_reduce_huge (float xf, Eigen::numext::int32_t *quadrant)
 
 template<bool ComputeSine,typename Packet>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-EIGEN_UNUSED
 #if EIGEN_COMP_GNUC_STRICT
 __attribute__((optimize("-fno-unsafe-math-optimizations")))
 #endif
@@ -719,7 +710,6 @@ Packet psincos_float(const Packet& _x)
 
 template<typename Packet>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-EIGEN_UNUSED
 Packet psin_float(const Packet& x)
 {
   return psincos_float<true>(x);
@@ -727,7 +717,6 @@ Packet psin_float(const Packet& x)
 
 template<typename Packet>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-EIGEN_UNUSED
 Packet pcos_float(const Packet& x)
 {
   return psincos_float<false>(x);
@@ -735,7 +724,7 @@ Packet pcos_float(const Packet& x)
 
 template<typename Packet>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-EIGEN_UNUSED Packet pdiv_complex(const Packet& x, const Packet& y) {
+Packet pdiv_complex(const Packet& x, const Packet& y) {
   typedef typename unpacket_traits<Packet>::as_real RealPacket;
   // In the following we annotate the code for the case where the inputs
   // are a pair length-2 SIMD vectors representing a single pair of complex
@@ -756,7 +745,6 @@ EIGEN_UNUSED Packet pdiv_complex(const Packet& x, const Packet& y) {
 
 template<typename Packet>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-EIGEN_UNUSED
 Packet psqrt_complex(const Packet& a) {
   typedef typename unpacket_traits<Packet>::type Scalar;
   typedef typename Scalar::value_type RealScalar;
@@ -1441,7 +1429,6 @@ EIGEN_STRONG_INLINE Packet generic_pow_impl(const Packet& x, const Packet& y) {
 // Generic implementation of pow(x,y).
 template<typename Packet>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-EIGEN_UNUSED
 Packet generic_pow(const Packet& x, const Packet& y) {
   typedef typename unpacket_traits<Packet>::type Scalar;
 
