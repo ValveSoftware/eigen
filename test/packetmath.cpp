@@ -693,7 +693,7 @@ void packetmath_test_IEEE_corner_cases(const RefFunctorT& ref_fun,
   }
 
   // Test for subnormals.
-  if (std::numeric_limits<Scalar>::has_denorm == std::denorm_present) {
+  if (Cond && std::numeric_limits<Scalar>::has_denorm == std::denorm_present) {
 
     for (int scale = 1; scale < 5; ++scale) {
       // When EIGEN_FAST_MATH is 1 we relax the conditions slightly, and allow the function
