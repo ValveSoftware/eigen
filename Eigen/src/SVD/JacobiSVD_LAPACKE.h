@@ -42,12 +42,13 @@ namespace Eigen {
 #define EIGEN_LAPACKE_SVD(EIGTYPE, LAPACKE_TYPE, LAPACKE_RTYPE, LAPACKE_PREFIX, EIGCOLROW, LAPACKE_COLROW, OPTIONS) \
 template<> inline \
 JacobiSVD<Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW, Dynamic, Dynamic>, OPTIONS>& \
-JacobiSVD<Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW, Dynamic, Dynamic>, OPTIONS>::compute(const Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW, Dynamic, Dynamic>& matrix) \
+JacobiSVD<Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW, Dynamic, Dynamic>, OPTIONS>::compute_impl(const Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW, Dynamic, Dynamic>& matrix, \
+                                                                                                 unsigned int computationOptions) \
 { \
   typedef Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW, Dynamic, Dynamic> MatrixType; \
   /*typedef MatrixType::Scalar Scalar;*/ \
   /*typedef MatrixType::RealScalar RealScalar;*/ \
-  allocate(matrix.rows(), matrix.cols()); \
+  allocate(matrix.rows(), matrix.cols(), computationOptions); \
 \
   /*const RealScalar precision = RealScalar(2) * NumTraits<Scalar>::epsilon();*/ \
   m_nonzeroSingularValues = m_diagSize; \
@@ -56,14 +57,14 @@ JacobiSVD<Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW, Dynamic, Dynamic>, OPTION
   lapack_int matrix_order = LAPACKE_COLROW; \
   char jobu, jobvt; \
   LAPACKE_TYPE *u, *vt, dummy; \
-  jobu  = (ShouldComputeFullU) ? 'A' : (ShouldComputeThinU) ? 'S' : 'N'; \
-  jobvt = (ShouldComputeFullV) ? 'A' : (ShouldComputeThinV) ? 'S' : 'N'; \
+  jobu  = (m_computeFullU) ? 'A' : (m_computeThinU) ? 'S' : 'N'; \
+  jobvt = (m_computeFullV) ? 'A' : (m_computeThinV) ? 'S' : 'N'; \
   if (computeU()) { \
     ldu  = internal::convert_index<lapack_int>(m_matrixU.outerStride()); \
     u    = (LAPACKE_TYPE*)m_matrixU.data(); \
   } else { ldu=1; u=&dummy; }\
   MatrixType localV; \
-  lapack_int vt_rows = (ShouldComputeFullV) ? internal::convert_index<lapack_int>(m_cols) : (ShouldComputeThinV) ? internal::convert_index<lapack_int>(m_diagSize) : 1; \
+  lapack_int vt_rows = (m_computeFullV) ? internal::convert_index<lapack_int>(m_cols) : (m_computeThinV) ? internal::convert_index<lapack_int>(m_diagSize) : 1; \
   if (computeV()) { \
     localV.resize(vt_rows, m_cols); \
     ldvt  = internal::convert_index<lapack_int>(localV.outerStride()); \
