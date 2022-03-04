@@ -603,13 +603,13 @@ Packet psincos_float(const Packet& _x)
   // Scale x by 2/Pi to find x's octant.
   Packet y = pmul(x, cst_2oPI);
 
-  // Rounding trick:
+  // Rounding trick to find nearest integer:
   Packet y_round = padd(y, cst_rounding_magic);
   EIGEN_OPTIMIZATION_BARRIER(y_round)
   PacketI y_int = preinterpret<PacketI>(y_round); // last 23 digits represent integer (if abs(x)<2^24)
-  y = psub(y_round, cst_rounding_magic); // nearest integer to x*4/pi
+  y = psub(y_round, cst_rounding_magic); // nearest integer to x * (2/pi)
 
-  // Reduce x by y octants to get: -Pi/4 <= x <= +Pi/4
+  // Subtract y * Pi/2 to reduce x to the interval -Pi/4 <= x <= +Pi/4
   // using "Extended precision modular arithmetic"
   #if defined(EIGEN_HAS_SINGLE_INSTRUCTION_MADD)
   // This version requires true FMA for high accuracy
