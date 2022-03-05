@@ -148,7 +148,7 @@ template<typename Derived> class ArrayBase
       * \sa MatrixBase::array() */
     EIGEN_DEVICE_FUNC
     MatrixWrapper<Derived> matrix() { return MatrixWrapper<Derived>(derived()); }
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     const MatrixWrapper<const Derived> matrix() const { return MatrixWrapper<const Derived>(derived()); }
 
 //     template<typename Dest>

@@ -47,16 +47,16 @@ template<bool Conjugate> struct conj_if;
 
 template<> struct conj_if<true> {
   template<typename T>
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE T operator()(const T& x) const { return numext::conj(x); }
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR T operator()(const T& x) const { return numext::conj(x); }
   template<typename T>
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE T pconj(const T& x) const { return internal::pconj(x); }
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR T pconj(const T& x) const { return internal::pconj(x); }
 };
 
 template<> struct conj_if<false> {
   template<typename T>
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const T& operator()(const T& x) const { return x; }
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR const T& operator()(const T& x) const { return x; }
   template<typename T>
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const T& pconj(const T& x) const { return x; }
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR const T& pconj(const T& x) const { return x; }
 };
 
 // Generic Implementation, assume scalars since the packet-version is
@@ -93,11 +93,11 @@ template<typename Packet, bool ConjLhs, bool ConjRhs>
 struct conj_helper<Packet, Packet, ConjLhs, ConjRhs>
 {
   typedef Packet ResultType;
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet pmadd(const Packet& x, const Packet& y, const Packet& c) const
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR Packet pmadd(const Packet& x, const Packet& y, const Packet& c) const
   { return Eigen::internal::pmadd(conj_if<ConjLhs>().pconj(x), conj_if<ConjRhs>().pconj(y), c); }
 
 
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet pmul(const Packet& x, const Packet& y) const
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR Packet pmul(const Packet& x, const Packet& y) const
   { return Eigen::internal::pmul(conj_if<ConjLhs>().pconj(x), conj_if<ConjRhs>().pconj(y)); }
 };
 

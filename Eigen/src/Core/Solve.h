@@ -67,15 +67,15 @@ public:
   typedef typename internal::traits<Solve>::PlainObject PlainObject;
   typedef typename internal::traits<Solve>::StorageIndex StorageIndex;
 
-  Solve(const Decomposition &dec, const RhsType &rhs)
+  EIGEN_CONSTEXPR Solve(const Decomposition &dec, const RhsType &rhs)
     : m_dec(dec), m_rhs(rhs)
   {}
 
   EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR Index rows() const EIGEN_NOEXCEPT { return m_dec.cols(); }
   EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR Index cols() const EIGEN_NOEXCEPT { return m_rhs.cols(); }
 
-  EIGEN_DEVICE_FUNC const Decomposition& dec() const { return m_dec; }
-  EIGEN_DEVICE_FUNC const RhsType&       rhs() const { return m_rhs; }
+  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR const Decomposition& dec() const { return m_dec; }
+  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR const RhsType&       rhs() const { return m_rhs; }
 
 protected:
   const Decomposition &m_dec;
@@ -139,7 +139,7 @@ template<typename DstXprType, typename DecType, typename RhsType, typename Scala
 struct Assignment<DstXprType, Solve<DecType,RhsType>, internal::assign_op<Scalar,Scalar>, Dense2Dense>
 {
   typedef Solve<DecType,RhsType> SrcXprType;
-  static void run(DstXprType &dst, const SrcXprType &src, const internal::assign_op<Scalar,Scalar> &)
+  EIGEN_CONSTEXPR static void run(DstXprType &dst, const SrcXprType &src, const internal::assign_op<Scalar,Scalar> &)
   {
     Index dstRows = src.rows();
     Index dstCols = src.cols();

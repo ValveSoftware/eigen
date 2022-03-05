@@ -71,8 +71,8 @@ template<typename Scalar, bool IsComplex = NumTraits<Scalar>::IsComplex>
 struct real_default_impl
 {
   typedef typename NumTraits<Scalar>::Real RealScalar;
-  EIGEN_DEVICE_FUNC
-  static inline RealScalar run(const Scalar& x)
+  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+  static RealScalar run(const Scalar& x)
   {
     return x;
   }
@@ -82,8 +82,8 @@ template<typename Scalar>
 struct real_default_impl<Scalar,true>
 {
   typedef typename NumTraits<Scalar>::Real RealScalar;
-  EIGEN_DEVICE_FUNC
-  static inline RealScalar run(const Scalar& x)
+  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+  static RealScalar run(const Scalar& x)
   {
     using std::real;
     return real(x);
@@ -293,7 +293,7 @@ struct sign_retval
 template<typename Scalar, bool IsComplex = NumTraits<Scalar>::IsComplex>
 struct conj_default_impl
 {
-  EIGEN_DEVICE_FUNC
+  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
   static inline Scalar run(const Scalar& x)
   {
     return x;
@@ -303,7 +303,7 @@ struct conj_default_impl
 template<typename Scalar>
 struct conj_default_impl<Scalar,true>
 {
-  EIGEN_DEVICE_FUNC
+  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
   static inline Scalar run(const Scalar& x)
   {
     using std::conj;
@@ -328,7 +328,7 @@ template<typename Scalar,bool IsComplex>
 struct abs2_impl_default
 {
   typedef typename NumTraits<Scalar>::Real RealScalar;
-  EIGEN_DEVICE_FUNC
+  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
   static inline RealScalar run(const Scalar& x)
   {
     return x*x;
@@ -339,7 +339,7 @@ template<typename Scalar>
 struct abs2_impl_default<Scalar, true> // IsComplex
 {
   typedef typename NumTraits<Scalar>::Real RealScalar;
-  EIGEN_DEVICE_FUNC
+  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
   static inline RealScalar run(const Scalar& x)
   {
     return x.real()*x.real() + x.imag()*x.imag();
@@ -350,8 +350,8 @@ template<typename Scalar>
 struct abs2_impl
 {
   typedef typename NumTraits<Scalar>::Real RealScalar;
-  EIGEN_DEVICE_FUNC
-  static inline RealScalar run(const Scalar& x)
+  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+  static RealScalar run(const Scalar& x)
   {
     return abs2_impl_default<Scalar,NumTraits<Scalar>::IsComplex>::run(x);
   }
@@ -433,8 +433,8 @@ template<typename Scalar>
 struct norm1_default_impl<Scalar,true>
 {
   typedef typename NumTraits<Scalar>::Real RealScalar;
-  EIGEN_DEVICE_FUNC
-  static inline RealScalar run(const Scalar& x)
+  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+  static RealScalar run(const Scalar& x)
   {
     EIGEN_USING_STD(abs);
     return abs(x.real()) + abs(x.imag());
@@ -480,8 +480,8 @@ struct hypot_retval
 template<typename OldType, typename NewType, typename EnableIf = void>
 struct cast_impl
 {
-  EIGEN_DEVICE_FUNC
-  static inline NewType run(const OldType& x)
+  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+  static NewType run(const OldType& x)
   {
     return static_cast<NewType>(x);
   }
@@ -495,8 +495,8 @@ struct cast_impl<OldType, NewType,
     !NumTraits<OldType>::IsComplex && NumTraits<NewType>::IsComplex
   >>
 {
-  EIGEN_DEVICE_FUNC
-  static inline NewType run(const OldType& x)
+  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+  static NewType run(const OldType& x)
   {
     typedef typename NumTraits<NewType>::Real NewReal;
     return static_cast<NewType>(static_cast<NewReal>(x));
@@ -506,8 +506,8 @@ struct cast_impl<OldType, NewType,
 // here, for once, we're plainly returning NewType: we don't want cast to do weird things.
 
 template<typename OldType, typename NewType>
-EIGEN_DEVICE_FUNC
-inline NewType cast(const OldType& x)
+EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+NewType cast(const OldType& x)
 {
   return cast_impl<OldType, NewType>::run(x);
 }
@@ -1134,7 +1134,7 @@ namespace numext {
 
 #if (!defined(EIGEN_GPUCC) || defined(EIGEN_CONSTEXPR_ARE_DEVICE_FUNC))
 template<typename T>
-EIGEN_DEVICE_FUNC
+EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
 EIGEN_ALWAYS_INLINE T mini(const T& x, const T& y)
 {
   EIGEN_USING_STD(min)
@@ -1142,7 +1142,7 @@ EIGEN_ALWAYS_INLINE T mini(const T& x, const T& y)
 }
 
 template<typename T>
-EIGEN_DEVICE_FUNC
+EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
 EIGEN_ALWAYS_INLINE T maxi(const T& x, const T& y)
 {
   EIGEN_USING_STD(max)
@@ -1150,7 +1150,7 @@ EIGEN_ALWAYS_INLINE T maxi(const T& x, const T& y)
 }
 #else
 template<typename T>
-EIGEN_DEVICE_FUNC
+EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
 EIGEN_ALWAYS_INLINE T mini(const T& x, const T& y)
 {
   return y < x ? y : x;
@@ -1180,7 +1180,7 @@ EIGEN_ALWAYS_INLINE long double mini(const long double& x, const long double& y)
 }
 
 template<typename T>
-EIGEN_DEVICE_FUNC
+EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
 EIGEN_ALWAYS_INLINE T maxi(const T& x, const T& y)
 {
   return x < y ? y : x;
@@ -1281,8 +1281,8 @@ SYCL_SPECIALIZE_FLOATING_TYPES_BINARY(maxi, fmax)
 
 
 template<typename Scalar>
-EIGEN_DEVICE_FUNC
-inline EIGEN_MATHFUNC_RETVAL(real, Scalar) real(const Scalar& x)
+EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+EIGEN_MATHFUNC_RETVAL(real, Scalar) real(const Scalar& x)
 {
   return EIGEN_MATHFUNC_IMPL(real, Scalar)::run(x);
 }
@@ -1330,22 +1330,22 @@ inline EIGEN_MATHFUNC_RETVAL(imag_ref, Scalar) imag_ref(Scalar& x)
 }
 
 template<typename Scalar>
-EIGEN_DEVICE_FUNC
-inline EIGEN_MATHFUNC_RETVAL(conj, Scalar) conj(const Scalar& x)
+EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+EIGEN_MATHFUNC_RETVAL(conj, Scalar) conj(const Scalar& x)
 {
   return EIGEN_MATHFUNC_IMPL(conj, Scalar)::run(x);
 }
 
 template<typename Scalar>
-EIGEN_DEVICE_FUNC
-inline EIGEN_MATHFUNC_RETVAL(sign, Scalar) sign(const Scalar& x)
+EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+EIGEN_MATHFUNC_RETVAL(sign, Scalar) sign(const Scalar& x)
 {
   return EIGEN_MATHFUNC_IMPL(sign, Scalar)::run(x);
 }
 
 template<typename Scalar>
-EIGEN_DEVICE_FUNC
-inline EIGEN_MATHFUNC_RETVAL(abs2, Scalar) abs2(const Scalar& x)
+EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+EIGEN_MATHFUNC_RETVAL(abs2, Scalar) abs2(const Scalar& x)
 {
   return EIGEN_MATHFUNC_IMPL(abs2, Scalar)::run(x);
 }

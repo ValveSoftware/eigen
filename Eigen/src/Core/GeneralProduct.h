@@ -396,7 +396,7 @@ template<> struct gemv_dense_selector<OnTheRight,RowMajor,false>
   */
 template<typename Derived>
 template<typename OtherDerived>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
 const Product<Derived, OtherDerived>
 MatrixBase<Derived>::operator*(const MatrixBase<OtherDerived> &other) const
 {
@@ -439,7 +439,7 @@ MatrixBase<Derived>::operator*(const MatrixBase<OtherDerived> &other) const
   */
 template<typename Derived>
 template<typename OtherDerived>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
 const Product<Derived,OtherDerived,LazyProduct>
 MatrixBase<Derived>::lazyProduct(const MatrixBase<OtherDerived> &other) const
 {

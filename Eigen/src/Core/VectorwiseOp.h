@@ -63,7 +63,7 @@ class PartialReduxExpr : public internal::dense_xpr_base< PartialReduxExpr<Matri
     typedef typename internal::dense_xpr_base<PartialReduxExpr>::type Base;
     EIGEN_DENSE_PUBLIC_INTERFACE(PartialReduxExpr)
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     explicit PartialReduxExpr(const MatrixType& mat, const MemberOp& func = MemberOp())
       : m_matrix(mat), m_functor(func) {}
 
@@ -72,10 +72,10 @@ class PartialReduxExpr : public internal::dense_xpr_base< PartialReduxExpr<Matri
     EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     Index cols() const EIGEN_NOEXCEPT { return (Direction==Horizontal ? 1 : m_matrix.cols()); }
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     typename MatrixType::Nested nestedExpression() const { return m_matrix; }
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     const MemberOp& functor() const { return m_functor; }
 
   protected:
@@ -93,7 +93,7 @@ template<typename A,typename B> struct partial_redux_dummy_func;
     template<int Size> struct Cost { enum { value = COST }; };             \
     enum { Vectorizable = VECTORIZABLE };                                                   \
     template<typename XprType>                                                              \
-    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE                                                   \
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR                                   \
     ResultType operator()(const XprType& mat) const                                         \
     { return mat.MEMBER(); }                                                                \
     BinaryOp binaryFunc() const { return BinaryOp(); }                                      \
@@ -265,11 +265,11 @@ template<typename ExpressionType, int Direction> class VectorwiseOp
     }
 
   public:
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     explicit inline VectorwiseOp(ExpressionType& matrix) : m_matrix(matrix) {}
 
     /** \internal */
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     inline const ExpressionType& _expression() const { return m_matrix; }
 
     #ifdef EIGEN_PARSED_BY_DOXYGEN
@@ -476,7 +476,7 @@ template<typename ExpressionType, int Direction> class VectorwiseOp
       * Output: \verbinclude PartialRedux_sum.out
       *
       * \sa DenseBase::sum() */
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     const SumReturnType sum() const
     { return SumReturnType(_expression()); }
 
@@ -484,7 +484,7 @@ template<typename ExpressionType, int Direction> class VectorwiseOp
     * of each column (or row) of the referenced expression.
     *
     * \sa DenseBase::mean() */
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     const MeanReturnType mean() const
     { return sum() / Scalar(Direction==Vertical?m_matrix.rows():m_matrix.cols()); }
 
@@ -493,7 +493,7 @@ template<typename ExpressionType, int Direction> class VectorwiseOp
       * This expression can be assigned to a vector with entries of type \c bool.
       *
       * \sa DenseBase::all() */
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     const AllReturnType all() const
     { return AllReturnType(_expression()); }
 
@@ -502,7 +502,7 @@ template<typename ExpressionType, int Direction> class VectorwiseOp
       * This expression can be assigned to a vector with entries of type \c bool.
       *
       * \sa DenseBase::any() */
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     const AnyReturnType any() const
     { return AnyReturnType(_expression()); }
 
@@ -515,7 +515,7 @@ template<typename ExpressionType, int Direction> class VectorwiseOp
       * Output: \verbinclude PartialRedux_count.out
       *
       * \sa DenseBase::count() */
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     const CountReturnType count() const
     { return CountReturnType(_expression()); }
 
@@ -526,7 +526,7 @@ template<typename ExpressionType, int Direction> class VectorwiseOp
       * Output: \verbinclude PartialRedux_prod.out
       *
       * \sa DenseBase::prod() */
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     const ProdReturnType prod() const
     { return ProdReturnType(_expression()); }
 
@@ -760,7 +760,7 @@ template<typename ExpressionType, int Direction> class VectorwiseOp
   * \sa rowwise(), class VectorwiseOp, \ref TutorialReductionsVisitorsBroadcasting
   */
 template<typename Derived>
-EIGEN_DEVICE_FUNC inline typename DenseBase<Derived>::ColwiseReturnType
+EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR typename DenseBase<Derived>::ColwiseReturnType
 DenseBase<Derived>::colwise()
 {
   return ColwiseReturnType(derived());
@@ -774,7 +774,7 @@ DenseBase<Derived>::colwise()
   * \sa colwise(), class VectorwiseOp, \ref TutorialReductionsVisitorsBroadcasting
   */
 template<typename Derived>
-EIGEN_DEVICE_FUNC inline typename DenseBase<Derived>::RowwiseReturnType
+EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR typename DenseBase<Derived>::RowwiseReturnType
 DenseBase<Derived>::rowwise()
 {
   return RowwiseReturnType(derived());

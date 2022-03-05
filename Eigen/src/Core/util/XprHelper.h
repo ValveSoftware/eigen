@@ -113,7 +113,7 @@ template<typename T, int Value> class variable_if_dynamic
 {
   public:
     EIGEN_DEFAULT_EMPTY_CONSTRUCTOR_AND_DESTRUCTOR(variable_if_dynamic)
-    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE explicit variable_if_dynamic(T v) { EIGEN_ONLY_USED_FOR_DEBUG(v); eigen_assert(v == T(Value)); }
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR explicit variable_if_dynamic(T v) { EIGEN_ONLY_USED_FOR_DEBUG(v); eigen_assert(v == T(Value)); }
     EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
     T value() { return T(Value); }
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
@@ -126,10 +126,10 @@ template<typename T> class variable_if_dynamic<T, Dynamic>
 {
     T m_value;
   public:
-    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE explicit variable_if_dynamic(T value = 0) EIGEN_NO_THROW : m_value(value) {}
-    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE T value() const { return m_value; }
-    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE operator T() const { return m_value; }
-    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE void setValue(T value) { m_value = value; }
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR explicit variable_if_dynamic(T value = 0) EIGEN_NO_THROW : m_value(value) {}
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR T value() const { return m_value; }
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR operator T() const { return m_value; }
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR void setValue(T value) { m_value = value; }
 };
 
 /** \internal like variable_if_dynamic but for DynamicIndex
@@ -137,7 +137,7 @@ template<typename T> class variable_if_dynamic<T, Dynamic>
 template<typename T, int Value> class variable_if_dynamicindex
 {
   public:
-    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE explicit variable_if_dynamicindex(T v) { EIGEN_ONLY_USED_FOR_DEBUG(v); eigen_assert(v == T(Value)); }
+    EIGEN_CONSTEXPR EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE explicit variable_if_dynamicindex(T v) { EIGEN_ONLY_USED_FOR_DEBUG(v); eigen_assert(v == T(Value)); }
     EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
     T value() { return T(Value); }
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
@@ -659,7 +659,7 @@ struct possibly_same_dense {
 };
 
 template<typename T1, typename T2>
-EIGEN_DEVICE_FUNC
+EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
 bool is_same_dense(const T1 &mat1, const T2 &mat2, std::enable_if_t<possibly_same_dense<T1,T2>::value> * = 0)
 {
   return (mat1.data()==mat2.data()) && (mat1.innerStride()==mat2.innerStride()) && (mat1.outerStride()==mat2.outerStride());

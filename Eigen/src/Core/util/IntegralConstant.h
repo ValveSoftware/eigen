@@ -161,7 +161,7 @@ struct get_fixed_value<variable_if_dynamic<T,N>,Default> {
   static const int value = N;
 };
 
-template<typename T> EIGEN_DEVICE_FUNC Index get_runtime_value(const T &x) { return x; }
+template<typename T> EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR Index get_runtime_value(const T &x) { return x; }
 
 // Cleanup integer/FixedInt/VariableAndFixedInt/etc types:
 

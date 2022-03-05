@@ -61,7 +61,7 @@ class Stride
     };
 
     /** Default constructor, for use when strides are fixed at compile time */
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     Stride()
       : m_outer(OuterStrideAtCompileTime), m_inner(InnerStrideAtCompileTime)
     {
@@ -71,14 +71,14 @@ class Stride
     }
 
     /** Constructor allowing to pass the strides at runtime */
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     Stride(Index outerStride, Index innerStride)
       : m_outer(outerStride), m_inner(innerStride)
     {
     }
 
     /** Copy constructor */
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     Stride(const Stride& other)
       : m_outer(other.outer()), m_inner(other.inner())
     {}

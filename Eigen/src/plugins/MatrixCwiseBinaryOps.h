@@ -18,7 +18,7 @@
   * \sa class CwiseBinaryOp, cwiseAbs2
   */
 template<typename OtherDerived>
-EIGEN_DEVICE_FUNC
+EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
 EIGEN_STRONG_INLINE const EIGEN_CWISE_BINARY_RETURN_TYPE(Derived,OtherDerived,product)
 cwiseProduct(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived> &other) const
 {
@@ -38,7 +38,7 @@ cwiseProduct(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived> &other) const
   * \sa cwiseNotEqual(), isApprox(), isMuchSmallerThan()
   */
 template<typename OtherDerived>
-EIGEN_DEVICE_FUNC
+EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
 inline const CwiseBinaryOp<numext::equal_to<Scalar>, const Derived, const OtherDerived>
 cwiseEqual(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived> &other) const
 {
@@ -58,7 +58,7 @@ cwiseEqual(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived> &other) const
   * \sa cwiseEqual(), isApprox(), isMuchSmallerThan()
   */
 template<typename OtherDerived>
-EIGEN_DEVICE_FUNC
+EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
 inline const CwiseBinaryOp<numext::not_equal_to<Scalar>, const Derived, const OtherDerived>
 cwiseNotEqual(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived> &other) const
 {

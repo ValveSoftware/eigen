@@ -95,7 +95,7 @@ class DenseCoeffsBase<Derived,ReadOnlyAccessors> : public EigenBase<Derived>
       *
       * \sa operator()(Index,Index) const, coeffRef(Index,Index), coeff(Index) const
       */
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     EIGEN_STRONG_INLINE CoeffReturnType coeff(Index row, Index col) const
     {
       eigen_internal_assert(row >= 0 && row < rows()
@@ -114,7 +114,7 @@ class DenseCoeffsBase<Derived,ReadOnlyAccessors> : public EigenBase<Derived>
       *
       * \sa operator()(Index,Index), operator[](Index)
       */
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     EIGEN_STRONG_INLINE CoeffReturnType operator()(Index row, Index col) const
     {
       eigen_assert(row >= 0 && row < rows()
@@ -137,7 +137,7 @@ class DenseCoeffsBase<Derived,ReadOnlyAccessors> : public EigenBase<Derived>
       * \sa operator[](Index) const, coeffRef(Index), coeff(Index,Index) const
       */
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     EIGEN_STRONG_INLINE CoeffReturnType
     coeff(Index index) const
     {
@@ -156,7 +156,7 @@ class DenseCoeffsBase<Derived,ReadOnlyAccessors> : public EigenBase<Derived>
       * z() const, w() const
       */
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     EIGEN_STRONG_INLINE CoeffReturnType
     operator[](Index index) const
     {
@@ -176,7 +176,7 @@ class DenseCoeffsBase<Derived,ReadOnlyAccessors> : public EigenBase<Derived>
       * z() const, w() const
       */
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     EIGEN_STRONG_INLINE CoeffReturnType
     operator()(Index index) const
     {
@@ -186,13 +186,13 @@ class DenseCoeffsBase<Derived,ReadOnlyAccessors> : public EigenBase<Derived>
 
     /** equivalent to operator[](0).  */
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     EIGEN_STRONG_INLINE CoeffReturnType
     x() const { return (*this)[0]; }
 
     /** equivalent to operator[](1).  */
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     EIGEN_STRONG_INLINE CoeffReturnType
     y() const
     {
@@ -202,7 +202,7 @@ class DenseCoeffsBase<Derived,ReadOnlyAccessors> : public EigenBase<Derived>
 
     /** equivalent to operator[](2).  */
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     EIGEN_STRONG_INLINE CoeffReturnType
     z() const
     {
@@ -212,7 +212,7 @@ class DenseCoeffsBase<Derived,ReadOnlyAccessors> : public EigenBase<Derived>
 
     /** equivalent to operator[](3).  */
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     EIGEN_STRONG_INLINE CoeffReturnType
     w() const
     {
@@ -348,7 +348,7 @@ class DenseCoeffsBase<Derived, WriteAccessors> : public DenseCoeffsBase<Derived,
       return internal::evaluator<Derived>(derived()).coeffRef(row,col);
     }
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     EIGEN_STRONG_INLINE Scalar&
     coeffRefByOuterInner(Index outer, Index inner)
     {
@@ -361,7 +361,7 @@ class DenseCoeffsBase<Derived, WriteAccessors> : public DenseCoeffsBase<Derived,
       * \sa operator[](Index)
       */
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     EIGEN_STRONG_INLINE Scalar&
     operator()(Index row, Index col)
     {
@@ -386,7 +386,7 @@ class DenseCoeffsBase<Derived, WriteAccessors> : public DenseCoeffsBase<Derived,
       * \sa operator[](Index), coeff(Index) const, coeffRef(Index,Index)
       */
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     EIGEN_STRONG_INLINE Scalar&
     coeffRef(Index index)
     {
@@ -403,7 +403,7 @@ class DenseCoeffsBase<Derived, WriteAccessors> : public DenseCoeffsBase<Derived,
       * \sa operator[](Index) const, operator()(Index,Index), x(), y(), z(), w()
       */
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     EIGEN_STRONG_INLINE Scalar&
     operator[](Index index)
     {
@@ -422,7 +422,7 @@ class DenseCoeffsBase<Derived, WriteAccessors> : public DenseCoeffsBase<Derived,
       * \sa operator[](Index) const, operator()(Index,Index), x(), y(), z(), w()
       */
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     EIGEN_STRONG_INLINE Scalar&
     operator()(Index index)
     {
@@ -432,13 +432,13 @@ class DenseCoeffsBase<Derived, WriteAccessors> : public DenseCoeffsBase<Derived,
 
     /** equivalent to operator[](0).  */
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     EIGEN_STRONG_INLINE Scalar&
     x() { return (*this)[0]; }
 
     /** equivalent to operator[](1).  */
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     EIGEN_STRONG_INLINE Scalar&
     y()
     {
@@ -448,7 +448,7 @@ class DenseCoeffsBase<Derived, WriteAccessors> : public DenseCoeffsBase<Derived,
 
     /** equivalent to operator[](2).  */
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     EIGEN_STRONG_INLINE Scalar&
     z()
     {
@@ -458,7 +458,7 @@ class DenseCoeffsBase<Derived, WriteAccessors> : public DenseCoeffsBase<Derived,
 
     /** equivalent to operator[](3).  */
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     EIGEN_STRONG_INLINE Scalar&
     w()
     {

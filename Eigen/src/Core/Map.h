@@ -103,8 +103,8 @@ template<typename PlainObjectType, int MapOptions, typename StrideType> class Ma
 
     typedef typename Base::PointerType PointerType;
     typedef PointerType PointerArgType;
-    EIGEN_DEVICE_FUNC
-    inline PointerType cast_to_pointer_type(PointerArgType ptr) { return ptr; }
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+    PointerType cast_to_pointer_type(PointerArgType ptr) { return ptr; }
 
     EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     inline Index innerStride() const
@@ -127,8 +127,8 @@ template<typename PlainObjectType, int MapOptions, typename StrideType> class Ma
       * \param dataPtr pointer to the array to map
       * \param stride optional Stride object, passing the strides.
       */
-    EIGEN_DEVICE_FUNC
-    explicit inline Map(PointerArgType dataPtr, const StrideType& stride = StrideType())
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+    explicit Map(PointerArgType dataPtr, const StrideType& stride = StrideType())
       : Base(cast_to_pointer_type(dataPtr)), m_stride(stride)
     {
     }
@@ -152,8 +152,8 @@ template<typename PlainObjectType, int MapOptions, typename StrideType> class Ma
       * \param cols the number of columns of the matrix expression
       * \param stride optional Stride object, passing the strides.
       */
-    EIGEN_DEVICE_FUNC
-    inline Map(PointerArgType dataPtr, Index rows, Index cols, const StrideType& stride = StrideType())
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+    Map(PointerArgType dataPtr, Index rows, Index cols, const StrideType& stride = StrideType())
       : Base(cast_to_pointer_type(dataPtr), rows, cols), m_stride(stride)
     {
     }

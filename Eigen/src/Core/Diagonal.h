@@ -71,7 +71,7 @@ template<typename MatrixType, int DiagIndex_> class Diagonal
     typedef typename internal::dense_xpr_base<Diagonal>::type Base;
     EIGEN_DENSE_PUBLIC_INTERFACE(Diagonal)
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     explicit inline Diagonal(MatrixType& matrix, Index a_index = DiagIndex) : m_matrix(matrix), m_index(a_index)
     {
       eigen_assert( a_index <= m_matrix.cols() && -a_index <= m_matrix.rows() );
@@ -79,7 +79,7 @@ template<typename MatrixType, int DiagIndex_> class Diagonal
 
     EIGEN_INHERIT_ASSIGNMENT_OPERATORS(Diagonal)
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     inline Index rows() const
     {
       return m_index.value()<0 ? numext::mini<Index>(m_matrix.cols(),m_matrix.rows()+m_index.value())
@@ -146,14 +146,14 @@ template<typename MatrixType, int DiagIndex_> class Diagonal
       return m_matrix.coeff(idx+rowOffset(), idx+colOffset());
     }
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     inline const internal::remove_all_t<typename MatrixType::Nested>&
     nestedExpression() const
     {
       return m_matrix;
     }
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     inline Index index() const
     {
       return m_index.value();
@@ -185,7 +185,7 @@ template<typename MatrixType, int DiagIndex_> class Diagonal
   *
   * \sa class Diagonal */
 template<typename Derived>
-EIGEN_DEVICE_FUNC inline typename MatrixBase<Derived>::DiagonalReturnType
+EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR inline typename MatrixBase<Derived>::DiagonalReturnType
 MatrixBase<Derived>::diagonal()
 {
   return DiagonalReturnType(derived());
@@ -193,7 +193,7 @@ MatrixBase<Derived>::diagonal()
 
 /** This is the const version of diagonal(). */
 template<typename Derived>
-EIGEN_DEVICE_FUNC inline
+EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR inline
 const typename MatrixBase<Derived>::ConstDiagonalReturnType
 MatrixBase<Derived>::diagonal() const
 {

@@ -87,7 +87,7 @@ EIGEN_DOC_BLOCK_ADDONS_NOT_INNER_PANEL
 /// \sa class Block, fix, fix<N>(int)
 ///
 template<typename NRowsType, typename NColsType>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
 #ifndef EIGEN_PARSED_BY_DOXYGEN
 typename FixedBlockXpr<internal::get_fixed_value<NRowsType>::value,internal::get_fixed_value<NColsType>::value>::Type
 #else
@@ -101,7 +101,7 @@ block(Index startRow, Index startCol, NRowsType blockRows, NColsType blockCols)
 
 /// This is the const version of block(Index,Index,NRowsType,NColsType)
 template<typename NRowsType, typename NColsType>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
 #ifndef EIGEN_PARSED_BY_DOXYGEN
 const typename ConstFixedBlockXpr<internal::get_fixed_value<NRowsType>::value,internal::get_fixed_value<NColsType>::value>::Type
 #else
@@ -133,7 +133,7 @@ EIGEN_DOC_BLOCK_ADDONS_NOT_INNER_PANEL
 /// \sa block(Index,Index,NRowsType,NColsType), class Block
 ///
 template<typename NRowsType, typename NColsType>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
 #ifndef EIGEN_PARSED_BY_DOXYGEN
 typename FixedBlockXpr<internal::get_fixed_value<NRowsType>::value,internal::get_fixed_value<NColsType>::value>::Type
 #else
@@ -147,7 +147,7 @@ topRightCorner(NRowsType cRows, NColsType cCols)
 
 /// This is the const version of topRightCorner(NRowsType, NColsType).
 template<typename NRowsType, typename NColsType>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
 #ifndef EIGEN_PARSED_BY_DOXYGEN
 const typename ConstFixedBlockXpr<internal::get_fixed_value<NRowsType>::value,internal::get_fixed_value<NColsType>::value>::Type
 #else
@@ -1023,7 +1023,7 @@ EIGEN_DOC_BLOCK_ADDONS_NOT_INNER_PANEL
 /// \sa block(Index,Index,NRowsType,NColsType), class Block
 ///
 template<int NRows, int NCols>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
 typename FixedBlockXpr<NRows,NCols>::Type block(Index startRow, Index startCol)
 {
   return typename FixedBlockXpr<NRows,NCols>::Type(derived(), startRow, startCol);
@@ -1031,7 +1031,7 @@ typename FixedBlockXpr<NRows,NCols>::Type block(Index startRow, Index startCol)
 
 /// This is the const version of block<>(Index, Index). */
 template<int NRows, int NCols>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
 const typename ConstFixedBlockXpr<NRows,NCols>::Type block(Index startRow, Index startCol) const
 {
   return typename ConstFixedBlockXpr<NRows,NCols>::Type(derived(), startRow, startCol);
@@ -1093,14 +1093,14 @@ const typename ConstFixedBlockXpr<NRows,NCols>::Type block(Index startRow, Index
 EIGEN_DOC_BLOCK_ADDONS_INNER_PANEL_IF(column-major)
 /**
   * \sa row(), class Block */
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
 ColXpr col(Index i)
 {
   return ColXpr(derived(), i);
 }
 
 /// This is the const version of col().
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
 ConstColXpr col(Index i) const
 {
   return ConstColXpr(derived(), i);
@@ -1114,14 +1114,14 @@ ConstColXpr col(Index i) const
 EIGEN_DOC_BLOCK_ADDONS_INNER_PANEL_IF(row-major)
 /**
   * \sa col(), class Block */
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
 RowXpr row(Index i)
 {
   return RowXpr(derived(), i);
 }
 
 /// This is the const version of row(). */
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
 ConstRowXpr row(Index i) const
 {
   return ConstRowXpr(derived(), i);
@@ -1293,7 +1293,7 @@ tail(NType n) const
 /// \sa segment(Index,NType), class Block
 ///
 template<int N>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
 typename FixedSegmentReturnType<N>::Type segment(Index start, Index n = N)
 {
   EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived)
@@ -1302,7 +1302,7 @@ typename FixedSegmentReturnType<N>::Type segment(Index start, Index n = N)
 
 /// This is the const version of segment<int>(Index).
 template<int N>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
 typename ConstFixedSegmentReturnType<N>::Type segment(Index start, Index n = N) const
 {
   EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived)
@@ -1334,7 +1334,7 @@ typename FixedSegmentReturnType<N>::Type head(Index n = N)
 
 /// This is the const version of head<int>().
 template<int N>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
 typename ConstFixedSegmentReturnType<N>::Type head(Index n = N) const
 {
   EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived)
@@ -1426,7 +1426,7 @@ subVector(Index i)
 
 /** This is the const version of subVector(Index) */
 template<DirectionType Direction>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
 std::conditional_t<Direction==Vertical,ConstColXpr,ConstRowXpr>
 subVector(Index i) const
 {

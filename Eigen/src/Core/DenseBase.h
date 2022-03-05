@@ -311,19 +311,19 @@ template<typename Derived> class DenseBase
     CommaInitializer<Derived> operator<< (const DenseBase<OtherDerived>& other);
 
     typedef Transpose<Derived> TransposeReturnType;
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     TransposeReturnType transpose();
     typedef Transpose<const Derived> ConstTransposeReturnType;
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     const ConstTransposeReturnType transpose() const;
     EIGEN_DEVICE_FUNC
     void transposeInPlace();
 
-    EIGEN_DEVICE_FUNC static const ConstantReturnType
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR static const ConstantReturnType
     Constant(Index rows, Index cols, const Scalar& value);
-    EIGEN_DEVICE_FUNC static const ConstantReturnType
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR static const ConstantReturnType
     Constant(Index size, const Scalar& value);
-    EIGEN_DEVICE_FUNC static const ConstantReturnType
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR static const ConstantReturnType
     Constant(const Scalar& value);
 
     EIGEN_DEPRECATED EIGEN_DEVICE_FUNC static const RandomAccessLinSpacedReturnType
@@ -336,25 +336,25 @@ template<typename Derived> class DenseBase
     EIGEN_DEVICE_FUNC static const RandomAccessLinSpacedReturnType
     LinSpaced(const Scalar& low, const Scalar& high);
 
-    template<typename CustomNullaryOp> EIGEN_DEVICE_FUNC
+    template<typename CustomNullaryOp> EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     static const CwiseNullaryOp<CustomNullaryOp, PlainObject>
     NullaryExpr(Index rows, Index cols, const CustomNullaryOp& func);
-    template<typename CustomNullaryOp> EIGEN_DEVICE_FUNC
+    template<typename CustomNullaryOp> EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     static const CwiseNullaryOp<CustomNullaryOp, PlainObject>
     NullaryExpr(Index size, const CustomNullaryOp& func);
-    template<typename CustomNullaryOp> EIGEN_DEVICE_FUNC
+    template<typename CustomNullaryOp> EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     static const CwiseNullaryOp<CustomNullaryOp, PlainObject>
     NullaryExpr(const CustomNullaryOp& func);
 
-    EIGEN_DEVICE_FUNC static const ConstantReturnType Zero(Index rows, Index cols);
-    EIGEN_DEVICE_FUNC static const ConstantReturnType Zero(Index size);
-    EIGEN_DEVICE_FUNC static const ConstantReturnType Zero();
-    EIGEN_DEVICE_FUNC static const ConstantReturnType Ones(Index rows, Index cols);
-    EIGEN_DEVICE_FUNC static const ConstantReturnType Ones(Index size);
-    EIGEN_DEVICE_FUNC static const ConstantReturnType Ones();
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR static const ConstantReturnType Zero(Index rows, Index cols);
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR static const ConstantReturnType Zero(Index size);
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR static const ConstantReturnType Zero();
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR static const ConstantReturnType Ones(Index rows, Index cols);
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR static const ConstantReturnType Ones(Index size);
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR static const ConstantReturnType Ones();
 
-    EIGEN_DEVICE_FUNC void fill(const Scalar& value);
-    EIGEN_DEVICE_FUNC Derived& setConstant(const Scalar& value);
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR void fill(const Scalar& value);
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR Derived& setConstant(const Scalar& value);
     EIGEN_DEVICE_FUNC Derived& setLinSpaced(Index size, const Scalar& low, const Scalar& high);
     EIGEN_DEVICE_FUNC Derived& setLinSpaced(const Scalar& low, const Scalar& high);
     EIGEN_DEVICE_FUNC Derived& setZero();
@@ -392,7 +392,7 @@ template<typename Derived> class DenseBase
       *
       * \warning Be careful with eval() and the auto C++ keyword, as detailed in this \link TopicPitfalls_auto_keyword page \endlink.
       */
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     EIGEN_STRONG_INLINE EvalReturnType eval() const
     {
       // Even though MSVC does not honor strong inlining when the return type
@@ -417,7 +417,7 @@ template<typename Derived> class DenseBase
       *
       */
     template<typename OtherDerived>
-    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
     void swap(PlainObjectBase<OtherDerived>& other)
     {
       eigen_assert(rows()==other.rows() && cols()==other.cols());
@@ -432,26 +432,26 @@ template<typename Derived> class DenseBase
     template<bool Enable> EIGEN_DEVICE_FUNC
     inline std::conditional_t<Enable,ForceAlignedAccess<Derived>,Derived&> forceAlignedAccessIf();
 
-    EIGEN_DEVICE_FUNC Scalar sum() const;
-    EIGEN_DEVICE_FUNC Scalar mean() const;
-    EIGEN_DEVICE_FUNC Scalar trace() const;
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR Scalar sum() const;
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR Scalar mean() const;
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR Scalar trace() const;
 
-    EIGEN_DEVICE_FUNC Scalar prod() const;
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR Scalar prod() const;
 
     template<int NaNPropagation>
-    EIGEN_DEVICE_FUNC typename internal::traits<Derived>::Scalar minCoeff() const;
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR typename internal::traits<Derived>::Scalar minCoeff() const;
     template<int NaNPropagation>
-    EIGEN_DEVICE_FUNC typename internal::traits<Derived>::Scalar maxCoeff() const;
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR typename internal::traits<Derived>::Scalar maxCoeff() const;
 
 
     // By default, the fastest version with undefined NaN propagation semantics is
     // used.
     // TODO(rmlarsen): Replace with default template argument when we move to
     // c++11 or beyond.
-    EIGEN_DEVICE_FUNC inline typename internal::traits<Derived>::Scalar minCoeff() const {
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR inline typename internal::traits<Derived>::Scalar minCoeff() const {
       return minCoeff<PropagateFast>();
     }
-    EIGEN_DEVICE_FUNC inline typename internal::traits<Derived>::Scalar maxCoeff() const {
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR inline typename internal::traits<Derived>::Scalar maxCoeff() const {
       return maxCoeff<PropagateFast>();
     }
 
@@ -491,7 +491,7 @@ template<typename Derived> class DenseBase
     }
   
     template<typename BinaryOp>
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     Scalar redux(const BinaryOp& func) const;
 
     template<typename Visitor>
@@ -519,9 +519,9 @@ template<typename Derived> class DenseBase
       return derived().coeff(0,0);
     }
 
-    EIGEN_DEVICE_FUNC bool all() const;
-    EIGEN_DEVICE_FUNC bool any() const;
-    EIGEN_DEVICE_FUNC Index count() const;
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR bool all() const;
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR bool any() const;
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR Index count() const;
 
     typedef VectorwiseOp<Derived, Horizontal> RowwiseReturnType;
     typedef const VectorwiseOp<const Derived, Horizontal> ConstRowwiseReturnType;
@@ -536,10 +536,10 @@ template<typename Derived> class DenseBase
     * \sa colwise(), class VectorwiseOp, \ref TutorialReductionsVisitorsBroadcasting
     */
     //Code moved here due to a CUDA compiler bug
-    EIGEN_DEVICE_FUNC inline ConstRowwiseReturnType rowwise() const {
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR inline ConstRowwiseReturnType rowwise() const {
       return ConstRowwiseReturnType(derived());
     }
-    EIGEN_DEVICE_FUNC RowwiseReturnType rowwise();
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR RowwiseReturnType rowwise();
 
     /** \returns a VectorwiseOp wrapper of *this broadcasting and partial reductions
     *
@@ -548,10 +548,10 @@ template<typename Derived> class DenseBase
     *
     * \sa rowwise(), class VectorwiseOp, \ref TutorialReductionsVisitorsBroadcasting
     */
-    EIGEN_DEVICE_FUNC inline ConstColwiseReturnType colwise() const {
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR inline ConstColwiseReturnType colwise() const {
       return ConstColwiseReturnType(derived());
     }
-    EIGEN_DEVICE_FUNC ColwiseReturnType colwise();
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR ColwiseReturnType colwise();
 
     typedef CwiseNullaryOp<internal::scalar_random_op<Scalar>,PlainObject> RandomReturnType;
     static const RandomReturnType Random(Index rows, Index cols);
@@ -661,7 +661,7 @@ template<typename Derived> class DenseBase
   protected:
     EIGEN_DEFAULT_COPY_CONSTRUCTOR(DenseBase)
     /** Default constructor. Do nothing. */
-    EIGEN_DEVICE_FUNC DenseBase()
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR DenseBase()
     {
       /* Just checks for self-consistency of the flags.
        * Only do it when debugging Eigen, as this borders on paranoia and could slow compilation down

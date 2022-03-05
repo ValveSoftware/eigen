@@ -20,7 +20,7 @@ namespace numext {
 template<typename T = void>
 struct equal_to {
   typedef bool result_type;
-  EIGEN_DEVICE_FUNC bool operator()(const T& lhs, const T& rhs) const {
+  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR bool operator()(const T& lhs, const T& rhs) const {
     return lhs == rhs;
   }
 };
@@ -28,7 +28,7 @@ struct equal_to {
 template<typename T = void>
 struct not_equal_to {
   typedef bool result_type;
-  EIGEN_DEVICE_FUNC bool operator()(const T& lhs, const T& rhs) const {
+  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR bool operator()(const T& lhs, const T& rhs) const {
     return lhs != rhs;
   }
 };

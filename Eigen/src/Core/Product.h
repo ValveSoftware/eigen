@@ -92,7 +92,7 @@ class Product : public ProductImpl<Lhs_,Rhs_,Option,
     typedef internal::remove_all_t<LhsNested> LhsNestedCleaned;
     typedef internal::remove_all_t<RhsNested> RhsNestedCleaned;
 
-    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
     Product(const Lhs& lhs, const Rhs& rhs) : m_lhs(lhs), m_rhs(rhs)
     {
       eigen_assert(lhs.cols() == rhs.rows()
@@ -105,9 +105,9 @@ class Product : public ProductImpl<Lhs_,Rhs_,Option,
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
     Index cols() const EIGEN_NOEXCEPT { return m_rhs.cols(); }
 
-    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
     const LhsNestedCleaned& lhs() const { return m_lhs; }
-    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
     const RhsNestedCleaned& rhs() const { return m_rhs; }
 
   protected:
@@ -169,7 +169,7 @@ class ProductImpl<Lhs,Rhs,Option,Dense>
 
   public:
 
-    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Scalar coeff(Index row, Index col) const
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR Scalar coeff(Index row, Index col) const
     {
       EIGEN_STATIC_ASSERT(EnableCoeff, THIS_METHOD_IS_ONLY_FOR_INNER_OR_LAZY_PRODUCTS);
       eigen_assert( (Option==LazyProduct) || (this->rows() == 1 && this->cols() == 1) );
@@ -177,7 +177,7 @@ class ProductImpl<Lhs,Rhs,Option,Dense>
       return internal::evaluator<Derived>(derived()).coeff(row,col);
     }
 
-    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Scalar coeff(Index i) const
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR Scalar coeff(Index i) const
     {
       EIGEN_STATIC_ASSERT(EnableCoeff, THIS_METHOD_IS_ONLY_FOR_INNER_OR_LAZY_PRODUCTS);
       eigen_assert( (Option==LazyProduct) || (this->rows() == 1 && this->cols() == 1) );

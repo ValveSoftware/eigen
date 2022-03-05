@@ -87,7 +87,7 @@ struct triangular_solver_selector<Lhs,Rhs,Side,Mode,NoUnrolling,Dynamic>
   typedef blas_traits<Lhs> LhsProductTraits;
   typedef typename LhsProductTraits::DirectLinearAccessType ActualLhsType;
 
-  static EIGEN_DEVICE_FUNC void run(const Lhs& lhs, Rhs& rhs)
+  static EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR void run(const Lhs& lhs, Rhs& rhs)
   {
     add_const_on_value_type_t<ActualLhsType> actualLhs = LhsProductTraits::extract(lhs);
 
@@ -120,7 +120,7 @@ struct triangular_solver_unroller<Lhs,Rhs,Mode,LoopIndex,Size,false> {
     DiagIndex  = IsLower ? LoopIndex : Size - LoopIndex - 1,
     StartIndex = IsLower ? 0         : DiagIndex+1
   };
-  static EIGEN_DEVICE_FUNC void run(const Lhs& lhs, Rhs& rhs)
+  static EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR void run(const Lhs& lhs, Rhs& rhs)
   {
     if (LoopIndex>0)
       rhs.coeffRef(DiagIndex) -= lhs.row(DiagIndex).template segment<LoopIndex>(StartIndex).transpose()
@@ -135,12 +135,12 @@ struct triangular_solver_unroller<Lhs,Rhs,Mode,LoopIndex,Size,false> {
 
 template<typename Lhs, typename Rhs, int Mode, int LoopIndex, int Size>
 struct triangular_solver_unroller<Lhs,Rhs,Mode,LoopIndex,Size,true> {
-  static EIGEN_DEVICE_FUNC void run(const Lhs&, Rhs&) {}
+  static EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR void run(const Lhs&, Rhs&) {}
 };
 
 template<typename Lhs, typename Rhs, int Mode>
 struct triangular_solver_selector<Lhs,Rhs,OnTheLeft,Mode,CompleteUnrolling,1> {
-  static EIGEN_DEVICE_FUNC void run(const Lhs& lhs, Rhs& rhs)
+  static EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR void run(const Lhs& lhs, Rhs& rhs)
   { triangular_solver_unroller<Lhs,Rhs,Mode,0,Rhs::SizeAtCompileTime>::run(lhs,rhs); }
 };
 
@@ -166,7 +166,7 @@ struct triangular_solver_selector<Lhs,Rhs,OnTheRight,Mode,CompleteUnrolling,1> {
 #ifndef EIGEN_PARSED_BY_DOXYGEN
 template<typename MatrixType, unsigned int Mode>
 template<int Side, typename OtherDerived>
-EIGEN_DEVICE_FUNC void TriangularViewImpl<MatrixType,Mode,Dense>::solveInPlace(const MatrixBase<OtherDerived>& _other) const
+EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR void TriangularViewImpl<MatrixType,Mode,Dense>::solveInPlace(const MatrixBase<OtherDerived>& _other) const
 {
   OtherDerived& other = _other.const_cast_derived();
   eigen_assert( derived().cols() == derived().rows() && ((Side==OnTheLeft && derived().cols() == other.rows()) || (Side==OnTheRight && derived().cols() == other.cols())) );

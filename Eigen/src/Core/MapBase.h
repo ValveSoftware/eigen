@@ -101,33 +101,33 @@ template<typename Derived> class MapBase<Derived, ReadOnlyAccessors>
       *
       * \sa innerStride(), outerStride()
       */
-    EIGEN_DEVICE_FUNC inline const Scalar* data() const { return m_data; }
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR const Scalar* data() const { return m_data; }
 
     /** \copydoc PlainObjectBase::coeff(Index,Index) const */
-    EIGEN_DEVICE_FUNC
-    inline const Scalar& coeff(Index rowId, Index colId) const
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+    const Scalar& coeff(Index rowId, Index colId) const
     {
       return m_data[colId * colStride() + rowId * rowStride()];
     }
 
     /** \copydoc PlainObjectBase::coeff(Index) const */
-    EIGEN_DEVICE_FUNC
-    inline const Scalar& coeff(Index index) const
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+    const Scalar& coeff(Index index) const
     {
       EIGEN_STATIC_ASSERT_INDEX_BASED_ACCESS(Derived)
       return m_data[index * innerStride()];
     }
 
     /** \copydoc PlainObjectBase::coeffRef(Index,Index) const */
-    EIGEN_DEVICE_FUNC
-    inline const Scalar& coeffRef(Index rowId, Index colId) const
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+    const Scalar& coeffRef(Index rowId, Index colId) const
     {
       return this->m_data[colId * colStride() + rowId * rowStride()];
     }
 
     /** \copydoc PlainObjectBase::coeffRef(Index) const */
-    EIGEN_DEVICE_FUNC
-    inline const Scalar& coeffRef(Index index) const
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+    const Scalar& coeffRef(Index index) const
     {
       EIGEN_STATIC_ASSERT_INDEX_BASED_ACCESS(Derived)
       return this->m_data[index * innerStride()];
@@ -150,8 +150,8 @@ template<typename Derived> class MapBase<Derived, ReadOnlyAccessors>
     }
 
     /** \internal Constructor for fixed size matrices or vectors */
-    EIGEN_DEVICE_FUNC
-    explicit inline MapBase(PointerType dataPtr) : m_data(dataPtr), m_rows(RowsAtCompileTime), m_cols(ColsAtCompileTime)
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+    explicit MapBase(PointerType dataPtr) : m_data(dataPtr), m_rows(RowsAtCompileTime), m_cols(ColsAtCompileTime)
     {
       EIGEN_STATIC_ASSERT_FIXED_SIZE(Derived)
       checkSanity<Derived>();
@@ -171,8 +171,8 @@ template<typename Derived> class MapBase<Derived, ReadOnlyAccessors>
     }
 
     /** \internal Constructor for dynamically sized matrices */
-    EIGEN_DEVICE_FUNC
-    inline MapBase(PointerType dataPtr, Index rows, Index cols)
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+    MapBase(PointerType dataPtr, Index rows, Index cols)
             : m_data(dataPtr), m_rows(rows), m_cols(cols)
     {
       eigen_assert( (dataPtr == 0)
@@ -203,7 +203,7 @@ template<typename Derived> class MapBase<Derived, ReadOnlyAccessors>
     }
 
     template<typename T>
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     void checkSanity(std::enable_if_t<internal::traits<T>::Alignment==0,void*> = 0) const
     {}
 
@@ -253,8 +253,8 @@ template<typename Derived> class MapBase<Derived, WriteAccessors>
                     const Scalar
                   > ScalarWithConstIfNotLvalue;
 
-    EIGEN_DEVICE_FUNC
-    inline const Scalar* data() const { return this->m_data; }
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+    const Scalar* data() const { return this->m_data; }
     EIGEN_DEVICE_FUNC
     inline ScalarWithConstIfNotLvalue* data() { return this->m_data; } // no const-cast here so non-const-correct code will give a compile error
 
@@ -286,9 +286,9 @@ template<typename Derived> class MapBase<Derived, WriteAccessors>
                 (this->m_data + index * innerStride(), val);
     }
 
-    EIGEN_DEVICE_FUNC explicit inline MapBase(PointerType dataPtr) : Base(dataPtr) {}
-    EIGEN_DEVICE_FUNC inline MapBase(PointerType dataPtr, Index vecSize) : Base(dataPtr, vecSize) {}
-    EIGEN_DEVICE_FUNC inline MapBase(PointerType dataPtr, Index rows, Index cols) : Base(dataPtr, rows, cols) {}
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR explicit MapBase(PointerType dataPtr) : Base(dataPtr) {}
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR MapBase(PointerType dataPtr, Index vecSize) : Base(dataPtr, vecSize) {}
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR MapBase(PointerType dataPtr, Index rows, Index cols) : Base(dataPtr, rows, cols) {}
 
     EIGEN_DEVICE_FUNC
     Derived& operator=(const MapBase& other)

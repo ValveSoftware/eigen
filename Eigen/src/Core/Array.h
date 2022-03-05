@@ -130,7 +130,7 @@ class Array
       *
       * \sa resize(Index,Index)
       */
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
     EIGEN_STRONG_INLINE Array() : Base()
     {
       EIGEN_INITIALIZE_COEFFS_IF_THAT_OPTION_IS_ENABLED
