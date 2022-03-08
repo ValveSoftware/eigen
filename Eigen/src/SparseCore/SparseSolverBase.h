@@ -75,6 +75,8 @@ class SparseSolverBase : internal::noncopyable
       : m_isInitialized(false)
     {}
 
+    SparseSolverBase(SparseSolverBase&&other ) : internal::noncopyable{}, m_isInitialized{other.m_isInitialized} {}
+
     ~SparseSolverBase()
     {}
 
