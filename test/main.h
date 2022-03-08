@@ -302,9 +302,8 @@ namespace Eigen
     #endif //EIGEN_EXCEPTIONS
 
   #elif !defined(__CUDACC__) && !defined(__HIPCC__) && !defined(SYCL_DEVICE_ONLY) // EIGEN_DEBUG_ASSERTS
-    // see bug 89. The copy_bool here is working around a bug in gcc <= 4.3
     #define eigen_assert(a) \
-      if( (!Eigen::internal::copy_bool(a)) && (!no_more_assert) )\
+      if( (!(a)) && (!no_more_assert) )       \
       {                                       \
         Eigen::no_more_assert = true;         \
         if(report_on_cerr_on_assert_failure)  \

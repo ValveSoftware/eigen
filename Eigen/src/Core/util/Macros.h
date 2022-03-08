@@ -872,11 +872,6 @@
     #define eigen_plain_assert(x)
   #endif
 #else
-    namespace Eigen {
-    namespace internal {
-    inline bool copy_bool(bool b) { return b; }
-    }
-    }
     #define eigen_plain_assert(x) assert(x)
 #endif
 
