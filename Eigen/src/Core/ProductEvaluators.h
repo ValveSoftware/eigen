@@ -109,7 +109,7 @@ struct product_evaluator<Product<Lhs, Rhs, Options>, ProductTag, LhsShape, RhsSh
   explicit product_evaluator(const XprType& xpr)
     : m_result(xpr.rows(), xpr.cols())
   {
-    ::new (static_cast<Base*>(this)) Base(m_result);
+    internal::construct_at<Base>(this, m_result);
 
 // FIXME shall we handle nested_eval here?,
 // if so, then we must take care at removing the call to nested_eval in the specializations (e.g., in permutation_matrix_product, transposition_matrix_product, etc.)

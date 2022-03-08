@@ -345,7 +345,7 @@ struct unary_evaluator<Homogeneous<ArgType,Direction>, IndexBased>
   EIGEN_DEVICE_FUNC explicit unary_evaluator(const XprType& op)
     : Base(), m_temp(op)
   {
-    ::new (static_cast<Base*>(this)) Base(m_temp);
+    internal::construct_at<Base>(this, m_temp);
   }
 
 protected:

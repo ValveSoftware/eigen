@@ -1150,6 +1150,38 @@ inline int queryTopLevelCacheSize()
   return (std::max)(l2,l3);
 }
 
+
+
+/** \internal
+ * This wraps C++20's std::construct_at, using placement new instead if it is not available.
+ */
+
+#if EIGEN_COMP_CXXVER >= 20
+using std::construct_at;
+#else
+template<class T, class... Args>
+T* construct_at( T* p, Args&&... args )
+{
+  return ::new (const_cast<void*>(static_cast<const volatile void*>(p)))
+    T(std::forward<Args>(args)...);
+}
+#endif
+
+/** \internal
+ * This wraps C++17's std::destroy_at.  If it's not available it calls the destructor.
+ * The wrapper is not a full replacement for C++20's std::destroy_at as it cannot
+ * be applied to std::array.
+ */
+#if EIGEN_COMP_CXXVER >= 17
+using std::destroy_at;
+#else
+template<class T>
+void destroy_at(T* p)
+{
+  p->~T();
+}
+#endif
+
 } // end namespace internal
 
 } // end namespace Eigen

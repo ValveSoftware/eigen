@@ -383,7 +383,7 @@ struct product_evaluator<Product<LhsView, Rhs, DefaultProduct>, ProductTag, Spar
   product_evaluator(const XprType& xpr)
     : m_lhs(xpr.lhs()), m_result(xpr.rows(), xpr.cols())
   {
-    ::new (static_cast<Base*>(this)) Base(m_result);
+    internal::construct_at<Base>(this, m_result);
     generic_product_impl<typename Rhs::PlainObject, Rhs, SparseShape, SparseShape, ProductTag>::evalTo(m_result, m_lhs, xpr.rhs());
   }
   

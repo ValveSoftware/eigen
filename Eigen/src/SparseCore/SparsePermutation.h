@@ -109,7 +109,7 @@ struct product_evaluator<Product<Lhs, Rhs, AliasFreeProduct>, ProductTag, Permut
   explicit product_evaluator(const XprType& xpr)
     : m_result(xpr.rows(), xpr.cols())
   {
-    ::new (static_cast<Base*>(this)) Base(m_result);
+    internal::construct_at<Base>(this, m_result);
     generic_product_impl<Lhs, Rhs, PermutationShape, SparseShape, ProductTag>::evalTo(m_result, xpr.lhs(), xpr.rhs());
   }
 

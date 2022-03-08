@@ -535,8 +535,8 @@ public:
     while(++m_outerPos<m_end)
     {
       // Restart iterator at the next inner-vector:
-      m_it.~EvalIterator();
-      ::new (&m_it) EvalIterator(m_eval.m_argImpl, m_outerPos);
+      internal::destroy_at(&m_it);
+      internal::construct_at(&m_it, m_eval.m_argImpl, m_outerPos);
       // search for the key m_innerIndex in the current outer-vector
       while(m_it && m_it.index() < m_innerIndex) ++m_it;
       if(m_it && m_it.index()==m_innerIndex) break;

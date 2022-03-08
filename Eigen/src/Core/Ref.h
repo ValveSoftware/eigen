@@ -199,8 +199,8 @@ protected:
       return false;
     }
 
-    ::new (static_cast<Base*>(this)) Base(expr.data(), rows, cols);
-    ::new (&m_stride) StrideBase(
+    internal::construct_at<Base>(this, expr.data(), rows, cols);
+    internal::construct_at(&m_stride,
       (StrideType::OuterStrideAtCompileTime == 0) ? 0 : outer_stride,
       (StrideType::InnerStrideAtCompileTime == 0) ? 0 : inner_stride );
     return true;

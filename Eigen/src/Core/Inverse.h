@@ -104,7 +104,7 @@ struct unary_evaluator<Inverse<ArgType> >
   unary_evaluator(const InverseType& inv_xpr)
     : m_result(inv_xpr.rows(), inv_xpr.cols())
   {
-    ::new (static_cast<Base*>(this)) Base(m_result);
+    internal::construct_at<Base>(this, m_result);
     internal::call_assignment_no_alias(m_result, inv_xpr);
   }
 

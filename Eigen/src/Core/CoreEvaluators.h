@@ -1723,14 +1723,14 @@ struct evaluator<EvalToTemp<ArgType> >
   EIGEN_DEVICE_FUNC explicit evaluator(const XprType& xpr)
     : m_result(xpr.arg())
   {
-    ::new (static_cast<Base*>(this)) Base(m_result);
+    internal::construct_at<Base>(this, m_result);
   }
 
   // This constructor is used when nesting an EvalTo evaluator in another evaluator
   EIGEN_DEVICE_FUNC evaluator(const ArgType& arg)
     : m_result(arg)
   {
-    ::new (static_cast<Base*>(this)) Base(m_result);
+    internal::construct_at<Base>(this, m_result);
   }
 
 protected:
