@@ -1160,7 +1160,7 @@ inline int queryTopLevelCacheSize()
 using std::construct_at;
 #else
 template<class T, class... Args>
-T* construct_at( T* p, Args&&... args )
+EIGEN_DEVICE_FUNC T* construct_at( T* p, Args&&... args )
 {
   return ::new (const_cast<void*>(static_cast<const volatile void*>(p)))
     T(std::forward<Args>(args)...);
@@ -1176,7 +1176,7 @@ T* construct_at( T* p, Args&&... args )
 using std::destroy_at;
 #else
 template<class T>
-void destroy_at(T* p)
+EIGEN_DEVICE_FUNC void destroy_at(T* p)
 {
   p->~T();
 }
