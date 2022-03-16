@@ -29,7 +29,7 @@
 
 
 // Check if we want to enable dynamic dispatch. Not supported by LLVM.
-if defined(EIGEN_ALTIVEC_ENABLE_MMA_DYNAMIC_DISPATCH) && !EIGEN_COMP_LLVM
+#if defined(EIGEN_ALTIVEC_ENABLE_MMA_DYNAMIC_DISPATCH) && !EIGEN_COMP_LLVM
 #define EIGEN_ALTIVEC_MMA_DYNAMIC_DISPATCH 1
 // Otherwise, use MMA by default if available.
 #elif defined(__MMA__)
