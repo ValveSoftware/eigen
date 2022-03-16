@@ -220,6 +220,15 @@ padd(const Packet& a, const Packet& b) { return a+b; }
 template<> EIGEN_DEVICE_FUNC inline bool
 padd(const bool& a, const bool& b) { return a || b; }
 
+/** \internal \returns a packet version of \a *from, (un-aligned masked add)
+ * There is no generic implementation. We only have implementations for specialized
+ * cases. Generic case should not be called.
+ */
+template<typename Packet> EIGEN_DEVICE_FUNC inline
+std::enable_if_t<unpacket_traits<Packet>::masked_fpops_available, Packet>
+padd(const Packet& a, const Packet& b, typename unpacket_traits<Packet>::mask_t umask);
+
+
 /** \internal \returns a - b (coeff-wise) */
 template<typename Packet> EIGEN_DEVICE_FUNC inline Packet
 psub(const Packet& a, const Packet& b) { return a-b; }
@@ -359,16 +368,16 @@ struct bytewise_bitwise_helper {
   EIGEN_DEVICE_FUNC static inline T bitwise_and(const T& a, const T& b) {
     return binary(a, b, bit_and<unsigned char>());
   }
-  EIGEN_DEVICE_FUNC static inline T bitwise_or(const T& a, const T& b) { 
+  EIGEN_DEVICE_FUNC static inline T bitwise_or(const T& a, const T& b) {
     return binary(a, b, bit_or<unsigned char>());
    }
   EIGEN_DEVICE_FUNC static inline T bitwise_xor(const T& a, const T& b) {
     return binary(a, b, bit_xor<unsigned char>());
   }
-  EIGEN_DEVICE_FUNC static inline T bitwise_not(const T& a) { 
+  EIGEN_DEVICE_FUNC static inline T bitwise_not(const T& a) {
     return unary(a,bit_not<unsigned char>());
    }
-  
+
  private:
   template<typename Op>
   EIGEN_DEVICE_FUNC static inline T unary(const T& a, Op op) {
@@ -810,7 +819,7 @@ Packet plog10(const Packet& a) { EIGEN_USING_STD(log10); return log10(a); }
 template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
 Packet plog2(const Packet& a) {
   typedef typename internal::unpacket_traits<Packet>::type Scalar;
-  return pmul(pset1<Packet>(Scalar(EIGEN_LOG2E)), plog(a)); 
+  return pmul(pset1<Packet>(Scalar(EIGEN_LOG2E)), plog(a));
 }
 
 /** \internal \returns the square-root of \a a (coeff-wise) */
@@ -877,7 +886,7 @@ predux(const Packet& a)
 template <typename Packet>
 EIGEN_DEVICE_FUNC inline typename unpacket_traits<Packet>::type predux_mul(
     const Packet& a) {
-  typedef typename unpacket_traits<Packet>::type Scalar; 
+  typedef typename unpacket_traits<Packet>::type Scalar;
   return predux_helper(a, EIGEN_BINARY_OP_NAN_PROPAGATION(Scalar, (pmul<Scalar>)));
 }
 
@@ -885,14 +894,14 @@ EIGEN_DEVICE_FUNC inline typename unpacket_traits<Packet>::type predux_mul(
 template <typename Packet>
 EIGEN_DEVICE_FUNC inline typename unpacket_traits<Packet>::type predux_min(
     const Packet &a) {
-  typedef typename unpacket_traits<Packet>::type Scalar; 
+  typedef typename unpacket_traits<Packet>::type Scalar;
   return predux_helper(a, EIGEN_BINARY_OP_NAN_PROPAGATION(Scalar, (pmin<PropagateFast, Scalar>)));
 }
 
 template <int NaNPropagation, typename Packet>
 EIGEN_DEVICE_FUNC inline typename unpacket_traits<Packet>::type predux_min(
     const Packet& a) {
-  typedef typename unpacket_traits<Packet>::type Scalar; 
+  typedef typename unpacket_traits<Packet>::type Scalar;
   return predux_helper(a, EIGEN_BINARY_OP_NAN_PROPAGATION(Scalar, (pmin<NaNPropagation, Scalar>)));
 }
 
@@ -900,14 +909,14 @@ EIGEN_DEVICE_FUNC inline typename unpacket_traits<Packet>::type predux_min(
 template <typename Packet>
 EIGEN_DEVICE_FUNC inline typename unpacket_traits<Packet>::type predux_max(
     const Packet &a) {
-  typedef typename unpacket_traits<Packet>::type Scalar; 
+  typedef typename unpacket_traits<Packet>::type Scalar;
   return predux_helper(a, EIGEN_BINARY_OP_NAN_PROPAGATION(Scalar, (pmax<PropagateFast, Scalar>)));
 }
 
 template <int NaNPropagation, typename Packet>
 EIGEN_DEVICE_FUNC inline typename unpacket_traits<Packet>::type predux_max(
     const Packet& a) {
-  typedef typename unpacket_traits<Packet>::type Scalar; 
+  typedef typename unpacket_traits<Packet>::type Scalar;
   return predux_helper(a, EIGEN_BINARY_OP_NAN_PROPAGATION(Scalar, (pmax<NaNPropagation, Scalar>)));
 }
 
