@@ -11,7 +11,9 @@
 #ifndef EIGEN_MATRIX_PRODUCT_MMA_ALTIVEC_H
 #define EIGEN_MATRIX_PRODUCT_MMA_ALTIVEC_H
 
-#if !EIGEN_COMP_LLVM
+// If using dynamic dispatch, set the CPU target.
+#if defined(EIGEN_ALTIVEC_MMA_DYNAMIC_DISPATCH)
+#pragma GCC push_options
 #pragma GCC target("cpu=power10,htm")
 #endif
 
@@ -615,12 +617,13 @@ void gemm_complexMMA(const DataMapper& res, const LhsScalar* blockAc, const RhsS
 #undef advanceRows
 #undef advanceCols
 
-#if !EIGEN_COMP_LLVM
-#pragma GCC reset_options
-#endif
 } // end namespace internal
 
 } // end namespace Eigen
+
+#if defined(EIGEN_ALTIVEC_MMA_DYNAMIC_DISPATCH)
+#pragma GCC pop_options
+#endif
 
 #endif // EIGEN_MATRIX_PRODUCT_MMA_ALTIVEC_H
 
