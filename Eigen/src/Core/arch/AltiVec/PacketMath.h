@@ -2573,7 +2573,7 @@ template<int N, typename EnableIf = void>
 struct plogical_shift_left_impl;
 
 template<int N>
-struct plogical_shift_left_impl<N, typename enable_if<(N < 32) && (N >= 0)>::type> {
+struct plogical_shift_left_impl<N, std::enable_if_t<(N < 32) && (N >= 0)>> {
   static EIGEN_STRONG_INLINE Packet2l run(const Packet2l& a) {
     static const unsigned n = static_cast<unsigned>(N);
     const Packet4ui shift = {n, n, n, n};
@@ -2587,7 +2587,7 @@ struct plogical_shift_left_impl<N, typename enable_if<(N < 32) && (N >= 0)>::typ
 };
 
 template<int N>
-struct plogical_shift_left_impl<N, typename enable_if<(N >= 32)>::type> {
+struct plogical_shift_left_impl<N, std::enable_if_t<(N >= 32)>> {
   static EIGEN_STRONG_INLINE Packet2l run(const Packet2l& a) {
     static const unsigned m = static_cast<unsigned>(N - 32);
     const Packet4ui shift = {m, m, m, m};
@@ -2605,7 +2605,7 @@ template<int N, typename EnableIf = void>
 struct plogical_shift_right_impl;
 
 template<int N>
-struct plogical_shift_right_impl<N, typename enable_if<(N < 32) && (N >= 0)>::type> {
+struct plogical_shift_right_impl<N, std::enable_if_t<(N < 32) && (N >= 0)>> {
   static EIGEN_STRONG_INLINE Packet2l run(const Packet2l& a) {
     static const unsigned n = static_cast<unsigned>(N);
     const Packet4ui shift = {n, n, n, n};
@@ -2619,7 +2619,7 @@ struct plogical_shift_right_impl<N, typename enable_if<(N < 32) && (N >= 0)>::ty
 };
 
 template<int N>
-struct plogical_shift_right_impl<N, typename enable_if<(N >= 32)>::type> {
+struct plogical_shift_right_impl<N, std::enable_if_t<(N >= 32)>> {
   static EIGEN_STRONG_INLINE Packet2l run(const Packet2l& a) {
     static const unsigned m = static_cast<unsigned>(N - 32);
     const Packet4ui shift = {m, m, m, m};

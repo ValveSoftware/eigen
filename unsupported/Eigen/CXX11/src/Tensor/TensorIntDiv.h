@@ -33,7 +33,7 @@ namespace internal {
   // Note: result is undefined if val == 0
   template <typename T>
   EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE
-  typename internal::enable_if<sizeof(T)==4,int>::type count_leading_zeros(const T val)
+  std::enable_if_t<sizeof(T)==4,int> count_leading_zeros(const T val)
   {
 #ifdef EIGEN_GPU_COMPILE_PHASE
     return __clz(val);
@@ -51,7 +51,7 @@ namespace internal {
 
   template <typename T>
   EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE
-  typename internal::enable_if<sizeof(T)==8,int>::type count_leading_zeros(const T val)
+  std::enable_if_t<sizeof(T)==8,int> count_leading_zeros(const T val)
   {
 #ifdef EIGEN_GPU_COMPILE_PHASE
     return __clzll(val);
@@ -79,7 +79,7 @@ namespace internal {
 
   template <typename T>
   struct UnsignedTraits {
-    typedef typename conditional<sizeof(T) == 8, uint64_t, uint32_t>::type type;
+    typedef std::conditional_t<sizeof(T) == 8, uint64_t, uint32_t> type;
   };
 
   template <typename T>

@@ -394,10 +394,10 @@ struct FullReductionLauncher {
 template <typename Self, typename Op, typename OutputType, bool PacketAccess>
 struct FullReductionLauncher<
     Self, Op, OutputType, PacketAccess,
-    typename internal::enable_if<
+    std::enable_if_t<
       internal::is_same<float, OutputType>::value ||
       internal::is_same<double, OutputType>::value,
-    void>::type> {
+    void>> {
   static void run(const Self& self, Op& reducer, const GpuDevice& device, OutputType* output, typename Self::Index num_coeffs) {
 
     typedef typename Self::Index Index;
@@ -764,10 +764,10 @@ struct InnerReductionLauncher {
 template <typename Self, typename Op, typename OutputType, bool PacketAccess>
 struct InnerReductionLauncher<
   Self, Op, OutputType, PacketAccess,
-  typename internal::enable_if<
+  std::enable_if_t<
     internal::is_same<float, OutputType>::value ||
     internal::is_same<double, OutputType>::value,
-  void>::type> {
+  void>> {
   static bool run(const Self& self, Op& reducer, const GpuDevice& device, OutputType* output, typename Self::Index num_coeffs_to_reduce, typename Self::Index num_preserved_vals) {
     typedef typename Self::Index Index;
 

@@ -30,7 +30,7 @@ struct traits<TensorStridingOp<Strides, XprType> > : public traits<XprType>
   typedef typename XprTraits::StorageKind StorageKind;
   typedef typename XprTraits::Index Index;
   typedef typename XprType::Nested Nested;
-  typedef typename remove_reference<Nested>::type Nested_;
+  typedef std::remove_reference_t<Nested> Nested_;
   static const int NumDimensions = XprTraits::NumDimensions;
   static const int Layout = XprTraits::Layout;
   typedef typename XprTraits::PointerType PointerType;
@@ -71,7 +71,7 @@ class TensorStridingOp : public TensorBase<TensorStridingOp<Strides, XprType> >
     const Strides& strides() const { return m_dims; }
 
     EIGEN_DEVICE_FUNC
-    const typename internal::remove_all<typename XprType::Nested>::type&
+    const internal::remove_all_t<typename XprType::Nested>&
     expression() const { return m_xpr; }
 
     EIGEN_TENSOR_INHERIT_ASSIGNMENT_OPERATORS(TensorStridingOp)
@@ -97,12 +97,12 @@ struct TensorEvaluator<const TensorStridingOp<Strides, ArgType>, Device>
   typedef StorageMemory<CoeffReturnType, Device> Storage;
   typedef typename Storage::Type EvaluatorPointerType;
 
+  static constexpr int Layout = TensorEvaluator<ArgType, Device>::Layout;
   enum {
     IsAligned = /*TensorEvaluator<ArgType, Device>::IsAligned*/false,
     PacketAccess = TensorEvaluator<ArgType, Device>::PacketAccess,
     BlockAccess = false,
     PreferBlockAccess = TensorEvaluator<ArgType, Device>::PreferBlockAccess,
-    Layout = TensorEvaluator<ArgType, Device>::Layout,
     CoordAccess = false,  // to be implemented
     RawAccess = false
   };
@@ -195,7 +195,7 @@ struct TensorEvaluator<const TensorStridingOp<Strides, ArgType>, Device>
       return rslt;
     }
     else {
-      EIGEN_ALIGN_MAX typename internal::remove_const<CoeffReturnType>::type values[PacketSize];
+      EIGEN_ALIGN_MAX std::remove_const_t<CoeffReturnType> values[PacketSize];
       values[0] = m_impl.coeff(inputIndices[0]);
       values[PacketSize-1] = m_impl.coeff(inputIndices[1]);
       EIGEN_UNROLL_LOOP
@@ -270,11 +270,11 @@ struct TensorEvaluator<TensorStridingOp<Strides, ArgType>, Device>
   static const int NumDims = internal::array_size<typename TensorEvaluator<ArgType, Device>::Dimensions>::value;
   //  typedef DSizes<Index, NumDims> Dimensions;
 
+  static constexpr int Layout = TensorEvaluator<ArgType, Device>::Layout;
   enum {
     IsAligned = /*TensorEvaluator<ArgType, Device>::IsAligned*/false,
     PacketAccess = TensorEvaluator<ArgType, Device>::PacketAccess,
     PreferBlockAccess = false,
-    Layout = TensorEvaluator<ArgType, Device>::Layout,
     CoordAccess = false,  // to be implemented
     RawAccess = false
   };

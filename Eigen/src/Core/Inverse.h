@@ -48,9 +48,9 @@ public:
   typedef typename XprType::StorageIndex StorageIndex;
   typedef typename XprType::Scalar                            Scalar;
   typedef typename internal::ref_selector<XprType>::type      XprTypeNested;
-  typedef typename internal::remove_all<XprTypeNested>::type  XprTypeNestedCleaned;
+  typedef internal::remove_all_t<XprTypeNested>  XprTypeNestedCleaned;
   typedef typename internal::ref_selector<Inverse>::type Nested;
-  typedef typename internal::remove_all<XprType>::type NestedExpression;
+  typedef internal::remove_all_t<XprType> NestedExpression;
 
   explicit EIGEN_DEVICE_FUNC Inverse(const XprType &xpr)
     : m_xpr(xpr)

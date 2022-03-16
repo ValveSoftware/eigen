@@ -32,7 +32,7 @@ struct traits<TensorTraceOp<Dims, XprType> > : public traits<XprType>
   typedef typename XprTraits::StorageKind StorageKind;
   typedef typename XprTraits::Index Index;
   typedef typename XprType::Nested Nested;
-  typedef typename remove_reference<Nested>::type Nested_;
+  typedef std::remove_reference_t<Nested> Nested_;
   static const int NumDimensions = XprTraits::NumDimensions - array_size<Dims>::value;
   static const int Layout = XprTraits::Layout;
 };
@@ -71,7 +71,7 @@ class TensorTraceOp : public TensorBase<TensorTraceOp<Dims, XprType> >
     const Dims& dims() const { return m_dims; }
 
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
-    const typename internal::remove_all<typename XprType::Nested>::type& expression() const { return m_xpr; }
+    const internal::remove_all_t<typename XprType::Nested>& expression() const { return m_xpr; }
 
   protected:
     typename XprType::Nested m_xpr;
@@ -96,12 +96,12 @@ struct TensorEvaluator<const TensorTraceOp<Dims, ArgType>, Device>
   typedef StorageMemory<CoeffReturnType, Device> Storage;
   typedef typename Storage::Type EvaluatorPointerType;
 
+  static constexpr int Layout = TensorEvaluator<ArgType, Device>::Layout;
   enum {
     IsAligned = false,
     PacketAccess = TensorEvaluator<ArgType, Device>::PacketAccess,
     BlockAccess = false,
     PreferBlockAccess = TensorEvaluator<ArgType, Device>::PreferBlockAccess,
-    Layout = TensorEvaluator<ArgType, Device>::Layout,
     CoordAccess = false,
     RawAccess = false
   };
@@ -247,7 +247,7 @@ struct TensorEvaluator<const TensorTraceOp<Dims, ArgType>, Device>
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE PacketReturnType packet(Index index) const {
     eigen_assert(index + PacketSize - 1 < dimensions().TotalSize());
 
-    EIGEN_ALIGN_MAX typename internal::remove_const<CoeffReturnType>::type values[PacketSize];
+    EIGEN_ALIGN_MAX std::remove_const_t<CoeffReturnType> values[PacketSize];
     for (int i = 0; i < PacketSize; ++i) {
         values[i] = coeff(index + i);
     }

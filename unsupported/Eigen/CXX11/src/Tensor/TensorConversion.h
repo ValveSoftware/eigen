@@ -30,7 +30,7 @@ struct traits<TensorConversionOp<TargetType, XprType> >
   typedef typename traits<XprType>::StorageKind StorageKind;
   typedef typename traits<XprType>::Index Index;
   typedef typename XprType::Nested Nested;
-  typedef typename remove_reference<Nested>::type Nested_;
+  typedef std::remove_reference_t<Nested> Nested_;
   static const int NumDimensions = traits<XprType>::NumDimensions;
   static const int Layout = traits<XprType>::Layout;
   enum { Flags = 0 };
@@ -189,7 +189,7 @@ class TensorConversionOp : public TensorBase<TensorConversionOp<TargetType, XprT
         : m_xpr(xpr) {}
 
     EIGEN_DEVICE_FUNC
-    const typename internal::remove_all<typename XprType::Nested>::type&
+    const internal::remove_all_t<typename XprType::Nested>&
     expression() const { return m_xpr; }
 
   protected:
@@ -257,7 +257,7 @@ struct PacketConv {
   template <typename ArgType, typename Device>
   static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TargetPacket run(const TensorEvaluator<ArgType, Device>& impl, Index index) {
     internal::scalar_cast_op<SrcType, TargetType> converter;
-    EIGEN_ALIGN_MAX typename internal::remove_const<TargetType>::type values[PacketSize];
+    EIGEN_ALIGN_MAX std::remove_const_t<TargetType> values[PacketSize];
     EIGEN_UNROLL_LOOP
     for (int i = 0; i < PacketSize; ++i) {
       values[i] = converter(impl.coeff(index+i));
@@ -289,7 +289,7 @@ struct PacketConv<SrcPacket, TargetPacket, LoadMode, /*ActuallyVectorize=*/false
 
   template <typename ArgType, typename Device>
   static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TargetPacket run(const TensorEvaluator<ArgType, Device>& impl, Index index) {
-    EIGEN_ALIGN_MAX typename internal::remove_const<TargetType>::type values[PacketSize];
+    EIGEN_ALIGN_MAX std::remove_const_t<TargetType> values[PacketSize];
     for (int i = 0; i < PacketSize; ++i) values[i] = impl.coeff(index+i);
     return internal::pload<TargetPacket>(values);
   }
@@ -314,7 +314,7 @@ struct TensorEvaluator<const TensorConversionOp<TargetType, ArgType>, Device>
   typedef typename TensorEvaluator<ArgType, Device>::Dimensions Dimensions;
   typedef TargetType Scalar;
   typedef TargetType CoeffReturnType;
-  typedef typename internal::remove_all<typename internal::traits<ArgType>::Scalar>::type SrcType;
+  typedef internal::remove_all_t<typename internal::traits<ArgType>::Scalar> SrcType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
   typedef typename PacketType<SrcType, Device>::type PacketSourceType;
   static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
@@ -333,10 +333,10 @@ struct TensorEvaluator<const TensorConversionOp<TargetType, ArgType>, Device>
     #endif
     BlockAccess       = TensorEvaluator<ArgType, Device>::BlockAccess,
     PreferBlockAccess = TensorEvaluator<ArgType, Device>::PreferBlockAccess,
-    Layout            = TensorEvaluator<ArgType, Device>::Layout,
     RawAccess         = false
   };
 
+  static constexpr int Layout = TensorEvaluator<ArgType, Device>::Layout;
   static const int NumDims = internal::array_size<Dimensions>::value;
 
   //===- Tensor block evaluation strategy (see TensorBlock.h) -------------===//

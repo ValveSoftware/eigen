@@ -31,7 +31,7 @@ struct traits<TensorEvalToOp<XprType, MakePointer_> >
   typedef typename XprTraits::StorageKind StorageKind;
   typedef typename XprTraits::Index Index;
   typedef typename XprType::Nested Nested;
-  typedef typename remove_reference<Nested>::type Nested_;
+  typedef std::remove_reference_t<Nested> Nested_;
   static const int NumDimensions = XprTraits::NumDimensions;
   static const int Layout = XprTraits::Layout;
   typedef typename MakePointer_<Scalar>::Type PointerType;
@@ -72,7 +72,7 @@ class TensorEvalToOp : public TensorBase<TensorEvalToOp<XprType, MakePointer_>, 
   public:
   typedef typename Eigen::internal::traits<TensorEvalToOp>::Scalar Scalar;
   typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
-  typedef typename internal::remove_const<typename XprType::CoeffReturnType>::type CoeffReturnType;
+  typedef std::remove_const_t<typename XprType::CoeffReturnType> CoeffReturnType;
   typedef typename MakePointer_<CoeffReturnType>::Type PointerType;
   typedef typename Eigen::internal::nested<TensorEvalToOp>::type Nested;
   typedef typename Eigen::internal::traits<TensorEvalToOp>::StorageKind StorageKind;
@@ -84,7 +84,7 @@ class TensorEvalToOp : public TensorBase<TensorEvalToOp<XprType, MakePointer_>, 
       : m_xpr(expr), m_buffer(buffer) {}
 
     EIGEN_DEVICE_FUNC
-    const typename internal::remove_all<typename XprType::Nested>::type&
+    const internal::remove_all_t<typename XprType::Nested>&
     expression() const { return m_xpr; }
 
     EIGEN_DEVICE_FUNC PointerType buffer() const { return m_buffer; }
@@ -103,7 +103,7 @@ struct TensorEvaluator<const TensorEvalToOp<ArgType, MakePointer_>, Device>
   typedef typename ArgType::Scalar Scalar;
   typedef typename TensorEvaluator<ArgType, Device>::Dimensions Dimensions;
   typedef typename XprType::Index Index;
-  typedef typename internal::remove_const<typename XprType::CoeffReturnType>::type CoeffReturnType;
+  typedef std::remove_const_t<typename XprType::CoeffReturnType> CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
   static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
   typedef typename Eigen::internal::traits<XprType>::PointerType TensorPointerType;
@@ -114,11 +114,11 @@ struct TensorEvaluator<const TensorEvalToOp<ArgType, MakePointer_>, Device>
     PacketAccess      = TensorEvaluator<ArgType, Device>::PacketAccess,
     BlockAccess       = true,
     PreferBlockAccess = false,
-    Layout            = TensorEvaluator<ArgType, Device>::Layout,
     CoordAccess       = false,  // to be implemented
     RawAccess         = true
   };
 
+  static constexpr int Layout = TensorEvaluator<ArgType, Device>::Layout;
   static const int NumDims = internal::traits<ArgType>::NumDimensions;
 
   //===- Tensor block evaluation strategy (see TensorBlock.h) -------------===//

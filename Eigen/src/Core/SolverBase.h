@@ -30,7 +30,7 @@ struct solve_assertion<Transpose<Derived> >
     template<bool Transpose_, typename Rhs>
     static void run(const type& transpose, const Rhs& b)
     {
-        internal::solve_assertion<typename internal::remove_all<Derived>::type>::template run<true>(transpose.nestedExpression(), b);
+        internal::solve_assertion<internal::remove_all_t<Derived>>::template run<true>(transpose.nestedExpression(), b);
     }
 };
 
@@ -42,7 +42,7 @@ struct solve_assertion<CwiseUnaryOp<Eigen::internal::scalar_conjugate_op<Scalar>
     template<bool Transpose_, typename Rhs>
     static void run(const type& adjoint, const Rhs& b)
     {
-        internal::solve_assertion<typename internal::remove_all<Transpose<Derived> >::type>::template run<true>(adjoint.nestedExpression(), b);
+        internal::solve_assertion<internal::remove_all_t<Transpose<Derived> >>::template run<true>(adjoint.nestedExpression(), b);
     }
 };
 } // end namespace internal
@@ -107,12 +107,12 @@ class SolverBase : public EigenBase<Derived>
     inline const Solve<Derived, Rhs>
     solve(const MatrixBase<Rhs>& b) const
     {
-      internal::solve_assertion<typename internal::remove_all<Derived>::type>::template run<false>(derived(), b);
+      internal::solve_assertion<internal::remove_all_t<Derived>>::template run<false>(derived(), b);
       return Solve<Derived, Rhs>(derived(), b.derived());
     }
 
     /** \internal the return type of transpose() */
-    typedef typename internal::add_const<Transpose<const Derived> >::type ConstTransposeReturnType;
+    typedef std::add_const_t<Transpose<const Derived> > ConstTransposeReturnType;
     /** \returns an expression of the transposed of the factored matrix.
       *
       * A typical usage is to solve for the transposed problem A^T x = b:
@@ -126,10 +126,10 @@ class SolverBase : public EigenBase<Derived>
     }
 
     /** \internal the return type of adjoint() */
-    typedef typename internal::conditional<NumTraits<Scalar>::IsComplex,
-                        CwiseUnaryOp<internal::scalar_conjugate_op<Scalar>, ConstTransposeReturnType>,
-                        ConstTransposeReturnType
-                     >::type AdjointReturnType;
+    typedef std::conditional_t<NumTraits<Scalar>::IsComplex,
+               CwiseUnaryOp<internal::scalar_conjugate_op<Scalar>, ConstTransposeReturnType>,
+               ConstTransposeReturnType
+            > AdjointReturnType;
     /** \returns an expression of the adjoint of the factored matrix
       *
       * A typical usage is to solve for the adjoint problem A' x = b:

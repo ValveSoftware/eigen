@@ -37,7 +37,7 @@ struct traits<Ref<SparseMatrix<MatScalar,MatOptions,MatIndex>, Options_, StrideT
       StorageOrderMatch = PlainObjectType::IsVectorAtCompileTime || Derived::IsVectorAtCompileTime || ((PlainObjectType::Flags&RowMajorBit)==(Derived::Flags&RowMajorBit)),
       MatchAtCompileTime = (Derived::Flags&CompressedAccessBit) && StorageOrderMatch
     };
-    typedef typename internal::conditional<MatchAtCompileTime,internal::true_type,internal::false_type>::type type;
+    typedef std::conditional_t<MatchAtCompileTime,internal::true_type,internal::false_type> type;
   };
   
 };
@@ -65,7 +65,7 @@ struct traits<Ref<SparseVector<MatScalar,MatOptions,MatIndex>, Options_, StrideT
     enum {
       MatchAtCompileTime = (Derived::Flags&CompressedAccessBit) && Derived::IsVectorAtCompileTime
     };
-    typedef typename internal::conditional<MatchAtCompileTime,internal::true_type,internal::false_type>::type type;
+    typedef std::conditional_t<MatchAtCompileTime,internal::true_type,internal::false_type> type;
   };
 
 };

@@ -262,7 +262,7 @@ namespace Eigen
     {
       CalcEulerAngles_imp(
         res.angles(), mat,
-        typename internal::conditional<IsTaitBryan, internal::true_type, internal::false_type>::type());
+        std::conditional_t<IsTaitBryan, internal::true_type, internal::false_type>());
 
       if (IsAlphaOpposite)
         res.alpha() = -res.alpha();

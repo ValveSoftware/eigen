@@ -31,7 +31,7 @@ struct traits<TensorIndexPairOp<XprType> > : public traits<XprType>
   typedef typename XprTraits::Index Index;
   typedef Pair<Index, typename XprTraits::Scalar> Scalar;
   typedef typename XprType::Nested Nested;
-  typedef typename remove_reference<Nested>::type Nested_;
+  typedef std::remove_reference_t<Nested> Nested_;
   static const int NumDimensions = XprTraits::NumDimensions;
   static const int Layout = XprTraits::Layout;
 };
@@ -66,7 +66,7 @@ class TensorIndexPairOp : public TensorBase<TensorIndexPairOp<XprType>, ReadOnly
       : m_xpr(expr) {}
 
   EIGEN_DEVICE_FUNC
-  const typename internal::remove_all<typename XprType::Nested>::type&
+  const internal::remove_all_t<typename XprType::Nested>&
   expression() const { return m_xpr; }
 
   protected:
@@ -92,10 +92,10 @@ struct TensorEvaluator<const TensorIndexPairOp<ArgType>, Device>
     PacketAccess = /*TensorEvaluator<ArgType, Device>::PacketAccess*/ false,
     BlockAccess = false,
     PreferBlockAccess = TensorEvaluator<ArgType, Device>::PreferBlockAccess,
-    Layout = TensorEvaluator<ArgType, Device>::Layout,
     CoordAccess = false,  // to be implemented
     RawAccess = false
   };
+  static constexpr int Layout = TensorEvaluator<ArgType, Device>::Layout;
 
   //===- Tensor block evaluation strategy (see TensorBlock.h) -------------===//
   typedef internal::TensorBlockNotImplemented TensorBlock;
@@ -154,7 +154,7 @@ struct traits<TensorPairReducerOp<ReduceOp, Dims, XprType> > : public traits<Xpr
   typedef typename XprTraits::Index Index;
   typedef Index Scalar;
   typedef typename XprType::Nested Nested;
-  typedef typename remove_reference<Nested>::type Nested_;
+  typedef std::remove_reference_t<Nested> Nested_;
   static const int NumDimensions = XprTraits::NumDimensions - array_size<Dims>::value;
   static const int Layout = XprTraits::Layout;
 };
@@ -192,7 +192,7 @@ class TensorPairReducerOp : public TensorBase<TensorPairReducerOp<ReduceOp, Dims
       : m_xpr(expr), m_reduce_op(reduce_op), m_return_dim(return_dim), m_reduce_dims(reduce_dims) {}
 
   EIGEN_DEVICE_FUNC
-  const typename internal::remove_all<typename XprType::Nested>::type&
+  const internal::remove_all_t<typename XprType::Nested>&
   expression() const { return m_xpr; }
 
   EIGEN_DEVICE_FUNC
@@ -233,11 +233,10 @@ struct TensorEvaluator<const TensorPairReducerOp<ReduceOp, Dims, ArgType>, Devic
     PacketAccess      = /*TensorEvaluator<ArgType, Device>::PacketAccess*/ false,
     BlockAccess       = false,
     PreferBlockAccess = TensorEvaluator<ArgType, Device>::PreferBlockAccess,
-    Layout            = TensorEvaluator<const TensorReductionOp<ReduceOp, Dims, const TensorIndexPairOp<ArgType> >, Device>::Layout,
     CoordAccess       = false,  // to be implemented
     RawAccess         = false
   };
-
+  static constexpr int Layout = TensorEvaluator<const TensorReductionOp<ReduceOp, Dims, const TensorIndexPairOp<ArgType>>, Device>::Layout;
   //===- Tensor block evaluation strategy (see TensorBlock.h) -------------===//
   typedef internal::TensorBlockNotImplemented TensorBlock;
   //===--------------------------------------------------------------------===//

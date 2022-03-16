@@ -113,7 +113,7 @@ class no_assignment_operator
 template<typename I1, typename I2>
 struct promote_index_type
 {
-  typedef typename conditional<(sizeof(I1)<sizeof(I2)), I2, I1>::type type;
+  typedef std::conditional_t<(sizeof(I1)<sizeof(I2)), I2, I1> type;
 };
 
 /** \internal If the template parameter Value is Dynamic, this class is just a wrapper around a T variable that
@@ -409,28 +409,28 @@ template<typename T> struct plain_matrix_type_row_major
 template <typename T>
 struct ref_selector
 {
-  typedef typename conditional<
+  typedef std::conditional_t<
     bool(traits<T>::Flags & NestByRefBit),
     T const&,
     const T
-  >::type type;
+  > type;
 
-  typedef typename conditional<
+  typedef std::conditional_t<
     bool(traits<T>::Flags & NestByRefBit),
     T &,
     T
-  >::type non_const_type;
+  > non_const_type;
 };
 
 /** \internal Adds the const qualifier on the value-type of T2 if and only if T1 is a const type */
 template<typename T1, typename T2>
 struct transfer_constness
 {
-  typedef typename conditional<
+  typedef std::conditional_t<
     bool(internal::is_const<T1>::value),
-    typename internal::add_const_on_value_type<T2>::type,
+    add_const_on_value_type_t<T2>,
     T2
-  >::type type;
+  > type;
 };
 
 
@@ -463,7 +463,7 @@ template<typename T, int n, typename PlainObject = typename plain_object_eval<T>
     Evaluate = (int(evaluator<T>::Flags) & EvalBeforeNestingBit) || (int(CostEval) < int(CostNoEval))
   };
 
-  typedef typename conditional<Evaluate, PlainObject, typename ref_selector<T>::type>::type type;
+  typedef std::conditional_t<Evaluate, PlainObject, typename ref_selector<T>::type> type;
 };
 
 template<typename T>
@@ -503,10 +503,10 @@ struct generic_xpr_base<Derived, XprKind, Dense>
 template<typename XprType, typename CastType> struct cast_return_type
 {
   typedef typename XprType::Scalar CurrentScalarType;
-  typedef typename remove_all<CastType>::type CastType_;
+  typedef remove_all_t<CastType> CastType_;
   typedef typename CastType_::Scalar NewScalarType;
-  typedef typename conditional<is_same<CurrentScalarType,NewScalarType>::value,
-                              const XprType&,CastType>::type type;
+  typedef std::conditional_t<is_same<CurrentScalarType,NewScalarType>::value,
+                              const XprType&,CastType> type;
 };
 
 template <typename A, typename B> struct promote_storage_type;
@@ -597,11 +597,11 @@ struct plain_row_type
   typedef Array<Scalar, 1, ExpressionType::ColsAtCompileTime,
                  int(ExpressionType::PlainObject::Options) | int(RowMajor), 1, ExpressionType::MaxColsAtCompileTime> ArrayRowType;
 
-  typedef typename conditional<
+  typedef std::conditional_t<
     is_same< typename traits<ExpressionType>::XprKind, MatrixXpr >::value,
     MatrixRowType,
     ArrayRowType
-  >::type type;
+  > type;
 };
 
 template<typename ExpressionType, typename Scalar = typename ExpressionType::Scalar>
@@ -612,11 +612,11 @@ struct plain_col_type
   typedef Array<Scalar, ExpressionType::RowsAtCompileTime, 1,
                  ExpressionType::PlainObject::Options & ~RowMajor, ExpressionType::MaxRowsAtCompileTime, 1> ArrayColType;
 
-  typedef typename conditional<
+  typedef std::conditional_t<
     is_same< typename traits<ExpressionType>::XprKind, MatrixXpr >::value,
     MatrixColType,
     ArrayColType
-  >::type type;
+  > type;
 };
 
 template<typename ExpressionType, typename Scalar = typename ExpressionType::Scalar>
@@ -629,11 +629,11 @@ struct plain_diag_type
   typedef Matrix<Scalar, diag_size, 1, ExpressionType::PlainObject::Options & ~RowMajor, max_diag_size, 1> MatrixDiagType;
   typedef Array<Scalar, diag_size, 1, ExpressionType::PlainObject::Options & ~RowMajor, max_diag_size, 1> ArrayDiagType;
 
-  typedef typename conditional<
+  typedef std::conditional_t<
     is_same< typename traits<ExpressionType>::XprKind, MatrixXpr >::value,
     MatrixDiagType,
     ArrayDiagType
-  >::type type;
+  > type;
 };
 
 template<typename Expr,typename Scalar = typename Expr::Scalar>
@@ -647,7 +647,7 @@ struct plain_constant_type
   typedef Matrix<Scalar,  traits<Expr>::RowsAtCompileTime,   traits<Expr>::ColsAtCompileTime,
                  Options, traits<Expr>::MaxRowsAtCompileTime,traits<Expr>::MaxColsAtCompileTime> matrix_type;
 
-  typedef CwiseNullaryOp<scalar_constant_op<Scalar>, const typename conditional<is_same< typename traits<Expr>::XprKind, MatrixXpr >::value, matrix_type, array_type>::type > type;
+  typedef CwiseNullaryOp<scalar_constant_op<Scalar>, const std::conditional_t<is_same< typename traits<Expr>::XprKind, MatrixXpr >::value, matrix_type, array_type> > type;
 };
 
 template<typename ExpressionType>
@@ -687,14 +687,14 @@ struct possibly_same_dense {
 
 template<typename T1, typename T2>
 EIGEN_DEVICE_FUNC
-bool is_same_dense(const T1 &mat1, const T2 &mat2, typename enable_if<possibly_same_dense<T1,T2>::value>::type * = 0)
+bool is_same_dense(const T1 &mat1, const T2 &mat2, std::enable_if_t<possibly_same_dense<T1,T2>::value> * = 0)
 {
   return (mat1.data()==mat2.data()) && (mat1.innerStride()==mat2.innerStride()) && (mat1.outerStride()==mat2.outerStride());
 }
 
 template<typename T1, typename T2>
 EIGEN_DEVICE_FUNC
-bool is_same_dense(const T1 &, const T2 &, typename enable_if<!possibly_same_dense<T1,T2>::value>::type * = 0)
+bool is_same_dense(const T1 &, const T2 &, std::enable_if_t<!possibly_same_dense<T1,T2>::value> * = 0)
 {
   return false;
 }
@@ -716,9 +716,9 @@ struct scalar_div_cost<std::complex<T>, Vectorized> {
 
 
 template<bool Vectorized>
-struct scalar_div_cost<signed long,Vectorized,typename conditional<sizeof(long)==8,void,false_type>::type> { enum { value = 24 }; };
+struct scalar_div_cost<signed long,Vectorized, std::conditional_t<sizeof(long)==8,void,false_type>> { enum { value = 24 }; };
 template<bool Vectorized>
-struct scalar_div_cost<unsigned long,Vectorized,typename conditional<sizeof(long)==8,void,false_type>::type> { enum { value = 21 }; };
+struct scalar_div_cost<unsigned long,Vectorized, std::conditional_t<sizeof(long)==8,void,false_type>> { enum { value = 21 }; };
 
 
 #ifdef EIGEN_DEBUG_ASSIGN
@@ -807,12 +807,12 @@ struct ScalarBinaryOpTraits<T,T,BinaryOp>
 };
 
 template <typename T, typename BinaryOp>
-struct ScalarBinaryOpTraits<T, typename NumTraits<typename internal::enable_if<NumTraits<T>::IsComplex,T>::type>::Real, BinaryOp>
+struct ScalarBinaryOpTraits<T, typename NumTraits<std::enable_if_t<NumTraits<T>::IsComplex,T>>::Real, BinaryOp>
 {
   typedef T ReturnType;
 };
 template <typename T, typename BinaryOp>
-struct ScalarBinaryOpTraits<typename NumTraits<typename internal::enable_if<NumTraits<T>::IsComplex,T>::type>::Real, T, BinaryOp>
+struct ScalarBinaryOpTraits<typename NumTraits<std::enable_if_t<NumTraits<T>::IsComplex,T>>::Real, T, BinaryOp>
 {
   typedef T ReturnType;
 };

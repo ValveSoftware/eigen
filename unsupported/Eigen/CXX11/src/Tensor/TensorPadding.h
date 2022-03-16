@@ -30,7 +30,7 @@ struct traits<TensorPaddingOp<PaddingDimensions, XprType> > : public traits<XprT
   typedef typename XprTraits::StorageKind StorageKind;
   typedef typename XprTraits::Index Index;
   typedef typename XprType::Nested Nested;
-  typedef typename remove_reference<Nested>::type Nested_;
+  typedef std::remove_reference_t<Nested> Nested_;
   static const int NumDimensions = XprTraits::NumDimensions;
   static const int Layout = XprTraits::Layout;
   typedef typename XprTraits::PointerType PointerType;
@@ -72,7 +72,7 @@ class TensorPaddingOp : public TensorBase<TensorPaddingOp<PaddingDimensions, Xpr
     Scalar padding_value() const { return m_padding_value; }
 
     EIGEN_DEVICE_FUNC
-    const typename internal::remove_all<typename XprType::Nested>::type&
+    const internal::remove_all_t<typename XprType::Nested>&
     expression() const { return m_xpr; }
 
   protected:
@@ -97,17 +97,17 @@ struct TensorEvaluator<const TensorPaddingOp<PaddingDimensions, ArgType>, Device
   typedef StorageMemory<CoeffReturnType, Device> Storage;
   typedef typename Storage::Type EvaluatorPointerType;
 
+  static constexpr int Layout = TensorEvaluator<ArgType, Device>::Layout;
   enum {
     IsAligned         = true,
     PacketAccess      = TensorEvaluator<ArgType, Device>::PacketAccess,
     BlockAccess       = TensorEvaluator<ArgType, Device>::RawAccess,
     PreferBlockAccess = true,
-    Layout            = TensorEvaluator<ArgType, Device>::Layout,
     CoordAccess       = true,
     RawAccess         = false
   };
 
-  typedef typename internal::remove_const<Scalar>::type ScalarNoConst;
+  typedef std::remove_const_t<Scalar> ScalarNoConst;
 
   //===- Tensor block evaluation strategy (see TensorBlock.h) -------------===//
   typedef internal::TensorBlockDescriptor<NumDims, Index> TensorBlockDesc;
@@ -665,7 +665,7 @@ struct TensorEvaluator<const TensorPaddingOp<PaddingDimensions, ArgType>, Device
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE PacketReturnType packetWithPossibleZero(Index index) const
   {
-    EIGEN_ALIGN_MAX typename internal::remove_const<CoeffReturnType>::type values[PacketSize];
+    EIGEN_ALIGN_MAX std::remove_const_t<CoeffReturnType> values[PacketSize];
     EIGEN_UNROLL_LOOP
     for (int i = 0; i < PacketSize; ++i) {
       values[i] = coeff(index+i);

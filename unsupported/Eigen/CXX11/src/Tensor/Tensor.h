@@ -77,11 +77,11 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
 
     enum {
       IsAligned = (EIGEN_MAX_ALIGN_BYTES>0) && !(Options_&DontAlign),
-      Layout = Options_ & RowMajor ? RowMajor : ColMajor,
       CoordAccess = true,
       RawAccess = true
     };
 
+    static constexpr int Layout = Options_ & RowMajor ? RowMajor : ColMajor;
     static const int Options = Options_;
     static const int NumIndices = NumIndices_;
     typedef DSizes<Index, NumIndices_> Dimensions;

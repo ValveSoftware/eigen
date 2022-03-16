@@ -19,7 +19,7 @@ template<typename XprType, int BlockRows, int BlockCols>
 class BlockImpl<XprType,BlockRows,BlockCols,true,Sparse>
   : public SparseMatrixBase<Block<XprType,BlockRows,BlockCols,true> >
 {
-    typedef typename internal::remove_all<typename XprType::Nested>::type MatrixTypeNested_;
+    typedef internal::remove_all_t<typename XprType::Nested> MatrixTypeNested_;
     typedef Block<XprType, BlockRows, BlockCols, true> BlockType;
 public:
     enum { IsRowMajor = internal::traits<BlockType>::IsRowMajor };
@@ -98,7 +98,7 @@ template<typename SparseMatrixType, int BlockRows, int BlockCols>
 class sparse_matrix_block_impl
   : public SparseCompressedBase<Block<SparseMatrixType,BlockRows,BlockCols,true> >
 {
-    typedef typename internal::remove_all<typename SparseMatrixType::Nested>::type MatrixTypeNested_;
+    typedef internal::remove_all_t<typename SparseMatrixType::Nested> MatrixTypeNested_;
     typedef Block<SparseMatrixType, BlockRows, BlockCols, true> BlockType;
     typedef SparseCompressedBase<Block<SparseMatrixType,BlockRows,BlockCols,true> > Base;
     using Base::convert_index;
@@ -121,7 +121,7 @@ public:
     template<typename OtherDerived>
     inline BlockType& operator=(const SparseMatrixBase<OtherDerived>& other)
     {
-      typedef typename internal::remove_all<typename SparseMatrixType::Nested>::type NestedMatrixType_;
+      typedef internal::remove_all_t<typename SparseMatrixType::Nested> NestedMatrixType_;
       NestedMatrixType_& matrix = m_matrix;
       // This assignment is slow if this vector set is not empty
       // and/or it is not at the end of the nonzeros of the underlying matrix.
@@ -342,7 +342,7 @@ public:
     enum { IsRowMajor = internal::traits<BlockType>::IsRowMajor };
     EIGEN_SPARSE_PUBLIC_INTERFACE(BlockType)
 
-    typedef typename internal::remove_all<typename XprType::Nested>::type MatrixTypeNested_;
+    typedef internal::remove_all_t<typename XprType::Nested> MatrixTypeNested_;
 
     /** Column or Row constructor
       */
@@ -436,7 +436,7 @@ struct unary_evaluator<Block<ArgType,BlockRows,BlockCols,InnerPanel>, IteratorBa
       Flags = XprType::Flags
     };
 
-    typedef typename internal::conditional<OuterVector,OuterVectorInnerIterator,InnerVectorInnerIterator>::type InnerIterator;
+    typedef std::conditional_t<OuterVector,OuterVectorInnerIterator,InnerVectorInnerIterator> InnerIterator;
 
     explicit unary_evaluator(const XprType& op)
       : m_argImpl(op.nestedExpression()), m_block(op)

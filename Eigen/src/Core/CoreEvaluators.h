@@ -500,7 +500,7 @@ struct evaluator<CwiseNullaryOp<NullaryOp,PlainObjectType> >
   : evaluator_base<CwiseNullaryOp<NullaryOp,PlainObjectType> >
 {
   typedef CwiseNullaryOp<NullaryOp,PlainObjectType> XprType;
-  typedef typename internal::remove_all<PlainObjectType>::type PlainObjectTypeCleaned;
+  typedef internal::remove_all_t<PlainObjectType> PlainObjectTypeCleaned;
 
   enum {
     CoeffReadCost = internal::functor_traits<NullaryOp>::Cost,
@@ -1298,7 +1298,7 @@ struct unary_evaluator<Replicate<ArgType, RowFactor, ColFactor> >
     Factor = (RowFactor==Dynamic || ColFactor==Dynamic) ? Dynamic : RowFactor*ColFactor
   };
   typedef typename internal::nested_eval<ArgType,Factor>::type ArgTypeNested;
-  typedef typename internal::remove_all<ArgTypeNested>::type ArgTypeNestedCleaned;
+  typedef internal::remove_all_t<ArgTypeNested> ArgTypeNestedCleaned;
 
   enum {
     CoeffReadCost = evaluator<ArgTypeNestedCleaned>::CoeffReadCost,
@@ -1382,7 +1382,7 @@ template<typename XprType>
 struct evaluator_wrapper_base
   : evaluator_base<XprType>
 {
-  typedef typename remove_all<typename XprType::NestedExpressionType>::type ArgType;
+  typedef remove_all_t<typename XprType::NestedExpressionType> ArgType;
   enum {
     CoeffReadCost = evaluator<ArgType>::CoeffReadCost,
     Flags = evaluator<ArgType>::Flags,

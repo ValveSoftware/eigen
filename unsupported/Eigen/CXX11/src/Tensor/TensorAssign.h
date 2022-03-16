@@ -32,8 +32,8 @@ struct traits<TensorAssignOp<LhsXprType, RhsXprType> >
                                       typename traits<RhsXprType>::Index>::type Index;
   typedef typename LhsXprType::Nested LhsNested;
   typedef typename RhsXprType::Nested RhsNested;
-  typedef typename remove_reference<LhsNested>::type LhsNested_;
-  typedef typename remove_reference<RhsNested>::type RhsNested_;
+  typedef std::remove_reference_t<LhsNested> LhsNested_;
+  typedef std::remove_reference_t<RhsNested> RhsNested_;
   static const std::size_t NumDimensions = internal::traits<LhsXprType>::NumDimensions;
   static const int Layout = internal::traits<LhsXprType>::Layout;
   typedef typename traits<LhsXprType>::PointerType PointerType;
@@ -77,16 +77,16 @@ class TensorAssignOp : public TensorBase<TensorAssignOp<LhsXprType, RhsXprType> 
 
     /** \returns the nested expressions */
     EIGEN_DEVICE_FUNC
-    typename internal::remove_all<typename LhsXprType::Nested>::type&
-    lhsExpression() const { return *((typename internal::remove_all<typename LhsXprType::Nested>::type*)&m_lhs_xpr); }
+    internal::remove_all_t<typename LhsXprType::Nested>&
+    lhsExpression() const { return *((internal::remove_all_t<typename LhsXprType::Nested>*)&m_lhs_xpr); }
 
     EIGEN_DEVICE_FUNC
-    const typename internal::remove_all<typename RhsXprType::Nested>::type&
+    const internal::remove_all_t<typename RhsXprType::Nested>&
     rhsExpression() const { return m_rhs_xpr; }
 
   protected:
-    typename internal::remove_all<typename LhsXprType::Nested>::type& m_lhs_xpr;
-    const typename internal::remove_all<typename RhsXprType::Nested>::type& m_rhs_xpr;
+    internal::remove_all_t<typename LhsXprType::Nested>& m_lhs_xpr;
+    const internal::remove_all_t<typename RhsXprType::Nested>& m_rhs_xpr;
 };
 
 
@@ -104,6 +104,7 @@ struct TensorEvaluator<const TensorAssignOp<LeftArgType, RightArgType>, Device>
 
   static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
   static const int NumDims = XprType::NumDims;
+  static constexpr int Layout = TensorEvaluator<LeftArgType, Device>::Layout;
 
   enum {
     IsAligned         = int(TensorEvaluator<LeftArgType, Device>::IsAligned) &
@@ -114,7 +115,6 @@ struct TensorEvaluator<const TensorAssignOp<LeftArgType, RightArgType>, Device>
                         int(TensorEvaluator<RightArgType, Device>::BlockAccess),
     PreferBlockAccess = int(TensorEvaluator<LeftArgType, Device>::PreferBlockAccess) |
                         int(TensorEvaluator<RightArgType, Device>::PreferBlockAccess),
-    Layout            = TensorEvaluator<LeftArgType, Device>::Layout,
     RawAccess         = TensorEvaluator<LeftArgType, Device>::RawAccess
   };
 

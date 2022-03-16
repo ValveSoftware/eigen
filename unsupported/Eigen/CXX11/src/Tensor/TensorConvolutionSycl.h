@@ -292,13 +292,13 @@ struct TensorEvaluator<const TensorConvolutionOp<Indices, InputArgType, KernelAr
   typedef typename Storage::Type EvaluatorPointerType;
   typedef StorageMemory<const CoeffReturnType, Eigen::SyclDevice> KernelStorage;
 
+  static constexpr int Layout = TensorEvaluator<InputArgType, Eigen::SyclDevice>::Layout;
   enum {
     IsAligned = TensorEvaluator<InputArgType, Eigen::SyclDevice>::IsAligned &
                 TensorEvaluator<KernelArgType, Eigen::SyclDevice>::IsAligned,
     PacketAccess = false,
     BlockAccess = false,
     PreferBlockAccess = false,
-    Layout = TensorEvaluator<InputArgType, Eigen::SyclDevice>::Layout,
     CoordAccess = false,  // to be implemented
     RawAccess = false
   };

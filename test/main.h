@@ -408,7 +408,7 @@ bool test_is_equal(const T& actual, const U& expected, bool expect_equal=true);
 namespace Eigen {
 
 template<typename T1,typename T2>
-typename internal::enable_if<internal::is_same<T1,T2>::value,bool>::type
+std::enable_if_t<internal::is_same<T1,T2>::value,bool>
 is_same_type(const T1&, const T2&)
 {
   return true;
@@ -547,7 +547,7 @@ typename T1::RealScalar test_relative_error(const SparseMatrixBase<T1> &a, const
 }
 
 template<typename T1,typename T2>
-typename NumTraits<typename NumTraits<T1>::Real>::NonInteger test_relative_error(const T1 &a, const T2 &b, typename internal::enable_if<internal::is_arithmetic<typename NumTraits<T1>::Real>::value, T1>::type* = 0)
+typename NumTraits<typename NumTraits<T1>::Real>::NonInteger test_relative_error(const T1 &a, const T2 &b, std::enable_if_t<internal::is_arithmetic<typename NumTraits<T1>::Real>::value, T1>* = 0)
 {
   typedef typename NumTraits<typename NumTraits<T1>::Real>::NonInteger RealScalar;
   return numext::sqrt(RealScalar(numext::abs2(a-b))/(numext::mini)(RealScalar(numext::abs2(a)),RealScalar(numext::abs2(b))));
@@ -579,7 +579,7 @@ typename NumTraits<typename T::Scalar>::Real get_test_precision(const T&, const 
 }
 
 template<typename T>
-typename NumTraits<T>::Real get_test_precision(const T&,typename internal::enable_if<internal::is_arithmetic<typename NumTraits<T>::Real>::value, T>::type* = 0)
+typename NumTraits<T>::Real get_test_precision(const T&,std::enable_if_t<internal::is_arithmetic<typename NumTraits<T>::Real>::value, T>* = 0)
 {
   return test_precision<typename NumTraits<T>::Real>();
 }

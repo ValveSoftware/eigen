@@ -167,7 +167,7 @@ class TensorExecutor<Expression, DefaultDevice, Vectorizable,
                      /*Tiling=*/TiledEvaluation::On> {
  public:
   typedef typename traits<Expression>::Scalar Scalar;
-  typedef typename remove_const<Scalar>::type ScalarNoConst;
+  typedef std::remove_const_t<Scalar> ScalarNoConst;
 
   typedef TensorEvaluator<Expression, DefaultDevice> Evaluator;
   typedef typename traits<Expression>::Index StorageIndex;
@@ -353,7 +353,7 @@ class TensorExecutor<Expression, ThreadPoolDevice, Vectorizable,
  public:
   typedef typename traits<Expression>::Index IndexType;
   typedef typename traits<Expression>::Scalar Scalar;
-  typedef typename remove_const<Scalar>::type ScalarNoConst;
+  typedef std::remove_const_t<Scalar> ScalarNoConst;
 
   static const int NumDims = traits<Expression>::NumDimensions;
 
@@ -461,7 +461,7 @@ class TensorAsyncExecutor<Expression, ThreadPoolDevice, DoneCallback,
  public:
   typedef typename traits<Expression>::Index IndexType;
   typedef typename traits<Expression>::Scalar Scalar;
-  typedef typename remove_const<Scalar>::type ScalarNoConst;
+  typedef std::remove_const_t<Scalar> ScalarNoConst;
 
   static const int NumDims = traits<Expression>::NumDimensions;
 
@@ -692,7 +692,7 @@ struct ExecExprFunctorKernel {
     compute(itemID);
   }
   template <bool is_vec = Evaluator::PacketAccess>
-  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE typename std::enable_if<!is_vec>::type
+  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE std::enable_if_t<!is_vec>
   compute(const cl::sycl::nd_item<1>& itemID) {
     Index gId = static_cast<Index>(itemID.get_global_linear_id());
     Index total_threads = itemID.get_global_range(0);
@@ -702,7 +702,7 @@ struct ExecExprFunctorKernel {
     }
   }
   template <bool is_vec = Evaluator::PacketAccess>
-  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE typename std::enable_if<is_vec>::type
+  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE std::enable_if_t<is_vec>
   compute(const cl::sycl::nd_item<1>& itemID) {
     const Index vectorizedRange =
         (range / Evaluator::PacketSize) * Evaluator::PacketSize;

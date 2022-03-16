@@ -22,7 +22,7 @@ struct other_matrix_type<Matrix<Scalar_, Rows_, Cols_, Options_, MaxRows_, MaxCo
 };
 
 template <typename MatrixType>
-typename internal::enable_if<(MatrixType::RowsAtCompileTime==1 || MatrixType::RowsAtCompileTime==Dynamic), void>::type
+std::enable_if_t<(MatrixType::RowsAtCompileTime==1 || MatrixType::RowsAtCompileTime==Dynamic), void>
 check_row_swap(MatrixType& m1) {
   
   if (m1.rows() != 1) {
@@ -34,7 +34,7 @@ check_row_swap(MatrixType& m1) {
 }
 
 template <typename MatrixType>
-typename internal::enable_if<!(MatrixType::RowsAtCompileTime==1 || MatrixType::RowsAtCompileTime==Dynamic), void>::type
+std::enable_if_t<!(MatrixType::RowsAtCompileTime==1 || MatrixType::RowsAtCompileTime==Dynamic), void>
 check_row_swap(MatrixType& /* unused */) {
 }
 

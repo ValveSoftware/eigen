@@ -193,7 +193,7 @@ template<typename ExpressionType, int Direction> class VectorwiseOp
     typedef typename ExpressionType::RealScalar RealScalar;
     typedef Eigen::Index Index; ///< \deprecated since Eigen 3.3
     typedef typename internal::ref_selector<ExpressionType>::non_const_type ExpressionTypeNested;
-    typedef typename internal::remove_all<ExpressionTypeNested>::type ExpressionTypeNestedCleaned;
+    typedef internal::remove_all_t<ExpressionTypeNested> ExpressionTypeNestedCleaned;
 
     template<template<typename OutScalar,typename InputScalar> class Functor,
                       typename ReturnScalar=Scalar> struct ReturnType

@@ -110,12 +110,12 @@ template<typename Derived> class SparseMatrixBase
     };
 
     /** \internal the return type of MatrixBase::adjoint() */
-    typedef typename internal::conditional<NumTraits<Scalar>::IsComplex,
+    typedef std::conditional_t<NumTraits<Scalar>::IsComplex,
                         CwiseUnaryOp<internal::scalar_conjugate_op<Scalar>, Eigen::Transpose<const Derived> >,
                         Transpose<const Derived>
-                     >::type AdjointReturnType;
+                     > AdjointReturnType;
     typedef Transpose<Derived> TransposeReturnType;
-    typedef typename internal::add_const<Transpose<const Derived> >::type ConstTransposeReturnType;
+    typedef std::add_const_t<Transpose<const Derived> > ConstTransposeReturnType;
 
     // FIXME storage order do not match evaluator storage order
     typedef SparseMatrix<Scalar, Flags&RowMajorBit ? RowMajor : ColMajor, StorageIndex> PlainObject;
@@ -131,7 +131,7 @@ template<typename Derived> class SparseMatrixBase
 
     /** \internal the return type of coeff()
       */
-    typedef typename internal::conditional<HasDirectAccess_, const Scalar&, Scalar>::type CoeffReturnType;
+    typedef std::conditional_t<HasDirectAccess_, const Scalar&, Scalar> CoeffReturnType;
 
     /** \internal Represents a matrix with all coefficients equal to one another*/
     typedef CwiseNullaryOp<internal::scalar_constant_op<Scalar>,Matrix<Scalar,Dynamic,Dynamic> > ConstantReturnType;
@@ -220,7 +220,7 @@ template<typename Derived> class SparseMatrixBase
     friend std::ostream & operator << (std::ostream & s, const SparseMatrixBase& m)
     {
       typedef typename Derived::Nested Nested;
-      typedef typename internal::remove_all<Nested>::type NestedCleaned;
+      typedef internal::remove_all_t<Nested> NestedCleaned;
 
       if (Flags&RowMajorBit)
       {

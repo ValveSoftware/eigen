@@ -262,7 +262,7 @@ struct ptrue_impl {
 // have another option, since the scalar type requires initialization.
 template<typename T>
 struct ptrue_impl<T, 
-    typename internal::enable_if<is_scalar<T>::value && NumTraits<T>::RequireInitialization>::type > {
+    std::enable_if_t<is_scalar<T>::value && NumTraits<T>::RequireInitialization> > {
   static EIGEN_DEVICE_FUNC inline T run(const T& /*a*/){
     return T(1);
   }
@@ -288,7 +288,7 @@ struct pzero_impl {
 // for zero may not consist of all-zero bits.
 template<typename T>
 struct pzero_impl<T,
-    typename internal::enable_if<is_scalar<T>::value>::type> {
+    std::enable_if_t<is_scalar<T>::value>> {
   static EIGEN_DEVICE_FUNC inline T run(const T& /*a*/) {
     return T(0);
   }
@@ -401,8 +401,8 @@ struct bitwise_helper : public bytewise_bitwise_helper<T> {};
 // For integers or non-trivial scalars, use binary operators.
 template<typename T>
 struct bitwise_helper<T,
-  typename internal::enable_if<
-    is_scalar<T>::value && (NumTraits<T>::IsInteger || NumTraits<T>::RequireInitialization)>::type
+  typename std::enable_if_t<
+    is_scalar<T>::value && (NumTraits<T>::IsInteger || NumTraits<T>::RequireInitialization)>
   > : public operator_bitwise_helper<T> {};
 
 /** \internal \returns the bitwise and of \a a and \a b */
@@ -444,7 +444,7 @@ struct pselect_impl {
 // For scalars, use ternary select.
 template<typename Packet>
 struct pselect_impl<Packet, 
-    typename internal::enable_if<is_scalar<Packet>::value>::type > {
+    std::enable_if_t<is_scalar<Packet>::value> > {
   static EIGEN_DEVICE_FUNC inline Packet run(const Packet& mask, const Packet& a, const Packet& b) {
     return numext::equal_strict(mask, Packet(0)) ? b : a;
   }
@@ -610,7 +610,7 @@ ploadu(const typename unpacket_traits<Packet>::type* from) { return *from; }
  * cases. Generic case should not be called.
  */
 template<typename Packet> EIGEN_DEVICE_FUNC inline
-typename enable_if<unpacket_traits<Packet>::masked_load_available, Packet>::type
+std::enable_if_t<unpacket_traits<Packet>::masked_load_available, Packet>
 ploadu(const typename unpacket_traits<Packet>::type* from, typename unpacket_traits<Packet>::mask_t umask);
 
 /** \internal \returns a packet with constant coefficients \a a, e.g.: (a,a,a,a) */
@@ -709,7 +709,7 @@ template<typename Scalar, typename Packet> EIGEN_DEVICE_FUNC inline void pstoreu
  */
 template<typename Scalar, typename Packet>
 EIGEN_DEVICE_FUNC inline
-typename enable_if<unpacket_traits<Packet>::masked_store_available, void>::type
+std::enable_if_t<unpacket_traits<Packet>::masked_store_available, void>
 pstoreu(Scalar* to, const Packet& from, typename unpacket_traits<Packet>::mask_t umask);
 
  template<typename Scalar, typename Packet> EIGEN_DEVICE_FUNC inline Packet pgather(const Scalar* from, Index /*stride*/)
@@ -845,7 +845,7 @@ pfirst(const Packet& a)
   * For packet-size smaller or equal to 4, this boils down to a noop.
   */
 template<typename Packet>
-EIGEN_DEVICE_FUNC inline typename conditional<(unpacket_traits<Packet>::size%8)==0,typename unpacket_traits<Packet>::half,Packet>::type
+EIGEN_DEVICE_FUNC inline std::conditional_t<(unpacket_traits<Packet>::size%8)==0,typename unpacket_traits<Packet>::half,Packet>
 predux_half_dowto4(const Packet& a)
 { return a; }
 

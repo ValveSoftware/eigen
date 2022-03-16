@@ -39,10 +39,10 @@ template<typename MatrixType_> class UpperBidiagonalization
     typedef Matrix<Scalar, ColsAtCompileTimeMinusOne, 1> SuperDiagVectorType;
     typedef HouseholderSequence<
               const MatrixType,
-              const typename internal::remove_all<typename Diagonal<const MatrixType,0>::ConjugateReturnType>::type
+              const internal::remove_all_t<typename Diagonal<const MatrixType,0>::ConjugateReturnType>
             > HouseholderUSequenceType;
     typedef HouseholderSequence<
-              const typename internal::remove_all<typename MatrixType::ConjugateReturnType>::type,
+              const internal::remove_all_t<typename MatrixType::ConjugateReturnType>,
               Diagonal<const MatrixType,1>,
               OnTheRight
             > HouseholderVSequenceType;
