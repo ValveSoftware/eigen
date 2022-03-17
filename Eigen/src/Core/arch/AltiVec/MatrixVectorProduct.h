@@ -12,7 +12,7 @@
 
 #include "../../InternalHeaderCheck.h"
 
-#if defined(__MMA__) && !defined(EIGEN_ALTIVEC_DISABLE_MMA)
+#if defined(__MMA__) && !EIGEN_ALTIVEC_DISABLE_MMA
 #if EIGEN_COMP_LLVM || (__GNUC__ > 10 || __GNUC_MINOR__ >= 3)
 #define USE_GEMV_MMA
 #endif
