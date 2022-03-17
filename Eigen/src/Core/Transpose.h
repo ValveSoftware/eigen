@@ -193,7 +193,7 @@ DenseBase<Derived>::transpose()
   * \sa transposeInPlace(), adjoint() */
 template<typename Derived>
 EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
-typename DenseBase<Derived>::ConstTransposeReturnType
+const typename DenseBase<Derived>::ConstTransposeReturnType
 DenseBase<Derived>::transpose() const
 {
   return ConstTransposeReturnType(derived());
