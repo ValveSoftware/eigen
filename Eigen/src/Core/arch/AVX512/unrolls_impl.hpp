@@ -66,17 +66,17 @@ EIGEN_ALWAYS_INLINE auto remMask(int64_t m) {
 }
 
 template<typename T1, typename T2>
-T2 castPacket(T1 &a) {
+EIGEN_ALWAYS_INLINE T2 castPacket(T1 &a) {
   return reinterpret_cast<T2>(a);
 }
 
 template<>
-vecHalfFloat castPacket(vecFullFloat &a) {
+EIGEN_ALWAYS_INLINE vecHalfFloat castPacket(vecFullFloat &a) {
   return _mm512_castps512_ps256(a);
 }
 
 template<>
-vecFullDouble castPacket(vecFullDouble &a) {
+EIGEN_ALWAYS_INLINE vecFullDouble castPacket(vecFullDouble &a) {
   return a;
 }
 
