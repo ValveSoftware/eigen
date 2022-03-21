@@ -321,7 +321,7 @@ struct BlockProperties {
   static EIGEN_CONSTEXPR bool packet_load = packet_load_;
   typedef typename Eigen::internal::unpacket_traits<PacketType>::type OutScalar;
   static EIGEN_CONSTEXPR bool is_rhs = is_rhs_;
-  typedef Eigen::std::conditional_t<packet_load, PacketType, OutScalar> OutType;
+  typedef std::conditional_t<packet_load, PacketType, OutScalar> OutType;
   static EIGEN_CONSTEXPR int elements_per_access = Eigen::internal::unpacket_traits<OutType>::size;
   static EIGEN_CONSTEXPR bool is_coalesced_layout = !(is_transposed ^ is_rhs);
   static EIGEN_CONSTEXPR int nc_stride = (is_coalesced_layout ? elements_per_access : 1);
