@@ -296,6 +296,44 @@ void householder_qr_inplace_unblocked(MatrixQR& mat, HCoeffs& hCoeffs, typename 
   }
 }
 
+// TODO: add a corresponding public API for updating a QR factorization
+/** \internal
+ * Basically a modified copy of @c Eigen::internal::householder_qr_inplace_unblocked that
+ * performs a rank-1 update of the QR matrix in compact storage. This function assumes, that
+ * the first @c k-1 columns of the matrix @c mat contain the QR decomposition of \f$A^N\f$ up to
+ * column k-1. Then the QR decomposition of the k-th column (given by @c newColumn) is computed by
+ * applying the k-1 Householder projectors on it and finally compute the projector \f$H_k\f$ of
+ * it. On exit the matrix @c mat and the vector @c hCoeffs contain the QR decomposition of the
+ * first k columns of \f$A^N\f$. The \a tempData argument must point to at least mat.cols() scalars.  */
+template <typename MatrixQR, typename HCoeffs, typename VectorQR>
+void householder_qr_inplace_update(MatrixQR& mat, HCoeffs& hCoeffs, const VectorQR& newColumn,
+                                   typename MatrixQR::Index k, typename MatrixQR::Scalar* tempData) {
+  typedef typename MatrixQR::Index Index;
+  typedef typename MatrixQR::Scalar Scalar;
+  typedef typename MatrixQR::RealScalar RealScalar;
+  Index rows = mat.rows();
+
+  eigen_assert(k < mat.cols());
+  eigen_assert(k < rows);
+  eigen_assert(hCoeffs.size() == mat.cols());
+  eigen_assert(newColumn.size() == rows);
+  eigen_assert(tempData);
+
+  // Store new column in mat at column k
+  mat.col(k) = newColumn;
+  // Apply H = H_1...H_{k-1} on newColumn (skip if k=0)
+  for (Index i = 0; i < k; ++i) {
+    Index remainingRows = rows - i;
+    mat.col(k)
+        .tail(remainingRows)
+        .applyHouseholderOnTheLeft(mat.col(i).tail(remainingRows - 1), hCoeffs.coeffRef(i), tempData + i + 1);
+  }
+  // Construct Householder projector in-place in column k
+  RealScalar beta;
+  mat.col(k).tail(rows - k).makeHouseholderInPlace(hCoeffs.coeffRef(k), beta);
+  mat.coeffRef(k, k) = beta;
+}
+
 /** \internal */
 template<typename MatrixQR, typename HCoeffs,
   typename MatrixQRScalar = typename MatrixQR::Scalar,
