@@ -90,7 +90,7 @@ static void test_nnls_random_problem() {
       sqrt(Eigen::GenericNumTraits<Scalar>::epsilon()) * b.cwiseAbs().maxCoeff() * A.cwiseAbs().maxCoeff();
   Index max_iter = 5 * A.cols();  // A heuristic guess.
   NNLS<MatrixType> nnls(A, max_iter, tolerance);
-  const NNLS<MatrixType>::SolutionVectorType &x = nnls.solve(b);
+  const typename NNLS<MatrixType>::SolutionVectorType &x = nnls.solve(b);
 
   //
   // VERIFY

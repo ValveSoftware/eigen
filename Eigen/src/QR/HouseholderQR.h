@@ -309,7 +309,6 @@ template <typename MatrixQR, typename HCoeffs, typename VectorQR>
 void householder_qr_inplace_update(MatrixQR& mat, HCoeffs& hCoeffs, const VectorQR& newColumn,
                                    typename MatrixQR::Index k, typename MatrixQR::Scalar* tempData) {
   typedef typename MatrixQR::Index Index;
-  typedef typename MatrixQR::Scalar Scalar;
   typedef typename MatrixQR::RealScalar RealScalar;
   Index rows = mat.rows();
 
