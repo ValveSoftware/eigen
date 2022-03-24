@@ -144,51 +144,51 @@ test:x86-64:linux:clang-10:cxx11-on:avx512:unsupported:
 
 ##### AArch64 ##################################################################
 # GCC-10
-# .test:aarch64:linux:gcc-10:cxx11-on:
-#   extends: .test:linux:base
-#   variables:
-#     EIGEN_CI_CXX_COMPILER: g++-10
-#     EIGEN_CI_CC_COMPILER: gcc-10
-#   needs: [ "build:aarch64:linux:gcc-10:cxx11-on" ]
-#   tags:
-#     - eigen-runner
-#     - linux
-#     - aarch64
+.test:aarch64:linux:gcc-10:cxx11-on:
+  extends: .test:linux:base
+  variables:
+    EIGEN_CI_CXX_COMPILER: g++-10
+    EIGEN_CI_CC_COMPILER: gcc-10
+  needs: [ "build:aarch64:linux:gcc-10:cxx11-on" ]
+  tags:
+    - eigen-runner
+    - linux
+    - aarch64
 
-# test:aarch64:linux:gcc-10:cxx11-on:official:
-#   extends: .test:aarch64:linux:gcc-10:cxx11-on
-#   allow_failure: true
-#   variables:
-#     EIGEN_CI_TEST_LABEL: "Official"
+test:aarch64:linux:gcc-10:cxx11-on:official:
+  extends: .test:aarch64:linux:gcc-10:cxx11-on
+  allow_failure: true
+  variables:
+    EIGEN_CI_TEST_LABEL: "Official"
 
-# test:aarch64:linux:gcc-10:cxx11-on:unsupported:
-#   extends: .test:aarch64:linux:gcc-10:cxx11-on
-#   allow_failure: true
-#   variables:
-#     EIGEN_CI_TEST_LABEL: "Unsupported"
+test:aarch64:linux:gcc-10:cxx11-on:unsupported:
+  extends: .test:aarch64:linux:gcc-10:cxx11-on
+  allow_failure: true
+  variables:
+    EIGEN_CI_TEST_LABEL: "Unsupported"
 
-# # Clang 10
-# .test:aarch64:linux:clang-10:cxx11-on:
-#   extends: .test:linux:base
-#   variables:
-#     EIGEN_CI_CXX_COMPILER: clang++-10
-#     EIGEN_CI_CC_COMPILER: clang-10
-#   needs: [ "build:aarch64:linux:clang-10:cxx11-on" ]
-#   tags:
-#     - eigen-runner
-#     - linux
-#     - aarch64
+# Clang 10
+.test:aarch64:linux:clang-10:cxx11-on:
+  extends: .test:linux:base
+  variables:
+    EIGEN_CI_CXX_COMPILER: clang++-10
+    EIGEN_CI_CC_COMPILER: clang-10
+  needs: [ "build:aarch64:linux:clang-10:cxx11-on" ]
+  tags:
+    - eigen-runner
+    - linux
+    - aarch64
 
-# test:aarch64:linux:clang-10:cxx11-on:official:
-#   extends: .test:aarch64:linux:clang-10:cxx11-on
-#   allow_failure: true
-#   variables:
-#     EIGEN_CI_TEST_LABEL: "Official"
+test:aarch64:linux:clang-10:cxx11-on:official:
+  extends: .test:aarch64:linux:clang-10:cxx11-on
+  allow_failure: true
+  variables:
+    EIGEN_CI_TEST_LABEL: "Official"
 
-# test:aarch64:linux:clang-10:cxx11-on:unsupported:
-#   extends: .test:aarch64:linux:clang-10:cxx11-on
-#   variables:
-#     EIGEN_CI_TEST_LABEL: "Unsupported"
+test:aarch64:linux:clang-10:cxx11-on:unsupported:
+  extends: .test:aarch64:linux:clang-10:cxx11-on
+  variables:
+    EIGEN_CI_TEST_LABEL: "Unsupported"
 
 ##### ppc64le ##################################################################
 # GCC-10

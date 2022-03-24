@@ -87,28 +87,28 @@ build:x86-64:linux:clang-10:cxx11-on:avx512:
 
 ######## AArch64 ###############################################################
 # GCC-10
-# build:aarch64:linux:gcc-10:cxx11-on:
-#   extends: .build:linux:base
-#   variables:
-#     EIGEN_CI_CXX_COMPILER: "g++-10"
-#     EIGEN_CI_CC_COMPILER: "gcc-10"
-#     EIGEN_TEST_CXX11: "on"
-#   tags:
-#     - eigen-runner
-#     - linux
-#     - aarch64
+build:aarch64:linux:gcc-10:cxx11-on:
+  extends: .build:linux:base
+  variables:
+    EIGEN_CI_CXX_COMPILER: "g++-10"
+    EIGEN_CI_CC_COMPILER: "gcc-10"
+    EIGEN_TEST_CXX11: "on"
+  tags:
+    - eigen-runner
+    - linux
+    - aarch64
 
 # # Clang-10
-# build:aarch64:linux:clang-10:cxx11-on:
-#   extends: .build:linux:base
-#   variables:
-#     EIGEN_CI_CXX_COMPILER: "clang++-10"
-#     EIGEN_CI_CC_COMPILER: "clang-10"
-#     EIGEN_TEST_CXX11: "on"
-#   tags:
-#     - eigen-runner
-#     - linux
-#     - aarch64
+build:aarch64:linux:clang-10:cxx11-on:
+  extends: .build:linux:base
+  variables:
+    EIGEN_CI_CXX_COMPILER: "clang++-10"
+    EIGEN_CI_CC_COMPILER: "clang-10"
+    EIGEN_TEST_CXX11: "on"
+  tags:
+    - eigen-runner
+    - linux
+    - aarch64
 
 ######## ppc64le ###############################################################
 # Currently all ppc64le jobs are allowed to fail
