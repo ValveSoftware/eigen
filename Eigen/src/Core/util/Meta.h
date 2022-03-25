@@ -508,6 +508,14 @@ inline constexpr bool logical_xor(bool a, bool b) {
 inline constexpr bool check_implication(bool a, bool b) {
   return !a || b;
 }
+
+/// \internal Provide fallback for std::is_constant_evaluated for pre-C++20.
+#if EIGEN_COMP_CXXVER >= 20
+using std::is_constant_evaluated;
+#else
+constexpr bool is_constant_evaluated() { return false; }
+#endif
+
 } // end namespace internal
 
 } // end namespace Eigen

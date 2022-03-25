@@ -1225,8 +1225,8 @@ struct block_evaluator<ArgType, BlockRows, BlockCols, InnerPanel, /* HasDirectAc
   explicit block_evaluator(const XprType& block)
     : mapbase_evaluator<XprType, typename XprType::PlainObject>(block)
   {
-    // TODO: for the 3.3 release, this should be turned to an internal assertion, but let's keep it as is for the beta lifetime
-    eigen_assert(((internal::UIntPtr(block.data()) % plain_enum_max(1,evaluator<XprType>::Alignment)) == 0) && "data is not aligned");
+    eigen_internal_assert((internal::is_constant_evaluated() || (internal::UIntPtr(block.data()) % plain_enum_max(1,evaluator<XprType>::Alignment)) == 0) \
+      && "data is not aligned");
   }
 };
 
