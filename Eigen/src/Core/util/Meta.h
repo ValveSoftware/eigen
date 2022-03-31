@@ -90,6 +90,12 @@ struct bool_constant<true> : true_type {};
 template<>
 struct bool_constant<false> : false_type {};
 
+// Third-party libraries rely on these.
+using std::conditional;
+using std::remove_reference;
+using std::remove_pointer;
+using std::remove_const;
+
 template<typename T> struct remove_all { typedef T type; };
 template<typename T> struct remove_all<const T>   { typedef typename remove_all<T>::type type; };
 template<typename T> struct remove_all<T const&>  { typedef typename remove_all<T>::type type; };
