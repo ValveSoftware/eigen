@@ -32,8 +32,8 @@ struct traits<TensorEvalToOp<XprType, MakePointer_> >
   typedef typename XprTraits::Index Index;
   typedef typename XprType::Nested Nested;
   typedef std::remove_reference_t<Nested> Nested_;
-  static const int NumDimensions = XprTraits::NumDimensions;
-  static const int Layout = XprTraits::Layout;
+  static constexpr int NumDimensions = XprTraits::NumDimensions;
+  static constexpr int Layout = XprTraits::Layout;
   typedef typename MakePointer_<Scalar>::Type PointerType;
 
   enum {
@@ -78,7 +78,7 @@ class TensorEvalToOp : public TensorBase<TensorEvalToOp<XprType, MakePointer_>, 
   typedef typename Eigen::internal::traits<TensorEvalToOp>::StorageKind StorageKind;
   typedef typename Eigen::internal::traits<TensorEvalToOp>::Index Index;
 
-  static const int NumDims = Eigen::internal::traits<TensorEvalToOp>::NumDimensions;
+  static constexpr int NumDims = Eigen::internal::traits<TensorEvalToOp>::NumDimensions;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorEvalToOp(PointerType buffer, const XprType& expr)
       : m_xpr(expr), m_buffer(buffer) {}
@@ -105,7 +105,7 @@ struct TensorEvaluator<const TensorEvalToOp<ArgType, MakePointer_>, Device>
   typedef typename XprType::Index Index;
   typedef std::remove_const_t<typename XprType::CoeffReturnType> CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
-  static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
+  static constexpr int PacketSize = PacketType<CoeffReturnType, Device>::size;
   typedef typename Eigen::internal::traits<XprType>::PointerType TensorPointerType;
   typedef StorageMemory<CoeffReturnType, Device> Storage;
   typedef typename Storage::Type EvaluatorPointerType;
@@ -119,7 +119,7 @@ struct TensorEvaluator<const TensorEvalToOp<ArgType, MakePointer_>, Device>
   };
 
   static constexpr int Layout = TensorEvaluator<ArgType, Device>::Layout;
-  static const int NumDims = internal::traits<ArgType>::NumDimensions;
+  static constexpr int NumDims = internal::traits<ArgType>::NumDimensions;
 
   //===- Tensor block evaluation strategy (see TensorBlock.h) -------------===//
   typedef internal::TensorBlockDescriptor<NumDims, Index> TensorBlockDesc;

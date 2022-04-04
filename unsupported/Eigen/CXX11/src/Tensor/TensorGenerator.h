@@ -31,8 +31,8 @@ struct traits<TensorGeneratorOp<Generator, XprType> > : public traits<XprType>
   typedef typename XprTraits::Index Index;
   typedef typename XprType::Nested Nested;
   typedef std::remove_reference_t<Nested> Nested_;
-  static const int NumDimensions = XprTraits::NumDimensions;
-  static const int Layout = XprTraits::Layout;
+  static constexpr int NumDimensions = XprTraits::NumDimensions;
+  static constexpr int Layout = XprTraits::Layout;
   typedef typename XprTraits::PointerType PointerType;
 };
 
@@ -86,7 +86,7 @@ struct TensorEvaluator<const TensorGeneratorOp<Generator, ArgType>, Device>
   typedef TensorGeneratorOp<Generator, ArgType> XprType;
   typedef typename XprType::Index Index;
   typedef typename TensorEvaluator<ArgType, Device>::Dimensions Dimensions;
-  static const int NumDims = internal::array_size<Dimensions>::value;
+  static constexpr int NumDims = internal::array_size<Dimensions>::value;
   typedef typename XprType::Scalar Scalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;

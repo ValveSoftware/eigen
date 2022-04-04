@@ -46,8 +46,8 @@ struct traits<TensorLayoutSwapOp<XprType> > : public traits<XprType>
   typedef typename XprTraits::Index Index;
   typedef typename XprType::Nested Nested;
   typedef std::remove_reference_t<Nested> Nested_;
-  static const int NumDimensions = traits<XprType>::NumDimensions;
-  static const int Layout = (traits<XprType>::Layout == ColMajor) ? RowMajor : ColMajor;
+  static constexpr int NumDimensions = traits<XprType>::NumDimensions;
+  static constexpr int Layout = (traits<XprType>::Layout == ColMajor) ? RowMajor : ColMajor;
   typedef typename XprTraits::PointerType PointerType;
 };
 
@@ -98,7 +98,7 @@ struct TensorEvaluator<const TensorLayoutSwapOp<ArgType>, Device>
 {
   typedef TensorLayoutSwapOp<ArgType> XprType;
   typedef typename XprType::Index Index;
-  static const int NumDims = internal::array_size<typename TensorEvaluator<ArgType, Device>::Dimensions>::value;
+  static constexpr int NumDims = internal::array_size<typename TensorEvaluator<ArgType, Device>::Dimensions>::value;
   typedef DSizes<Index, NumDims> Dimensions;
 
   static constexpr int Layout = (TensorEvaluator<ArgType, Device>::Layout == static_cast<int>(ColMajor)) ? RowMajor : ColMajor;

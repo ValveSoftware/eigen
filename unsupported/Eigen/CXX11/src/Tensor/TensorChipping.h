@@ -32,8 +32,8 @@ struct traits<TensorChippingOp<DimId, XprType> > : public traits<XprType>
   typedef typename XprTraits::Index Index;
   typedef typename XprType::Nested Nested;
   typedef std::remove_reference_t<Nested> Nested_;
-  static const int NumDimensions = XprTraits::NumDimensions - 1;
-  static const int Layout = XprTraits::Layout;
+  static constexpr int NumDimensions = XprTraits::NumDimensions - 1;
+  static constexpr int Layout = XprTraits::Layout;
   typedef typename XprTraits::PointerType PointerType;
 };
 
@@ -117,14 +117,14 @@ template<DenseIndex DimId, typename ArgType, typename Device>
 struct TensorEvaluator<const TensorChippingOp<DimId, ArgType>, Device>
 {
   typedef TensorChippingOp<DimId, ArgType> XprType;
-  static const int NumInputDims = internal::array_size<typename TensorEvaluator<ArgType, Device>::Dimensions>::value;
-  static const int NumDims = NumInputDims-1;
+  static constexpr int NumInputDims = internal::array_size<typename TensorEvaluator<ArgType, Device>::Dimensions>::value;
+  static constexpr int NumDims = NumInputDims-1;
   typedef typename XprType::Index Index;
   typedef DSizes<Index, NumDims> Dimensions;
   typedef typename XprType::Scalar Scalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
-  static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
+  static constexpr int PacketSize = PacketType<CoeffReturnType, Device>::size;
   typedef StorageMemory<CoeffReturnType, Device> Storage;
   typedef typename Storage::Type EvaluatorPointerType;
   static constexpr int Layout = TensorEvaluator<ArgType, Device>::Layout;
@@ -413,14 +413,14 @@ struct TensorEvaluator<TensorChippingOp<DimId, ArgType>, Device>
 {
   typedef TensorEvaluator<const TensorChippingOp<DimId, ArgType>, Device> Base;
   typedef TensorChippingOp<DimId, ArgType> XprType;
-  static const int NumInputDims = internal::array_size<typename TensorEvaluator<ArgType, Device>::Dimensions>::value;
-  static const int NumDims = NumInputDims-1;
+  static constexpr int NumInputDims = internal::array_size<typename TensorEvaluator<ArgType, Device>::Dimensions>::value;
+  static constexpr int NumDims = NumInputDims-1;
   typedef typename XprType::Index Index;
   typedef DSizes<Index, NumDims> Dimensions;
   typedef typename XprType::Scalar Scalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
-  static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
+  static constexpr int PacketSize = PacketType<CoeffReturnType, Device>::size;
 
   enum {
     IsAligned     = false,

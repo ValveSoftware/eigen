@@ -31,8 +31,8 @@ struct traits<TensorBroadcastingOp<Broadcast, XprType> > : public traits<XprType
   typedef typename XprTraits::Index Index;
   typedef typename XprType::Nested Nested;
   typedef std::remove_reference_t<Nested> Nested_;
-  static const int NumDimensions = XprTraits::NumDimensions;
-  static const int Layout = XprTraits::Layout;
+  static constexpr int NumDimensions = XprTraits::NumDimensions;
+  static constexpr int Layout = XprTraits::Layout;
   typedef typename XprTraits::PointerType PointerType;
 };
 
@@ -100,13 +100,13 @@ struct TensorEvaluator<const TensorBroadcastingOp<Broadcast, ArgType>, Device>
 {
   typedef TensorBroadcastingOp<Broadcast, ArgType> XprType;
   typedef typename XprType::Index Index;
-  static const int NumDims = internal::array_size<typename TensorEvaluator<ArgType, Device>::Dimensions>::value;
+  static constexpr int NumDims = internal::array_size<typename TensorEvaluator<ArgType, Device>::Dimensions>::value;
   typedef DSizes<Index, NumDims> Dimensions;
   typedef typename XprType::Scalar Scalar;
   typedef typename TensorEvaluator<ArgType, Device>::Dimensions InputDimensions;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
-  static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
+  static constexpr int PacketSize = PacketType<CoeffReturnType, Device>::size;
   protected: //  all the non-static fields must have the same access control, otherwise the TensorEvaluator won't be standard layout;
   bool isCopy, nByOne, oneByN;
   public:
@@ -695,7 +695,7 @@ struct TensorEvaluator<const TensorBroadcastingOp<Broadcast, ArgType>, Device>
   }
 #endif
  private:
-  static const bool IsColMajor =
+  static constexpr bool IsColMajor =
       static_cast<int>(Layout) == static_cast<int>(ColMajor);
 
   // We will build a general case block broadcasting on top of broadcasting

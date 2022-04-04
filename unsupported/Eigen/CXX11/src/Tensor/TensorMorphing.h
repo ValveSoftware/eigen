@@ -31,8 +31,8 @@ struct traits<TensorReshapingOp<NewDimensions, XprType> > : public traits<XprTyp
   typedef typename XprTraits::Index Index;
   typedef typename XprType::Nested Nested;
   typedef std::remove_reference_t<Nested> Nested_;
-  static const int NumDimensions = array_size<NewDimensions>::value;
-  static const int Layout = XprTraits::Layout;
+  static constexpr int NumDimensions = array_size<NewDimensions>::value;
+  static constexpr int Layout = XprTraits::Layout;
   typedef typename XprTraits::PointerType PointerType;
 };
 
@@ -96,8 +96,8 @@ struct TensorEvaluator<const TensorReshapingOp<NewDimensions, ArgType>, Device>
   typedef typename Storage::Type EvaluatorPointerType;
   typedef StorageMemory<std::remove_const_t<CoeffReturnType>, Device> ConstCastStorage;
 
-  static const int NumOutputDims = internal::array_size<Dimensions>::value;
-  static const int NumInputDims  = internal::array_size<typename TensorEvaluator<ArgType, Device>::Dimensions>::value;
+  static constexpr int NumOutputDims = internal::array_size<Dimensions>::value;
+  static constexpr int NumInputDims  = internal::array_size<typename TensorEvaluator<ArgType, Device>::Dimensions>::value;
 
   enum ReshapingKind {
     // We do not use layout information to determine reshaping kind.
@@ -314,8 +314,8 @@ struct traits<TensorSlicingOp<StartIndices, Sizes, XprType> > : public traits<Xp
   typedef typename XprTraits::Index Index;
   typedef typename XprType::Nested Nested;
   typedef std::remove_reference_t<Nested> Nested_;
-  static const int NumDimensions = array_size<StartIndices>::value;
-  static const int Layout = XprTraits::Layout;
+  static constexpr int NumDimensions = array_size<StartIndices>::value;
+  static constexpr int Layout = XprTraits::Layout;
   typedef typename XprTraits::PointerType PointerType;
 };
 
@@ -406,7 +406,7 @@ template<typename StartIndices, typename Sizes, typename ArgType, typename Devic
 struct TensorEvaluator<const TensorSlicingOp<StartIndices, Sizes, ArgType>, Device>
 {
   typedef TensorSlicingOp<StartIndices, Sizes, ArgType> XprType;
-  static const int NumDims = internal::array_size<Sizes>::value;
+  static constexpr int NumDims = internal::array_size<Sizes>::value;
 
   typedef typename XprType::Index Index;
   typedef typename XprType::Scalar Scalar;
@@ -704,7 +704,7 @@ struct TensorEvaluator<TensorSlicingOp<StartIndices, Sizes, ArgType>, Device>
 {
   typedef TensorEvaluator<const TensorSlicingOp<StartIndices, Sizes, ArgType>, Device> Base;
   typedef TensorSlicingOp<StartIndices, Sizes, ArgType> XprType;
-  static const int NumDims = internal::array_size<Sizes>::value;
+  static constexpr int NumDims = internal::array_size<Sizes>::value;
 
   typedef typename XprType::Index Index;
   typedef typename XprType::Scalar Scalar;
@@ -811,8 +811,8 @@ struct traits<TensorStridingSlicingOp<StartIndices, StopIndices, Strides, XprTyp
   typedef typename XprTraits::Index Index;
   typedef typename XprType::Nested Nested;
   typedef std::remove_reference_t<Nested> Nested_;
-  static const int NumDimensions = array_size<StartIndices>::value;
-  static const int Layout = XprTraits::Layout;
+  static constexpr int NumDimensions = array_size<StartIndices>::value;
+  static constexpr int Layout = XprTraits::Layout;
   typedef typename XprTraits::PointerType PointerType;
 };
 
@@ -873,7 +873,7 @@ template<typename StartIndices, typename StopIndices, typename Strides, typename
 struct TensorEvaluator<const TensorStridingSlicingOp<StartIndices, StopIndices, Strides, ArgType>, Device>
 {
   typedef TensorStridingSlicingOp<StartIndices, StopIndices, Strides, ArgType> XprType;
-  static const int NumDims = internal::array_size<Strides>::value;
+  static constexpr int NumDims = internal::array_size<Strides>::value;
   typedef typename XprType::Index Index;
   typedef typename XprType::Scalar Scalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
@@ -1059,7 +1059,7 @@ struct TensorEvaluator<TensorStridingSlicingOp<StartIndices, StopIndices, Stride
 {
   typedef TensorEvaluator<const TensorStridingSlicingOp<StartIndices, StopIndices, Strides, ArgType>, Device> Base;
   typedef TensorStridingSlicingOp<StartIndices, StopIndices, Strides, ArgType> XprType;
-  static const int NumDims = internal::array_size<Strides>::value;
+  static constexpr int NumDims = internal::array_size<Strides>::value;
   static constexpr int Layout = TensorEvaluator<ArgType, Device>::Layout;
 
   enum {

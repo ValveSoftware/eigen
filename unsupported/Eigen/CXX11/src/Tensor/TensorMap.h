@@ -66,9 +66,9 @@ template<typename PlainObjectType, int Options_, template <class> class MakePoin
         const Scalar&
         > StorageRefType;
 
-    static const int Options = Options_;
+    static constexpr int Options = Options_;
 
-    static const Index NumIndices = PlainObjectType::NumIndices;
+    static constexpr Index NumIndices = PlainObjectType::NumIndices;
     typedef typename PlainObjectType::Dimensions Dimensions;
 
     static constexpr int Layout = PlainObjectType::Layout;

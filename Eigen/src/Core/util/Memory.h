@@ -634,7 +634,7 @@ template<typename Xpr, int NbEvaluations,
          >
 struct local_nested_eval_wrapper
 {
-  static const bool NeedExternalBuffer = false;
+  static constexpr bool NeedExternalBuffer = false;
   typedef typename Xpr::Scalar Scalar;
   typedef typename nested_eval<Xpr,NbEvaluations>::type ObjectType;
   ObjectType object;
@@ -650,7 +650,7 @@ struct local_nested_eval_wrapper
 template<typename Xpr, int NbEvaluations>
 struct local_nested_eval_wrapper<Xpr,NbEvaluations,true>
 {
-  static const bool NeedExternalBuffer = true;
+  static constexpr bool NeedExternalBuffer = true;
   typedef typename Xpr::Scalar Scalar;
   typedef typename plain_object_eval<Xpr>::type PlainObject;
   typedef Map<PlainObject,EIGEN_DEFAULT_ALIGN_BYTES> ObjectType;

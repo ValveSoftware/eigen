@@ -36,8 +36,8 @@ struct traits<TensorConcatenationOp<Axis, LhsXprType, RhsXprType> >
   typedef typename RhsXprType::Nested RhsNested;
   typedef std::remove_reference_t<LhsNested> LhsNested_;
   typedef std::remove_reference_t<RhsNested> RhsNested_;
-  static const int NumDimensions = traits<LhsXprType>::NumDimensions;
-  static const int Layout = traits<LhsXprType>::Layout;
+  static constexpr int NumDimensions = traits<LhsXprType>::NumDimensions;
+  static constexpr int Layout = traits<LhsXprType>::Layout;
   enum { Flags = 0 };
   typedef std::conditional_t<Pointer_type_promotion<typename LhsXprType::Scalar, Scalar>::val,
                         typename traits<LhsXprType>::PointerType, typename traits<RhsXprType>::PointerType> PointerType;
@@ -98,8 +98,8 @@ struct TensorEvaluator<const TensorConcatenationOp<Axis, LeftArgType, RightArgTy
 {
   typedef TensorConcatenationOp<Axis, LeftArgType, RightArgType> XprType;
   typedef typename XprType::Index Index;
-  static const int NumDims = internal::array_size<typename TensorEvaluator<LeftArgType, Device>::Dimensions>::value;
-  static const int RightNumDims = internal::array_size<typename TensorEvaluator<RightArgType, Device>::Dimensions>::value;
+  static constexpr int NumDims = internal::array_size<typename TensorEvaluator<LeftArgType, Device>::Dimensions>::value;
+  static constexpr int RightNumDims = internal::array_size<typename TensorEvaluator<RightArgType, Device>::Dimensions>::value;
   typedef DSizes<Index, NumDims> Dimensions;
   typedef typename XprType::Scalar Scalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;

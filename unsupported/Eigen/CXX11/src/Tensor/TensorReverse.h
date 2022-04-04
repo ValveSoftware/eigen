@@ -31,8 +31,8 @@ struct traits<TensorReverseOp<ReverseDimensions,
   typedef typename XprTraits::Index Index;
   typedef typename XprType::Nested Nested;
   typedef std::remove_reference_t<Nested> Nested_;
-  static const int NumDimensions = XprTraits::NumDimensions;
-  static const int Layout = XprTraits::Layout;
+  static constexpr int NumDimensions = XprTraits::NumDimensions;
+  static constexpr int Layout = XprTraits::Layout;
   typedef typename XprTraits::PointerType PointerType;
 };
 
@@ -90,12 +90,12 @@ struct TensorEvaluator<const TensorReverseOp<ReverseDimensions, ArgType>, Device
 {
   typedef TensorReverseOp<ReverseDimensions, ArgType> XprType;
   typedef typename XprType::Index Index;
-  static const int NumDims = internal::array_size<ReverseDimensions>::value;
+  static constexpr int NumDims = internal::array_size<ReverseDimensions>::value;
   typedef DSizes<Index, NumDims> Dimensions;
   typedef typename XprType::Scalar Scalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
-  static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
+  static constexpr int PacketSize = PacketType<CoeffReturnType, Device>::size;
   typedef StorageMemory<CoeffReturnType, Device> Storage;
   typedef typename Storage::Type EvaluatorPointerType;
 
@@ -414,7 +414,7 @@ struct TensorEvaluator<TensorReverseOp<ReverseDimensions, ArgType>, Device>
                           Device> Base;
   typedef TensorReverseOp<ReverseDimensions, ArgType> XprType;
   typedef typename XprType::Index Index;
-  static const int NumDims = internal::array_size<ReverseDimensions>::value;
+  static constexpr int NumDims = internal::array_size<ReverseDimensions>::value;
   typedef DSizes<Index, NumDims> Dimensions;
 
   static constexpr int Layout = TensorEvaluator<ArgType, Device>::Layout;
@@ -432,7 +432,7 @@ struct TensorEvaluator<TensorReverseOp<ReverseDimensions, ArgType>, Device>
   typedef typename XprType::Scalar Scalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
-  static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
+  static constexpr int PacketSize = PacketType<CoeffReturnType, Device>::size;
 
   //===- Tensor block evaluation strategy (see TensorBlock.h) -------------===//
   typedef internal::TensorBlockNotImplemented TensorBlock;

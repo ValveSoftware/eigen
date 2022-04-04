@@ -41,10 +41,10 @@ template<typename T, typename FixedDimensions, int Options_>
 class TensorStorage
 {
  private:
-  static const std::size_t Size = FixedDimensions::total_size;
+  static constexpr std::size_t Size = FixedDimensions::total_size;
 
   // Allocate an array of size at least one to prevent compiler warnings.
-  static const std::size_t MinSize = max_n_1<Size>::size;
+  static constexpr std::size_t MinSize = max_n_1<Size>::size;
   EIGEN_ALIGN_MAX T m_data[MinSize];
 
  public:

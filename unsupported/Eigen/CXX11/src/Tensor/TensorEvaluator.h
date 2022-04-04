@@ -35,14 +35,14 @@ struct TensorEvaluator
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
   typedef typename Derived::Dimensions Dimensions;
   typedef Derived XprType;
-  static const int PacketSize =  PacketType<CoeffReturnType, Device>::size;
+  static constexpr int PacketSize =  PacketType<CoeffReturnType, Device>::size;
   typedef typename internal::traits<Derived>::template MakePointer<Scalar>::Type TensorPointerType;
   typedef StorageMemory<Scalar, Device> Storage;
   typedef typename Storage::Type EvaluatorPointerType;
 
   // NumDimensions is -1 for variable dim tensors
-  static const int NumCoords = internal::traits<Derived>::NumDimensions > 0 ?
-                               internal::traits<Derived>::NumDimensions : 0;
+  static constexpr int NumCoords = internal::traits<Derived>::NumDimensions > 0 ?
+                                   internal::traits<Derived>::NumDimensions : 0;
   static constexpr int Layout = Derived::Layout;
 
   enum {
@@ -240,9 +240,9 @@ struct TensorEvaluator<const Derived, Device>
   typedef std::remove_const_t<Scalar> ScalarNoConst;
 
   // NumDimensions is -1 for variable dim tensors
-  static const int NumCoords = internal::traits<Derived>::NumDimensions > 0 ?
-                               internal::traits<Derived>::NumDimensions : 0;
-  static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
+  static constexpr int NumCoords = internal::traits<Derived>::NumDimensions > 0 ?
+                                   internal::traits<Derived>::NumDimensions : 0;
+  static constexpr int PacketSize = PacketType<CoeffReturnType, Device>::size;
   static constexpr int Layout = Derived::Layout;
 
   enum {
@@ -366,7 +366,7 @@ struct TensorEvaluator<const TensorCwiseNullaryOp<NullaryOp, ArgType>, Device>
   typedef typename XprType::Scalar Scalar;
   typedef typename internal::traits<XprType>::Scalar CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
-  static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
+  static constexpr int PacketSize = PacketType<CoeffReturnType, Device>::size;
   typedef typename TensorEvaluator<ArgType, Device>::Dimensions Dimensions;
   typedef StorageMemory<CoeffReturnType, Device> Storage;
   typedef typename Storage::Type EvaluatorPointerType;
@@ -466,11 +466,11 @@ struct TensorEvaluator<const TensorCwiseUnaryOp<UnaryOp, ArgType>, Device>
   typedef std::remove_const_t<Scalar> ScalarNoConst;
   typedef typename internal::traits<XprType>::Scalar CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
-  static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
+  static constexpr int PacketSize = PacketType<CoeffReturnType, Device>::size;
   typedef typename TensorEvaluator<ArgType, Device>::Dimensions Dimensions;
   typedef StorageMemory<CoeffReturnType, Device> Storage;
   typedef typename Storage::Type EvaluatorPointerType;
-  static const int NumDims = internal::array_size<Dimensions>::value;
+  static constexpr int NumDims = internal::array_size<Dimensions>::value;
 
   //===- Tensor block evaluation strategy (see TensorBlock.h) -------------===//
   typedef internal::TensorBlockDescriptor<NumDims, Index> TensorBlockDesc;
@@ -585,12 +585,12 @@ struct TensorEvaluator<const TensorCwiseBinaryOp<BinaryOp, LeftArgType, RightArg
   typedef typename XprType::Scalar Scalar;
   typedef typename internal::traits<XprType>::Scalar CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
-  static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
+  static constexpr int PacketSize = PacketType<CoeffReturnType, Device>::size;
   typedef typename TensorEvaluator<LeftArgType, Device>::Dimensions Dimensions;
   typedef StorageMemory<CoeffReturnType, Device> Storage;
   typedef typename Storage::Type EvaluatorPointerType;
 
-  static const int NumDims = internal::array_size<
+  static constexpr int NumDims = internal::array_size<
       typename TensorEvaluator<LeftArgType, Device>::Dimensions>::value;
 
   //===- Tensor block evaluation strategy (see TensorBlock.h) -------------===//
@@ -737,7 +737,7 @@ struct TensorEvaluator<const TensorCwiseTernaryOp<TernaryOp, Arg1Type, Arg2Type,
   typedef typename XprType::Scalar Scalar;
   typedef typename internal::traits<XprType>::Scalar CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
-  static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
+  static constexpr int PacketSize = PacketType<CoeffReturnType, Device>::size;
   typedef typename TensorEvaluator<Arg1Type, Device>::Dimensions Dimensions;
   typedef StorageMemory<CoeffReturnType, Device> Storage;
   typedef typename Storage::Type EvaluatorPointerType;
@@ -843,12 +843,12 @@ struct TensorEvaluator<const TensorSelectOp<IfArgType, ThenArgType, ElseArgType>
   typedef typename XprType::Index Index;
   typedef typename internal::traits<XprType>::Scalar CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
-  static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
+  static constexpr int PacketSize = PacketType<CoeffReturnType, Device>::size;
   typedef typename TensorEvaluator<IfArgType, Device>::Dimensions Dimensions;
   typedef StorageMemory<CoeffReturnType, Device> Storage;
   typedef typename Storage::Type EvaluatorPointerType;
 
-  static const int NumDims = internal::array_size<Dimensions>::value;
+  static constexpr int NumDims = internal::array_size<Dimensions>::value;
 
   //===- Tensor block evaluation strategy (see TensorBlock.h) -------------===//
     typedef internal::TensorBlockDescriptor<NumDims, Index> TensorBlockDesc;

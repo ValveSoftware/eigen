@@ -33,8 +33,8 @@ struct traits<TensorTraceOp<Dims, XprType> > : public traits<XprType>
   typedef typename XprTraits::Index Index;
   typedef typename XprType::Nested Nested;
   typedef std::remove_reference_t<Nested> Nested_;
-  static const int NumDimensions = XprTraits::NumDimensions - array_size<Dims>::value;
-  static const int Layout = XprTraits::Layout;
+  static constexpr int NumDimensions = XprTraits::NumDimensions - array_size<Dims>::value;
+  static constexpr int Layout = XprTraits::Layout;
 };
 
 template<typename Dims, typename XprType>
@@ -84,15 +84,15 @@ template<typename Dims, typename ArgType, typename Device>
 struct TensorEvaluator<const TensorTraceOp<Dims, ArgType>, Device>
 {
   typedef TensorTraceOp<Dims, ArgType> XprType;
-  static const int NumInputDims = internal::array_size<typename TensorEvaluator<ArgType, Device>::Dimensions>::value;
-  static const int NumReducedDims = internal::array_size<Dims>::value;
-  static const int NumOutputDims = NumInputDims - NumReducedDims;
+  static constexpr int NumInputDims = internal::array_size<typename TensorEvaluator<ArgType, Device>::Dimensions>::value;
+  static constexpr int NumReducedDims = internal::array_size<Dims>::value;
+  static constexpr int NumOutputDims = NumInputDims - NumReducedDims;
   typedef typename XprType::Index Index;
   typedef DSizes<Index, NumOutputDims> Dimensions;
   typedef typename XprType::Scalar Scalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
-  static const int PacketSize = internal::unpacket_traits<PacketReturnType>::size;
+  static constexpr int PacketSize = internal::unpacket_traits<PacketReturnType>::size;
   typedef StorageMemory<CoeffReturnType, Device> Storage;
   typedef typename Storage::Type EvaluatorPointerType;
 

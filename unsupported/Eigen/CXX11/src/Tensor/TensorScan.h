@@ -24,8 +24,8 @@ struct traits<TensorScanOp<Op, XprType> >
   typedef typename XprTraits::StorageKind StorageKind;
   typedef typename XprType::Nested Nested;
   typedef std::remove_reference_t<Nested> Nested_;
-  static const int NumDimensions = XprTraits::NumDimensions;
-  static const int Layout = XprTraits::Layout;
+  static constexpr int NumDimensions = XprTraits::NumDimensions;
+  static constexpr int Layout = XprTraits::Layout;
   typedef typename XprTraits::PointerType PointerType;
 };
 
@@ -381,7 +381,7 @@ struct TensorEvaluator<const TensorScanOp<Op, ArgType>, Device> {
   typedef typename XprType::Index Index;
   typedef const ArgType ChildTypeNoConst;
   typedef const ArgType ChildType;
-  static const int NumDims = internal::array_size<typename TensorEvaluator<ArgType, Device>::Dimensions>::value;
+  static constexpr int NumDims = internal::array_size<typename TensorEvaluator<ArgType, Device>::Dimensions>::value;
   typedef DSizes<Index, NumDims> Dimensions;
   typedef std::remove_const_t<typename XprType::Scalar> Scalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;

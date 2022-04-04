@@ -208,7 +208,7 @@ class IndexMapper {
   }
 
  private:
-  static const int NumDims = internal::array_size<InputDims>::value;
+  static constexpr int NumDims = internal::array_size<InputDims>::value;
   array<Index, NumDims> m_inputStrides;
   array<Index, NumDims> m_outputStrides;
   array<Index, NumDims> m_gpuInputStrides;
@@ -231,8 +231,8 @@ struct traits<TensorConvolutionOp<Dimensions, InputXprType, KernelXprType> >
   typedef typename KernelXprType::Nested RhsNested;
   typedef std::remove_reference_t<LhsNested> LhsNested_;
   typedef std::remove_reference_t<RhsNested> RhsNested_;
-  static const int NumDimensions = traits<InputXprType>::NumDimensions;
-  static const int Layout = traits<InputXprType>::Layout;
+  static constexpr int NumDimensions = traits<InputXprType>::NumDimensions;
+  static constexpr int Layout = traits<InputXprType>::Layout;
   typedef std::conditional_t<Pointer_type_promotion<typename InputXprType::Scalar, Scalar>::val,
   typename traits<InputXprType>::PointerType, typename traits<KernelXprType>::PointerType> PointerType;
 
@@ -296,15 +296,15 @@ struct TensorEvaluator<const TensorConvolutionOp<Indices, InputArgType, KernelAr
 {
   typedef TensorConvolutionOp<Indices, InputArgType, KernelArgType> XprType;
 
-  static const int NumDims = internal::array_size<typename TensorEvaluator<InputArgType, Device>::Dimensions>::value;
-  static const int NumKernelDims = internal::array_size<Indices>::value;
+  static constexpr int NumDims = internal::array_size<typename TensorEvaluator<InputArgType, Device>::Dimensions>::value;
+  static constexpr int NumKernelDims = internal::array_size<Indices>::value;
   typedef typename XprType::Index Index;
   typedef DSizes<Index, NumDims> Dimensions;
 
   typedef typename XprType::Scalar Scalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
-  static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
+  static constexpr int PacketSize = PacketType<CoeffReturnType, Device>::size;
   typedef StorageMemory<Scalar, Device> Storage;
   typedef typename Storage::Type EvaluatorPointerType;
 
@@ -779,8 +779,8 @@ struct TensorEvaluator<const TensorConvolutionOp<Indices, InputArgType, KernelAr
 {
   typedef TensorConvolutionOp<Indices, InputArgType, KernelArgType> XprType;
 
-  static const int NumDims =  internal::array_size<typename TensorEvaluator<InputArgType, GpuDevice>::Dimensions>::value;
-  static const int NumKernelDims = internal::array_size<Indices>::value;
+  static constexpr int NumDims =  internal::array_size<typename TensorEvaluator<InputArgType, GpuDevice>::Dimensions>::value;
+  static constexpr int NumKernelDims = internal::array_size<Indices>::value;
   typedef typename XprType::Index Index;
   typedef DSizes<Index, NumDims> Dimensions;
   typedef typename TensorEvaluator<KernelArgType, GpuDevice>::Dimensions KernelDimensions;
@@ -820,7 +820,7 @@ struct TensorEvaluator<const TensorConvolutionOp<Indices, InputArgType, KernelAr
   typedef typename XprType::CoeffReturnType CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, GpuDevice>::type PacketReturnType;
   typedef typename InputArgType::Scalar Scalar;
-  static const int PacketSize = internal::unpacket_traits<PacketReturnType>::size;
+  static constexpr int PacketSize = internal::unpacket_traits<PacketReturnType>::size;
 
   EIGEN_DEVICE_FUNC const Dimensions& dimensions() const { return m_dimensions; }
 

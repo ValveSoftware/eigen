@@ -172,7 +172,7 @@ class TensorExecutor<Expression, DefaultDevice, Vectorizable,
   typedef TensorEvaluator<Expression, DefaultDevice> Evaluator;
   typedef typename traits<Expression>::Index StorageIndex;
 
-  static const int NumDims = traits<Expression>::NumDimensions;
+  static constexpr int NumDims = traits<Expression>::NumDimensions;
 
   EIGEN_DEVICE_FUNC
   static EIGEN_STRONG_INLINE void run(const Expression& expr,
@@ -284,7 +284,7 @@ struct EvalRange {
 
 template <typename Evaluator, typename StorageIndex>
 struct EvalRange<Evaluator, StorageIndex, /*Vectorizable*/ true> {
-  static const int PacketSize =
+  static constexpr int PacketSize =
       unpacket_traits<typename Evaluator::PacketReturnType>::size;
 
   static void run(Evaluator* evaluator_in, const StorageIndex firstIdx,
@@ -355,7 +355,7 @@ class TensorExecutor<Expression, ThreadPoolDevice, Vectorizable,
   typedef typename traits<Expression>::Scalar Scalar;
   typedef std::remove_const_t<Scalar> ScalarNoConst;
 
-  static const int NumDims = traits<Expression>::NumDimensions;
+  static constexpr int NumDims = traits<Expression>::NumDimensions;
 
   typedef TensorEvaluator<Expression, ThreadPoolDevice> Evaluator;
   typedef TensorBlockMapper<NumDims, Evaluator::Layout, IndexType> BlockMapper;
@@ -463,7 +463,7 @@ class TensorAsyncExecutor<Expression, ThreadPoolDevice, DoneCallback,
   typedef typename traits<Expression>::Scalar Scalar;
   typedef std::remove_const_t<Scalar> ScalarNoConst;
 
-  static const int NumDims = traits<Expression>::NumDimensions;
+  static constexpr int NumDims = traits<Expression>::NumDimensions;
 
   typedef TensorEvaluator<Expression, ThreadPoolDevice> Evaluator;
   typedef TensorBlockMapper<NumDims, Evaluator::Layout, IndexType> BlockMapper;

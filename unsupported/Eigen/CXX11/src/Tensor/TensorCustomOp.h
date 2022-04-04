@@ -30,8 +30,8 @@ struct traits<TensorCustomUnaryOp<CustomUnaryFunc, XprType> >
   typedef typename XprType::Index Index;
   typedef typename XprType::Nested Nested;
   typedef std::remove_reference_t<Nested> Nested_;
-  static const int NumDimensions = traits<XprType>::NumDimensions;
-  static const int Layout = traits<XprType>::Layout;
+  static constexpr int NumDimensions = traits<XprType>::NumDimensions;
+  static constexpr int Layout = traits<XprType>::Layout;
   typedef typename traits<XprType>::PointerType PointerType;
 };
 
@@ -84,12 +84,12 @@ struct TensorEvaluator<const TensorCustomUnaryOp<CustomUnaryFunc, XprType>, Devi
 {
   typedef TensorCustomUnaryOp<CustomUnaryFunc, XprType> ArgType;
   typedef typename internal::traits<ArgType>::Index Index;
-  static const int NumDims = internal::traits<ArgType>::NumDimensions;
+  static constexpr int NumDims = internal::traits<ArgType>::NumDimensions;
   typedef DSizes<Index, NumDims> Dimensions;
   typedef std::remove_const_t<typename ArgType::Scalar> Scalar;
   typedef std::remove_const_t<typename XprType::CoeffReturnType> CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
-  static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
+  static constexpr int PacketSize = PacketType<CoeffReturnType, Device>::size;
   typedef typename Eigen::internal::traits<XprType>::PointerType TensorPointerType;
   typedef StorageMemory<CoeffReturnType, Device> Storage;
   typedef typename Storage::Type EvaluatorPointerType;
@@ -195,8 +195,8 @@ struct traits<TensorCustomBinaryOp<CustomBinaryFunc, LhsXprType, RhsXprType> >
   typedef typename RhsXprType::Nested RhsNested;
   typedef std::remove_reference_t<LhsNested> LhsNested_;
   typedef std::remove_reference_t<RhsNested> RhsNested_;
-  static const int NumDimensions = traits<LhsXprType>::NumDimensions;
-  static const int Layout = traits<LhsXprType>::Layout;
+  static constexpr int NumDimensions = traits<LhsXprType>::NumDimensions;
+  static constexpr int Layout = traits<LhsXprType>::Layout;
   typedef std::conditional_t<Pointer_type_promotion<typename LhsXprType::Scalar, Scalar>::val,
                         typename traits<LhsXprType>::PointerType, typename traits<RhsXprType>::PointerType> PointerType;
 };
@@ -256,12 +256,12 @@ struct TensorEvaluator<const TensorCustomBinaryOp<CustomBinaryFunc, LhsXprType, 
 {
   typedef TensorCustomBinaryOp<CustomBinaryFunc, LhsXprType, RhsXprType> XprType;
   typedef typename internal::traits<XprType>::Index Index;
-  static const int NumDims = internal::traits<XprType>::NumDimensions;
+  static constexpr int NumDims = internal::traits<XprType>::NumDimensions;
   typedef DSizes<Index, NumDims> Dimensions;
   typedef typename XprType::Scalar Scalar;
   typedef std::remove_const_t<typename XprType::CoeffReturnType> CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
-  static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
+  static constexpr int PacketSize = PacketType<CoeffReturnType, Device>::size;
 
   typedef typename Eigen::internal::traits<XprType>::PointerType TensorPointerType;
   typedef StorageMemory<CoeffReturnType, Device> Storage;

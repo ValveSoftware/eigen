@@ -132,13 +132,13 @@ namespace Eigen
     //  that enum is not guerantee to support negative numbers
     
     /** The first rotation axis */
-    static const int AlphaAxis = _AlphaAxis;
+    static constexpr int AlphaAxis = _AlphaAxis;
     
     /** The second rotation axis */
-    static const int BetaAxis = _BetaAxis;
+    static constexpr int BetaAxis = _BetaAxis;
     
     /** The third rotation axis */
-    static const int GammaAxis = _GammaAxis;
+    static constexpr int GammaAxis = _GammaAxis;
 
     enum
     {

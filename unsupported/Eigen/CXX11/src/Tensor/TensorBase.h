@@ -35,7 +35,7 @@ class TensorBase<Derived, ReadOnlyAccessors>
     typedef typename DerivedTraits::Scalar Scalar;
     typedef typename DerivedTraits::Index Index;
     typedef std::remove_const_t<Scalar> CoeffReturnType;
-    static const int NumDimensions = DerivedTraits::NumDimensions;
+    static constexpr int NumDimensions = DerivedTraits::NumDimensions;
 
     // Generic nullary operation support.
     template <typename CustomNullaryOp> EIGEN_DEVICE_FUNC
@@ -988,7 +988,7 @@ class TensorBase : public TensorBase<Derived, ReadOnlyAccessors> {
     typedef typename DerivedTraits::Scalar Scalar;
     typedef typename DerivedTraits::Index Index;
     typedef Scalar CoeffReturnType;
-    static const int NumDimensions = DerivedTraits::NumDimensions;
+    static constexpr int NumDimensions = DerivedTraits::NumDimensions;
 
     template <typename Scalar, int NumIndices, int Options, typename IndexType> friend class Tensor;
     template <typename Scalar, typename Dimensions, int Option, typename IndexTypes> friend class TensorFixedSize;

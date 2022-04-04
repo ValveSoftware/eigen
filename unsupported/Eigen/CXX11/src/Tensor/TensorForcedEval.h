@@ -32,8 +32,8 @@ struct traits<TensorForcedEvalOp<XprType> >
   typedef typename traits<XprType>::Index Index;
   typedef typename XprType::Nested Nested;
   typedef std::remove_reference_t<Nested> Nested_;
-  static const int NumDimensions = XprTraits::NumDimensions;
-  static const int Layout = XprTraits::Layout;
+  static constexpr int NumDimensions = XprTraits::NumDimensions;
+  static constexpr int Layout = XprTraits::Layout;
   typedef typename XprTraits::PointerType PointerType;
 
   enum {
@@ -112,7 +112,7 @@ struct TensorEvaluator<const TensorForcedEvalOp<ArgType_>, Device>
   typedef typename XprType::Index Index;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
-  static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
+  static constexpr int PacketSize = PacketType<CoeffReturnType, Device>::size;
   typedef typename Eigen::internal::traits<XprType>::PointerType TensorPointerType;
   typedef StorageMemory<CoeffReturnType, Device> Storage;
   typedef typename Storage::Type EvaluatorPointerType;
@@ -126,7 +126,7 @@ struct TensorEvaluator<const TensorForcedEvalOp<ArgType_>, Device>
   };
 
   static constexpr int Layout = TensorEvaluator<ArgType, Device>::Layout;
-  static const int NumDims = internal::traits<ArgType>::NumDimensions;
+  static constexpr int NumDims = internal::traits<ArgType>::NumDimensions;
 
   //===- Tensor block evaluation strategy (see TensorBlock.h) -------------===//
   typedef internal::TensorBlockDescriptor<NumDims, Index> TensorBlockDesc;

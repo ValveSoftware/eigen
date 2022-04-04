@@ -137,7 +137,7 @@ template<typename PlainObjectType> class TensorRef : public TensorBase<TensorRef
     typedef Scalar* PointerType;
     typedef PointerType PointerArgType;
 
-    static const Index NumIndices = PlainObjectType::NumIndices;
+    static constexpr Index NumIndices = PlainObjectType::NumIndices;
     typedef typename PlainObjectType::Dimensions Dimensions;
 
     static constexpr int Layout = PlainObjectType::Layout;

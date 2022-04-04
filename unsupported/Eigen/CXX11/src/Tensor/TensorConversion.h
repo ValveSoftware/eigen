@@ -31,8 +31,8 @@ struct traits<TensorConversionOp<TargetType, XprType> >
   typedef typename traits<XprType>::Index Index;
   typedef typename XprType::Nested Nested;
   typedef std::remove_reference_t<Nested> Nested_;
-  static const int NumDimensions = traits<XprType>::NumDimensions;
-  static const int Layout = traits<XprType>::Layout;
+  static constexpr int NumDimensions = traits<XprType>::NumDimensions;
+  static constexpr int Layout = traits<XprType>::Layout;
   enum { Flags = 0 };
   typedef typename TypeConversion<Scalar, typename traits<XprType>::PointerType>::type PointerType;
 };
@@ -252,7 +252,7 @@ struct PacketConv {
   typedef typename internal::unpacket_traits<SrcPacket>::type SrcType;
   typedef typename internal::unpacket_traits<TargetPacket>::type TargetType;
 
-  static const int PacketSize = internal::unpacket_traits<TargetPacket>::size;
+  static constexpr int PacketSize = internal::unpacket_traits<TargetPacket>::size;
 
   template <typename ArgType, typename Device>
   static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TargetPacket run(const TensorEvaluator<ArgType, Device>& impl, Index index) {
@@ -285,7 +285,7 @@ struct PacketConv<SrcPacket, TargetPacket, LoadMode, true, IsSameT> {
 template <typename SrcPacket, typename TargetPacket, int LoadMode>
 struct PacketConv<SrcPacket, TargetPacket, LoadMode, /*ActuallyVectorize=*/false, /*IsSameT=*/true> {
   typedef typename internal::unpacket_traits<TargetPacket>::type TargetType;
-  static const int PacketSize = internal::unpacket_traits<TargetPacket>::size;
+  static constexpr int PacketSize = internal::unpacket_traits<TargetPacket>::size;
 
   template <typename ArgType, typename Device>
   static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TargetPacket run(const TensorEvaluator<ArgType, Device>& impl, Index index) {
@@ -317,8 +317,8 @@ struct TensorEvaluator<const TensorConversionOp<TargetType, ArgType>, Device>
   typedef internal::remove_all_t<typename internal::traits<ArgType>::Scalar> SrcType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
   typedef typename PacketType<SrcType, Device>::type PacketSourceType;
-  static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
-  static const bool IsSameType = internal::is_same<TargetType, SrcType>::value;
+  static constexpr int PacketSize = PacketType<CoeffReturnType, Device>::size;
+  static constexpr bool IsSameType = internal::is_same<TargetType, SrcType>::value;
   typedef StorageMemory<CoeffReturnType, Device> Storage;
   typedef typename Storage::Type EvaluatorPointerType;
 
@@ -337,7 +337,7 @@ struct TensorEvaluator<const TensorConversionOp<TargetType, ArgType>, Device>
   };
 
   static constexpr int Layout = TensorEvaluator<ArgType, Device>::Layout;
-  static const int NumDims = internal::array_size<Dimensions>::value;
+  static constexpr int NumDims = internal::array_size<Dimensions>::value;
 
   //===- Tensor block evaluation strategy (see TensorBlock.h) -------------===//
   typedef internal::TensorBlockDescriptor<NumDims, Index> TensorBlockDesc;

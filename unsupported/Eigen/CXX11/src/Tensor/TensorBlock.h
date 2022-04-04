@@ -835,7 +835,7 @@ class TensorMaterializedBlock {
 
 template <typename UnaryOp, typename ArgTensorBlock>
 class TensorCwiseUnaryBlock {
-  static const bool NoArgBlockAccess =
+  static constexpr bool NoArgBlockAccess =
       internal::is_void<typename ArgTensorBlock::XprType>::value;
 
  public:
@@ -866,7 +866,7 @@ class TensorCwiseUnaryBlock {
 
 template <typename BinaryOp, typename LhsTensorBlock, typename RhsTensorBlock>
 class TensorCwiseBinaryBlock {
-  static const bool NoArgBlockAccess =
+  static constexpr bool NoArgBlockAccess =
       internal::is_void<typename LhsTensorBlock::XprType>::value ||
       internal::is_void<typename RhsTensorBlock::XprType>::value;
 
@@ -913,7 +913,7 @@ class TensorCwiseBinaryBlock {
 template <typename BlockFactory, typename ArgTensorBlock>
 class TensorUnaryExprBlock {
   typedef typename ArgTensorBlock::XprType ArgXprType;
-  static const bool NoArgBlockAccess = internal::is_void<ArgXprType>::value;
+  static constexpr bool NoArgBlockAccess = internal::is_void<ArgXprType>::value;
 
  public:
   typedef std::conditional_t<
@@ -947,9 +947,9 @@ class TensorTernaryExprBlock {
   typedef typename Arg2TensorBlock::XprType Arg2XprType;
   typedef typename Arg3TensorBlock::XprType Arg3XprType;
 
-  static const bool NoArgBlockAccess = internal::is_void<Arg1XprType>::value ||
-                                       internal::is_void<Arg2XprType>::value ||
-                                       internal::is_void<Arg3XprType>::value;
+  static constexpr bool NoArgBlockAccess = internal::is_void<Arg1XprType>::value ||
+                                           internal::is_void<Arg2XprType>::value ||
+                                           internal::is_void<Arg3XprType>::value;
 
  public:
   typedef std::conditional_t<
@@ -1143,7 +1143,7 @@ class StridedLinearBufferCopy {
 
 template <typename Scalar, typename IndexType, int NumDims, int Layout>
 class TensorBlockIO {
-  static const bool IsColMajor = (Layout == ColMajor);
+  static constexpr bool IsColMajor = (Layout == ColMajor);
 
   typedef StridedLinearBufferCopy<Scalar, IndexType> LinCopy;
 

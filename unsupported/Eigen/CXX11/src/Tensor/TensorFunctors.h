@@ -428,7 +428,7 @@ struct reducer_traits<ArgMinPairReducer<T>, Device> {
 template <typename T, typename Index, size_t NumDims>
 class GaussianGenerator {
  public:
-  static const bool PacketAccess = false;
+  static constexpr bool PacketAccess = false;
 
   EIGEN_DEVICE_FUNC GaussianGenerator(const array<T, NumDims>& means,
                                       const array<T, NumDims>& std_devs)

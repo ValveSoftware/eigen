@@ -38,7 +38,7 @@ class TensorFixedSize : public TensorBase<TensorFixedSize<Scalar_, Dimensions_, 
     typedef typename NumTraits<Scalar>::Real RealScalar;
     typedef typename Base::CoeffReturnType CoeffReturnType;
 
-    static const int Options = Options_;
+    static constexpr int Options = Options_;
     static constexpr int Layout = Options_ & RowMajor ? RowMajor : ColMajor;
 
     enum {
@@ -55,7 +55,7 @@ class TensorFixedSize : public TensorBase<TensorFixedSize<Scalar_, Dimensions_, 
   //===--------------------------------------------------------------------===//
 
   typedef Dimensions_ Dimensions;
-  static const std::size_t NumIndices = Dimensions::count;
+  static constexpr std::size_t NumIndices = Dimensions::count;
 
   protected:
   TensorStorage<Scalar, Dimensions, Options> m_storage;

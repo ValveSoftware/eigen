@@ -85,7 +85,7 @@ namespace internal {
   template <typename T>
   struct DividerTraits {
     typedef typename UnsignedTraits<T>::type type;
-    static const int N = sizeof(T) * 8;
+    static constexpr int N = sizeof(T) * 8;
   };
 
   template <typename T>

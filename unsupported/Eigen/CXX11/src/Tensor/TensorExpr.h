@@ -38,8 +38,8 @@ struct traits<TensorCwiseNullaryOp<NullaryOp, XprType> >
   typedef typename XprType::Scalar Scalar;
   typedef typename XprType::Nested XprTypeNested;
   typedef std::remove_reference_t<XprTypeNested> XprTypeNested_;
-  static const int NumDimensions = XprTraits::NumDimensions;
-  static const int Layout = XprTraits::Layout;
+  static constexpr int NumDimensions = XprTraits::NumDimensions;
+  static constexpr int Layout = XprTraits::Layout;
   typedef typename XprTraits::PointerType PointerType;
   enum {
     Flags = 0
@@ -89,8 +89,8 @@ struct traits<TensorCwiseUnaryOp<UnaryOp, XprType> >
   typedef traits<XprType> XprTraits;
   typedef typename XprType::Nested XprTypeNested;
   typedef std::remove_reference_t<XprTypeNested> XprTypeNested_;
-  static const int NumDimensions = XprTraits::NumDimensions;
-  static const int Layout = XprTraits::Layout;
+  static constexpr int NumDimensions = XprTraits::NumDimensions;
+  static constexpr int Layout = XprTraits::Layout;
   typedef typename TypeConversion<Scalar, 
                                   typename XprTraits::PointerType
                                   >::type 
@@ -165,8 +165,8 @@ struct traits<TensorCwiseBinaryOp<BinaryOp, LhsXprType, RhsXprType> >
   typedef typename RhsXprType::Nested RhsNested;
   typedef std::remove_reference_t<LhsNested> LhsNested_;
   typedef std::remove_reference_t<RhsNested> RhsNested_;
-  static const int NumDimensions = XprTraits::NumDimensions;
-  static const int Layout = XprTraits::Layout;
+  static constexpr int NumDimensions = XprTraits::NumDimensions;
+  static constexpr int Layout = XprTraits::Layout;
   typedef typename TypeConversion<Scalar,
                                   std::conditional_t<Pointer_type_promotion<typename LhsXprType::Scalar, Scalar>::val,
                                                       typename traits<LhsXprType>::PointerType,
@@ -247,8 +247,8 @@ struct traits<TensorCwiseTernaryOp<TernaryOp, Arg1XprType, Arg2XprType, Arg3XprT
   typedef std::remove_reference_t<Arg1Nested> Arg1Nested_;
   typedef std::remove_reference_t<Arg2Nested> Arg2Nested_;
   typedef std::remove_reference_t<Arg3Nested> Arg3Nested_;
-  static const int NumDimensions = XprTraits::NumDimensions;
-  static const int Layout = XprTraits::Layout;
+  static constexpr int NumDimensions = XprTraits::NumDimensions;
+  static constexpr int Layout = XprTraits::Layout;
   typedef typename TypeConversion<Scalar,
                                   std::conditional_t<Pointer_type_promotion<typename Arg2XprType::Scalar, Scalar>::val,
                                                       typename traits<Arg2XprType>::PointerType,
@@ -328,8 +328,8 @@ struct traits<TensorSelectOp<IfXprType, ThenXprType, ElseXprType> >
   typedef typename IfXprType::Nested IfNested;
   typedef typename ThenXprType::Nested ThenNested;
   typedef typename ElseXprType::Nested ElseNested;
-  static const int NumDimensions = XprTraits::NumDimensions;
-  static const int Layout = XprTraits::Layout;
+  static constexpr int NumDimensions = XprTraits::NumDimensions;
+  static constexpr int Layout = XprTraits::Layout;
   typedef std::conditional_t<Pointer_type_promotion<typename ThenXprType::Scalar, Scalar>::val,
                                typename traits<ThenXprType>::PointerType,
                                typename traits<ElseXprType>::PointerType> PointerType;

@@ -34,8 +34,8 @@ struct traits<TensorAssignOp<LhsXprType, RhsXprType> >
   typedef typename RhsXprType::Nested RhsNested;
   typedef std::remove_reference_t<LhsNested> LhsNested_;
   typedef std::remove_reference_t<RhsNested> RhsNested_;
-  static const std::size_t NumDimensions = internal::traits<LhsXprType>::NumDimensions;
-  static const int Layout = internal::traits<LhsXprType>::Layout;
+  static constexpr std::size_t NumDimensions = internal::traits<LhsXprType>::NumDimensions;
+  static constexpr int Layout = internal::traits<LhsXprType>::Layout;
   typedef typename traits<LhsXprType>::PointerType PointerType;
 
   enum {
@@ -70,7 +70,7 @@ class TensorAssignOp : public TensorBase<TensorAssignOp<LhsXprType, RhsXprType> 
   typedef typename Eigen::internal::traits<TensorAssignOp>::StorageKind StorageKind;
   typedef typename Eigen::internal::traits<TensorAssignOp>::Index Index;
 
-  static const int NumDims = Eigen::internal::traits<TensorAssignOp>::NumDimensions;
+  static constexpr int NumDims = Eigen::internal::traits<TensorAssignOp>::NumDimensions;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorAssignOp(LhsXprType& lhs, const RhsXprType& rhs)
       : m_lhs_xpr(lhs), m_rhs_xpr(rhs) {}
@@ -102,8 +102,8 @@ struct TensorEvaluator<const TensorAssignOp<LeftArgType, RightArgType>, Device>
   typedef StorageMemory<CoeffReturnType, Device> Storage;
   typedef typename Storage::Type EvaluatorPointerType;
 
-  static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
-  static const int NumDims = XprType::NumDims;
+  static constexpr int PacketSize = PacketType<CoeffReturnType, Device>::size;
+  static constexpr int NumDims = XprType::NumDims;
   static constexpr int Layout = TensorEvaluator<LeftArgType, Device>::Layout;
 
   enum {

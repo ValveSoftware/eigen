@@ -1311,9 +1311,9 @@ struct TensorEvaluator<const TensorContractionOp<Indices, LeftArgType, RightArgT
   };
 
   static constexpr int Layout = TensorEvaluator<LeftArgType, Device>::Layout;
-  static EIGEN_CONSTEXPR int LDims = Base::LDims;
-  static EIGEN_CONSTEXPR int RDims = Base::RDims;
-  static EIGEN_CONSTEXPR int ContractDims = Base::ContractDims;
+  static constexpr int LDims = Base::LDims;
+  static constexpr int RDims = Base::RDims;
+  static constexpr int ContractDims = Base::ContractDims;
 
   typedef array<StorageIndex, LDims> left_dim_mapper_t;
   typedef array<StorageIndex, RDims> right_dim_mapper_t;
@@ -1322,7 +1322,7 @@ struct TensorEvaluator<const TensorContractionOp<Indices, LeftArgType, RightArgT
   typedef array<StorageIndex, LDims - ContractDims> left_nocontract_t;
   typedef array<StorageIndex, RDims - ContractDims> right_nocontract_t;
 
-  static const int NumDims = LDims + RDims - 2 * ContractDims;
+  static constexpr int NumDims = LDims + RDims - 2 * ContractDims;
 
   typedef DSizes<StorageIndex, NumDims> Dimensions;
 

@@ -67,8 +67,8 @@ struct traits<TensorFFTOp<FFT, XprType, FFTResultType, FFTDir> > : public traits
   typedef typename XprTraits::Index Index;
   typedef typename XprType::Nested Nested;
   typedef std::remove_reference_t<Nested> Nested_;
-  static const int NumDimensions = XprTraits::NumDimensions;
-  static const int Layout = XprTraits::Layout;
+  static constexpr int NumDimensions = XprTraits::NumDimensions;
+  static constexpr int Layout = XprTraits::Layout;
   typedef typename traits<XprType>::PointerType PointerType;
 };
 
@@ -117,7 +117,7 @@ template <typename FFT, typename ArgType, typename Device, int FFTResultType, in
 struct TensorEvaluator<const TensorFFTOp<FFT, ArgType, FFTResultType, FFTDir>, Device> {
   typedef TensorFFTOp<FFT, ArgType, FFTResultType, FFTDir> XprType;
   typedef typename XprType::Index Index;
-  static const int NumDims = internal::array_size<typename TensorEvaluator<ArgType, Device>::Dimensions>::value;
+  static constexpr int NumDims = internal::array_size<typename TensorEvaluator<ArgType, Device>::Dimensions>::value;
   typedef DSizes<Index, NumDims> Dimensions;
   typedef typename XprType::Scalar Scalar;
   typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
@@ -128,7 +128,7 @@ struct TensorEvaluator<const TensorFFTOp<FFT, ArgType, FFTResultType, FFTDir>, D
   typedef std::conditional_t<FFTResultType == RealPart || FFTResultType == ImagPart, RealScalar, ComplexScalar> OutputScalar;
   typedef OutputScalar CoeffReturnType;
   typedef typename PacketType<OutputScalar, Device>::type PacketReturnType;
-  static const int PacketSize = internal::unpacket_traits<PacketReturnType>::size;
+  static constexpr int PacketSize = internal::unpacket_traits<PacketReturnType>::size;
   typedef StorageMemory<CoeffReturnType, Device> Storage;
   typedef typename Storage::Type EvaluatorPointerType;
 

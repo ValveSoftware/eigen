@@ -1241,11 +1241,11 @@ struct TensorEvaluator<const TensorContractionOp<Indices, LeftArgType, RightArgT
   typedef std::conditional_t<Layout == static_cast<int>(ColMajor), LeftArgType, RightArgType> EvalLeftArgType;
   typedef std::conditional_t<Layout == static_cast<int>(ColMajor), RightArgType, LeftArgType> EvalRightArgType;
 
-  static const int LDims =
+  static constexpr int LDims =
       internal::array_size<typename TensorEvaluator<EvalLeftArgType, Device>::Dimensions>::value;
-  static const int RDims =
+  static constexpr int RDims =
       internal::array_size<typename TensorEvaluator<EvalRightArgType, Device>::Dimensions>::value;
-  static const int ContractDims = internal::array_size<Indices>::value;
+  static constexpr int ContractDims = internal::array_size<Indices>::value;
 
   typedef array<Index, LDims> left_dim_mapper_t;
   typedef array<Index, RDims> right_dim_mapper_t;
@@ -1254,7 +1254,7 @@ struct TensorEvaluator<const TensorContractionOp<Indices, LeftArgType, RightArgT
   typedef array<Index, LDims - ContractDims> left_nocontract_t;
   typedef array<Index, RDims - ContractDims> right_nocontract_t;
 
-  static const int NumDims = LDims + RDims - 2 * ContractDims;
+  static constexpr int NumDims = LDims + RDims - 2 * ContractDims;
 
   typedef DSizes<Index, NumDims> Dimensions;
 

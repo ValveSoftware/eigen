@@ -40,8 +40,8 @@ struct traits<TensorContractionOp<Dimensions, LhsXprType, RhsXprType, OutputKern
   typedef std::remove_reference_t<RhsNested> RhsNested_;
 
   // From NumDims below.
-  static const int NumDimensions = traits<LhsXprType>::NumDimensions + traits<RhsXprType>::NumDimensions - 2 * array_size<Dimensions>::value;
-  static const int Layout = traits<LhsXprType>::Layout;
+  static constexpr int NumDimensions = traits<LhsXprType>::NumDimensions + traits<RhsXprType>::NumDimensions - 2 * array_size<Dimensions>::value;
+  static constexpr int Layout = traits<LhsXprType>::Layout;
   typedef std::conditional_t<Pointer_type_promotion<typename LhsXprType::Scalar, Scalar>::val,
                         typename traits<LhsXprType>::PointerType,
                         typename traits<RhsXprType>::PointerType>
@@ -73,7 +73,7 @@ struct traits<TensorEvaluator<const TensorContractionOp<Indices_, LeftArgType_, 
   typedef Device_ Device;
 
   // From NumDims below.
-  static const int NumDimensions = traits<LeftArgType_>::NumDimensions + traits<RightArgType_>::NumDimensions - 2 * array_size<Indices_>::value;
+  static constexpr int NumDimensions = traits<LeftArgType_>::NumDimensions + traits<RightArgType_>::NumDimensions - 2 * array_size<Indices_>::value;
 };
 
 // Helper class to allocate and deallocate temporary memory for packed buffers.
@@ -406,12 +406,12 @@ struct TensorContractionEvaluatorBase : internal::no_assignment_operator
   typedef TensorEvaluator<EvalLeftArgType, Device> LeftEvaluatorType;
   typedef TensorEvaluator<EvalRightArgType, Device> RightEvaluatorType;
 
-  static const int LDims =
+  static constexpr int LDims =
       internal::array_size<typename TensorEvaluator<EvalLeftArgType, Device>::Dimensions>::value;
-  static const int RDims =
+  static constexpr int RDims =
       internal::array_size<typename TensorEvaluator<EvalRightArgType, Device>::Dimensions>::value;
-  static const int ContractDims = internal::array_size<Indices>::value;
-  static const int NumDims = LDims + RDims - 2 * ContractDims;
+  static constexpr int ContractDims = internal::array_size<Indices>::value;
+  static constexpr int NumDims = LDims + RDims - 2 * ContractDims;
 
   typedef array<Index, ContractDims> contract_t;
   typedef array<Index, LDims - ContractDims> left_nocontract_t;
@@ -992,17 +992,17 @@ struct TensorEvaluator<const TensorContractionOp<Indices, LeftArgType, RightArgT
   typedef std::conditional_t<Layout == static_cast<int>(ColMajor), LeftArgType, RightArgType> EvalLeftArgType;
   typedef std::conditional_t<Layout == static_cast<int>(ColMajor), RightArgType, LeftArgType> EvalRightArgType;
 
-  static const int LDims =
+  static constexpr int LDims =
       internal::array_size<typename TensorEvaluator<EvalLeftArgType, Device>::Dimensions>::value;
-  static const int RDims =
+  static constexpr int RDims =
       internal::array_size<typename TensorEvaluator<EvalRightArgType, Device>::Dimensions>::value;
-  static const int ContractDims = internal::array_size<Indices>::value;
+  static constexpr int ContractDims = internal::array_size<Indices>::value;
 
   typedef array<Index, ContractDims> contract_t;
   typedef array<Index, LDims - ContractDims> left_nocontract_t;
   typedef array<Index, RDims - ContractDims> right_nocontract_t;
 
-  static const int NumDims = LDims + RDims - 2 * ContractDims;
+  static constexpr int NumDims = LDims + RDims - 2 * ContractDims;
 
   // Could we use NumDimensions here?
   typedef DSizes<Index, NumDims> Dimensions;
