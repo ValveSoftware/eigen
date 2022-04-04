@@ -203,38 +203,27 @@ struct find_best_packet
 };
 
 #if EIGEN_MAX_STATIC_ALIGN_BYTES>0
-template<int ArrayBytes, int AlignmentBytes,
-         bool Match     =  bool((ArrayBytes%AlignmentBytes)==0),
-         bool TryHalf   =  bool(EIGEN_MIN_ALIGN_BYTES<AlignmentBytes) >
-struct compute_default_alignment_helper
-{
-  enum { value = 0 };
-};
-
-template<int ArrayBytes, int AlignmentBytes, bool TryHalf>
-struct compute_default_alignment_helper<ArrayBytes, AlignmentBytes, true, TryHalf> // Match
-{
-  enum { value = AlignmentBytes };
-};
-
-template<int ArrayBytes, int AlignmentBytes>
-struct compute_default_alignment_helper<ArrayBytes, AlignmentBytes, false, true> // Try-half
-{
-  // current packet too large, try with an half-packet
-  enum { value = compute_default_alignment_helper<ArrayBytes, AlignmentBytes/2>::value };
-};
+constexpr inline int compute_default_alignment_helper(int ArrayBytes, int AlignmentBytes) {
+  if((ArrayBytes % AlignmentBytes) == 0) {
+    return AlignmentBytes;
+  } else if (EIGEN_MIN_ALIGN_BYTES<AlignmentBytes) {
+    return compute_default_alignment_helper(ArrayBytes, AlignmentBytes/2);
+  } else {
+    return 0;
+  }
+}
 #else
 // If static alignment is disabled, no need to bother.
-// This also avoids a division by zero in "bool Match =  bool((ArrayBytes%AlignmentBytes)==0)"
-template<int ArrayBytes, int AlignmentBytes>
-struct compute_default_alignment_helper
-{
-  enum { value = 0 };
-};
+// This also avoids a division by zero
+constexpr inline int compute_default_alignment_helper(int ArrayBytes, int AlignmentBytes) {
+  EIGEN_UNUSED_VARIABLE(ArrayBytes);
+  EIGEN_UNUSED_VARIABLE(AlignmentBytes);
+  return 0;
+}
 #endif
 
 template<typename T, int Size> struct compute_default_alignment {
-  enum { value = compute_default_alignment_helper<Size*sizeof(T),EIGEN_MAX_STATIC_ALIGN_BYTES>::value };
+  enum { value = compute_default_alignment_helper(Size*sizeof(T), EIGEN_MAX_STATIC_ALIGN_BYTES) };
 };
 
 template<typename T> struct compute_default_alignment<T,Dynamic> {
@@ -261,25 +250,21 @@ template<typename Scalar_, int Rows_, int Cols_,
     typedef Matrix<Scalar_, Rows_, Cols_, Options, MaxRows_, MaxCols_> type;
 };
 
-template<typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
-class compute_matrix_flags
-{
-    enum { row_major_bit = Options&RowMajor ? RowMajorBit : 0 };
-  public:
-    // FIXME currently we still have to handle DirectAccessBit at the expression level to handle DenseCoeffsBase<>
-    // and then propagate this information to the evaluator's flags.
-    // However, I (Gael) think that DirectAccessBit should only matter at the evaluation stage.
-    enum { ret = DirectAccessBit | LvalueBit | NestByRefBit | row_major_bit };
-};
+constexpr inline unsigned compute_matrix_flags(int Options) {
+  unsigned row_major_bit = Options&RowMajor ? RowMajorBit : 0;
+  // FIXME currently we still have to handle DirectAccessBit at the expression level to handle DenseCoeffsBase<>
+  // and then propagate this information to the evaluator's flags.
+  // However, I (Gael) think that DirectAccessBit should only matter at the evaluation stage.
+  return DirectAccessBit | LvalueBit | NestByRefBit | row_major_bit;
+}
 
-template<int Rows_, int Cols_> struct size_at_compile_time
-{
-  enum { ret = (Rows_==Dynamic || Cols_==Dynamic) ? Dynamic : Rows_ * Cols_ };
-};
+constexpr inline int size_at_compile_time(int rows, int cols) {
+  return (rows==Dynamic || cols==Dynamic) ? Dynamic : rows * cols;
+}
 
 template<typename XprType> struct size_of_xpr_at_compile_time
 {
-  enum { ret = size_at_compile_time<traits<XprType>::RowsAtCompileTime,traits<XprType>::ColsAtCompileTime>::ret };
+  enum { ret = size_at_compile_time(traits<XprType>::RowsAtCompileTime, traits<XprType>::ColsAtCompileTime) };
 };
 
 /* plain_matrix_type : the difference from eval is that plain_matrix_type is always a plain matrix type,

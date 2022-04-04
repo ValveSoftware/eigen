@@ -71,8 +71,7 @@ template<typename Derived> class SparseMatrixBase
           * \sa MatrixBase::rows(), MatrixBase::cols(), RowsAtCompileTime, SizeAtCompileTime */
 
 
-      SizeAtCompileTime = (internal::size_at_compile_time<internal::traits<Derived>::RowsAtCompileTime,
-                                                   internal::traits<Derived>::ColsAtCompileTime>::ret),
+      SizeAtCompileTime = (internal::size_of_xpr_at_compile_time<Derived>::ret),
         /**< This is equal to the number of coefficients, i.e. the number of
           * rows times the number of columns, or to \a Dynamic if this is not
           * known at compile-time. \sa RowsAtCompileTime, ColsAtCompileTime */
@@ -80,8 +79,7 @@ template<typename Derived> class SparseMatrixBase
       MaxRowsAtCompileTime = RowsAtCompileTime,
       MaxColsAtCompileTime = ColsAtCompileTime,
 
-      MaxSizeAtCompileTime = (internal::size_at_compile_time<MaxRowsAtCompileTime,
-                                                      MaxColsAtCompileTime>::ret),
+      MaxSizeAtCompileTime = internal::size_at_compile_time(MaxRowsAtCompileTime, MaxColsAtCompileTime),
 
       IsVectorAtCompileTime = RowsAtCompileTime == 1 || ColsAtCompileTime == 1,
         /**< This is set to true if either the number of rows or the number of
