@@ -503,7 +503,11 @@ EIGEN_ALWAYS_INLINE Packet1cd pconj2(const Packet1cd& a) {
 
 /** \internal packet conjugate with real & imaginary operation inverted */
 EIGEN_ALWAYS_INLINE Packet2cf pconjinv(const Packet2cf& a) {
+#ifdef __POWER8_VECTOR__
+    return Packet2cf(Packet4f(vec_neg(Packet2d(a.v))));
+#else
     return Packet2cf(pxor(a.v, reinterpret_cast<Packet4f>(p16uc_COMPLEX32_CONJ_XOR2)));
+#endif
 }
 
 EIGEN_ALWAYS_INLINE Packet1cd pconjinv(const Packet1cd& a) {
@@ -555,12 +559,20 @@ EIGEN_ALWAYS_INLINE Packet1cd pcplxconjflip(Packet1cd a)
 /** \internal packet negate */
 EIGEN_ALWAYS_INLINE Packet2cf pnegate2(Packet2cf a)
 {
+#ifdef __POWER8_VECTOR__
+    return Packet2cf(vec_neg(a.v));
+#else
     return Packet2cf(pxor(a.v, reinterpret_cast<Packet4f>(p16uc_COMPLEX32_NEGATE)));
+#endif
 }
 
 EIGEN_ALWAYS_INLINE Packet1cd pnegate2(Packet1cd a)
 {
+#ifdef __POWER8_VECTOR__
+    return Packet1cd(vec_neg(a.v));
+#else
     return Packet1cd(pxor(a.v, reinterpret_cast<Packet2d>(p16uc_COMPLEX64_NEGATE)));
+#endif
 }
 
 /** \internal flip the real & imaginary results and negate */
@@ -637,13 +649,24 @@ EIGEN_ALWAYS_INLINE void pload_realimag(RhsScalar* src, Packet2d& r, Packet2d& i
 #endif
 }
 
+#ifndef __POWER8_VECTOR__
+const Packet16uc p16uc_MERGEE = { 0x00, 0x01, 0x02, 0x03, 0x10, 0x11, 0x12, 0x13, 0x08, 0x09, 0x0A, 0x0B, 0x18, 0x19, 0x1A, 0x1B };
+
+const Packet16uc p16uc_MERGEO = { 0x04, 0x05, 0x06, 0x07, 0x14, 0x15, 0x16, 0x17, 0x0C, 0x0D, 0x0E, 0x0F, 0x1C, 0x1D, 0x1E, 0x1F };
+#endif
+
 /** \internal load two vectors from the interleaved real & imaginary values of src */
 template<typename RhsScalar>
 EIGEN_ALWAYS_INLINE void pload_realimag_row(RhsScalar* src, Packet4f& r, Packet4f& i)
 {
     Packet4f t = ploadu<Packet4f>(reinterpret_cast<float*>(src));
+#ifdef __POWER8_VECTOR__
     r = vec_mergee(t, t);
     i = vec_mergeo(t, t);
+#else
+    r = vec_perm(t, t, p16uc_MERGEE);
+    i = vec_perm(t, t, p16uc_MERGEO);
+#endif
 }
 
 template<typename RhsScalar>
@@ -909,7 +932,7 @@ EIGEN_ALWAYS_INLINE void pstoreu_pmadd_complex(PResPacket& c0, PResPacket& c1, A
 {
     PResPacket c2 = pcplxflipconj(c0);
     PResPacket c3 = pcplxflipconj(c1);
-#if EIGEN_COMP_LLVM
+#if EIGEN_COMP_LLVM || !defined(_ARCH_PWR10)
     ScalarPacket c4 = pload_complex<ResPacket>(res + (iter2 * ResPacketSize));
     ScalarPacket c5 = pload_complex<ResPacket>(res + ((iter2 + 1) * ResPacketSize));
     PResPacket c6 = PResPacket(pmadd_complex<ScalarPacket, AlphaData>(c0.v, c2.v, c4, b0));
