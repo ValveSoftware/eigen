@@ -132,7 +132,8 @@ template<typename Derived> class DenseBase
           * \sa ColsAtCompileTime, MaxRowsAtCompileTime, MaxSizeAtCompileTime
           */
 
-      MaxSizeAtCompileTime = (internal::size_of_xpr_at_compile_time<Derived>::ret),
+      MaxSizeAtCompileTime = internal::size_at_compile_time(internal::traits<Derived>::MaxRowsAtCompileTime,
+                                                            internal::traits<Derived>::MaxColsAtCompileTime),
         /**< This value is equal to the maximum possible number of coefficients that this expression
           * might have. If this expression might have an arbitrarily high number of coefficients,
           * this value is set to \a Dynamic.

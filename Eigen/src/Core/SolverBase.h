@@ -84,7 +84,8 @@ class SolverBase : public EigenBase<Derived>
       SizeAtCompileTime = (internal::size_of_xpr_at_compile_time<Derived>::ret),
       MaxRowsAtCompileTime = internal::traits<Derived>::MaxRowsAtCompileTime,
       MaxColsAtCompileTime = internal::traits<Derived>::MaxColsAtCompileTime,
-      MaxSizeAtCompileTime = (internal::size_of_xpr_at_compile_time<Derived>::ret),
+      MaxSizeAtCompileTime = internal::size_at_compile_time(internal::traits<Derived>::MaxRowsAtCompileTime,
+                                                            internal::traits<Derived>::MaxColsAtCompileTime),
       IsVectorAtCompileTime = internal::traits<Derived>::MaxRowsAtCompileTime == 1
                            || internal::traits<Derived>::MaxColsAtCompileTime == 1,
       NumDimensions = int(MaxSizeAtCompileTime) == 1 ? 0 : bool(IsVectorAtCompileTime) ? 1 : 2

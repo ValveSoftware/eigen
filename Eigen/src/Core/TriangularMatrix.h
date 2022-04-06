@@ -42,7 +42,8 @@ template<typename Derived> class TriangularBase : public EigenBase<Derived>
           * rows times the number of columns, or to \a Dynamic if this is not
           * known at compile-time. \sa RowsAtCompileTime, ColsAtCompileTime */
 
-      MaxSizeAtCompileTime = (internal::size_of_xpr_at_compile_time<Derived>::ret)
+      MaxSizeAtCompileTime = internal::size_at_compile_time(internal::traits<Derived>::MaxRowsAtCompileTime,
+                                                            internal::traits<Derived>::MaxColsAtCompileTime)
 
     };
     typedef typename internal::traits<Derived>::Scalar Scalar;
