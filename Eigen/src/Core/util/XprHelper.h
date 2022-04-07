@@ -11,17 +11,6 @@
 #ifndef EIGEN_XPRHELPER_H
 #define EIGEN_XPRHELPER_H
 
-// just a workaround because GCC seems to not really like empty structs
-// FIXME: gcc 4.3 generates bad code when strict-aliasing is enabled
-// so currently we simply disable this optimization for gcc 4.3
-#if EIGEN_COMP_GNUC
-  #define EIGEN_EMPTY_STRUCT_CTOR(X) \
-    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE X() {} \
-    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE X(const X& ) {}
-#else
-  #define EIGEN_EMPTY_STRUCT_CTOR(X)
-#endif
-
 #include "../InternalHeaderCheck.h"
 
 namespace Eigen {
@@ -148,7 +137,6 @@ template<typename T> class variable_if_dynamic<T, Dynamic>
 template<typename T, int Value> class variable_if_dynamicindex
 {
   public:
-    EIGEN_EMPTY_STRUCT_CTOR(variable_if_dynamicindex)
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE explicit variable_if_dynamicindex(T v) { EIGEN_ONLY_USED_FOR_DEBUG(v); eigen_assert(v == T(Value)); }
     EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
     T value() { return T(Value); }
