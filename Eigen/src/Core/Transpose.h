@@ -180,7 +180,7 @@ template<typename MatrixType> class TransposeImpl<MatrixType,Dense>
   * \sa transposeInPlace(), adjoint() */
 template<typename Derived>
 EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
-Transpose<Derived>
+typename DenseBase<Derived>::TransposeReturnType
 DenseBase<Derived>::transpose()
 {
   return TransposeReturnType(derived());

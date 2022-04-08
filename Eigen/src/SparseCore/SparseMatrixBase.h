@@ -113,7 +113,7 @@ template<typename Derived> class SparseMatrixBase
                         Transpose<const Derived>
                      > AdjointReturnType;
     typedef Transpose<Derived> TransposeReturnType;
-    typedef std::add_const_t<Transpose<const Derived> > ConstTransposeReturnType;
+    typedef Transpose<const Derived> ConstTransposeReturnType;
 
     // FIXME storage order do not match evaluator storage order
     typedef SparseMatrix<Scalar, Flags&RowMajorBit ? RowMajor : ColMajor, StorageIndex> PlainObject;

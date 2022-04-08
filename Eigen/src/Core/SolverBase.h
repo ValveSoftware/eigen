@@ -111,7 +111,7 @@ class SolverBase : public EigenBase<Derived>
     }
 
     /** \internal the return type of transpose() */
-    typedef std::add_const_t<Transpose<const Derived> > ConstTransposeReturnType;
+    typedef Transpose<const Derived> ConstTransposeReturnType;
     /** \returns an expression of the transposed of the factored matrix.
       *
       * A typical usage is to solve for the transposed problem A^T x = b:
@@ -119,15 +119,15 @@ class SolverBase : public EigenBase<Derived>
       *
       * \sa adjoint(), solve()
       */
-    inline ConstTransposeReturnType transpose() const
+    inline const ConstTransposeReturnType transpose() const
     {
       return ConstTransposeReturnType(derived());
     }
 
     /** \internal the return type of adjoint() */
     typedef std::conditional_t<NumTraits<Scalar>::IsComplex,
-               CwiseUnaryOp<internal::scalar_conjugate_op<Scalar>, ConstTransposeReturnType>,
-               ConstTransposeReturnType
+               CwiseUnaryOp<internal::scalar_conjugate_op<Scalar>, const ConstTransposeReturnType>,
+               const ConstTransposeReturnType
             > AdjointReturnType;
     /** \returns an expression of the adjoint of the factored matrix
       *
@@ -138,7 +138,7 @@ class SolverBase : public EigenBase<Derived>
       *
       * \sa transpose(), solve()
       */
-    inline AdjointReturnType adjoint() const
+    inline const AdjointReturnType adjoint() const
     {
       return AdjointReturnType(derived().transpose());
     }
