@@ -199,6 +199,11 @@ class DiagonalMatrix
     EIGEN_DEVICE_FUNC
     explicit EIGEN_STRONG_INLINE DiagonalMatrix(const std::initializer_list<std::initializer_list<Scalar>>& list)
       : m_diagonal(list) {}
+    
+    /** \brief Constructs a DiagonalMatrix and initializes it by elements given by an initializer list of values */
+    EIGEN_DEVICE_FUNC
+    explicit EIGEN_STRONG_INLINE DiagonalMatrix(const std::initializer_list<Scalar>& list)
+      : m_diagonal(std::initializer_list<std::initializer_list<Scalar>>{list}) {}
 
     /** \brief Constructs a DiagonalMatrix from an r-value diagonal vector type */
     EIGEN_DEVICE_FUNC
