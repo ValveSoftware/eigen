@@ -408,7 +408,7 @@ template<typename VectorsType, typename CoeffsType, int Side> class HouseholderS
         {
           Index actual_k = m_reverse ? k : m_length-k-1;
           Index dstStart = rows()-m_shift-actual_k;
-          dst.bottomRightCorner(dstStart, inputIsIdentity ? dstStart : dst.cols())
+         dst.template bottomRightCorner<Dynamic, Dest::ColsAtCompileTime>(dstStart, inputIsIdentity ? dstStart : dst.cols())
             .applyHouseholderOnTheLeft(essentialVector(actual_k), m_coeffs.coeff(actual_k), workspace.data());
         }
       }
