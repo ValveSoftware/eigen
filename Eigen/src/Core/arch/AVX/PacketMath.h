@@ -237,7 +237,7 @@ template<> struct unpacket_traits<Packet8f> {
   typedef Packet8i  integer_packet;
   typedef uint8_t   mask_t;
   enum {size=8, alignment=Aligned32, vectorizable=true, masked_load_available=true, masked_store_available=true
-#ifdef EIGEN_VECTORIZE_AVX512
+#ifdef __AVX512VL__
     , masked_fpops_available=true
 #endif
   };
@@ -468,7 +468,7 @@ template<> EIGEN_STRONG_INLINE Packet8f pload1<Packet8f>(const float*  from) { r
 template<> EIGEN_STRONG_INLINE Packet4d pload1<Packet4d>(const double* from) { return _mm256_broadcast_sd(from); }
 
 template<> EIGEN_STRONG_INLINE Packet8f padd<Packet8f>(const Packet8f& a, const Packet8f& b) { return _mm256_add_ps(a,b); }
-#ifdef EIGEN_VECTORIZE_AVX512
+#ifdef __AVX512VL__
 template <>
 EIGEN_STRONG_INLINE Packet8f padd<Packet8f>(const Packet8f& a, const Packet8f& b, uint8_t umask) {
   __mmask8 mask = static_cast<__mmask8>(umask);
@@ -859,7 +859,7 @@ template<> EIGEN_STRONG_INLINE Packet4d ploadu<Packet4d>(const double* from) { E
 template<> EIGEN_STRONG_INLINE Packet8i ploadu<Packet8i>(const int* from) { EIGEN_DEBUG_UNALIGNED_LOAD return _mm256_loadu_si256(reinterpret_cast<const __m256i*>(from)); }
 
 template<> EIGEN_STRONG_INLINE Packet8f ploadu<Packet8f>(const float* from, uint8_t umask) {
-#ifdef EIGEN_VECTORIZE_AVX512
+#ifdef __AVX512VL__
   __mmask8 mask = static_cast<__mmask8>(umask);
   EIGEN_DEBUG_UNALIGNED_LOAD return _mm256_maskz_loadu_ps(mask, from);
 #else
@@ -927,7 +927,7 @@ template<> EIGEN_STRONG_INLINE void pstoreu<double>(double* to, const Packet4d& 
 template<> EIGEN_STRONG_INLINE void pstoreu<int>(int*       to, const Packet8i& from) { EIGEN_DEBUG_UNALIGNED_STORE _mm256_storeu_si256(reinterpret_cast<__m256i*>(to), from); }
 
 template<> EIGEN_STRONG_INLINE void pstoreu<float>(float*   to, const Packet8f& from, uint8_t umask) {
-#ifdef EIGEN_VECTORIZE_AVX512
+#ifdef __AVX512VL__
   __mmask8 mask = static_cast<__mmask8>(umask);
   EIGEN_DEBUG_UNALIGNED_STORE return _mm256_mask_storeu_ps(to, mask, from);
 #else

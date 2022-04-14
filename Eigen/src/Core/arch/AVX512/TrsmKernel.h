@@ -38,8 +38,9 @@ typedef Packet8d vecFullDouble;
 typedef Packet8f vecHalfFloat;
 typedef Packet4d vecHalfDouble;
 
-// Compile-time unrolls are implemented here
-#include "unrolls_impl.hpp"
+// Compile-time unrolls are implemented here.
+// Note: this depends on macros and typedefs above.
+#include "TrsmUnrolls.inc"
 
 
 #if defined(EIGEN_USE_AVX512_TRSM_KERNELS) && (EIGEN_COMP_CLANG != 0)

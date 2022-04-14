@@ -247,7 +247,7 @@ template <>
 EIGEN_STRONG_INLINE Packet16f pload1<Packet16f>(const float* from) {
 #if (EIGEN_COMP_GNUC != 0) || (EIGEN_COMP_CLANG != 0)
   // Inline asm here helps reduce some register spilling in TRSM kernels.
-  // See note in unrolls::gemm::microKernel in trsmKernel_impl.hpp
+  // See note in unrolls::gemm::microKernel in TrsmKernel.h
   Packet16f ret;
   __asm__  ("vbroadcastss %[mem], %[dst]" : [dst] "=v" (ret) : [mem] "m" (*from));
   return ret;
@@ -300,6 +300,7 @@ EIGEN_STRONG_INLINE Packet16i padd<Packet16i>(const Packet16i& a,
                                               const Packet16i& b) {
   return _mm512_add_epi32(a, b);
 }
+
 template <>
 EIGEN_STRONG_INLINE Packet16f padd<Packet16f>(const Packet16f& a,
                                               const Packet16f& b,
@@ -800,6 +801,7 @@ EIGEN_STRONG_INLINE Packet16i ploadu<Packet16i>(const int* from) {
   EIGEN_DEBUG_UNALIGNED_LOAD return _mm512_loadu_si512(
       reinterpret_cast<const __m512i*>(from));
 }
+
 template <>
 EIGEN_STRONG_INLINE Packet16f ploadu<Packet16f>(const float* from, uint16_t umask) {
   __mmask16 mask = static_cast<__mmask16>(umask);
