@@ -393,14 +393,14 @@ template<typename VectorsType, typename CoeffsType, int Side> class HouseholderS
 
           Index dstRows  = rows()-m_shift-k;
 
-          if (inputIsIdentity) 
+          if (inputIsIdentity)
           {
             Block<Dest, Dynamic, Dynamic> sub_dst = dst.bottomRightCorner(dstRows, dstRows);
             apply_block_householder_on_the_left(sub_dst, sub_vecs, m_coeffs.segment(k, bs), !m_reverse);
-          } 
+          }
           else
           {
-            Block<Dest, Dynamic, Dest::ColsAtCompileTime> sub_dst = dst.bottomRows(dstRows);
+            auto sub_dst = dst.bottomRows(dstRows);
             apply_block_householder_on_the_left(sub_dst, sub_vecs, m_coeffs.segment(k, bs), !m_reverse);
           }
         }
@@ -413,14 +413,14 @@ template<typename VectorsType, typename CoeffsType, int Side> class HouseholderS
           Index actual_k = m_reverse ? k : m_length-k-1;
           Index dstRows = rows()-m_shift-actual_k;
 
-          if (inputIsIdentity) 
+          if (inputIsIdentity)
           {
             Block<Dest, Dynamic, Dynamic> sub_dst = dst.bottomRightCorner(dstRows, dstRows);
             sub_dst.applyHouseholderOnTheLeft(essentialVector(actual_k), m_coeffs.coeff(actual_k), workspace.data());
-          } 
+          }
           else
           {
-            Block<Dest, Dynamic, Dest::ColsAtCompileTime> sub_dst = dst.bottomRows(dstRows);
+            auto sub_dst = dst.bottomRows(dstRows);
             sub_dst.applyHouseholderOnTheLeft(essentialVector(actual_k), m_coeffs.coeff(actual_k), workspace.data());
           }
         }
