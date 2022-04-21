@@ -152,21 +152,21 @@ void run_tests()
 {
   typedef SparseMatrix<Scalar> MatrixType; 
 
-  test_accelerate_ldlt<Scalar, AccelerateLDLT<MatrixType, Lower | Symmetric> >();
-  test_accelerate_ldlt<Scalar, AccelerateLDLTUnpivoted<MatrixType, Lower | Symmetric> >();
-  test_accelerate_ldlt<Scalar, AccelerateLDLTSBK<MatrixType, Lower | Symmetric> >();
-  test_accelerate_ldlt<Scalar, AccelerateLDLTTPP<MatrixType, Lower | Symmetric> >();
+  test_accelerate_ldlt<Scalar, AccelerateLDLT<MatrixType, Lower> >();
+  test_accelerate_ldlt<Scalar, AccelerateLDLTUnpivoted<MatrixType, Lower> >();
+  test_accelerate_ldlt<Scalar, AccelerateLDLTSBK<MatrixType, Lower> >();
+  test_accelerate_ldlt<Scalar, AccelerateLDLTTPP<MatrixType, Lower> >();
 
-  test_accelerate_ldlt<Scalar, AccelerateLDLT<MatrixType, Upper | Symmetric> >();
-  test_accelerate_ldlt<Scalar, AccelerateLDLTUnpivoted<MatrixType, Upper | Symmetric> >();
-  test_accelerate_ldlt<Scalar, AccelerateLDLTSBK<MatrixType, Upper | Symmetric> >();
-  test_accelerate_ldlt<Scalar, AccelerateLDLTTPP<MatrixType, Upper | Symmetric> >();
+  test_accelerate_ldlt<Scalar, AccelerateLDLT<MatrixType, Upper> >();
+  test_accelerate_ldlt<Scalar, AccelerateLDLTUnpivoted<MatrixType, Upper> >();
+  test_accelerate_ldlt<Scalar, AccelerateLDLTSBK<MatrixType, Upper> >();
+  test_accelerate_ldlt<Scalar, AccelerateLDLTTPP<MatrixType, Upper> >();
 
-  test_accelerate_llt<Scalar, AccelerateLLT<MatrixType, Lower | Symmetric> >();
+  test_accelerate_llt<Scalar, AccelerateLLT<MatrixType, Lower> >();
 
-  test_accelerate_llt<Scalar, AccelerateLLT<MatrixType, Upper | Symmetric> >();
+  test_accelerate_llt<Scalar, AccelerateLLT<MatrixType, Upper> >();
 
-  test_accelerate_qr<Scalar, AccelerateQR<MatrixType, 0> >();
+  test_accelerate_qr<Scalar, AccelerateQR<MatrixType> >();
 }
 
 EIGEN_DECLARE_TEST(accelerate_support)
