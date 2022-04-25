@@ -129,7 +129,7 @@ const static Packet16uc p16uc_GETIMAG64 = {  8,  9, 10, 11, 12, 13, 14, 15,
  * reason why packing for complex is broken down into several different parts, also the reason why we endup having a
  * float32/64 and complex float32/64 version.
  **/
-template<typename Scalar, typename Index, int StorageOrder>
+template<typename Scalar, int StorageOrder>
 EIGEN_ALWAYS_INLINE std::complex<Scalar> getAdjointVal(Index i, Index j, const_blas_data_mapper<std::complex<Scalar>, Index, StorageOrder>& dt)
 {
   std::complex<Scalar> v;
@@ -148,7 +148,7 @@ EIGEN_ALWAYS_INLINE std::complex<Scalar> getAdjointVal(Index i, Index j, const_b
   return v;
 }
 
-template<typename Scalar, typename Index, int StorageOrder, int N>
+template<typename Scalar, int StorageOrder, int N>
 EIGEN_STRONG_INLINE void symm_pack_complex_rhs_helper(std::complex<Scalar>* blockB, const std::complex<Scalar>* _rhs, Index rhsStride, Index rows, Index cols, Index k2)
 {
   const Index depth = k2 + rows;
@@ -166,7 +166,7 @@ EIGEN_STRONG_INLINE void symm_pack_complex_rhs_helper(std::complex<Scalar>* bloc
     {
       for(Index k = 0; k < vectorSize; k++)
       {
-        std::complex<Scalar> v = getAdjointVal<Scalar, Index, StorageOrder>(i, j + k, rhs);
+        std::complex<Scalar> v = getAdjointVal<Scalar, StorageOrder>(i, j + k, rhs);
 
         blockBf[rir + k] = v.real();
         blockBf[rii + k] = v.imag();
@@ -184,7 +184,7 @@ EIGEN_STRONG_INLINE void symm_pack_complex_rhs_helper(std::complex<Scalar>* bloc
 
     for(Index i = k2; i < depth; i++)
     {
-      std::complex<Scalar> v = getAdjointVal<Scalar, Index, StorageOrder>(i, j, rhs);
+      std::complex<Scalar> v = getAdjointVal<Scalar, StorageOrder>(i, j, rhs);
 
       blockBf[rir] = v.real();
       blockBf[rii] = v.imag();
@@ -197,7 +197,7 @@ EIGEN_STRONG_INLINE void symm_pack_complex_rhs_helper(std::complex<Scalar>* bloc
   }
 }
 
-template<typename Scalar, typename Index, int StorageOrder>
+template<typename Scalar, int StorageOrder>
 EIGEN_STRONG_INLINE void symm_pack_complex_lhs_helper(std::complex<Scalar>* blockA, const std::complex<Scalar>* _lhs, Index lhsStride, Index cols, Index rows)
 {
   const Index depth = cols;
@@ -215,7 +215,7 @@ EIGEN_STRONG_INLINE void symm_pack_complex_lhs_helper(std::complex<Scalar>* bloc
     {
       for(Index k = 0; k < vectorSize; k++)
       {
-        std::complex<Scalar> v = getAdjointVal<Scalar, Index, StorageOrder>(j+k, i, lhs);
+        std::complex<Scalar> v = getAdjointVal<Scalar, StorageOrder>(j+k, i, lhs);
 
         blockAf[rir + k] = v.real();
         blockAf[rii + k] = v.imag();
@@ -236,7 +236,7 @@ EIGEN_STRONG_INLINE void symm_pack_complex_lhs_helper(std::complex<Scalar>* bloc
       Index k = j;
       for(; k < rows; k++)
       {
-        std::complex<Scalar> v = getAdjointVal<Scalar, Index, StorageOrder>(k, i, lhs);
+        std::complex<Scalar> v = getAdjointVal<Scalar, StorageOrder>(k, i, lhs);
 
         blockAf[rir] = v.real();
         blockAf[rii] = v.imag();
@@ -248,7 +248,7 @@ EIGEN_STRONG_INLINE void symm_pack_complex_lhs_helper(std::complex<Scalar>* bloc
   }
 }
 
-template<typename Scalar, typename Index, int StorageOrder, int N>
+template<typename Scalar, int StorageOrder, int N>
 EIGEN_STRONG_INLINE void symm_pack_rhs_helper(Scalar* blockB, const Scalar* _rhs, Index rhsStride, Index rows, Index cols, Index k2)
 {
   const Index depth = k2 + rows;
@@ -285,7 +285,7 @@ EIGEN_STRONG_INLINE void symm_pack_rhs_helper(Scalar* blockB, const Scalar* _rhs
   }
 }
 
-template<typename Scalar, typename Index, int StorageOrder>
+template<typename Scalar, int StorageOrder>
 EIGEN_STRONG_INLINE void symm_pack_lhs_helper(Scalar* blockA, const Scalar* _lhs, Index lhsStride, Index cols, Index rows)
 {
   const Index depth = cols;
@@ -332,7 +332,7 @@ struct symm_pack_rhs<std::complex<float>, Index, nr, StorageOrder>
 {
   void operator()(std::complex<float>* blockB, const std::complex<float>* _rhs, Index rhsStride, Index rows, Index cols, Index k2)
   {
-    symm_pack_complex_rhs_helper<float, Index, StorageOrder, 1>(blockB, _rhs, rhsStride, rows, cols, k2);
+    symm_pack_complex_rhs_helper<float, StorageOrder, 1>(blockB, _rhs, rhsStride, rows, cols, k2);
   }
 };
 
@@ -341,7 +341,7 @@ struct symm_pack_lhs<std::complex<float>, Index, Pack1, Pack2_dummy, StorageOrde
 {
   void operator()(std::complex<float>* blockA, const std::complex<float>* _lhs, Index lhsStride, Index cols, Index rows)
   {
-    symm_pack_complex_lhs_helper<float, Index, StorageOrder>(blockA, _lhs, lhsStride, cols, rows);
+    symm_pack_complex_lhs_helper<float, StorageOrder>(blockA, _lhs, lhsStride, cols, rows);
   }
 };
 
@@ -352,7 +352,7 @@ struct symm_pack_rhs<std::complex<double>, Index, nr, StorageOrder>
 {
   void operator()(std::complex<double>* blockB, const std::complex<double>* _rhs, Index rhsStride, Index rows, Index cols, Index k2)
   {
-    symm_pack_complex_rhs_helper<double, Index, StorageOrder, 2>(blockB, _rhs, rhsStride, rows, cols, k2);
+    symm_pack_complex_rhs_helper<double, StorageOrder, 2>(blockB, _rhs, rhsStride, rows, cols, k2);
   }
 };
 
@@ -361,7 +361,7 @@ struct symm_pack_lhs<std::complex<double>, Index, Pack1, Pack2_dummy, StorageOrd
 {
   void operator()(std::complex<double>* blockA, const std::complex<double>* _lhs, Index lhsStride, Index cols, Index rows)
   {
-    symm_pack_complex_lhs_helper<double, Index, StorageOrder>(blockA, _lhs, lhsStride, cols, rows);
+    symm_pack_complex_lhs_helper<double, StorageOrder>(blockA, _lhs, lhsStride, cols, rows);
   }
 };
 
@@ -371,7 +371,7 @@ struct symm_pack_rhs<float, Index, nr, StorageOrder>
 {
   void operator()(float* blockB, const float* _rhs, Index rhsStride, Index rows, Index cols, Index k2)
   {
-    symm_pack_rhs_helper<float, Index, StorageOrder, 1>(blockB, _rhs, rhsStride, rows, cols, k2);
+    symm_pack_rhs_helper<float, StorageOrder, 1>(blockB, _rhs, rhsStride, rows, cols, k2);
   }
 };
 
@@ -380,7 +380,7 @@ struct symm_pack_lhs<float, Index, Pack1, Pack2_dummy, StorageOrder>
 {
   void operator()(float* blockA, const float* _lhs, Index lhsStride, Index cols, Index rows)
   {
-    symm_pack_lhs_helper<float, Index, StorageOrder>(blockA, _lhs, lhsStride, cols, rows);
+    symm_pack_lhs_helper<float, StorageOrder>(blockA, _lhs, lhsStride, cols, rows);
   }
 };
 
@@ -390,7 +390,7 @@ struct symm_pack_rhs<double, Index, nr, StorageOrder>
 {
   void operator()(double* blockB, const double* _rhs, Index rhsStride, Index rows, Index cols, Index k2)
   {
-    symm_pack_rhs_helper<double, Index, StorageOrder, 2>(blockB, _rhs, rhsStride, rows, cols, k2);
+    symm_pack_rhs_helper<double, StorageOrder, 2>(blockB, _rhs, rhsStride, rows, cols, k2);
   }
 };
 
@@ -399,7 +399,7 @@ struct symm_pack_lhs<double, Index, Pack1, Pack2_dummy, StorageOrder>
 {
   void operator()(double* blockA, const double* _lhs, Index lhsStride, Index cols, Index rows)
   {
-    symm_pack_lhs_helper<double, Index, StorageOrder>(blockA, _lhs, lhsStride, cols, rows);
+    symm_pack_lhs_helper<double, StorageOrder>(blockA, _lhs, lhsStride, cols, rows);
   }
 };
 
@@ -414,7 +414,7 @@ struct symm_pack_lhs<double, Index, Pack1, Pack2_dummy, StorageOrder>
  * and offset and behaves accordingly.
  **/
 
-template<typename Scalar, typename Packet, typename Index, int N>
+template<typename Scalar, typename Packet, int N>
 EIGEN_ALWAYS_INLINE void storeBlock(Scalar* to, PacketBlock<Packet,N>& block)
 {
   const Index size = 16 / sizeof(Scalar);
@@ -429,7 +429,7 @@ EIGEN_ALWAYS_INLINE void storeBlock(Scalar* to, PacketBlock<Packet,N>& block)
 }
 
 // General template for lhs & rhs complex packing.
-template<typename Scalar, typename Index, typename DataMapper, typename Packet, typename PacketC, int StorageOrder, bool Conjugate, bool PanelMode, bool UseLhs>
+template<typename Scalar, typename DataMapper, typename Packet, typename PacketC, int StorageOrder, bool Conjugate, bool PanelMode, bool UseLhs>
 struct dhs_cpack {
   EIGEN_STRONG_INLINE void operator()(std::complex<Scalar>* blockA, const DataMapper& lhs, Index depth, Index rows, Index stride, Index offset)
   {
@@ -451,9 +451,9 @@ struct dhs_cpack {
         PacketBlock<PacketC,8> cblock;
 
         if (UseLhs) {
-          bload<DataMapper, PacketC, Index, 2, StorageOrder, true, 4>(cblock, lhs, j, i);
+          bload<DataMapper, PacketC, 2, StorageOrder, true, 4>(cblock, lhs, j, i);
         } else {
-          bload<DataMapper, PacketC, Index, 2, StorageOrder, true, 4>(cblock, lhs, i, j);
+          bload<DataMapper, PacketC, 2, StorageOrder, true, 4>(cblock, lhs, i, j);
         }
 
         blockr.packet[0] = vec_perm(cblock.packet[0].v, cblock.packet[4].v, p16uc_GETREAL32);
@@ -480,8 +480,8 @@ struct dhs_cpack {
           ptranspose(blocki);
         }
 
-        storeBlock<Scalar, Packet, Index, 4>(blockAt + rir, blockr);
-        storeBlock<Scalar, Packet, Index, 4>(blockAt + rii, blocki);
+        storeBlock<Scalar, Packet, 4>(blockAt + rir, blockr);
+        storeBlock<Scalar, Packet, 4>(blockAt + rii, blocki);
 
         rir += 4*vectorSize;
         rii += 4*vectorSize;
@@ -579,7 +579,7 @@ struct dhs_cpack {
 };
 
 // General template for lhs & rhs packing.
-template<typename Scalar, typename Index, typename DataMapper, typename Packet, int StorageOrder, bool PanelMode, bool UseLhs>
+template<typename Scalar, typename DataMapper, typename Packet, int StorageOrder, bool PanelMode, bool UseLhs>
 struct dhs_pack{
   EIGEN_STRONG_INLINE void operator()(Scalar* blockA, const DataMapper& lhs, Index depth, Index rows, Index stride, Index offset)
   {
@@ -597,16 +597,16 @@ struct dhs_pack{
         PacketBlock<Packet,4> block;
 
         if (UseLhs) {
-          bload<DataMapper, Packet, Index, 4, StorageOrder, false, 4>(block, lhs, j, i);
+          bload<DataMapper, Packet, 4, StorageOrder, false, 4>(block, lhs, j, i);
         } else {
-          bload<DataMapper, Packet, Index, 4, StorageOrder, false, 4>(block, lhs, i, j);
+          bload<DataMapper, Packet, 4, StorageOrder, false, 4>(block, lhs, i, j);
         }
         if(((StorageOrder == RowMajor) && UseLhs) || ((StorageOrder == ColMajor) && !UseLhs))
         {
           ptranspose(block);
         }
 
-        storeBlock<Scalar, Packet, Index, 4>(blockA + ri, block);
+        storeBlock<Scalar, Packet, 4>(blockA + ri, block);
 
         ri += 4*vectorSize;
       }
@@ -675,8 +675,8 @@ struct dhs_pack{
 };
 
 // General template for lhs packing, float64 specialization.
-template<typename Index, typename DataMapper, int StorageOrder, bool PanelMode>
-struct dhs_pack<double, Index, DataMapper, Packet2d, StorageOrder, PanelMode, true>
+template<typename DataMapper, int StorageOrder, bool PanelMode>
+struct dhs_pack<double, DataMapper, Packet2d, StorageOrder, PanelMode, true>
 {
   EIGEN_STRONG_INLINE void operator()(double* blockA, const DataMapper& lhs, Index depth, Index rows, Index stride, Index offset)
   {
@@ -703,7 +703,7 @@ struct dhs_pack<double, Index, DataMapper, Packet2d, StorageOrder, PanelMode, tr
           block.packet[1] = lhs.template loadPacket<Packet2d>(j, i + 1);
         }
 
-        storeBlock<double, Packet2d, Index, 2>(blockA + ri, block);
+        storeBlock<double, Packet2d, 2>(blockA + ri, block);
 
         ri += 2*vectorSize;
       }
@@ -742,8 +742,8 @@ struct dhs_pack<double, Index, DataMapper, Packet2d, StorageOrder, PanelMode, tr
 };
 
 // General template for rhs packing, float64 specialization.
-template<typename Index, typename DataMapper, int StorageOrder, bool PanelMode>
-struct dhs_pack<double, Index, DataMapper, Packet2d, StorageOrder, PanelMode, false>
+template<typename DataMapper, int StorageOrder, bool PanelMode>
+struct dhs_pack<double, DataMapper, Packet2d, StorageOrder, PanelMode, false>
 {
   EIGEN_STRONG_INLINE void operator()(double* blockB, const DataMapper& rhs, Index depth, Index cols, Index stride, Index offset)
   {
@@ -780,7 +780,7 @@ struct dhs_pack<double, Index, DataMapper, Packet2d, StorageOrder, PanelMode, fa
           block.packet[2] = rhs.template loadPacket<Packet2d>(i + 1, j + 0); //[b1 b2]
           block.packet[3] = rhs.template loadPacket<Packet2d>(i + 1, j + 2); //[b3 b4]
 
-          storeBlock<double, Packet2d, Index, 4>(blockB + ri, block);
+          storeBlock<double, Packet2d, 4>(blockB + ri, block);
         }
 
         ri += 4*vectorSize;
@@ -827,8 +827,8 @@ struct dhs_pack<double, Index, DataMapper, Packet2d, StorageOrder, PanelMode, fa
 };
 
 // General template for lhs complex packing, float64 specialization.
-template<typename Index, typename DataMapper, typename Packet, typename PacketC, int StorageOrder, bool Conjugate, bool PanelMode>
-struct dhs_cpack<double, Index, DataMapper, Packet, PacketC, StorageOrder, Conjugate, PanelMode, true>
+template<typename DataMapper, typename Packet, typename PacketC, int StorageOrder, bool Conjugate, bool PanelMode>
+struct dhs_cpack<double, DataMapper, Packet, PacketC, StorageOrder, Conjugate, PanelMode, true>
 {
   EIGEN_STRONG_INLINE void operator()(std::complex<double>* blockA, const DataMapper& lhs, Index depth, Index rows, Index stride, Index offset)
   {
@@ -882,8 +882,8 @@ struct dhs_cpack<double, Index, DataMapper, Packet, PacketC, StorageOrder, Conju
           blocki.packet[1] = -blocki.packet[1];
         }
 
-        storeBlock<double, Packet, Index, 2>(blockAt + rir, blockr);
-        storeBlock<double, Packet, Index, 2>(blockAt + rii, blocki);
+        storeBlock<double, Packet, 2>(blockAt + rir, blockr);
+        storeBlock<double, Packet, 2>(blockAt + rii, blocki);
 
         rir += 2*vectorSize;
         rii += 2*vectorSize;
@@ -940,8 +940,8 @@ struct dhs_cpack<double, Index, DataMapper, Packet, PacketC, StorageOrder, Conju
 };
 
 // General template for rhs complex packing, float64 specialization.
-template<typename Index, typename DataMapper, typename Packet, typename PacketC, int StorageOrder, bool Conjugate, bool PanelMode>
-struct dhs_cpack<double, Index, DataMapper, Packet, PacketC, StorageOrder, Conjugate, PanelMode, false>
+template<typename DataMapper, typename Packet, typename PacketC, int StorageOrder, bool Conjugate, bool PanelMode>
+struct dhs_cpack<double, DataMapper, Packet, PacketC, StorageOrder, Conjugate, PanelMode, false>
 {
   EIGEN_STRONG_INLINE void operator()(std::complex<double>* blockB, const DataMapper& rhs, Index depth, Index cols, Index stride, Index offset)
   {
@@ -962,7 +962,7 @@ struct dhs_cpack<double, Index, DataMapper, Packet, PacketC, StorageOrder, Conju
         PacketBlock<PacketC,4> cblock;
         PacketBlock<Packet,2> blockr, blocki;
 
-        bload<DataMapper, PacketC, Index, 2, ColMajor, false, 4>(cblock, rhs, i, j);
+        bload<DataMapper, PacketC, 2, ColMajor, false, 4>(cblock, rhs, i, j);
 
         blockr.packet[0] = vec_perm(cblock.packet[0].v, cblock.packet[1].v, p16uc_GETREAL64);
         blockr.packet[1] = vec_perm(cblock.packet[2].v, cblock.packet[3].v, p16uc_GETREAL64);
@@ -976,8 +976,8 @@ struct dhs_cpack<double, Index, DataMapper, Packet, PacketC, StorageOrder, Conju
           blocki.packet[1] = -blocki.packet[1];
         }
 
-        storeBlock<double, Packet, Index, 2>(blockBt + rir, blockr);
-        storeBlock<double, Packet, Index, 2>(blockBt + rii, blocki);
+        storeBlock<double, Packet, 2>(blockBt + rir, blockr);
+        storeBlock<double, Packet, 2>(blockBt + rii, blocki);
 
         rir += 2*vectorSize;
         rii += 2*vectorSize;
@@ -1123,7 +1123,7 @@ EIGEN_ALWAYS_INLINE void bscalec(PacketBlock<Packet,N>& aReal, PacketBlock<Packe
 // Load a PacketBlock, the N parameters make tunning gemm easier so we can add more accumulators as needed.
 //
 // full = operate (load) on the entire PacketBlock or only half
-template<typename DataMapper, typename Packet, typename Index, const Index accCols, int StorageOrder, bool Complex, int N, bool full>
+template<typename DataMapper, typename Packet, const Index accCols, int StorageOrder, bool Complex, int N, bool full>
 EIGEN_ALWAYS_INLINE void bload(PacketBlock<Packet,N*(Complex?2:1)>& acc, const DataMapper& res, Index row, Index col)
 {
   if (StorageOrder == RowMajor) {
@@ -1147,7 +1147,7 @@ EIGEN_ALWAYS_INLINE void bload(PacketBlock<Packet,N*(Complex?2:1)>& acc, const D
   }
 }
 
-template<typename DataMapper, typename Packet, typename Index, int N>
+template<typename DataMapper, typename Packet, int N>
 EIGEN_ALWAYS_INLINE void bstore(PacketBlock<Packet,N>& acc, const DataMapper& res, Index row)
 {
   for (int M = 0; M < N; M++) {
@@ -1165,7 +1165,7 @@ EIGEN_ALWAYS_INLINE void bstore(PacketBlock<Packet,N>& acc, const DataMapper& re
 const static Packet4i mask4[4] = { {  0,  0,  0,  0 }, { -1,  0,  0,  0 }, { -1, -1,  0,  0 }, { -1, -1, -1,  0 } };
 #endif
 
-template<typename Packet, typename Index>
+template<typename Packet>
 EIGEN_ALWAYS_INLINE Packet bmask(const Index remaining_rows)
 {
 #if USE_P10_AND_PVIPR2_0
@@ -1180,7 +1180,7 @@ EIGEN_ALWAYS_INLINE Packet bmask(const Index remaining_rows)
 }
 
 template<>
-EIGEN_ALWAYS_INLINE Packet2d bmask<Packet2d,Index>(const Index remaining_rows)
+EIGEN_ALWAYS_INLINE Packet2d bmask<Packet2d>(const Index remaining_rows)
 {
 #if USE_P10_AND_PVIPR2_0
   Packet2d mask2 = Packet2d(vec_gendm(remaining_rows));
@@ -1406,7 +1406,7 @@ EIGEN_ALWAYS_INLINE void bcouple(PacketBlock<Packet,N>& taccReal, PacketBlock<Pa
     MICRO_PREFETCHN1(ptr_imag, N); \
   }
 
-template<typename Scalar, typename Packet, typename Index, const Index accRows, const Index remaining_rows>
+template<typename Scalar, typename Packet, const Index accRows, const Index remaining_rows>
 EIGEN_ALWAYS_INLINE void MICRO_EXTRA_ROW(
   const Scalar* &lhs_ptr,
   const Scalar* &rhs_ptr0,
@@ -1419,7 +1419,7 @@ EIGEN_ALWAYS_INLINE void MICRO_EXTRA_ROW(
   lhs_ptr += remaining_rows;
 }
 
-template<typename Scalar, typename Packet, typename DataMapper, typename Index, const Index accRows, const Index accCols, const Index remaining_rows>
+template<typename Scalar, typename Packet, typename DataMapper, const Index accRows, const Index accCols, const Index remaining_rows>
 EIGEN_ALWAYS_INLINE void gemm_unrolled_row_iteration(
   const DataMapper& res,
   const Scalar* lhs_base,
@@ -1454,14 +1454,14 @@ EIGEN_ALWAYS_INLINE void gemm_unrolled_row_iteration(
   }
   for(; k < depth; k++)
   {
-    MICRO_EXTRA_ROW<Scalar, Packet, Index, accRows, remaining_rows>(lhs_ptr, rhs_ptr0, rhs_ptr1, rhs_ptr2, accZero0);
+    MICRO_EXTRA_ROW<Scalar, Packet, accRows, remaining_rows>(lhs_ptr, rhs_ptr0, rhs_ptr1, rhs_ptr2, accZero0);
   }
 
-  bload<DataMapper, Packet, Index, 0, ColMajor, false, accRows>(acc, res, row, 0);
+  bload<DataMapper, Packet, 0, ColMajor, false, accRows>(acc, res, row, 0);
   if ((accRows == 1) || (rows >= accCols))
   {
     bscale<Packet,accRows,true>(acc, accZero0, pAlpha, pMask);
-    bstore<DataMapper, Packet, Index, accRows>(acc, res, row);
+    bstore<DataMapper, Packet, accRows>(acc, res, row);
   } else {
     bscale<Packet,accRows,false>(acc, accZero0, pAlpha, pMask);
     for(Index j = 0; j < accRows; j++) {
@@ -1490,9 +1490,9 @@ EIGEN_ALWAYS_INLINE void gemm_unrolled_row_iteration(
   }
 
 #define MICRO_EXTRA_ROWS(N) \
-  gemm_unrolled_row_iteration<Scalar, Packet, DataMapper, Index, accRows, accCols, N>(res, lhs_base, rhs_base, depth, strideA, offsetA, strideB, row, rows, pAlpha, pMask);
+  gemm_unrolled_row_iteration<Scalar, Packet, DataMapper, accRows, accCols, N>(res, lhs_base, rhs_base, depth, strideA, offsetA, strideB, row, rows, pAlpha, pMask);
 
-template<typename Scalar, typename Packet, typename DataMapper, typename Index, const Index accRows, const Index accCols>
+template<typename Scalar, typename Packet, typename DataMapper, const Index accRows, const Index accCols>
 EIGEN_ALWAYS_INLINE void gemm_extra_row(
   const DataMapper& res,
   const Scalar* lhs_base,
@@ -1563,14 +1563,14 @@ EIGEN_ALWAYS_INLINE void gemm_extra_row(
 
 #define MICRO_STORE_ONE(iter) \
   if (unroll_factor > iter) { \
-    bload<DataMapper, Packet, Index, 0, ColMajor, false, accRows>(acc, res, row + iter*accCols, 0); \
+    bload<DataMapper, Packet, 0, ColMajor, false, accRows>(acc, res, row + iter*accCols, 0); \
     bscale<Packet,accRows,!(MICRO_NORMAL(iter))>(acc, accZero##iter, pAlpha, pMask); \
-    bstore<DataMapper, Packet, Index, accRows>(acc, res, row + iter*accCols); \
+    bstore<DataMapper, Packet, accRows>(acc, res, row + iter*accCols); \
   }
 
 #define MICRO_STORE MICRO_UNROLL(MICRO_STORE_ONE)
 
-template<int unroll_factor, typename Scalar, typename Packet, typename DataMapper, typename Index, const Index accRows, const Index accCols, const Index accCols2>
+template<int unroll_factor, typename Scalar, typename Packet, typename DataMapper, const Index accRows, const Index accCols, const Index accCols2>
 EIGEN_ALWAYS_INLINE void gemm_unrolled_iteration(
   const DataMapper& res,
   const Scalar* lhs_base,
@@ -1609,10 +1609,10 @@ EIGEN_ALWAYS_INLINE void gemm_unrolled_iteration(
 }
 
 #define MICRO_UNROLL_ITER2(N, M) \
-  gemm_unrolled_iteration<N + ((M) ? 1 : 0), Scalar, Packet, DataMapper, Index, accRows, accCols, M ? M : accCols>(res3, lhs_base, rhs_base, depth, strideA, offsetA, strideB, row, pAlpha, pMask); \
+  gemm_unrolled_iteration<N + ((M) ? 1 : 0), Scalar, Packet, DataMapper, accRows, accCols, M ? M : accCols>(res3, lhs_base, rhs_base, depth, strideA, offsetA, strideB, row, pAlpha, pMask); \
   if (M) return;
 
-template<typename Scalar, typename Packet, typename DataMapper, typename Index, const Index accRows, const Index accCols>
+template<typename Scalar, typename Packet, typename DataMapper, const Index accRows, const Index accCols>
 EIGEN_ALWAYS_INLINE void gemm_cols(
   const DataMapper& res,
   const Scalar* blockA,
@@ -1681,14 +1681,14 @@ EIGEN_ALWAYS_INLINE void gemm_cols(
 
   if(remaining_rows > 0)
   {
-    gemm_extra_row<Scalar, Packet, DataMapper, Index, accRows, accCols>(res3, blockA, rhs_base, depth, strideA, offsetA, strideB, row, rows, remaining_rows, pAlpha, pMask);
+    gemm_extra_row<Scalar, Packet, DataMapper, accRows, accCols>(res3, blockA, rhs_base, depth, strideA, offsetA, strideB, row, rows, remaining_rows, pAlpha, pMask);
   }
 }
 
 #define MICRO_EXTRA_COLS(N) \
-  gemm_cols<Scalar, Packet, DataMapper, Index, N, accCols>(res, blockA, blockB, depth, strideA, offsetA, strideB, offsetB, col, rows, remaining_rows, pAlpha, pMask);
+  gemm_cols<Scalar, Packet, DataMapper, N, accCols>(res, blockA, blockB, depth, strideA, offsetA, strideB, offsetB, col, rows, remaining_rows, pAlpha, pMask);
 
-template<typename Scalar, typename Packet, typename DataMapper, typename Index, const Index accCols>
+template<typename Scalar, typename Packet, typename DataMapper, const Index accCols>
 EIGEN_STRONG_INLINE void gemm_extra_cols(
   const DataMapper& res,
   const Scalar* blockA,
@@ -1711,7 +1711,7 @@ EIGEN_STRONG_INLINE void gemm_extra_cols(
 /****************
  * GEMM kernels *
  * **************/
-template<typename Scalar, typename Index, typename Packet, typename RhsPacket, typename DataMapper, const Index accRows, const Index accCols>
+template<typename Scalar, typename Packet, typename RhsPacket, typename DataMapper, const Index accRows, const Index accCols>
 EIGEN_STRONG_INLINE void gemm(const DataMapper& res, const Scalar* blockA, const Scalar* blockB, Index rows, Index depth, Index cols, Scalar alpha, Index strideA, Index strideB, Index offsetA, Index offsetB)
 {
       const Index remaining_rows = rows % accCols;
@@ -1725,12 +1725,12 @@ EIGEN_STRONG_INLINE void gemm(const DataMapper& res, const Scalar* blockA, const
       Index col = 0;
       for(; col + accRows <= cols; col += accRows)
       {
-        gemm_cols<Scalar, Packet, DataMapper, Index, accRows, accCols>(res, blockA, blockB, depth, strideA, offsetA, strideB, offsetB, col, rows, remaining_rows, pAlpha, pMask);
+        gemm_cols<Scalar, Packet, DataMapper, accRows, accCols>(res, blockA, blockB, depth, strideA, offsetA, strideB, offsetB, col, rows, remaining_rows, pAlpha, pMask);
       }
 
       if (col != cols)
       {
-        gemm_extra_cols<Scalar, Packet, DataMapper, Index, accCols>(res, blockA, blockB, depth, strideA, offsetA, strideB, offsetB, col, rows, cols, remaining_rows, pAlpha, pMask);
+        gemm_extra_cols<Scalar, Packet, DataMapper, accCols>(res, blockA, blockB, depth, strideA, offsetA, strideB, offsetB, col, rows, cols, remaining_rows, pAlpha, pMask);
       }
 }
 
@@ -1828,7 +1828,7 @@ EIGEN_STRONG_INLINE void gemm(const DataMapper& res, const Scalar* blockA, const
   MICRO_COMPLEX_ADD_PEEL(2, 0) MICRO_COMPLEX_ADD_PEEL(3, 1) \
   MICRO_COMPLEX_ADD_PEEL(1, 0)
 
-template<typename Scalar, typename Packet, typename Index, const Index accRows, bool ConjugateLhs, bool ConjugateRhs, bool LhsIsReal, bool RhsIsReal, const Index remaining_rows>
+template<typename Scalar, typename Packet, const Index accRows, bool ConjugateLhs, bool ConjugateRhs, bool LhsIsReal, bool RhsIsReal, const Index remaining_rows>
 EIGEN_ALWAYS_INLINE void MICRO_COMPLEX_EXTRA_ROW(
   const Scalar* &lhs_ptr_real, const Scalar* &lhs_ptr_imag,
   const Scalar* &rhs_ptr_real0, const Scalar* &rhs_ptr_real1, const Scalar* &rhs_ptr_real2,
@@ -1840,7 +1840,7 @@ EIGEN_ALWAYS_INLINE void MICRO_COMPLEX_EXTRA_ROW(
   MICRO_COMPLEX_ADD_COLS(1)
 }
 
-template<typename Scalar, typename Packet, typename Packetc, typename DataMapper, typename Index, const Index accRows, const Index accCols, bool ConjugateLhs, bool ConjugateRhs, bool LhsIsReal, bool RhsIsReal, const Index remaining_rows>
+template<typename Scalar, typename Packet, typename Packetc, typename DataMapper, const Index accRows, const Index accCols, bool ConjugateLhs, bool ConjugateRhs, bool LhsIsReal, bool RhsIsReal, const Index remaining_rows>
 EIGEN_ALWAYS_INLINE void gemm_unrolled_complex_row_iteration(
   const DataMapper& res,
   const Scalar* lhs_base,
@@ -1888,18 +1888,18 @@ EIGEN_ALWAYS_INLINE void gemm_unrolled_complex_row_iteration(
   }
   for(; k < depth; k++)
   {
-    MICRO_COMPLEX_EXTRA_ROW<Scalar, Packet, Index, accRows, ConjugateLhs, ConjugateRhs, LhsIsReal, RhsIsReal, remaining_rows>(lhs_ptr_real, lhs_ptr_imag, rhs_ptr_real0, rhs_ptr_real1, rhs_ptr_real2, rhs_ptr_imag0, rhs_ptr_imag1, rhs_ptr_imag2, accReal0, accImag0);
+    MICRO_COMPLEX_EXTRA_ROW<Scalar, Packet, accRows, ConjugateLhs, ConjugateRhs, LhsIsReal, RhsIsReal, remaining_rows>(lhs_ptr_real, lhs_ptr_imag, rhs_ptr_real0, rhs_ptr_real1, rhs_ptr_real2, rhs_ptr_imag0, rhs_ptr_imag1, rhs_ptr_imag2, accReal0, accImag0);
   }
 
-  const bool full = (remaining_rows > accColsC);
-  bload<DataMapper, Packetc, Index, accColsC, ColMajor, true, accRows, full>(tRes, res, row, 0);
+  constexpr bool full = (remaining_rows > accColsC);
+  bload<DataMapper, Packetc, accColsC, ColMajor, true, accRows, full>(tRes, res, row, 0);
   if ((accRows == 1) || (rows >= accCols))
   {
     bscalec<Packet,accRows,true>(accReal0, accImag0, pAlphaReal, pAlphaImag, taccReal, taccImag, pMask);
     bcouple<Packet, Packetc, accRows, full>(taccReal, taccImag, tRes, acc0, acc1);
-    bstore<DataMapper, Packetc, Index, accRows>(acc0, res, row + 0);
+    bstore<DataMapper, Packetc, accRows>(acc0, res, row + 0);
     if (full) {
-      bstore<DataMapper, Packetc, Index, accRows>(acc1, res, row + accColsC);
+      bstore<DataMapper, Packetc, accRows>(acc1, res, row + accColsC);
     }
   } else {
     bscalec<Packet,accRows,false>(accReal0, accImag0, pAlphaReal, pAlphaImag, taccReal, taccImag, pMask);
@@ -1911,7 +1911,7 @@ EIGEN_ALWAYS_INLINE void gemm_unrolled_complex_row_iteration(
         res(row + 0, j) = pfirst<Packetc>(acc0.packet[j]);
       }
     } else {
-      bstore<DataMapper, Packetc, Index, accRows>(acc0, res, row + 0);
+      bstore<DataMapper, Packetc, accRows>(acc0, res, row + 0);
       if (full) {
         for(Index j = 0; j < accRows; j++) {
           res(row + accColsC, j) = pfirst<Packetc>(acc1.packet[j]);
@@ -1922,9 +1922,9 @@ EIGEN_ALWAYS_INLINE void gemm_unrolled_complex_row_iteration(
 }
 
 #define MICRO_COMPLEX_EXTRA_ROWS(N) \
-  gemm_unrolled_complex_row_iteration<Scalar, Packet, Packetc, DataMapper, Index, accRows, accCols, ConjugateLhs, ConjugateRhs, LhsIsReal, RhsIsReal, N>(res, lhs_base, rhs_base, depth, strideA, offsetA, strideB, row, rows, pAlphaReal, pAlphaImag, pMask);
+  gemm_unrolled_complex_row_iteration<Scalar, Packet, Packetc, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, LhsIsReal, RhsIsReal, N>(res, lhs_base, rhs_base, depth, strideA, offsetA, strideB, row, rows, pAlphaReal, pAlphaImag, pMask);
 
-template<typename Scalar, typename Packet, typename Packetc, typename DataMapper, typename Index, const Index accRows, const Index accCols, bool ConjugateLhs, bool ConjugateRhs, bool LhsIsReal, bool RhsIsReal>
+template<typename Scalar, typename Packet, typename Packetc, typename DataMapper, const Index accRows, const Index accCols, bool ConjugateLhs, bool ConjugateRhs, bool LhsIsReal, bool RhsIsReal>
 EIGEN_ALWAYS_INLINE void gemm_complex_extra_row(
   const DataMapper& res,
   const Scalar* lhs_base,
@@ -1998,19 +1998,19 @@ EIGEN_ALWAYS_INLINE void gemm_complex_extra_row(
 
 #define MICRO_COMPLEX_STORE_ONE(iter) \
   if (unroll_factor > iter) { \
-    const bool full = ((MICRO_NORMAL(iter)) || (accCols2 > accColsC)); \
-    bload<DataMapper, Packetc, Index, accColsC, ColMajor, true, accRows, full>(tRes, res, row + iter*accCols, 0); \
+    constexpr bool full = ((MICRO_NORMAL(iter)) || (accCols2 > accColsC)); \
+    bload<DataMapper, Packetc, accColsC, ColMajor, true, accRows, full>(tRes, res, row + iter*accCols, 0); \
     bscalec<Packet,accRows,!(MICRO_NORMAL(iter))>(accReal##iter, accImag##iter, pAlphaReal, pAlphaImag, taccReal, taccImag, pMask); \
     bcouple<Packet, Packetc, accRows, full>(taccReal, taccImag, tRes, acc0, acc1); \
-    bstore<DataMapper, Packetc, Index, accRows>(acc0, res, row + iter*accCols + 0); \
+    bstore<DataMapper, Packetc, accRows>(acc0, res, row + iter*accCols + 0); \
     if (full) { \
-      bstore<DataMapper, Packetc, Index, accRows>(acc1, res, row + iter*accCols + accColsC); \
+      bstore<DataMapper, Packetc, accRows>(acc1, res, row + iter*accCols + accColsC); \
     } \
   }
 
 #define MICRO_COMPLEX_STORE MICRO_COMPLEX_UNROLL(MICRO_COMPLEX_STORE_ONE)
 
-template<int unroll_factor, typename Scalar, typename Packet, typename Packetc, typename DataMapper, typename Index, const Index accRows, const Index accCols, const Index accCols2, bool ConjugateLhs, bool ConjugateRhs, bool LhsIsReal, bool RhsIsReal>
+template<int unroll_factor, typename Scalar, typename Packet, typename Packetc, typename DataMapper, const Index accRows, const Index accCols, const Index accCols2, bool ConjugateLhs, bool ConjugateRhs, bool LhsIsReal, bool RhsIsReal>
 EIGEN_ALWAYS_INLINE void gemm_complex_unrolled_iteration(
   const DataMapper& res,
   const Scalar* lhs_base,
@@ -2057,10 +2057,10 @@ EIGEN_ALWAYS_INLINE void gemm_complex_unrolled_iteration(
 }
 
 #define MICRO_COMPLEX_UNROLL_ITER2(N, M) \
-  gemm_complex_unrolled_iteration<N + (M ? 1 : 0), Scalar, Packet, Packetc, DataMapper, Index, accRows, accCols, M ? M : accCols, ConjugateLhs, ConjugateRhs, LhsIsReal, RhsIsReal>(res3, lhs_base, rhs_base, depth, strideA, offsetA, strideB, row, pAlphaReal, pAlphaImag, pMask); \
+  gemm_complex_unrolled_iteration<N + (M ? 1 : 0), Scalar, Packet, Packetc, DataMapper, accRows, accCols, M ? M : accCols, ConjugateLhs, ConjugateRhs, LhsIsReal, RhsIsReal>(res3, lhs_base, rhs_base, depth, strideA, offsetA, strideB, row, pAlphaReal, pAlphaImag, pMask); \
   if (M) return;
 
-template<typename Scalar, typename Packet, typename Packetc, typename DataMapper, typename Index, const Index accRows, const Index accCols, bool ConjugateLhs, bool ConjugateRhs, bool LhsIsReal, bool RhsIsReal>
+template<typename Scalar, typename Packet, typename Packetc, typename DataMapper, const Index accRows, const Index accCols, bool ConjugateLhs, bool ConjugateRhs, bool LhsIsReal, bool RhsIsReal>
 EIGEN_ALWAYS_INLINE void gemm_complex_cols(
   const DataMapper& res,
   const Scalar* blockA,
@@ -2115,14 +2115,14 @@ EIGEN_ALWAYS_INLINE void gemm_complex_cols(
 
   if(remaining_rows > 0)
   {
-    gemm_complex_extra_row<Scalar, Packet, Packetc, DataMapper, Index, accRows, accCols, ConjugateLhs, ConjugateRhs, LhsIsReal, RhsIsReal>(res3, blockA, rhs_base, depth, strideA, offsetA, strideB, row, rows, remaining_rows, pAlphaReal, pAlphaImag, pMask);
+    gemm_complex_extra_row<Scalar, Packet, Packetc, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, LhsIsReal, RhsIsReal>(res3, blockA, rhs_base, depth, strideA, offsetA, strideB, row, rows, remaining_rows, pAlphaReal, pAlphaImag, pMask);
   }
 }
 
 #define MICRO_COMPLEX_EXTRA_COLS(N) \
-  gemm_complex_cols<Scalar, Packet, Packetc, DataMapper, Index, N, accCols, ConjugateLhs, ConjugateRhs, LhsIsReal, RhsIsReal>(res, blockA, blockB, depth, strideA, offsetA, strideB, offsetB, col, rows, remaining_rows, pAlphaReal, pAlphaImag, pMask);
+  gemm_complex_cols<Scalar, Packet, Packetc, DataMapper, N, accCols, ConjugateLhs, ConjugateRhs, LhsIsReal, RhsIsReal>(res, blockA, blockB, depth, strideA, offsetA, strideB, offsetB, col, rows, remaining_rows, pAlphaReal, pAlphaImag, pMask);
 
-template<typename Scalar, typename Packet, typename Packetc, typename DataMapper, typename Index, const Index accCols, bool ConjugateLhs, bool ConjugateRhs, bool LhsIsReal, bool RhsIsReal>
+template<typename Scalar, typename Packet, typename Packetc, typename DataMapper, const Index accCols, bool ConjugateLhs, bool ConjugateRhs, bool LhsIsReal, bool RhsIsReal>
 EIGEN_STRONG_INLINE void gemm_complex_extra_cols(
   const DataMapper& res,
   const Scalar* blockA,
@@ -2143,7 +2143,7 @@ EIGEN_STRONG_INLINE void gemm_complex_extra_cols(
   MICRO_EXTRA(MICRO_COMPLEX_EXTRA_COLS, cols-col, true)
 }
 
-template<typename LhsScalar, typename RhsScalar, typename Scalarc, typename Scalar, typename Index, typename Packet, typename Packetc, typename RhsPacket, typename DataMapper, const Index accRows, const Index accCols, bool ConjugateLhs, bool ConjugateRhs, bool LhsIsReal, bool RhsIsReal>
+template<typename LhsScalar, typename RhsScalar, typename Scalarc, typename Scalar, typename Packet, typename Packetc, typename RhsPacket, typename DataMapper, const Index accRows, const Index accCols, bool ConjugateLhs, bool ConjugateRhs, bool LhsIsReal, bool RhsIsReal>
 EIGEN_STRONG_INLINE void gemm_complex(const DataMapper& res, const LhsScalar* blockAc, const RhsScalar* blockBc, Index rows, Index depth, Index cols, Scalarc alpha, Index strideA, Index strideB, Index offsetA, Index offsetB)
 {
       const Index remaining_rows = rows % accCols;
@@ -2161,12 +2161,12 @@ EIGEN_STRONG_INLINE void gemm_complex(const DataMapper& res, const LhsScalar* bl
       Index col = 0;
       for(; col + accRows <= cols; col += accRows)
       {
-        gemm_complex_cols<Scalar, Packet, Packetc, DataMapper, Index, accRows, accCols, ConjugateLhs, ConjugateRhs, LhsIsReal, RhsIsReal>(res, blockA, blockB, depth, strideA, offsetA, strideB, offsetB, col, rows, remaining_rows, pAlphaReal, pAlphaImag, pMask);
+        gemm_complex_cols<Scalar, Packet, Packetc, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, LhsIsReal, RhsIsReal>(res, blockA, blockB, depth, strideA, offsetA, strideB, offsetB, col, rows, remaining_rows, pAlphaReal, pAlphaImag, pMask);
       }
 
       if (col != cols)
       {
-        gemm_complex_extra_cols<Scalar, Packet, Packetc, DataMapper, Index, accCols, ConjugateLhs, ConjugateRhs, LhsIsReal, RhsIsReal>(res, blockA, blockB, depth, strideA, offsetA, strideB, offsetB, col, rows, cols, remaining_rows, pAlphaReal, pAlphaImag, pMask);
+        gemm_complex_extra_cols<Scalar, Packet, Packetc, DataMapper, accCols, ConjugateLhs, ConjugateRhs, LhsIsReal, RhsIsReal>(res, blockA, blockB, depth, strideA, offsetA, strideB, offsetB, col, rows, cols, remaining_rows, pAlphaReal, pAlphaImag, pMask);
       }
 }
 
@@ -2189,7 +2189,7 @@ template<typename Index, typename DataMapper, int Pack1, int Pack2, typename Pac
 void gemm_pack_lhs<double, Index, DataMapper, Pack1, Pack2, Packet, ColMajor, Conjugate, PanelMode>
   ::operator()(double* blockA, const DataMapper& lhs, Index depth, Index rows, Index stride, Index offset)
 {
-    dhs_pack<double, Index, DataMapper, Packet2d, ColMajor, PanelMode, true> pack;
+    dhs_pack<double, DataMapper, Packet2d, ColMajor, PanelMode, true> pack;
     pack(blockA, lhs, depth, rows, stride, offset);
 }
 
@@ -2203,7 +2203,7 @@ template<typename Index, typename DataMapper, int Pack1, int Pack2, typename Pac
 void gemm_pack_lhs<double, Index, DataMapper, Pack1, Pack2, Packet, RowMajor, Conjugate, PanelMode>
   ::operator()(double* blockA, const DataMapper& lhs, Index depth, Index rows, Index stride, Index offset)
 {
-    dhs_pack<double, Index, DataMapper, Packet2d, RowMajor, PanelMode, true> pack;
+    dhs_pack<double, DataMapper, Packet2d, RowMajor, PanelMode, true> pack;
     pack(blockA, lhs, depth, rows, stride, offset);
 }
 
@@ -2218,7 +2218,7 @@ template<typename Index, typename DataMapper, int nr, bool Conjugate, bool Panel
 void gemm_pack_rhs<double, Index, DataMapper, nr, ColMajor, Conjugate, PanelMode>
   ::operator()(double* blockB, const DataMapper& rhs, Index depth, Index cols, Index stride, Index offset)
 {
-  dhs_pack<double, Index, DataMapper, Packet2d, ColMajor, PanelMode, false> pack;
+  dhs_pack<double, DataMapper, Packet2d, ColMajor, PanelMode, false> pack;
   pack(blockB, rhs, depth, cols, stride, offset);
 }
 
@@ -2232,7 +2232,7 @@ template<typename Index, typename DataMapper, int nr, bool Conjugate, bool Panel
 void gemm_pack_rhs<double, Index, DataMapper, nr, RowMajor, Conjugate, PanelMode>
   ::operator()(double* blockB, const DataMapper& rhs, Index depth, Index cols, Index stride, Index offset)
 {
-  dhs_pack<double, Index, DataMapper, Packet2d, RowMajor, PanelMode, false> pack;
+  dhs_pack<double, DataMapper, Packet2d, RowMajor, PanelMode, false> pack;
   pack(blockB, rhs, depth, cols, stride, offset);
 }
 #endif
@@ -2247,7 +2247,7 @@ template<typename Index, typename DataMapper, int Pack1, int Pack2, typename Pac
 void gemm_pack_lhs<float, Index, DataMapper, Pack1, Pack2, Packet, RowMajor, Conjugate, PanelMode>
   ::operator()(float* blockA, const DataMapper& lhs, Index depth, Index rows, Index stride, Index offset)
 {
-  dhs_pack<float, Index, DataMapper, Packet4f, RowMajor, PanelMode, true> pack;
+  dhs_pack<float, DataMapper, Packet4f, RowMajor, PanelMode, true> pack;
   pack(blockA, lhs, depth, rows, stride, offset);
 }
 
@@ -2261,7 +2261,7 @@ template<typename Index, typename DataMapper, int Pack1, int Pack2, typename Pac
 void gemm_pack_lhs<float, Index, DataMapper, Pack1, Pack2, Packet, ColMajor, Conjugate, PanelMode>
   ::operator()(float* blockA, const DataMapper& lhs, Index depth, Index rows, Index stride, Index offset)
 {
-  dhs_pack<float, Index, DataMapper, Packet4f, ColMajor, PanelMode, true> pack;
+  dhs_pack<float, DataMapper, Packet4f, ColMajor, PanelMode, true> pack;
   pack(blockA, lhs, depth, rows, stride, offset);
 }
 
@@ -2275,7 +2275,7 @@ template<typename Index, typename DataMapper, int Pack1, int Pack2, typename Pac
 void gemm_pack_lhs<std::complex<float>, Index, DataMapper, Pack1, Pack2, Packet, RowMajor, Conjugate, PanelMode>
   ::operator()(std::complex<float>* blockA, const DataMapper& lhs, Index depth, Index rows, Index stride, Index offset)
 {
-  dhs_cpack<float, Index, DataMapper, Packet4f, Packet2cf, RowMajor, Conjugate, PanelMode, true> pack;
+  dhs_cpack<float, DataMapper, Packet4f, Packet2cf, RowMajor, Conjugate, PanelMode, true> pack;
   pack(blockA, lhs, depth, rows, stride, offset);
 }
 
@@ -2289,7 +2289,7 @@ template<typename Index, typename DataMapper, int Pack1, int Pack2, typename Pac
 void gemm_pack_lhs<std::complex<float>, Index, DataMapper, Pack1, Pack2, Packet, ColMajor, Conjugate, PanelMode>
   ::operator()(std::complex<float>* blockA, const DataMapper& lhs, Index depth, Index rows, Index stride, Index offset)
 {
-  dhs_cpack<float, Index, DataMapper, Packet4f, Packet2cf, ColMajor, Conjugate, PanelMode, true> pack;
+  dhs_cpack<float, DataMapper, Packet4f, Packet2cf, ColMajor, Conjugate, PanelMode, true> pack;
   pack(blockA, lhs, depth, rows, stride, offset);
 }
 
@@ -2304,7 +2304,7 @@ template<typename Index, typename DataMapper, int nr, bool Conjugate, bool Panel
 void gemm_pack_rhs<float, Index, DataMapper, nr, ColMajor, Conjugate, PanelMode>
   ::operator()(float* blockB, const DataMapper& rhs, Index depth, Index cols, Index stride, Index offset)
 {
-  dhs_pack<float, Index, DataMapper, Packet4f, ColMajor, PanelMode, false> pack;
+  dhs_pack<float, DataMapper, Packet4f, ColMajor, PanelMode, false> pack;
   pack(blockB, rhs, depth, cols, stride, offset);
 }
 
@@ -2318,7 +2318,7 @@ template<typename Index, typename DataMapper, int nr, bool Conjugate, bool Panel
 void gemm_pack_rhs<float, Index, DataMapper, nr, RowMajor, Conjugate, PanelMode>
   ::operator()(float* blockB, const DataMapper& rhs, Index depth, Index cols, Index stride, Index offset)
 {
-  dhs_pack<float, Index, DataMapper, Packet4f, RowMajor, PanelMode, false> pack;
+  dhs_pack<float, DataMapper, Packet4f, RowMajor, PanelMode, false> pack;
   pack(blockB, rhs, depth, cols, stride, offset);
 }
 #endif
@@ -2333,7 +2333,7 @@ template<typename Index, typename DataMapper, int nr, bool Conjugate, bool Panel
 void gemm_pack_rhs<std::complex<float>, Index, DataMapper, nr, ColMajor, Conjugate, PanelMode>
   ::operator()(std::complex<float>* blockB, const DataMapper& rhs, Index depth, Index cols, Index stride, Index offset)
 {
-  dhs_cpack<float, Index, DataMapper, Packet4f, Packet2cf, ColMajor, Conjugate, PanelMode, false> pack;
+  dhs_cpack<float, DataMapper, Packet4f, Packet2cf, ColMajor, Conjugate, PanelMode, false> pack;
   pack(blockB, rhs, depth, cols, stride, offset);
 }
 
@@ -2347,7 +2347,7 @@ template<typename Index, typename DataMapper, int nr, bool Conjugate, bool Panel
 void gemm_pack_rhs<std::complex<float>, Index, DataMapper, nr, RowMajor, Conjugate, PanelMode>
   ::operator()(std::complex<float>* blockB, const DataMapper& rhs, Index depth, Index cols, Index stride, Index offset)
 {
-  dhs_cpack<float, Index, DataMapper, Packet4f, Packet2cf, RowMajor, Conjugate, PanelMode, false> pack;
+  dhs_cpack<float, DataMapper, Packet4f, Packet2cf, RowMajor, Conjugate, PanelMode, false> pack;
   pack(blockB, rhs, depth, cols, stride, offset);
 }
 
@@ -2361,7 +2361,7 @@ template<typename Index, typename DataMapper, int Pack1, int Pack2, typename Pac
 void gemm_pack_lhs<std::complex<double>, Index, DataMapper, Pack1, Pack2, Packet, RowMajor, Conjugate, PanelMode>
   ::operator()(std::complex<double>* blockA, const DataMapper& lhs, Index depth, Index rows, Index stride, Index offset)
 {
-  dhs_cpack<double, Index, DataMapper, Packet2d, Packet1cd, RowMajor, Conjugate, PanelMode, true> pack;
+  dhs_cpack<double, DataMapper, Packet2d, Packet1cd, RowMajor, Conjugate, PanelMode, true> pack;
   pack(blockA, lhs, depth, rows, stride, offset);
 }
 
@@ -2375,7 +2375,7 @@ template<typename Index, typename DataMapper, int Pack1, int Pack2, typename Pac
 void gemm_pack_lhs<std::complex<double>, Index, DataMapper, Pack1, Pack2, Packet, ColMajor, Conjugate, PanelMode>
   ::operator()(std::complex<double>* blockA, const DataMapper& lhs, Index depth, Index rows, Index stride, Index offset)
 {
-  dhs_cpack<double, Index, DataMapper, Packet2d, Packet1cd, ColMajor, Conjugate, PanelMode, true> pack;
+  dhs_cpack<double, DataMapper, Packet2d, Packet1cd, ColMajor, Conjugate, PanelMode, true> pack;
   pack(blockA, lhs, depth, rows, stride, offset);
 }
 
@@ -2389,7 +2389,7 @@ template<typename Index, typename DataMapper, int nr, bool Conjugate, bool Panel
 void gemm_pack_rhs<std::complex<double>, Index, DataMapper, nr, ColMajor, Conjugate, PanelMode>
   ::operator()(std::complex<double>* blockB, const DataMapper& rhs, Index depth, Index cols, Index stride, Index offset)
 {
-  dhs_cpack<double, Index, DataMapper, Packet2d, Packet1cd, ColMajor, Conjugate, PanelMode, false> pack;
+  dhs_cpack<double, DataMapper, Packet2d, Packet1cd, ColMajor, Conjugate, PanelMode, false> pack;
   pack(blockB, rhs, depth, cols, stride, offset);
 }
 
@@ -2403,7 +2403,7 @@ template<typename Index, typename DataMapper, int nr, bool Conjugate, bool Panel
 void gemm_pack_rhs<std::complex<double>, Index, DataMapper, nr, RowMajor, Conjugate, PanelMode>
   ::operator()(std::complex<double>* blockB, const DataMapper& rhs, Index depth, Index cols, Index stride, Index offset)
 {
-  dhs_cpack<double, Index, DataMapper, Packet2d, Packet1cd, RowMajor, Conjugate, PanelMode, false> pack;
+  dhs_cpack<double, DataMapper, Packet2d, Packet1cd, RowMajor, Conjugate, PanelMode, false> pack;
   pack(blockB, rhs, depth, cols, stride, offset);
 }
 
@@ -2431,16 +2431,16 @@ void gebp_kernel<float, float, Index, DataMapper, mr, nr, ConjugateLhs, Conjugat
 
     #if defined(EIGEN_ALTIVEC_MMA_ONLY)
       //generate with MMA only
-      gemm_function = &Eigen::internal::gemmMMA<float, Index, Packet, RhsPacket, DataMapper, accRows, accCols>;
+      gemm_function = &Eigen::internal::gemmMMA<float, Packet, RhsPacket, DataMapper, accRows, accCols>;
     #elif defined(EIGEN_ALTIVEC_MMA_DYNAMIC_DISPATCH)
       if (__builtin_cpu_supports ("arch_3_1") && __builtin_cpu_supports ("mma")){
-        gemm_function = &Eigen::internal::gemmMMA<float, Index, Packet, RhsPacket, DataMapper, accRows, accCols>;
+        gemm_function = &Eigen::internal::gemmMMA<float, Packet, RhsPacket, DataMapper, accRows, accCols>;
       }
       else{
-        gemm_function = &Eigen::internal::gemm<float, Index, Packet, RhsPacket, DataMapper, accRows, accCols>;
+        gemm_function = &Eigen::internal::gemm<float, Packet, RhsPacket, DataMapper, accRows, accCols>;
       }
     #else
-      gemm_function = &Eigen::internal::gemm<float, Index, Packet, RhsPacket, DataMapper, accRows, accCols>;
+      gemm_function = &Eigen::internal::gemm<float, Packet, RhsPacket, DataMapper, accRows, accCols>;
     #endif
     gemm_function(res, blockA, blockB, rows, depth, cols, alpha, strideA, strideB, offsetA, offsetB);
   }
@@ -2470,16 +2470,16 @@ void gebp_kernel<std::complex<float>, std::complex<float>, Index, DataMapper, mr
 
     #if defined(EIGEN_ALTIVEC_MMA_ONLY)
       //generate with MMA only
-      gemm_function = &Eigen::internal::gemm_complexMMA<std::complex<float>, std::complex<float>, std::complex<float>, float, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, false>;
+      gemm_function = &Eigen::internal::gemm_complexMMA<std::complex<float>, std::complex<float>, std::complex<float>, float, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, false>;
     #elif defined(EIGEN_ALTIVEC_MMA_DYNAMIC_DISPATCH)
       if (__builtin_cpu_supports ("arch_3_1") && __builtin_cpu_supports ("mma")){
-        gemm_function = &Eigen::internal::gemm_complexMMA<std::complex<float>, std::complex<float>, std::complex<float>, float, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, false>;
+        gemm_function = &Eigen::internal::gemm_complexMMA<std::complex<float>, std::complex<float>, std::complex<float>, float, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, false>;
       }
       else{
-        gemm_function = &Eigen::internal::gemm_complex<std::complex<float>, std::complex<float>, std::complex<float>, float, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, false>;
+        gemm_function = &Eigen::internal::gemm_complex<std::complex<float>, std::complex<float>, std::complex<float>, float, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, false>;
       }
     #else
-      gemm_function = &Eigen::internal::gemm_complex<std::complex<float>, std::complex<float>, std::complex<float>, float, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, false>;
+      gemm_function = &Eigen::internal::gemm_complex<std::complex<float>, std::complex<float>, std::complex<float>, float, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, false>;
     #endif
     gemm_function(res, blockA, blockB, rows, depth, cols, alpha, strideA, strideB, offsetA, offsetB);
   }
@@ -2508,16 +2508,16 @@ void gebp_kernel<float, std::complex<float>, Index, DataMapper, mr, nr, Conjugat
           Index, Index, Index, std::complex<float>, Index, Index, Index, Index);
     #if defined(EIGEN_ALTIVEC_MMA_ONLY)
       //generate with MMA only
-      gemm_function = &Eigen::internal::gemm_complexMMA<float, std::complex<float>, std::complex<float>, float, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, true, false>;
+      gemm_function = &Eigen::internal::gemm_complexMMA<float, std::complex<float>, std::complex<float>, float, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, true, false>;
     #elif defined(EIGEN_ALTIVEC_MMA_DYNAMIC_DISPATCH)
       if (__builtin_cpu_supports ("arch_3_1") && __builtin_cpu_supports ("mma")){
-        gemm_function = &Eigen::internal::gemm_complexMMA<float, std::complex<float>, std::complex<float>, float, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, true, false>;
+        gemm_function = &Eigen::internal::gemm_complexMMA<float, std::complex<float>, std::complex<float>, float, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, true, false>;
       }
       else{
-        gemm_function = &Eigen::internal::gemm_complex<float, std::complex<float>, std::complex<float>, float, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, true, false>;
+        gemm_function = &Eigen::internal::gemm_complex<float, std::complex<float>, std::complex<float>, float, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, true, false>;
       }
     #else
-      gemm_function = &Eigen::internal::gemm_complex<float, std::complex<float>, std::complex<float>, float, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, true, false>;
+      gemm_function = &Eigen::internal::gemm_complex<float, std::complex<float>, std::complex<float>, float, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, true, false>;
     #endif
     gemm_function(res, blockA, blockB, rows, depth, cols, alpha, strideA, strideB, offsetA, offsetB);
   }
@@ -2546,16 +2546,16 @@ void gebp_kernel<std::complex<float>, float, Index, DataMapper, mr, nr, Conjugat
           Index, Index, Index, std::complex<float>, Index, Index, Index, Index);
     #if defined(EIGEN_ALTIVEC_MMA_ONLY)
       //generate with MMA only
-      gemm_function = &Eigen::internal::gemm_complexMMA<std::complex<float>, float, std::complex<float>, float, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, true>;
+      gemm_function = &Eigen::internal::gemm_complexMMA<std::complex<float>, float, std::complex<float>, float, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, true>;
     #elif defined(EIGEN_ALTIVEC_MMA_DYNAMIC_DISPATCH)
       if (__builtin_cpu_supports ("arch_3_1") && __builtin_cpu_supports ("mma")){
-        gemm_function = &Eigen::internal::gemm_complexMMA<std::complex<float>, float, std::complex<float>, float, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, true>;
+        gemm_function = &Eigen::internal::gemm_complexMMA<std::complex<float>, float, std::complex<float>, float, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, true>;
       }
       else{
-        gemm_function = &Eigen::internal::gemm_complex<std::complex<float>, float, std::complex<float>, float, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, true>;
+        gemm_function = &Eigen::internal::gemm_complex<std::complex<float>, float, std::complex<float>, float, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, true>;
       }
     #else
-      gemm_function = &Eigen::internal::gemm_complex<std::complex<float>, float, std::complex<float>, float, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, true>;
+      gemm_function = &Eigen::internal::gemm_complex<std::complex<float>, float, std::complex<float>, float, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, true>;
     #endif
     gemm_function(res, blockA, blockB, rows, depth, cols, alpha, strideA, strideB, offsetA, offsetB);
   }
@@ -2583,16 +2583,16 @@ void gebp_kernel<double, double, Index, DataMapper, mr, nr, ConjugateLhs, Conjug
 
     #if defined(EIGEN_ALTIVEC_MMA_ONLY)
       //generate with MMA only
-      gemm_function = &Eigen::internal::gemmMMA<double, Index, Packet, RhsPacket, DataMapper, accRows, accCols>;
+      gemm_function = &Eigen::internal::gemmMMA<double, Packet, RhsPacket, DataMapper, accRows, accCols>;
     #elif defined(EIGEN_ALTIVEC_MMA_DYNAMIC_DISPATCH)
       if (__builtin_cpu_supports ("arch_3_1") && __builtin_cpu_supports ("mma")){
-        gemm_function = &Eigen::internal::gemmMMA<double, Index, Packet, RhsPacket, DataMapper, accRows, accCols>;
+        gemm_function = &Eigen::internal::gemmMMA<double, Packet, RhsPacket, DataMapper, accRows, accCols>;
       }
       else{
-        gemm_function = &Eigen::internal::gemm<double, Index, Packet, RhsPacket, DataMapper, accRows, accCols>;
+        gemm_function = &Eigen::internal::gemm<double, Packet, RhsPacket, DataMapper, accRows, accCols>;
       }
     #else
-      gemm_function = &Eigen::internal::gemm<double, Index, Packet, RhsPacket, DataMapper, accRows, accCols>;
+      gemm_function = &Eigen::internal::gemm<double, Packet, RhsPacket, DataMapper, accRows, accCols>;
     #endif
     gemm_function(res, blockA, blockB, rows, depth, cols, alpha, strideA, strideB, offsetA, offsetB);
   }
@@ -2621,16 +2621,16 @@ void gebp_kernel<std::complex<double>, std::complex<double>, Index, DataMapper, 
           Index, Index, Index, std::complex<double>, Index, Index, Index, Index);
     #if defined(EIGEN_ALTIVEC_MMA_ONLY)
       //generate with MMA only
-      gemm_function = &Eigen::internal::gemm_complexMMA<std::complex<double>, std::complex<double>, std::complex<double>, double, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, false>;
+      gemm_function = &Eigen::internal::gemm_complexMMA<std::complex<double>, std::complex<double>, std::complex<double>, double, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, false>;
     #elif defined(EIGEN_ALTIVEC_MMA_DYNAMIC_DISPATCH)
       if (__builtin_cpu_supports ("arch_3_1") && __builtin_cpu_supports ("mma")){
-        gemm_function = &Eigen::internal::gemm_complexMMA<std::complex<double>, std::complex<double>, std::complex<double>, double, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, false>;
+        gemm_function = &Eigen::internal::gemm_complexMMA<std::complex<double>, std::complex<double>, std::complex<double>, double, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, false>;
       }
       else{
-        gemm_function = &Eigen::internal::gemm_complex<std::complex<double>, std::complex<double>, std::complex<double>, double, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, false>;
+        gemm_function = &Eigen::internal::gemm_complex<std::complex<double>, std::complex<double>, std::complex<double>, double, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, false>;
       }
     #else
-      gemm_function = &Eigen::internal::gemm_complex<std::complex<double>, std::complex<double>, std::complex<double>, double, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, false>;
+      gemm_function = &Eigen::internal::gemm_complex<std::complex<double>, std::complex<double>, std::complex<double>, double, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, false>;
     #endif
     gemm_function(res, blockA, blockB, rows, depth, cols, alpha, strideA, strideB, offsetA, offsetB);
   }
@@ -2659,16 +2659,16 @@ void gebp_kernel<std::complex<double>, double, Index, DataMapper, mr, nr, Conjug
           Index, Index, Index, std::complex<double>, Index, Index, Index, Index);
     #if defined(EIGEN_ALTIVEC_MMA_ONLY)
       //generate with MMA only
-      gemm_function = &Eigen::internal::gemm_complexMMA<std::complex<double>, double, std::complex<double>, double, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, true>;
+      gemm_function = &Eigen::internal::gemm_complexMMA<std::complex<double>, double, std::complex<double>, double, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, true>;
     #elif defined(EIGEN_ALTIVEC_MMA_DYNAMIC_DISPATCH)
       if (__builtin_cpu_supports ("arch_3_1") && __builtin_cpu_supports ("mma")){
-        gemm_function = &Eigen::internal::gemm_complexMMA<std::complex<double>, double, std::complex<double>, double, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, true>;
+        gemm_function = &Eigen::internal::gemm_complexMMA<std::complex<double>, double, std::complex<double>, double, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, true>;
       }
       else{
-        gemm_function = &Eigen::internal::gemm_complex<std::complex<double>, double, std::complex<double>, double, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, true>;
+        gemm_function = &Eigen::internal::gemm_complex<std::complex<double>, double, std::complex<double>, double, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, true>;
       }
     #else
-      gemm_function = &Eigen::internal::gemm_complex<std::complex<double>, double, std::complex<double>, double, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, true>;
+      gemm_function = &Eigen::internal::gemm_complex<std::complex<double>, double, std::complex<double>, double, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, false, true>;
     #endif
     gemm_function(res, blockA, blockB, rows, depth, cols, alpha, strideA, strideB, offsetA, offsetB);
   }
@@ -2697,16 +2697,16 @@ void gebp_kernel<double, std::complex<double>, Index, DataMapper, mr, nr, Conjug
           Index, Index, Index, std::complex<double>, Index, Index, Index, Index);
     #if defined(EIGEN_ALTIVEC_MMA_ONLY)
       //generate with MMA only
-      gemm_function = &Eigen::internal::gemm_complexMMA<double, std::complex<double>, std::complex<double>, double, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, true, false>;
+      gemm_function = &Eigen::internal::gemm_complexMMA<double, std::complex<double>, std::complex<double>, double, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, true, false>;
     #elif defined(EIGEN_ALTIVEC_MMA_DYNAMIC_DISPATCH)
       if (__builtin_cpu_supports ("arch_3_1") && __builtin_cpu_supports ("mma")){
-        gemm_function = &Eigen::internal::gemm_complexMMA<double, std::complex<double>, std::complex<double>, double, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, true, false>;
+        gemm_function = &Eigen::internal::gemm_complexMMA<double, std::complex<double>, std::complex<double>, double, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, true, false>;
       }
       else{
-        gemm_function = &Eigen::internal::gemm_complex<double, std::complex<double>, std::complex<double>, double, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, true, false>;
+        gemm_function = &Eigen::internal::gemm_complex<double, std::complex<double>, std::complex<double>, double, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, true, false>;
       }
     #else
-      gemm_function = &Eigen::internal::gemm_complex<double, std::complex<double>, std::complex<double>, double, Index, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, true, false>;
+      gemm_function = &Eigen::internal::gemm_complex<double, std::complex<double>, std::complex<double>, double, Packet, Packetc, RhsPacket, DataMapper, accRows, accCols, ConjugateLhs, ConjugateRhs, true, false>;
     #endif
     gemm_function(res, blockA, blockB, rows, depth, cols, alpha, strideA, strideB, offsetA, offsetB);
   }
