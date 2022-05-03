@@ -52,9 +52,9 @@ class DiagonalBase : public EigenBase<Derived>
     EIGEN_DEVICE_FUNC
     inline DiagonalVectorType& diagonal() { return derived().diagonal(); }
 
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR 
     inline Index rows() const { return diagonal().size(); }
-    EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR 
     inline Index cols() const { return diagonal().size(); }
 
     template<typename MatrixDerived>
