@@ -120,9 +120,7 @@ specified position.  The value returned is of the datatype of the tensor.
 ## TensorLayout
 
 The tensor library supports 2 layouts: `ColMajor` (the default) and
-`RowMajor`.  Only the default column major layout is currently fully
-supported, and it is therefore not recommended to attempt to use the row major
-layout at the moment.
+`RowMajor`. 
 
 The layout of a tensor is optionally specified as part of its type. If not
 specified explicitly column major is assumed.
