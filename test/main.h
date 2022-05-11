@@ -87,7 +87,7 @@
 // protected by parenthesis against macro expansion, the min()/max() macros
 // are defined here and any not-parenthesized min/max call will cause a
 // compiler error.
-#if !defined(__HIPCC__) && !defined(EIGEN_USE_SYCL)
+#if !defined(__HIPCC__) && !defined(EIGEN_USE_SYCL) && !defined(EIGEN_POCKETFFT_DEFAULT)
   //
   // HIP header files include the following files
   //  <thread>
