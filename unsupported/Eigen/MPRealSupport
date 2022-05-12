@@ -143,8 +143,8 @@ int main()
 
   // Specialize GEBP kernel and traits for mpreal (no need for peeling, nor complicated stuff)
   // This also permits to directly call mpfr's routines and avoid many temporaries produced by mpreal
-    template<>
-    class gebp_traits<mpfr::mpreal, mpfr::mpreal, false, false>
+    template<bool UnitResIncr>
+    class gebp_traits<mpfr::mpreal, mpfr::mpreal, UnitResIncr, false, false>
     {
     public:
       typedef mpfr::mpreal ResScalar;
