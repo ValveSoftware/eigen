@@ -8,9 +8,9 @@ namespace internal {
 // Clang seems to excessively spill registers in the GEBP kernel on 32-bit arm.
 // Here we specialize gebp_traits to eliminate these register spills.
 // See #2138.
-template<bool UnitResIncr>
-struct gebp_traits <float,float,UnitResIncr,false,false,Architecture::NEON,GEBPPacketFull>
- : gebp_traits<float,float,UnitResIncr,false,false,Architecture::Generic,GEBPPacketFull>
+template<>
+struct gebp_traits <float,float,false,false,Architecture::NEON,GEBPPacketFull>
+ : gebp_traits<float,float,false,false,Architecture::Generic,GEBPPacketFull>
 {
   EIGEN_STRONG_INLINE void acc(const AccPacket& c, const ResPacket& alpha, ResPacket& r) const
   { 
@@ -43,9 +43,9 @@ struct gebp_traits <float,float,UnitResIncr,false,false,Architecture::NEON,GEBPP
 
 #if EIGEN_ARCH_ARM64
 
-template<bool UnitResIncr>
-struct gebp_traits <float,float,UnitResIncr,false,false,Architecture::NEON,GEBPPacketFull>
- : gebp_traits<float,float,UnitResIncr,false,false,Architecture::Generic,GEBPPacketFull>
+template<>
+struct gebp_traits <float,float,false,false,Architecture::NEON,GEBPPacketFull>
+ : gebp_traits<float,float,false,false,Architecture::Generic,GEBPPacketFull>
 {
   typedef float RhsPacket;
   typedef float32x4_t RhsPacketx4;
@@ -108,9 +108,9 @@ struct gebp_traits <float,float,UnitResIncr,false,false,Architecture::NEON,GEBPP
 };
 
 
-template<bool UnitResIncr>
-struct gebp_traits <double,double,UnitResIncr,false,false,Architecture::NEON>
- : gebp_traits<double,double,UnitResIncr,false,false,Architecture::Generic>
+template<>
+struct gebp_traits <double,double,false,false,Architecture::NEON>
+ : gebp_traits<double,double,false,false,Architecture::Generic>
 {
   typedef double RhsPacket;
 

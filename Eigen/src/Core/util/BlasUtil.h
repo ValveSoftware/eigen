@@ -173,7 +173,6 @@ class blas_data_mapper<Scalar,Index,StorageOrder,AlignmentType,1>
 public:
   typedef BlasLinearMapper<Scalar, Index, AlignmentType> LinearMapper;
   typedef BlasVectorMapper<Scalar, Index> VectorMapper;
-  static constexpr int incr = 1;
 
   EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE blas_data_mapper(Scalar* data, Index stride, Index incr=1)
    : m_data(data), m_stride(stride)
@@ -286,7 +285,6 @@ class blas_data_mapper
 {
 public:
   typedef BlasLinearMapper<Scalar, Index, AlignmentType,Incr> LinearMapper;
-  static constexpr int incr = Incr;
 
   EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE blas_data_mapper(Scalar* data, Index stride, Index incr) : m_data(data), m_stride(stride), m_incr(incr) {}
 
@@ -404,9 +402,6 @@ public:
     storePacketBlock_helper<SubPacket, Scalar, n, n-1> spb;
     spb.store(this, i,j,block);
   }
-
-  EIGEN_DEVICE_FUNC const Index stride() const { return m_stride; }
-  EIGEN_DEVICE_FUNC Scalar* data() const { return m_data; }
 protected:
   Scalar* EIGEN_RESTRICT m_data;
   const Index m_stride;

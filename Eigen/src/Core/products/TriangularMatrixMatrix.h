@@ -89,7 +89,7 @@ struct product_triangular_matrix_matrix<Scalar,Index,Mode,true,
                                            RhsStorageOrder,ConjugateRhs,ColMajor,ResInnerStride,Version>
 {
   
-  typedef gebp_traits<Scalar,Scalar,ResInnerStride == 1> Traits;
+  typedef gebp_traits<Scalar,Scalar> Traits;
   enum {
     SmallPanelWidth   = 2 * plain_enum_max(Traits::mr, Traits::nr),
     IsLower = (Mode&Lower) == Lower,
@@ -247,7 +247,7 @@ struct product_triangular_matrix_matrix<Scalar,Index,Mode,false,
                                         LhsStorageOrder,ConjugateLhs,
                                         RhsStorageOrder,ConjugateRhs,ColMajor,ResInnerStride,Version>
 {
-  typedef gebp_traits<Scalar,Scalar,ResInnerStride == 1> Traits;
+  typedef gebp_traits<Scalar,Scalar> Traits;
   enum {
     SmallPanelWidth   = plain_enum_max(Traits::mr, Traits::nr),
     IsLower = (Mode&Lower) == Lower,

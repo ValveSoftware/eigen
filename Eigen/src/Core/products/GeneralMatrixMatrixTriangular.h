@@ -67,7 +67,7 @@ struct general_matrix_matrix_triangular_product<Index,LhsScalar,LhsStorageOrder,
                                       ResScalar* _res, Index resIncr, Index resStride,
                                       const ResScalar& alpha, level3_blocking<LhsScalar,RhsScalar>& blocking)
   {
-    typedef gebp_traits<LhsScalar,RhsScalar,ResInnerStride == 1> Traits;
+    typedef gebp_traits<LhsScalar,RhsScalar> Traits;
 
     typedef const_blas_data_mapper<LhsScalar, Index, LhsStorageOrder> LhsMapper;
     typedef const_blas_data_mapper<RhsScalar, Index, RhsStorageOrder> RhsMapper;
@@ -140,7 +140,7 @@ struct general_matrix_matrix_triangular_product<Index,LhsScalar,LhsStorageOrder,
 template<typename LhsScalar, typename RhsScalar, typename Index, int mr, int nr, bool ConjLhs, bool ConjRhs, int ResInnerStride, int UpLo>
 struct tribb_kernel
 {
-  typedef gebp_traits<LhsScalar,RhsScalar,ResInnerStride == 1,ConjLhs,ConjRhs> Traits;
+  typedef gebp_traits<LhsScalar,RhsScalar,ConjLhs,ConjRhs> Traits;
   typedef typename Traits::ResScalar ResScalar;
 
   enum {

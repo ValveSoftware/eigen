@@ -1432,7 +1432,6 @@ EIGEN_DEVICE_FUNC inline void ptranspose(PacketBlock<Packet16f, 16>& kernel) {
   EIGEN_INSERT_8f_INTO_16f(OUTPUT[INDEX], INPUT[2 * INDEX], \
                            INPUT[2 * INDEX + STRIDE]);
 
-template<bool for_trsm = false>
 EIGEN_DEVICE_FUNC inline void ptranspose(PacketBlock<Packet16f, 8>& kernel) {
   __m512 T0 = _mm512_unpacklo_ps(kernel.packet[0],kernel.packet[1]);
   __m512 T1 = _mm512_unpackhi_ps(kernel.packet[0],kernel.packet[1]);
@@ -1451,49 +1450,28 @@ EIGEN_DEVICE_FUNC inline void ptranspose(PacketBlock<Packet16f, 8>& kernel) {
   kernel.packet[5] = _mm512_castpd_ps(_mm512_unpackhi_pd(_mm512_castps_pd(T4),_mm512_castps_pd(T6)));
   kernel.packet[6] = _mm512_castpd_ps(_mm512_unpacklo_pd(_mm512_castps_pd(T5),_mm512_castps_pd(T7)));
   kernel.packet[7] = _mm512_castpd_ps(_mm512_unpackhi_pd(_mm512_castps_pd(T5),_mm512_castps_pd(T7)));
+  
+  T0 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[4]), 0x4E));
+  T0 = _mm512_mask_blend_ps(0xF0F0, kernel.packet[0], T0);
+  T4 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[0]), 0x4E));
+  T4 = _mm512_mask_blend_ps(0xF0F0, T4, kernel.packet[4]);
+  T1 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[5]), 0x4E));
+  T1 = _mm512_mask_blend_ps(0xF0F0, kernel.packet[1], T1);
+  T5 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[1]), 0x4E));
+  T5 = _mm512_mask_blend_ps(0xF0F0, T5, kernel.packet[5]);
+  T2 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[6]), 0x4E));
+  T2 = _mm512_mask_blend_ps(0xF0F0, kernel.packet[2], T2);
+  T6 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[2]), 0x4E));
+  T6 = _mm512_mask_blend_ps(0xF0F0, T6, kernel.packet[6]);
+  T3 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[7]), 0x4E));
+  T3 = _mm512_mask_blend_ps(0xF0F0, kernel.packet[3], T3);
+  T7 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[3]), 0x4E));
+  T7 = _mm512_mask_blend_ps(0xF0F0, T7, kernel.packet[7]);
 
-  // Transpose for gemm is slightly different than trsm.
-  if (!for_trsm) {
-    T0 = _mm512_shuffle_f32x4(kernel.packet[0], kernel.packet[4], 0x44);
-    T1 = _mm512_shuffle_f32x4(kernel.packet[0], kernel.packet[4], 0xee);
-    T2 = _mm512_shuffle_f32x4(kernel.packet[1], kernel.packet[5], 0x44);
-    T3 = _mm512_shuffle_f32x4(kernel.packet[1], kernel.packet[5], 0xee);
-    T4 = _mm512_shuffle_f32x4(kernel.packet[2], kernel.packet[6], 0x44);
-    T5 = _mm512_shuffle_f32x4(kernel.packet[2], kernel.packet[6], 0xee);
-    T6 = _mm512_shuffle_f32x4(kernel.packet[3], kernel.packet[7], 0x44);
-    T7 = _mm512_shuffle_f32x4(kernel.packet[3], kernel.packet[7], 0xee);
-
-    kernel.packet[0] = _mm512_shuffle_f32x4(T0, T2, 0x88);
-    kernel.packet[2] = _mm512_shuffle_f32x4(T0, T2, 0xdd);
-    kernel.packet[1] = _mm512_shuffle_f32x4(T4, T6, 0x88);
-    kernel.packet[3] = _mm512_shuffle_f32x4(T4, T6, 0xdd);
-    kernel.packet[4] = _mm512_shuffle_f32x4(T1, T3, 0x88);
-    kernel.packet[6] = _mm512_shuffle_f32x4(T1, T3, 0xdd);
-    kernel.packet[5] = _mm512_shuffle_f32x4(T5, T7, 0x88);
-    kernel.packet[7] = _mm512_shuffle_f32x4(T5, T7, 0xdd);
-  } else {
-    T0 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[4]), 0x4E));
-    T0 = _mm512_mask_blend_ps(0xF0F0, kernel.packet[0], T0);
-    T4 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[0]), 0x4E));
-    T4 = _mm512_mask_blend_ps(0xF0F0, T4, kernel.packet[4]);
-    T1 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[5]), 0x4E));
-    T1 = _mm512_mask_blend_ps(0xF0F0, kernel.packet[1], T1);
-    T5 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[1]), 0x4E));
-    T5 = _mm512_mask_blend_ps(0xF0F0, T5, kernel.packet[5]);
-    T2 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[6]), 0x4E));
-    T2 = _mm512_mask_blend_ps(0xF0F0, kernel.packet[2], T2);
-    T6 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[2]), 0x4E));
-    T6 = _mm512_mask_blend_ps(0xF0F0, T6, kernel.packet[6]);
-    T3 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[7]), 0x4E));
-    T3 = _mm512_mask_blend_ps(0xF0F0, kernel.packet[3], T3);
-    T7 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[3]), 0x4E));
-    T7 = _mm512_mask_blend_ps(0xF0F0, T7, kernel.packet[7]);
-
-    kernel.packet[0] = T0; kernel.packet[1] = T1;
-    kernel.packet[2] = T2; kernel.packet[3] = T3;
-    kernel.packet[4] = T4; kernel.packet[5] = T5;
-    kernel.packet[6] = T6; kernel.packet[7] = T7;
-  }
+  kernel.packet[0] = T0; kernel.packet[1] = T1;
+  kernel.packet[2] = T2; kernel.packet[3] = T3;
+  kernel.packet[4] = T4; kernel.packet[5] = T5;
+  kernel.packet[6] = T6; kernel.packet[7] = T7;
 }
 
 EIGEN_DEVICE_FUNC inline void ptranspose(PacketBlock<Packet16f, 4>& kernel) {
@@ -1571,9 +1549,7 @@ EIGEN_DEVICE_FUNC inline void ptranspose(PacketBlock<Packet8d, 4>& kernel) {
   PACK_OUTPUT_D(kernel.packet, tmp.packet, 3, 1);
 }
 
-template<bool for_trsm = false>
 EIGEN_DEVICE_FUNC inline void ptranspose(PacketBlock<Packet8d, 8>& kernel) {
-    // Transpose for trsm is the same as for gemm.
     __m512d T0 = _mm512_unpacklo_pd(kernel.packet[0],kernel.packet[1]);
     __m512d T1 = _mm512_unpackhi_pd(kernel.packet[0],kernel.packet[1]);
     __m512d T2 = _mm512_unpacklo_pd(kernel.packet[2],kernel.packet[3]);

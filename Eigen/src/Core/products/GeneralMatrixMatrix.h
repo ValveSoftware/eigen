@@ -26,7 +26,7 @@ template<
   int ResInnerStride>
 struct general_matrix_matrix_product<Index,LhsScalar,LhsStorageOrder,ConjugateLhs,RhsScalar,RhsStorageOrder,ConjugateRhs,RowMajor,ResInnerStride>
 {
-  typedef gebp_traits<RhsScalar,LhsScalar,ResInnerStride == 1> Traits;
+  typedef gebp_traits<RhsScalar,LhsScalar> Traits;
 
   typedef typename ScalarBinaryOpTraits<LhsScalar, RhsScalar>::ReturnType ResScalar;
   static EIGEN_STRONG_INLINE void run(
@@ -57,7 +57,7 @@ template<
 struct general_matrix_matrix_product<Index,LhsScalar,LhsStorageOrder,ConjugateLhs,RhsScalar,RhsStorageOrder,ConjugateRhs,ColMajor,ResInnerStride>
 {
 
-typedef gebp_traits<LhsScalar,RhsScalar, ResInnerStride == 1> Traits;
+typedef gebp_traits<LhsScalar,RhsScalar> Traits;
 
 typedef typename ScalarBinaryOpTraits<LhsScalar, RhsScalar>::ReturnType ResScalar;
 static void run(Index rows, Index cols, Index depth,
@@ -287,6 +287,7 @@ class gemm_blocking_space<StorageOrder,LhsScalar_,RhsScalar_,MaxRows, MaxCols, M
     };
     typedef std::conditional_t<Transpose,RhsScalar_,LhsScalar_> LhsScalar;
     typedef std::conditional_t<Transpose,LhsScalar_,RhsScalar_> RhsScalar;
+    typedef gebp_traits<LhsScalar,RhsScalar> Traits;
     enum {
       SizeA = ActualRows * MaxDepth,
       SizeB = ActualCols * MaxDepth
@@ -335,6 +336,7 @@ class gemm_blocking_space<StorageOrder,LhsScalar_,RhsScalar_,MaxRows, MaxCols, M
     };
     typedef std::conditional_t<Transpose,RhsScalar_,LhsScalar_> LhsScalar;
     typedef std::conditional_t<Transpose,LhsScalar_,RhsScalar_> RhsScalar;
+    typedef gebp_traits<LhsScalar,RhsScalar> Traits;
 
     Index m_sizeA;
     Index m_sizeB;

@@ -189,7 +189,7 @@ EIGEN_DONT_INLINE void triangular_solve_matrix<Scalar,Index,OnTheLeft,Mode,Conju
     TriMapper tri(_tri, triStride);
     OtherMapper other(_other, otherStride, otherIncr);
 
-    typedef gebp_traits<Scalar,Scalar,OtherInnerStride == 1> Traits;
+    typedef gebp_traits<Scalar,Scalar> Traits;
 
     enum {
       SmallPanelWidth   = plain_enum_max(Traits::mr, Traits::nr),
@@ -336,7 +336,7 @@ EIGEN_DONT_INLINE void triangular_solve_matrix<Scalar,Index,OnTheRight,Mode,Conj
     LhsMapper lhs(_other, otherStride, otherIncr);
     RhsMapper rhs(_tri, triStride);
 
-    typedef gebp_traits<Scalar,Scalar,OtherInnerStride == 1> Traits;
+    typedef gebp_traits<Scalar,Scalar> Traits;
     enum {
       RhsStorageOrder   = TriStorageOrder,
       SmallPanelWidth   = plain_enum_max(Traits::mr, Traits::nr),

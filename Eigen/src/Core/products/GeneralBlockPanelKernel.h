@@ -2,7 +2,6 @@
 // for linear algebra.
 //
 // Copyright (C) 2008-2009 Gael Guennebaud <gael.guennebaud@inria.fr>
-// Modifications Copyright (C) 2022 Intel Corporation
 //
 // This Source Code Form is subject to the terms of the Mozilla
 // Public License v. 2.0. If a copy of the MPL was not distributed
@@ -24,7 +23,7 @@ enum GEBPPacketSizeType {
   GEBPPacketQuarter
 };
 
-template<typename LhsScalar_, typename RhsScalar_, bool UnitResIncr=false, bool ConjLhs_=false, bool ConjRhs_=false, int Arch=Architecture::Target, int PacketSize_=GEBPPacketFull>
+template<typename LhsScalar_, typename RhsScalar_, bool ConjLhs_=false, bool ConjRhs_=false, int Arch=Architecture::Target, int PacketSize_=GEBPPacketFull>
 class gebp_traits;
 
 
@@ -126,7 +125,7 @@ inline void manage_caching_sizes(Action action, std::ptrdiff_t* l1, std::ptrdiff
 template<typename LhsScalar, typename RhsScalar, int KcFactor, typename Index>
 void evaluateProductBlockingSizesHeuristic(Index& k, Index& m, Index& n, Index num_threads = 1)
 {
-  typedef gebp_traits<LhsScalar,RhsScalar, true> Traits;
+  typedef gebp_traits<LhsScalar,RhsScalar> Traits;
 
   // Explanations:
   // Let's recall that the product algorithms form mc x kc vertical panels A' on the lhs and
@@ -417,7 +416,7 @@ struct packet_conditional<GEBPPacketHalf, T1, T2, T3> { typedef T2 type; };
  *  cplx*real : unpack rhs to constant packets, ...
  *  real*cplx : load lhs as (a0,a0,a1,a1), and mul as usual
  */
-template<typename LhsScalar_, typename RhsScalar_, bool UnitResIncr_, bool ConjLhs_, bool ConjRhs_, int Arch, int PacketSize_>
+template<typename LhsScalar_, typename RhsScalar_, bool ConjLhs_, bool ConjRhs_, int Arch, int PacketSize_>
 class gebp_traits
 {
 public:
@@ -430,7 +429,6 @@ public:
   PACKET_DECL_COND_POSTFIX(_, Res, PacketSize_);
 
   enum {
-    UnitResIncr = UnitResIncr_,
     ConjLhs = ConjLhs_,
     ConjRhs = ConjRhs_,
     Vectorizable = unpacket_traits<LhsPacket_>::vectorizable && unpacket_traits<RhsPacket_>::vectorizable,
@@ -439,17 +437,9 @@ public:
     ResPacketSize = Vectorizable ? unpacket_traits<ResPacket_>::size : 1,
     
     NumberOfRegisters = EIGEN_ARCH_DEFAULT_NUMBER_OF_REGISTERS,
-    IsReal = std::is_same<LhsScalar, RhsScalar>::value
-          && (std::is_same<LhsScalar, float>::value
-                  || std::is_same<LhsScalar, double>::value),
 
     // register block size along the N direction must be 1 or 4
-#if defined(EIGEN_VECTORIZE_AVX512)
-    // AVX512 support nr = 8 for unit inner strides for result matrix.
-    nr = IsReal && Vectorizable && UnitResIncr ? 8 : 4,
-#else
     nr = 4,
-#endif
 
     // register block size along the M direction (currently, this one cannot be modified)
     default_mr = (plain_enum_min(16, NumberOfRegisters)/2/nr)*LhsPacketSize,
@@ -555,9 +545,8 @@ public:
 
 };
 
-
-template<typename RealScalar, bool UnitResIncr_, bool ConjLhs_, int Arch, int PacketSize_>
-class gebp_traits<std::complex<RealScalar>, RealScalar, UnitResIncr_, ConjLhs_, false, Arch, PacketSize_>
+template<typename RealScalar, bool ConjLhs_, int Arch, int PacketSize_>
+class gebp_traits<std::complex<RealScalar>, RealScalar, ConjLhs_, false, Arch, PacketSize_>
 {
 public:
   typedef std::complex<RealScalar> LhsScalar;
@@ -767,8 +756,8 @@ template<typename Packet> struct unpacket_traits<DoublePacket<Packet> > {
 //   return res;
 // }
 
-template<typename RealScalar, bool UnitResIncr_, bool ConjLhs_, bool ConjRhs_, int Arch, int PacketSize_>
-class gebp_traits<std::complex<RealScalar>, std::complex<RealScalar>, UnitResIncr_, ConjLhs_, ConjRhs_, Arch, PacketSize_ >
+template<typename RealScalar, bool ConjLhs_, bool ConjRhs_, int Arch, int PacketSize_>
+class gebp_traits<std::complex<RealScalar>, std::complex<RealScalar>, ConjLhs_, ConjRhs_, Arch, PacketSize_ >
 {
 public:
   typedef std::complex<RealScalar>  Scalar;
@@ -933,8 +922,8 @@ protected:
   conj_helper<LhsScalar,RhsScalar,ConjLhs,ConjRhs> cj;
 };
 
-template<typename RealScalar, bool UnitResIncr, bool ConjRhs_, int Arch, int PacketSize_>
-class gebp_traits<RealScalar, std::complex<RealScalar>, UnitResIncr, false, ConjRhs_, Arch, PacketSize_ >
+template<typename RealScalar, bool ConjRhs_, int Arch, int PacketSize_>
+class gebp_traits<RealScalar, std::complex<RealScalar>, false, ConjRhs_, Arch, PacketSize_ >
 {
 public:
   typedef std::complex<RealScalar>  Scalar;
@@ -1069,9 +1058,9 @@ protected:
 template<typename LhsScalar, typename RhsScalar, typename Index, typename DataMapper, int mr, int nr, bool ConjugateLhs, bool ConjugateRhs>
 struct gebp_kernel
 {
-  typedef gebp_traits<LhsScalar,RhsScalar,DataMapper::incr == 1,ConjugateLhs,ConjugateRhs,Architecture::Target> Traits;
-  typedef gebp_traits<LhsScalar,RhsScalar,DataMapper::incr == 1,ConjugateLhs,ConjugateRhs,Architecture::Target,GEBPPacketHalf> HalfTraits;
-  typedef gebp_traits<LhsScalar,RhsScalar,DataMapper::incr == 1,ConjugateLhs,ConjugateRhs,Architecture::Target,GEBPPacketQuarter> QuarterTraits;
+  typedef gebp_traits<LhsScalar,RhsScalar,ConjugateLhs,ConjugateRhs,Architecture::Target> Traits;
+  typedef gebp_traits<LhsScalar,RhsScalar,ConjugateLhs,ConjugateRhs,Architecture::Target,GEBPPacketHalf> HalfTraits;
+  typedef gebp_traits<LhsScalar,RhsScalar,ConjugateLhs,ConjugateRhs,Architecture::Target,GEBPPacketQuarter> QuarterTraits;
   
   typedef typename Traits::ResScalar ResScalar;
   typedef typename Traits::LhsPacket LhsPacket;
@@ -1082,7 +1071,7 @@ struct gebp_kernel
 
   typedef typename RhsPanelHelper<RhsPacket, RhsPacketx4, 15>::type RhsPanel15;
 
-  typedef gebp_traits<RhsScalar,LhsScalar,DataMapper::incr == 1,ConjugateRhs,ConjugateLhs,Architecture::Target> SwappedTraits;
+  typedef gebp_traits<RhsScalar,LhsScalar,ConjugateRhs,ConjugateLhs,Architecture::Target> SwappedTraits;
 
   typedef typename SwappedTraits::ResScalar SResScalar;
   typedef typename SwappedTraits::LhsPacket SLhsPacket;
@@ -1120,11 +1109,11 @@ struct gebp_kernel
 };
 
 template<typename LhsScalar, typename RhsScalar, typename Index, typename DataMapper, int mr, int nr, bool ConjugateLhs, bool ConjugateRhs,
-int SwappedLhsProgress = gebp_traits<RhsScalar,LhsScalar,DataMapper::incr == 1,ConjugateRhs,ConjugateLhs,Architecture::Target>::LhsProgress>
+int SwappedLhsProgress = gebp_traits<RhsScalar,LhsScalar,ConjugateRhs,ConjugateLhs,Architecture::Target>::LhsProgress>
 struct last_row_process_16_packets
 {
-  typedef gebp_traits<LhsScalar,RhsScalar,DataMapper::incr == 1,ConjugateLhs,ConjugateRhs,Architecture::Target> Traits;
-  typedef gebp_traits<RhsScalar,LhsScalar,DataMapper::incr == 1,ConjugateRhs,ConjugateLhs,Architecture::Target> SwappedTraits;
+  typedef gebp_traits<LhsScalar,RhsScalar,ConjugateLhs,ConjugateRhs,Architecture::Target> Traits;
+  typedef gebp_traits<RhsScalar,LhsScalar,ConjugateRhs,ConjugateLhs,Architecture::Target> SwappedTraits;
 
   typedef typename Traits::ResScalar ResScalar;
   typedef typename SwappedTraits::LhsPacket SLhsPacket;
@@ -1152,8 +1141,8 @@ struct last_row_process_16_packets
 
 template<typename LhsScalar, typename RhsScalar, typename Index, typename DataMapper, int mr, int nr, bool ConjugateLhs, bool ConjugateRhs>
 struct last_row_process_16_packets<LhsScalar, RhsScalar, Index, DataMapper,  mr,  nr, ConjugateLhs,  ConjugateRhs, 16> {
-  typedef gebp_traits<LhsScalar,RhsScalar,DataMapper::incr == 1,ConjugateLhs,ConjugateRhs,Architecture::Target> Traits;
-  typedef gebp_traits<RhsScalar,LhsScalar,DataMapper::incr == 1,ConjugateRhs,ConjugateLhs,Architecture::Target> SwappedTraits;
+  typedef gebp_traits<LhsScalar,RhsScalar,ConjugateLhs,ConjugateRhs,Architecture::Target> Traits;
+  typedef gebp_traits<RhsScalar,LhsScalar,ConjugateRhs,ConjugateLhs,Architecture::Target> SwappedTraits;
 
   typedef typename Traits::ResScalar ResScalar;
   typedef typename SwappedTraits::LhsPacket SLhsPacket;
@@ -1419,15 +1408,6 @@ void gebp_kernel<LhsScalar,RhsScalar,Index,DataMapper,mr,nr,ConjugateLhs,Conjuga
                Index rows, Index depth, Index cols, ResScalar alpha,
                Index strideA, Index strideB, Index offsetA, Index offsetB)
   {
-#if defined(EIGEN_VECTORIZE_AVX512)
-    if (nr == 8) {
-      bool done = gemm_kernel(
-              rows, cols, depth, alpha, blockA, blockB,
-              (ResScalar *)res.data(), res.stride(),
-              strideA, strideB, offsetA, offsetB);
-      if (done) return;
-    }
-#endif
     Traits traits;
     SwappedTraits straits;
     
@@ -2417,67 +2397,51 @@ EIGEN_DONT_INLINE void gemm_pack_rhs<Scalar, Index, DataMapper, nr, ColMajor, Co
   Index packet_cols4 = nr>=4 ? (cols/4) * 4 : 0;
   Index count = 0;
   const Index peeled_k = (depth/PacketSize)*PacketSize;
-  if(nr>=8)
-  {
-    for(Index j2=0; j2<packet_cols8; j2+=8)
-    {
-      // skip what we have before
-      if(PanelMode) count += 8 * offset;
-      const LinearMapper dm0 = rhs.getLinearMapper(0, j2+0);
-      const LinearMapper dm1 = rhs.getLinearMapper(0, j2+1);
-      const LinearMapper dm2 = rhs.getLinearMapper(0, j2+2);
-      const LinearMapper dm3 = rhs.getLinearMapper(0, j2+3);
-      const LinearMapper dm4 = rhs.getLinearMapper(0, j2+4);
-      const LinearMapper dm5 = rhs.getLinearMapper(0, j2+5);
-      const LinearMapper dm6 = rhs.getLinearMapper(0, j2+6);
-      const LinearMapper dm7 = rhs.getLinearMapper(0, j2+7);
-      Index k=0;
-#if 0
-      // TODO Need to enable vectorized transposition.
-      if((PacketSize%8)==0) // TODO enable vectorized transposition for PacketSize==4
-      {
-        for(; k<peeled_k; k+=PacketSize) {
-          PacketBlock<Packet,(PacketSize%8)==0?8:PacketSize> kernel;
-
-          kernel.packet[0] = dm0.template loadPacket<Packet>(k);
-          kernel.packet[1] = dm1.template loadPacket<Packet>(k);
-          kernel.packet[2] = dm2.template loadPacket<Packet>(k);
-          kernel.packet[3] = dm3.template loadPacket<Packet>(k);
-          kernel.packet[4] = dm4.template loadPacket<Packet>(k);
-          kernel.packet[5] = dm5.template loadPacket<Packet>(k);
-          kernel.packet[6] = dm6.template loadPacket<Packet>(k);
-          kernel.packet[7] = dm7.template loadPacket<Packet>(k);
-
-          ptranspose(kernel);
-
-          pstoreu(blockB+count+0*PacketSize, cj.pconj(kernel.packet[0]));
-          pstoreu(blockB+count+1*PacketSize, cj.pconj(kernel.packet[1%PacketSize]));
-          pstoreu(blockB+count+2*PacketSize, cj.pconj(kernel.packet[2%PacketSize]));
-          pstoreu(blockB+count+3*PacketSize, cj.pconj(kernel.packet[3%PacketSize]));
-          pstoreu(blockB+count+4*PacketSize, cj.pconj(kernel.packet[4%PacketSize]));
-          pstoreu(blockB+count+5*PacketSize, cj.pconj(kernel.packet[5%PacketSize]));
-          pstoreu(blockB+count+6*PacketSize, cj.pconj(kernel.packet[6%PacketSize]));
-          pstoreu(blockB+count+7*PacketSize, cj.pconj(kernel.packet[7%PacketSize]));
-          count+=8*PacketSize;
-        }
-      }
-#endif
-      for(; k<depth; k++)
-      {
-        blockB[count+0] = cj(dm0(k));
-        blockB[count+1] = cj(dm1(k));
-        blockB[count+2] = cj(dm2(k));
-        blockB[count+3] = cj(dm3(k));
-        blockB[count+4] = cj(dm4(k));
-        blockB[count+5] = cj(dm5(k));
-        blockB[count+6] = cj(dm6(k));
-        blockB[count+7] = cj(dm7(k));
-        count += 8;
-      }
-      // skip what we have after
-      if(PanelMode) count += 8 * (stride-offset-depth);
-    }
-  }
+//   if(nr>=8)
+//   {
+//     for(Index j2=0; j2<packet_cols8; j2+=8)
+//     {
+//       // skip what we have before
+//       if(PanelMode) count += 8 * offset;
+//       const Scalar* b0 = &rhs[(j2+0)*rhsStride];
+//       const Scalar* b1 = &rhs[(j2+1)*rhsStride];
+//       const Scalar* b2 = &rhs[(j2+2)*rhsStride];
+//       const Scalar* b3 = &rhs[(j2+3)*rhsStride];
+//       const Scalar* b4 = &rhs[(j2+4)*rhsStride];
+//       const Scalar* b5 = &rhs[(j2+5)*rhsStride];
+//       const Scalar* b6 = &rhs[(j2+6)*rhsStride];
+//       const Scalar* b7 = &rhs[(j2+7)*rhsStride];
+//       Index k=0;
+//       if(PacketSize==8) // TODO enable vectorized transposition for PacketSize==4
+//       {
+//         for(; k<peeled_k; k+=PacketSize) {
+//           PacketBlock<Packet> kernel;
+//           for (int p = 0; p < PacketSize; ++p) {
+//             kernel.packet[p] = ploadu<Packet>(&rhs[(j2+p)*rhsStride+k]);
+//           }
+//           ptranspose(kernel);
+//           for (int p = 0; p < PacketSize; ++p) {
+//             pstoreu(blockB+count, cj.pconj(kernel.packet[p]));
+//             count+=PacketSize;
+//           }
+//         }
+//       }
+//       for(; k<depth; k++)
+//       {
+//         blockB[count+0] = cj(b0[k]);
+//         blockB[count+1] = cj(b1[k]);
+//         blockB[count+2] = cj(b2[k]);
+//         blockB[count+3] = cj(b3[k]);
+//         blockB[count+4] = cj(b4[k]);
+//         blockB[count+5] = cj(b5[k]);
+//         blockB[count+6] = cj(b6[k]);
+//         blockB[count+7] = cj(b7[k]);
+//         count += 8;
+//       }
+//       // skip what we have after
+//       if(PanelMode) count += 8 * (stride-offset-depth);
+//     }
+//   }
 
   if(nr>=4)
   {
@@ -2558,50 +2522,39 @@ struct gemm_pack_rhs<Scalar, Index, DataMapper, nr, RowMajor, Conjugate, PanelMo
     Index packet_cols4 = nr>=4 ? (cols/4) * 4 : 0;
     Index count = 0;
 
-    if(nr>=8)
-    {
-      for(Index j2=0; j2<packet_cols8; j2+=8)
-      {
-        // skip what we have before
-        if(PanelMode) count += 8 * offset;
-        for(Index k=0; k<depth; k++)
-        {
-          if (PacketSize==8) {
-            // Packet A = ploadu<Packet>(&rhs.data()[k*rhs.stride() + j2]);
-            Packet A = rhs.template loadPacket<Packet>(k, j2);
-            pstoreu(blockB+count, cj.pconj(A));
-          } else if (HasHalf && HalfPacketSize==8) {
-            HalfPacket A = rhs.template loadPacket<HalfPacket>(k, j2);
-            pstoreu(blockB+count, cj.pconj(A));
-          } else if (HasQuarter && QuarterPacketSize==8) {
-            QuarterPacket A = rhs.template loadPacket<QuarterPacket>(k, j2);
-            pstoreu(blockB+count, cj.pconj(A));
-          } else if (PacketSize==4) {
-            // Packet A = ploadu<Packet>(&rhs.data()[k*rhs.stride() + j2]);
-            // Packet B = ploadu<Packet>(&rhs.data()[k*rhs.stride() + j2 + PacketSize]);
-            Packet A = rhs.template loadPacket<Packet>(k, j2);
-            Packet B = rhs.template loadPacket<Packet>(k, j2 + PacketSize);
-            pstoreu(blockB+count, cj.pconj(A));
-            pstoreu(blockB+count+PacketSize, cj.pconj(B));
-          } else {
-            // const Scalar* b0 = &rhs.data()[k*rhs.stride() + j2];
-            const LinearMapper dm0 = rhs.getLinearMapper(k, j2);
-            blockB[count+0] = cj(dm0(0));
-            blockB[count+1] = cj(dm0(1));
-            blockB[count+2] = cj(dm0(2));
-            blockB[count+3] = cj(dm0(3));
-            blockB[count+4] = cj(dm0(4));
-            blockB[count+5] = cj(dm0(5));
-            blockB[count+6] = cj(dm0(6));
-            blockB[count+7] = cj(dm0(7));
-          }
-          count += 8;
-        }
-        // skip what we have after
-        if(PanelMode) count += 8 * (stride-offset-depth);
-      }
-    }
-
+  //   if(nr>=8)
+  //   {
+  //     for(Index j2=0; j2<packet_cols8; j2+=8)
+  //     {
+  //       // skip what we have before
+  //       if(PanelMode) count += 8 * offset;
+  //       for(Index k=0; k<depth; k++)
+  //       {
+  //         if (PacketSize==8) {
+  //           Packet A = ploadu<Packet>(&rhs[k*rhsStride + j2]);
+  //           pstoreu(blockB+count, cj.pconj(A));
+  //         } else if (PacketSize==4) {
+  //           Packet A = ploadu<Packet>(&rhs[k*rhsStride + j2]);
+  //           Packet B = ploadu<Packet>(&rhs[k*rhsStride + j2 + PacketSize]);
+  //           pstoreu(blockB+count, cj.pconj(A));
+  //           pstoreu(blockB+count+PacketSize, cj.pconj(B));
+  //         } else {
+  //           const Scalar* b0 = &rhs[k*rhsStride + j2];
+  //           blockB[count+0] = cj(b0[0]);
+  //           blockB[count+1] = cj(b0[1]);
+  //           blockB[count+2] = cj(b0[2]);
+  //           blockB[count+3] = cj(b0[3]);
+  //           blockB[count+4] = cj(b0[4]);
+  //           blockB[count+5] = cj(b0[5]);
+  //           blockB[count+6] = cj(b0[6]);
+  //           blockB[count+7] = cj(b0[7]);
+  //         }
+  //         count += 8;
+  //       }
+  //       // skip what we have after
+  //       if(PanelMode) count += 8 * (stride-offset-depth);
+  //     }
+  //   }
     if(nr>=4)
     {
       for(Index j2=packet_cols8; j2<packet_cols4; j2+=4)

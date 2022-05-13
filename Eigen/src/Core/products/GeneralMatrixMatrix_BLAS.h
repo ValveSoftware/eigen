@@ -55,7 +55,7 @@ template< \
   int RhsStorageOrder, bool ConjugateRhs> \
 struct general_matrix_matrix_product<Index,EIGTYPE,LhsStorageOrder,ConjugateLhs,EIGTYPE,RhsStorageOrder,ConjugateRhs,ColMajor,1> \
 { \
-typedef gebp_traits<EIGTYPE,EIGTYPE,true> Traits; \
+typedef gebp_traits<EIGTYPE,EIGTYPE> Traits; \
 \
 static void run(Index rows, Index cols, Index depth, \
   const EIGTYPE* _lhs, Index lhsStride, \

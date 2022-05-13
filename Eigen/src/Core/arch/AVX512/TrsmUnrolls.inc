@@ -198,7 +198,7 @@ public:
     r.packet[5] = zmm.packet[packetIndexOffset + zmmStride*5];
     r.packet[6] = zmm.packet[packetIndexOffset + zmmStride*6];
     r.packet[7] = zmm.packet[packetIndexOffset + zmmStride*7];
-    ptranspose<true>(r);
+    ptranspose(r);
     zmm.packet[packetIndexOffset + zmmStride*0] = r.packet[0];
     zmm.packet[packetIndexOffset + zmmStride*1] = r.packet[1];
     zmm.packet[packetIndexOffset + zmmStride*2] = r.packet[2];

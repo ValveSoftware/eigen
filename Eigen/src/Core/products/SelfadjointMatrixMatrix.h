@@ -351,7 +351,7 @@ EIGEN_DONT_INLINE void product_selfadjoint_matrix<Scalar,Index,LhsStorageOrder,t
   {
     Index size = rows;
 
-    typedef gebp_traits<Scalar,Scalar,ResInnerStride == 1> Traits;
+    typedef gebp_traits<Scalar,Scalar> Traits;
 
     typedef const_blas_data_mapper<Scalar, Index, LhsStorageOrder> LhsMapper;
     typedef const_blas_data_mapper<Scalar, Index, (LhsStorageOrder == RowMajor) ? ColMajor : RowMajor> LhsTransposeMapper;
@@ -446,7 +446,7 @@ EIGEN_DONT_INLINE void product_selfadjoint_matrix<Scalar,Index,LhsStorageOrder,f
   {
     Index size = cols;
 
-    typedef gebp_traits<Scalar,Scalar,ResInnerStride == 1> Traits;
+    typedef gebp_traits<Scalar,Scalar> Traits;
 
     typedef const_blas_data_mapper<Scalar, Index, LhsStorageOrder> LhsMapper;
     typedef blas_data_mapper<typename Traits::ResScalar, Index, ColMajor, Unaligned, ResInnerStride> ResMapper;
