@@ -312,6 +312,12 @@ class TensorBase<Derived, ReadOnlyAccessors>
     }
 
     EIGEN_DEVICE_FUNC
+    EIGEN_STRONG_INLINE const TensorCwiseUnaryOp<internal::scalar_arg_op<Scalar>, const Derived>
+    arg() const {
+      return unaryExpr(internal::scalar_arg_op<Scalar>());
+    }
+
+    EIGEN_DEVICE_FUNC
     EIGEN_STRONG_INLINE const TensorCwiseUnaryOp<internal::scalar_clamp_op<Scalar>, const Derived>
     clip(Scalar min, Scalar max) const {
       return unaryExpr(internal::scalar_clamp_op<Scalar>(min, max));

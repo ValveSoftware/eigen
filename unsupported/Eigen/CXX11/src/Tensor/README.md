@@ -886,6 +886,23 @@ containing the natural logarithms of the original tensor.
 Returns a tensor of the same type and dimensions as the original tensor
 containing the absolute values of the original tensor.
 
+### <Operation> arg()
+
+Returns a tensor with the same dimensions as the original tensor
+containing the complex argument (phase angle) of the values of the
+original tensor.
+
+### <Operation> real()
+
+Returns a tensor with the same dimensions as the original tensor
+containing the real part of the complex values of the original tensor.
+
+### <Operation> imag()
+
+Returns a tensor with the same dimensions as the orginal tensor
+containing the imaginary part of the complex values of the original
+tensor.
+
 ### <Operation> pow(Scalar exponent)
 
 Returns a tensor of the same type and dimensions as the original tensor
