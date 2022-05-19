@@ -1044,8 +1044,8 @@ void BDCSVD<MatrixType, Options>::computeSingVals(const ArrayRef& col0, const Ar
     // perturb singular value slightly if it equals diagonal entry to avoid division by zero later
     // (deflation is supposed to avoid this from happening)
     // - this does no seem to be necessary anymore -
-//     if (singVals[k] == left) singVals[k] *= 1 + NumTraits<RealScalar>::epsilon();
-//     if (singVals[k] == right) singVals[k] *= 1 - NumTraits<RealScalar>::epsilon();
+    // if (singVals[k] == left) singVals[k] *= 1 + NumTraits<RealScalar>::epsilon();
+    // if (singVals[k] == right) singVals[k] *= 1 - NumTraits<RealScalar>::epsilon();
   }
 }
 
@@ -1097,7 +1097,14 @@ void BDCSVD<MatrixType, Options>::perturbCol0(const ArrayRef& col0, const ArrayR
             std::cout << "  " << "j=" << j << "\n";
           }
 #endif
-          Index j = i<k ? i : perm(l-1);
+          // Avoid index out of bounds.
+          // Will end up setting zhat(k) = 0.
+          if (l == 0) {
+            m_info = NumericalIssue;
+            prod = 0;
+            break;
+          }
+          Index j = i<k ? i : l > 0 ? perm(l-1) : i;
 #ifdef EIGEN_BDCSVD_SANITY_CHECKS
           if(!(dk!=Literal(0) || diag(i)!=Literal(0)))
           {
