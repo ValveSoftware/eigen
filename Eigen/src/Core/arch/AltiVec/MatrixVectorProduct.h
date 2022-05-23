@@ -1937,12 +1937,12 @@ EIGEN_ALWAYS_INLINE ScalarBlock<ResScalar, 2> predux_complex(ResPacket& a, ResPa
     GEMV_UNROLL_ROW(GEMV_INIT_ROW, N) \
     Index j = 0; \
     for (; j + LhsPacketSize <= cols; j += LhsPacketSize) { \
-      RhsPacket a0 = rhs2.template load<RhsPacket, Unaligned>(j, 0); \
+      RhsPacket a0 = rhs2.template load<RhsPacket, Unaligned>(j); \
       GEMV_UNROLL_ROW(GEMV_WORK_ROW, N) \
     } \
     GEMV_UNROLL_ROW_HALF(GEMV_PREDUX2, (N >> 1)) \
     for (; j < cols; ++j) { \
-      RhsScalar a0 = rhs2(j, 0); \
+      RhsScalar a0 = rhs2(j); \
       GEMV_UNROLL_ROW_HALF(GEMV_MULT, (N >> 1)) \
     } \
     GEMV_UNROLL_ROW_HALF(GEMV_STORE_ROW, (N >> 1)) \
@@ -1965,7 +1965,7 @@ EIGEN_STRONG_INLINE void gemv_row(
     // The following copy tells the compiler that lhs's attributes are not modified outside this function
     // This helps GCC to generate proper code.
     LhsMapper lhs(alhs);
-    RhsMapper rhs2(rhs);
+    typename RhsMapper::LinearMapper rhs2 = rhs.getLinearMapper(0, 0);
 
     eigen_internal_assert(rhs.stride() == 1);
     conj_helper<LhsScalar, RhsScalar, false, false> cj;
@@ -2006,14 +2006,14 @@ EIGEN_STRONG_INLINE void gemv_row(
         Index j = 0;
         for (; j + LhsPacketSize <= cols; j += LhsPacketSize)
         {
-            RhsPacket b0 = rhs2.template load<RhsPacket, Unaligned>(j, 0);
+            RhsPacket b0 = rhs2.template load<RhsPacket, Unaligned>(j);
 
             d0 = pcj.pmadd(lhs.template load<LhsPacket, LhsAlignment>(i + 0, j), b0, d0);
         }
         ResScalar dd0 = predux(d0);
         for (; j < cols; ++j)
         {
-            dd0 += cj.pmul(lhs(i, j), rhs2(j, 0));
+            dd0 += cj.pmul(lhs(i, j), rhs2(j));
         }
         res[i * resIncr] += alpha * dd0;
     }
@@ -2075,14 +2075,14 @@ EIGEN_ALWAYS_INLINE ScalarBlock<ResScalar, 2> predux_complex(PResPacket& a0, PRe
 #define GEMV_PROCESS_ROW_COMPLEX_SINGLE_WORK(which, N) \
   j = 0; \
   for (; j + LhsPacketSize <= cols; j += LhsPacketSize) { \
-    const RhsScalar& b1 = rhs2(j, 0); \
+    const RhsScalar& b1 = rhs2(j); \
     RhsScalar* b = const_cast<RhsScalar *>(&b1); \
     GEMV_UNROLL_ROW(which, N) \
   }
 
 #define GEMV_PROCESS_END_ROW_COMPLEX(N) \
   for (; j < cols; ++j) { \
-    RhsScalar b0 = rhs2(j, 0); \
+    RhsScalar b0 = rhs2(j); \
     GEMV_UNROLL_ROW_HALF(GEMV_MULT_COMPLEX, (N >> 1)) \
   } \
   GEMV_UNROLL_ROW_HALF(GEMV_STORE_ROW_COMPLEX, (N >> 1))
@@ -2216,7 +2216,7 @@ EIGEN_ALWAYS_INLINE ScalarBlock<ResScalar, 2> predux_complex(PResPacket& a0, PRe
   GEMV_UNROLL_ROW(GEMV_INIT_COMPLEX_OLD, N) \
   j = 0; \
   for (; j + LhsPacketSize <= cols; j += LhsPacketSize) { \
-    RhsPacket b0 = rhs2.template load<RhsPacket, Unaligned>(j, 0); \
+    RhsPacket b0 = rhs2.template load<RhsPacket, Unaligned>(j); \
     GEMV_UNROLL_ROW(GEMV_WORK_ROW_COMPLEX_OLD, N) \
   }
 
@@ -2289,7 +2289,7 @@ EIGEN_STRONG_INLINE void gemv_complex_row(
     // The following copy tells the compiler that lhs's attributes are not modified outside this function
     // This helps GCC to generate proper code.
     LhsMapper lhs(alhs);
-    RhsMapper rhs2(rhs);
+    typename RhsMapper::LinearMapper rhs2 = rhs.getLinearMapper(0, 0);
 
     eigen_internal_assert(rhs.stride() == 1);
     conj_helper<LhsScalar, RhsScalar, ConjugateLhs, ConjugateRhs> cj;
@@ -2340,7 +2340,7 @@ EIGEN_STRONG_INLINE void gemv_complex_row(
         GEMV_PROCESS_ROW_COMPLEX_PREDUX(0)
         for (; j < cols; ++j)
         {
-            dd0 += cj.pmul(lhs(i, j), rhs2(j, 0));
+            dd0 += cj.pmul(lhs(i, j), rhs2(j));
         }
         res[i * resIncr] += alpha * dd0;
     }
