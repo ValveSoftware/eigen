@@ -175,15 +175,15 @@ template<typename VectorType> void vectorVisitor(const VectorType& w)
 
 template<typename T, bool Vectorizable>
 struct TrackedVisitor {
-  void init(T v, int i, int j) { return this->operator()(v,i,j); }
-  void operator()(T v, int i, int j) {
+  void init(T v, Index i, Index j) { return this->operator()(v,i,j); }
+  void operator()(T v, Index i, Index j) {
     EIGEN_UNUSED_VARIABLE(v)
     visited.push_back({i, j});
     vectorized = false;
   }
   
   template<typename Packet>
-  void packet(Packet p, int i, int j) {
+  void packet(Packet p, Index i, Index j) {
     EIGEN_UNUSED_VARIABLE(p)  
     visited.push_back({i, j});
     vectorized = true;
@@ -210,9 +210,9 @@ void checkOptimalTraversal() {
     Eigen::Matrix4f X = Eigen::Matrix4f::Random();
     TrackedVisitor<double, false> visitor;
     X.visit(visitor);
-    int count = 0;
-    for (int j=0; j<X.cols(); ++j) {
-      for (int i=0; i<X.rows(); ++i) {
+    Index count = 0;
+    for (Index j=0; j<X.cols(); ++j) {
+      for (Index i=0; i<X.rows(); ++i) {
         VERIFY_IS_EQUAL(visitor.visited[count].first, i);
         VERIFY_IS_EQUAL(visitor.visited[count].second, j);
         ++count;
@@ -226,9 +226,9 @@ void checkOptimalTraversal() {
     Matrix4fRowMajor X = Matrix4fRowMajor::Random();
     TrackedVisitor<double, false> visitor;
     X.visit(visitor);
-    int count = 0;
-    for (int i=0; i<X.rows(); ++i) {
-      for (int j=0; j<X.cols(); ++j) {
+    Index count = 0;
+    for (Index i=0; i<X.rows(); ++i) {
+      for (Index j=0; j<X.cols(); ++j) {
         VERIFY_IS_EQUAL(visitor.visited[count].first, i);
         VERIFY_IS_EQUAL(visitor.visited[count].second, j);
         ++count;
@@ -241,9 +241,9 @@ void checkOptimalTraversal() {
     Eigen::MatrixXf X = Eigen::MatrixXf::Random(4, 4);
     TrackedVisitor<double, false> visitor;
     X.visit(visitor);
-    int count = 0;
-    for (int j=0; j<X.cols(); ++j) {
-      for (int i=0; i<X.rows(); ++i) {
+    Index count = 0;
+    for (Index j=0; j<X.cols(); ++j) {
+      for (Index i=0; i<X.rows(); ++i) {
         VERIFY_IS_EQUAL(visitor.visited[count].first, i);
         VERIFY_IS_EQUAL(visitor.visited[count].second, j);
         ++count;
@@ -257,9 +257,9 @@ void checkOptimalTraversal() {
     MatrixXfRowMajor X = MatrixXfRowMajor::Random(4, 4);
     TrackedVisitor<double, false> visitor;
     X.visit(visitor);
-    int count = 0;
-    for (int i=0; i<X.rows(); ++i) {
-      for (int j=0; j<X.cols(); ++j) {
+    Index count = 0;
+    for (Index i=0; i<X.rows(); ++i) {
+      for (Index j=0; j<X.cols(); ++j) {
         VERIFY_IS_EQUAL(visitor.visited[count].first, i);
         VERIFY_IS_EQUAL(visitor.visited[count].second, j);
         ++count;
@@ -274,11 +274,11 @@ void checkOptimalTraversal() {
     Eigen::MatrixXf X = Eigen::MatrixXf::Random(4 * PacketSize, 4 * PacketSize);
     TrackedVisitor<double, true> visitor;
     X.visit(visitor);
-    int previ = -1;
-    int prevj = 0;
+    Index previ = -1;
+    Index prevj = 0;
     for (const auto& p : visitor.visited) {
-      int i = p.first;
-      int j = p.second;
+      Index i = p.first;
+      Index j = p.second;
       VERIFY(
         (j == prevj && i == previ + 1)             // Advance single element
         || (j == prevj && i == previ + PacketSize) // Advance packet
@@ -299,11 +299,11 @@ void checkOptimalTraversal() {
     MatrixXfRowMajor X = MatrixXfRowMajor::Random(4 * PacketSize, 4 * PacketSize);
     TrackedVisitor<double, true> visitor;
     X.visit(visitor);
-    int previ = 0;
-    int prevj = -1;
+    Index previ = 0;
+    Index prevj = -1;
     for (const auto& p : visitor.visited) {
-      int i = p.first;
-      int j = p.second;
+      Index i = p.first;
+      Index j = p.second;
       VERIFY(
         (i == previ && j == prevj + 1)             // Advance single element
         || (i == previ && j == prevj + PacketSize) // Advance packet
@@ -316,7 +316,6 @@ void checkOptimalTraversal() {
       VERIFY(visitor.vectorized);
     }
   }
-  
 }
 
 EIGEN_DECLARE_TEST(visitor)
