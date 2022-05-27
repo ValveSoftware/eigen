@@ -50,7 +50,7 @@ void jacobisvd_method()
 
 template <typename MatrixType>
 void jacobisvd_all_options(const MatrixType& input = MatrixType()) {
-  MatrixType m = input;
+  MatrixType m(input.rows(), input.cols());
   svd_fill_random(m);
   svd_option_checks<MatrixType, 0>(m);
   svd_option_checks<MatrixType, ColPivHouseholderQRPreconditioner>(m);
