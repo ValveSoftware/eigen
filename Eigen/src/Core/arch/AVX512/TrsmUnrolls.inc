@@ -65,6 +65,57 @@ EIGEN_ALWAYS_INLINE auto remMask(int64_t m) {
   return 0;
 }
 
+template <typename Packet>
+EIGEN_ALWAYS_INLINE void trans8x8blocks(PacketBlock<Packet, 8>& kernel);
+
+template <>
+EIGEN_ALWAYS_INLINE void trans8x8blocks(PacketBlock<Packet16f, 8>& kernel) {
+  __m512 T0 = _mm512_unpacklo_ps(kernel.packet[0],kernel.packet[1]);
+  __m512 T1 = _mm512_unpackhi_ps(kernel.packet[0],kernel.packet[1]);
+  __m512 T2 = _mm512_unpacklo_ps(kernel.packet[2],kernel.packet[3]);
+  __m512 T3 = _mm512_unpackhi_ps(kernel.packet[2],kernel.packet[3]);
+  __m512 T4 = _mm512_unpacklo_ps(kernel.packet[4],kernel.packet[5]);
+  __m512 T5 = _mm512_unpackhi_ps(kernel.packet[4],kernel.packet[5]);
+  __m512 T6 = _mm512_unpacklo_ps(kernel.packet[6],kernel.packet[7]);
+  __m512 T7 = _mm512_unpackhi_ps(kernel.packet[6],kernel.packet[7]);
+
+  kernel.packet[0] = _mm512_castpd_ps(_mm512_unpacklo_pd(_mm512_castps_pd(T0),_mm512_castps_pd(T2)));
+  kernel.packet[1] = _mm512_castpd_ps(_mm512_unpackhi_pd(_mm512_castps_pd(T0),_mm512_castps_pd(T2)));
+  kernel.packet[2] = _mm512_castpd_ps(_mm512_unpacklo_pd(_mm512_castps_pd(T1),_mm512_castps_pd(T3)));
+  kernel.packet[3] = _mm512_castpd_ps(_mm512_unpackhi_pd(_mm512_castps_pd(T1),_mm512_castps_pd(T3)));
+  kernel.packet[4] = _mm512_castpd_ps(_mm512_unpacklo_pd(_mm512_castps_pd(T4),_mm512_castps_pd(T6)));
+  kernel.packet[5] = _mm512_castpd_ps(_mm512_unpackhi_pd(_mm512_castps_pd(T4),_mm512_castps_pd(T6)));
+  kernel.packet[6] = _mm512_castpd_ps(_mm512_unpacklo_pd(_mm512_castps_pd(T5),_mm512_castps_pd(T7)));
+  kernel.packet[7] = _mm512_castpd_ps(_mm512_unpackhi_pd(_mm512_castps_pd(T5),_mm512_castps_pd(T7)));
+
+  T0 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[4]), 0x4E));
+  T0 = _mm512_mask_blend_ps(0xF0F0, kernel.packet[0], T0);
+  T4 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[0]), 0x4E));
+  T4 = _mm512_mask_blend_ps(0xF0F0, T4, kernel.packet[4]);
+  T1 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[5]), 0x4E));
+  T1 = _mm512_mask_blend_ps(0xF0F0, kernel.packet[1], T1);
+  T5 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[1]), 0x4E));
+  T5 = _mm512_mask_blend_ps(0xF0F0, T5, kernel.packet[5]);
+  T2 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[6]), 0x4E));
+  T2 = _mm512_mask_blend_ps(0xF0F0, kernel.packet[2], T2);
+  T6 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[2]), 0x4E));
+  T6 = _mm512_mask_blend_ps(0xF0F0, T6, kernel.packet[6]);
+  T3 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[7]), 0x4E));
+  T3 = _mm512_mask_blend_ps(0xF0F0, kernel.packet[3], T3);
+  T7 = _mm512_castpd_ps(_mm512_permutex_pd(_mm512_castps_pd(kernel.packet[3]), 0x4E));
+  T7 = _mm512_mask_blend_ps(0xF0F0, T7, kernel.packet[7]);
+
+  kernel.packet[0] = T0; kernel.packet[1] = T1;
+  kernel.packet[2] = T2; kernel.packet[3] = T3;
+  kernel.packet[4] = T4; kernel.packet[5] = T5;
+  kernel.packet[6] = T6; kernel.packet[7] = T7;
+}
+
+template <>
+EIGEN_ALWAYS_INLINE void trans8x8blocks(PacketBlock<Packet8d, 8>& kernel) {
+  ptranspose(kernel);
+}
+
 /***
  * Unrolls for tranposed C stores
  */
@@ -198,7 +249,7 @@ public:
     r.packet[5] = zmm.packet[packetIndexOffset + zmmStride*5];
     r.packet[6] = zmm.packet[packetIndexOffset + zmmStride*6];
     r.packet[7] = zmm.packet[packetIndexOffset + zmmStride*7];
-    ptranspose(r);
+    trans8x8blocks(r);
     zmm.packet[packetIndexOffset + zmmStride*0] = r.packet[0];
     zmm.packet[packetIndexOffset + zmmStride*1] = r.packet[1];
     zmm.packet[packetIndexOffset + zmmStride*2] = r.packet[2];

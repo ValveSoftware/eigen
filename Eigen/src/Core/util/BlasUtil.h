@@ -229,6 +229,7 @@ public:
   }
 
   EIGEN_DEVICE_FUNC const Index stride() const { return m_stride; }
+  EIGEN_DEVICE_FUNC const Index incr() const { return 1; }
   EIGEN_DEVICE_FUNC const Scalar* data() const { return m_data; }
 
   EIGEN_DEVICE_FUNC Index firstAligned(Index size) const {
@@ -402,6 +403,10 @@ public:
     storePacketBlock_helper<SubPacket, Scalar, n, n-1> spb;
     spb.store(this, i,j,block);
   }
+
+  EIGEN_DEVICE_FUNC const Index stride() const { return m_stride; }
+  EIGEN_DEVICE_FUNC const Index incr() const { return m_incr.value(); }
+  EIGEN_DEVICE_FUNC Scalar* data() const { return m_data; }
 protected:
   Scalar* EIGEN_RESTRICT m_data;
   const Index m_stride;
