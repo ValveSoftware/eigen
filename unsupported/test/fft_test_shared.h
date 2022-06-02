@@ -261,15 +261,14 @@ EIGEN_DECLARE_TEST(FFTW)
   CALL_SUBTEST( ( test_complex2d<long double, 60, 24> () ) );
   // fail to build since Eigen limit the stack allocation size,too big here.
   // CALL_SUBTEST( ( test_complex2d<long double, 256, 256> () ) ); 
-
   #endif
-
-  #if defined EIGEN_FFTW_DEFAULT || defined EIGEN_POCKETFFT_DEFAULT
+  #if defined EIGEN_FFTW_DEFAULT || defined EIGEN_POCKETFFT_DEFAULT || defined EIGEN_MKL_DEFAULT
   CALL_SUBTEST( ( test_complex2d<float, 24, 24> () ) );
   CALL_SUBTEST( ( test_complex2d<float, 60, 60> () ) );
   CALL_SUBTEST( ( test_complex2d<float, 24, 60> () ) );
   CALL_SUBTEST( ( test_complex2d<float, 60, 24> () ) );
-
+#endif
+#if defined EIGEN_FFTW_DEFAULT || defined EIGEN_POCKETFFT_DEFAULT || defined EIGEN_MKL_DEFAULT
   CALL_SUBTEST( ( test_complex2d<double, 24, 24> () ) );
   CALL_SUBTEST( ( test_complex2d<double, 60, 60> () ) );
   CALL_SUBTEST( ( test_complex2d<double, 24, 60> () ) );
