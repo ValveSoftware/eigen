@@ -10,7 +10,11 @@
 #ifndef GEMM_KERNEL_H
 #define GEMM_KERNEL_H
 
+#if EIGEN_COMP_MSVC
+#include <intrin.h>
+#else
 #include <x86intrin.h>
+#endif
 #include <immintrin.h>
 #include <type_traits>
 
@@ -452,7 +456,7 @@ class gemm_class
         co2 = co1 + ldc;
         if (!is_alpha1) alpha_reg = pload1<vec>(alpha);
         if (!is_unit_inc && a_unroll < nelems_in_cache_line)
-            mask = (umask_t)(1 << a_unroll) - 1;
+            mask = static_cast<umask_t>((1ull << a_unroll) - 1);
 
         static_assert(max_b_unroll <= 8, "Unsupported max_b_unroll");
 

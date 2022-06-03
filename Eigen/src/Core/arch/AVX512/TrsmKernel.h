@@ -28,11 +28,11 @@
 namespace Eigen {
 namespace internal {
 
-#define EIGEN_AVX_MAX_NUM_ACC (24L)
-#define EIGEN_AVX_MAX_NUM_ROW (8L)  // Denoted L in code.
-#define EIGEN_AVX_MAX_K_UNROL (4L)
-#define EIGEN_AVX_B_LOAD_SETS (2L)
-#define EIGEN_AVX_MAX_A_BCAST (2L)
+#define EIGEN_AVX_MAX_NUM_ACC (int64_t(24))
+#define EIGEN_AVX_MAX_NUM_ROW (int64_t(8))  // Denoted L in code.
+#define EIGEN_AVX_MAX_K_UNROL (int64_t(4))
+#define EIGEN_AVX_B_LOAD_SETS (int64_t(2))
+#define EIGEN_AVX_MAX_A_BCAST (int64_t(2))
 typedef Packet16f vecFullFloat;
 typedef Packet8d vecFullDouble;
 typedef Packet8f vecHalfFloat;
@@ -882,7 +882,11 @@ void triSolve(Scalar *A_arr, Scalar *B_arr, int64_t M, int64_t numRHS, int64_t L
      * The updated row-major copy of B is reused in the GEMM updates.
      */
     sizeBTemp = (((std::min(kB, numRHS) + 15)/16+ 4)*16)*numM;
+#if EIGEN_COMP_MSVC
+    B_temp = (Scalar*) _aligned_malloc(sizeof(Scalar)*sizeBTemp,4096);
+#else
     B_temp = (Scalar*) aligned_alloc(4096,sizeof(Scalar)*sizeBTemp);
+#endif
   }
   for(int64_t k = 0; k < numRHS; k += kB) {
     int64_t bK = numRHS - k > kB ? kB : numRHS - k;
@@ -1026,7 +1030,11 @@ void triSolve(Scalar *A_arr, Scalar *B_arr, int64_t M, int64_t numRHS, int64_t L
       }
     }
   }
+#if EIGEN_COMP_MSVC
+  EIGEN_IF_CONSTEXPR(!isBRowMajor) _aligned_free(B_temp);
+#else
   EIGEN_IF_CONSTEXPR(!isBRowMajor) free(B_temp);
+#endif
 }
 
 template <typename Scalar, bool isARowMajor = true, bool isCRowMajor = true>
