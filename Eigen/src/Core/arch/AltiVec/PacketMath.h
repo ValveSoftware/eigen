@@ -174,9 +174,9 @@ struct packet_traits<float> : default_packet_traits {
 #else
     HasSqrt = 0,
     HasRsqrt = 0,
+#endif
     HasTanh = EIGEN_FAST_MATH,
     HasErf = EIGEN_FAST_MATH,
-#endif
     HasRound = 1,
     HasFloor = 1,
     HasCeil = 1,
