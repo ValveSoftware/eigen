@@ -171,7 +171,7 @@ EIGEN_DONT_INLINE void triangular_solve_matrix<Scalar,Index,OnTheLeft,Mode,Conju
     std::ptrdiff_t l1, l2, l3;
     manage_caching_sizes(GetAction, &l1, &l2, &l3);
 
-#if defined(EIGEN_ENABLE_AVX512_NOCOPY_TRSML_CUTOFFS)
+#if (EIGEN_ENABLE_AVX512_NOCOPY_TRSM_L_CUTOFFS)
     EIGEN_IF_CONSTEXPR( (OtherInnerStride == 1 &&
                        (std::is_same<Scalar,float>::value ||
                         std::is_same<Scalar,double>::value)) ) {
@@ -246,7 +246,7 @@ EIGEN_DONT_INLINE void triangular_solve_matrix<Scalar,Index,OnTheLeft,Mode,Conju
           // tr solve
           {
             Index i  = IsLower ? k2+k1 : k2-k1;
-#if defined(EIGEN_USE_AVX512_TRSM_L_KERNELS)
+#if EIGEN_USE_AVX512_TRSM_L_KERNELS
             EIGEN_IF_CONSTEXPR( (OtherInnerStride == 1 &&
                                  (std::is_same<Scalar,float>::value ||
                                   std::is_same<Scalar,double>::value)) ) {
@@ -318,7 +318,7 @@ EIGEN_DONT_INLINE void triangular_solve_matrix<Scalar,Index,OnTheRight,Mode,Conj
   {
     Index rows = otherSize;
 
-#if defined(EIGEN_ENABLE_AVX512_NOCOPY_TRSM_R_CUTOFFS)
+#if EIGEN_ENABLE_AVX512_NOCOPY_TRSM_R_CUTOFFS
     EIGEN_IF_CONSTEXPR( (OtherInnerStride == 1 &&
                  (std::is_same<Scalar,float>::value ||
                   std::is_same<Scalar,double>::value)) ) {
