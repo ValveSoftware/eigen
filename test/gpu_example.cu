@@ -21,7 +21,7 @@ struct AddKernel {
   EIGEN_DEVICE_FUNC
   Type3 operator()(const Type1& A, const Type2& B, Type3& C) const {
     C = A + B;       // Populate output parameter.
-    Type3 D = A + B; // Populate return value.    
+    Type3 D = A + B; // Populate return value.
     return D;
   }
 };
@@ -31,7 +31,7 @@ template <typename T>
 void test_add(const T& type) {
   const Index rows = type.rows();
   const Index cols = type.cols();
-  
+
   // Create random inputs.
   const T A = T::Random(rows, cols);
   const T B = T::Random(rows, cols);
@@ -39,17 +39,17 @@ void test_add(const T& type) {
 
   // Create kernel.
   AddKernel add_kernel;
-  
+
   // Run add_kernel(A, B, C) via run(...).
   // This will run on the GPU if using a GPU compiler, or CPU otherwise,
   // facilitating generic tests that can run on either.
   T D = run(add_kernel, A, B, C);
-  
+
   // Check that both output parameter and return value are correctly populated.
   const T expected = A + B;
   VERIFY_IS_CWISE_EQUAL(C, expected);
   VERIFY_IS_CWISE_EQUAL(D, expected);
-  
+
   // In a GPU-only test, we can verify that the CPU and GPU produce the
   // same results.
   T C_cpu, C_gpu;
@@ -70,31 +70,30 @@ struct MultiplyKernel {
 
 template <typename T1, typename T2, typename T3>
 void test_multiply(const T1& type1, const T2& type2, const T3& type3) {
-  
   const T1 A = T1::Random(type1.rows(), type1.cols());
   const T2 B = T2::Random(type2.rows(), type2.cols());
   T3 C;
 
   MultiplyKernel multiply_kernel;
-  
+
   // The run(...) family of functions uses a memory buffer to transfer data back
   // and forth to and from the device.  The size of this buffer is estimated
   // from the size of all input parameters.  If the estimated buffer size is
   // not sufficient for transferring outputs from device-to-host, then an
   // explicit buffer size needs to be specified.
-  
+
   // 2 outputs of size (A * B). For each matrix output, the buffer will store
   // the number of rows, columns, and the data.
   size_t buffer_capacity_hint = 2 * (                     // 2 output parameters
     2 * sizeof(typename T3::Index)                        // # Rows, # Cols
     + A.rows() * B.cols() * sizeof(typename T3::Scalar)); // Output data
-  
+
   T3 D = run_with_hint(buffer_capacity_hint, multiply_kernel, A, B, C);
-  
+
   const T3 expected = A * B;
   VERIFY_IS_CWISE_APPROX(C, expected);
   VERIFY_IS_CWISE_APPROX(D, expected);
-  
+
   T3 C_cpu, C_gpu;
   T3 D_cpu = run_on_cpu(multiply_kernel, A, B, C_cpu);
   T3 D_gpu = run_on_gpu_with_hint(buffer_capacity_hint,
@@ -107,30 +106,24 @@ void test_multiply(const T1& type1, const T2& type2, const T3& type3) {
 EIGEN_DECLARE_TEST(gpu_example)
 {
   // For the number of repeats, call the desired subtests.
-  for(int i = 0; i < g_repeat; i++) {    
+  for(int i = 0; i < g_repeat; i++) {
     // Call subtests with different sized/typed inputs.
     CALL_SUBTEST( test_add(Eigen::Vector3f()) );
     CALL_SUBTEST( test_add(Eigen::Matrix3d()) );
-#if !defined(EIGEN_USE_HIP) // FIXME
     CALL_SUBTEST( test_add(Eigen::MatrixX<int>(10, 10)) );
-#endif
 
     CALL_SUBTEST( test_add(Eigen::Array44f()) );
-#if !defined(EIGEN_USE_HIP)
     CALL_SUBTEST( test_add(Eigen::ArrayXd(20)) );
     CALL_SUBTEST( test_add(Eigen::ArrayXXi(13, 17)) );
-#endif
 
     CALL_SUBTEST( test_multiply(Eigen::Matrix3d(),
                                 Eigen::Matrix3d(),
                                 Eigen::Matrix3d()) );
-#if !defined(EIGEN_USE_HIP)
     CALL_SUBTEST( test_multiply(Eigen::MatrixX<int>(10, 10),
                                 Eigen::MatrixX<int>(10, 10),
                                 Eigen::MatrixX<int>()) );
     CALL_SUBTEST( test_multiply(Eigen::MatrixXf(12, 1),
                                 Eigen::MatrixXf(1, 32),
                                 Eigen::MatrixXf()) );
-#endif
   }
 }
