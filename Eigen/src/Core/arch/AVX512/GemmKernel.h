@@ -20,6 +20,10 @@
 
 #include "../../InternalHeaderCheck.h"
 
+#if !defined(EIGEN_USE_AVX512_GEMM_KERNELS)
+#define EIGEN_USE_AVX512_GEMM_KERNELS 1
+#endif
+
 #define SECOND_FETCH (32)
 #if (EIGEN_COMP_GNUC_STRICT != 0) && !defined(EIGEN_ARCH_AVX512_GEMM_KERNEL_USE_LESS_A_REGS)
 // Use less registers to load A elements to workaround compiler spills. Loose a
@@ -930,6 +934,8 @@ EIGEN_DONT_INLINE void gemm_kern_avx512(Index m, Index n, Index k, Scalar *alpha
   g.template compute_kern<max_a_unroll, max_b_unroll>();
 }
 
+// Template specializations of GEBP kernels with nr = 8.
+#if EIGEN_USE_AVX512_GEMM_KERNELS
 template <bool ConjLhs_, bool ConjRhs_, int PacketSize_>
 class gebp_traits<float, float, ConjLhs_, ConjRhs_, Architecture::Target, PacketSize_>
     : public gebp_traits<float, float, ConjLhs_, ConjRhs_, Architecture::Generic, PacketSize_> {
@@ -1218,6 +1224,7 @@ EIGEN_ALWAYS_INLINE void gebp_kernel<Scalar, Scalar, Index, DataMapper, mr, 8, C
     }
   }
 }
+#endif // EIGEN_USE_AVX512_GEMM_KERNELS
 
 }  // namespace internal
 }  // namespace Eigen

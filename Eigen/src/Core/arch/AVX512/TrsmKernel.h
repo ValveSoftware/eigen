@@ -106,6 +106,10 @@ int64_t avx512_trsm_cutoff(int64_t L2Size, int64_t N, double L2Cap) {
   int64_t cutoff_l = static_cast<int64_t>(cutoff_d);
   return (cutoff_l / EIGEN_AVX_MAX_NUM_ROW) * EIGEN_AVX_MAX_NUM_ROW;
 }
+#else // !(EIGEN_USE_AVX512_TRSM_KERNELS) || !(EIGEN_COMP_CLANG != 0)
+#define EIGEN_ENABLE_AVX512_NOCOPY_TRSM_CUTOFFS 0
+#define EIGEN_ENABLE_AVX512_NOCOPY_TRSM_R_CUTOFFS 0
+#define EIGEN_ENABLE_AVX512_NOCOPY_TRSM_L_CUTOFFS 0
 #endif
 
 /**
