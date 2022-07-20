@@ -7,8 +7,8 @@
 // Public License v. 2.0. If a copy of the MPL was not distributed
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef EIGEN_TRSM_KERNEL_IMPL_H
-#define EIGEN_TRSM_KERNEL_IMPL_H
+#ifndef EIGEN_CORE_ARCH_AVX512_TRSM_KERNEL_H
+#define EIGEN_CORE_ARCH_AVX512_TRSM_KERNEL_H
 
 #include "../../InternalHeaderCheck.h"
 
@@ -1188,4 +1188,4 @@ EIGEN_DONT_INLINE void trsmKernelL<double, Index, Mode, false, TriStorageOrder, 
 #endif  // EIGEN_USE_AVX512_TRSM_KERNELS
 }  // namespace internal
 }  // namespace Eigen
-#endif  // EIGEN_TRSM_KERNEL_IMPL_H
+#endif  // EIGEN_CORE_ARCH_AVX512_TRSM_KERNEL_H

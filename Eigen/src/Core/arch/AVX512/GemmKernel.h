@@ -7,8 +7,8 @@
 // Public License v. 2.0. If a copy of the MPL was not distributed
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef GEMM_KERNEL_H
-#define GEMM_KERNEL_H
+#ifndef EIGEN_CORE_ARCH_AVX512_GEMM_KERNEL_H
+#define EIGEN_CORE_ARCH_AVX512_GEMM_KERNEL_H
 
 #if EIGEN_COMP_MSVC
 #include <intrin.h>
@@ -21,7 +21,8 @@
 #include "../../InternalHeaderCheck.h"
 
 #if !defined(EIGEN_USE_AVX512_GEMM_KERNELS)
-#define EIGEN_USE_AVX512_GEMM_KERNELS 1
+// Disable new AVX512 kernels by default.
+#define EIGEN_USE_AVX512_GEMM_KERNELS 0
 #endif
 
 #define SECOND_FETCH (32)
@@ -1229,4 +1230,6 @@ EIGEN_ALWAYS_INLINE void gebp_kernel<Scalar, Scalar, Index, DataMapper, mr, 8, C
 }  // namespace internal
 }  // namespace Eigen
 
-#endif  // GEMM_KERNEL_H
+#undef SECOND_FETCH
+
+#endif  // EIGEN_CORE_ARCH_AVX512_GEMM_KERNEL_H

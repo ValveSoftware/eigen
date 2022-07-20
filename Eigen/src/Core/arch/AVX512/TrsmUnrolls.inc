@@ -7,8 +7,8 @@
 // Public License v. 2.0. If a copy of the MPL was not distributed
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef EIGEN_UNROLLS_IMPL_H
-#define EIGEN_UNROLLS_IMPL_H
+#ifndef EIGEN_CORE_ARCH_AVX512_TRSM_UNROLLS_H
+#define EIGEN_CORE_ARCH_AVX512_TRSM_UNROLLS_H
 
 template <bool isARowMajor = true>
 static EIGEN_ALWAYS_INLINE int64_t idA(int64_t i, int64_t j, int64_t LDA) {
@@ -1209,4 +1209,4 @@ class gemm {
 };
 }  // namespace unrolls
 
-#endif  // EIGEN_UNROLLS_IMPL_H
+#endif  // EIGEN_CORE_ARCH_AVX512_TRSM_UNROLLS_H
