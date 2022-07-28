@@ -164,6 +164,49 @@ void check_marketio_dense()
   VERIFY_IS_EQUAL(m1,m2);
 }
 
+template <typename Scalar>
+void check_sparse_inverse() {
+  typedef SparseMatrix<Scalar> MatrixType;
+  typedef SparseMatrix<Scalar, RowMajor> RowMatrixType;
+
+  Matrix<Scalar, -1, -1> A;
+  A.resize(1000, 1000);
+  A.fill(0);
+  A.setIdentity();
+  A.col(0).array() += 1;
+  A.row(0).array() += 2;
+  A.col(2).array() += 3;
+  A.row(7).array() += 3;
+  A.col(9).array() += 3;
+  A.block(3, 4, 4, 2).array() += 9;
+  A.middleRows(10, 50).array() += 3;
+  A.middleCols(50, 50).array() += 40;
+  A.block(500, 300, 40, 20).array() += 10;
+  A.transposeInPlace();
+
+  Eigen::SparseLU<MatrixType> slu;
+  slu.compute(A.sparseView());
+  Matrix<Scalar, -1, -1> Id(A.rows(), A.cols());
+  Id.setIdentity();
+  Matrix<Scalar, -1, -1> inv = slu.solve(Id);
+
+  const MatrixType sparseInv = Eigen::SparseInverse<Scalar>().compute(A.sparseView()).inverse();
+
+  Scalar sumdiff = 0;  // Check the diff only of the non-zero elements
+  for (Eigen::Index j = 0; j < A.cols(); j++) {
+    for (typename MatrixType::InnerIterator iter(sparseInv, j); iter; ++iter) {
+      const Scalar diff = std::abs(inv(iter.row(), iter.col()) - iter.value());
+      VERIFY_IS_APPROX_OR_LESS_THAN(diff, 1e-11);
+
+      if (iter.value() != 0) {
+        sumdiff += diff;
+      }
+    }
+  }
+
+  VERIFY_IS_APPROX_OR_LESS_THAN(sumdiff, 1e-10);
+}
+
 EIGEN_DECLARE_TEST(sparse_extra)
 {
   for(int i = 0; i < g_repeat; i++) {
@@ -199,6 +242,8 @@ EIGEN_DECLARE_TEST(sparse_extra)
     CALL_SUBTEST_5( (check_marketio_vector<Matrix<double,Dynamic,1> >()) );
     CALL_SUBTEST_5( (check_marketio_vector<Matrix<std::complex<float>,Dynamic,1> >()) );
     CALL_SUBTEST_5( (check_marketio_vector<Matrix<std::complex<double>,Dynamic,1> >()) );
+
+    CALL_SUBTEST_6((check_sparse_inverse<double>()));
 
     TEST_SET_BUT_UNUSED_VARIABLE(s);
   }
