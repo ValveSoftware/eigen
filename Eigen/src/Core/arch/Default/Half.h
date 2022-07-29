@@ -37,7 +37,6 @@
 #define EIGEN_HALF_H
 
 #include "../../InternalHeaderCheck.h"
-#include <sstream>
 
 #if defined(EIGEN_HAS_GPU_FP16) || defined(EIGEN_HAS_ARM64_FP16_SCALAR_ARITHMETIC)
 // When compiling with GPU support, the "__half_raw" base class as well as

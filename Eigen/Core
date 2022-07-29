@@ -84,8 +84,8 @@
 #include <cmath>
 #include <cassert>
 #include <functional>
-#include <sstream>
 #ifndef EIGEN_NO_IO
+  #include <sstream>
   #include <iosfwd>
 #endif
 #include <cstring>

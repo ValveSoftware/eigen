@@ -754,10 +754,13 @@ void SparseLU<MatrixType, OrderingType>::factorize(const MatrixType& matrix)
       info = Base::pivotL(jj, m_diagpivotthresh, m_perm_r.indices(), iperm_c.indices(), pivrow, m_glu);
       if ( info ) 
       {
-        m_lastError = "THE MATRIX IS STRUCTURALLY SINGULAR ... ZERO COLUMN AT ";
+        m_lastError = "THE MATRIX IS STRUCTURALLY SINGULAR";
+#ifndef EIGEN_NO_IO
         std::ostringstream returnInfo;
-        returnInfo << info; 
+        returnInfo << " ... ZERO COLUMN AT ";
+        returnInfo << info;
         m_lastError += returnInfo.str();
+#endif
         m_info = NumericalIssue; 
         m_factorizationIsOk = false; 
         return; 
