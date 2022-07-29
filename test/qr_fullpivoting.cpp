@@ -98,10 +98,12 @@ template<typename MatrixType> void qr_invertible()
   // now construct a matrix with prescribed determinant
   m1.setZero();
   for(int i = 0; i < size; i++) m1(i,i) = internal::random<Scalar>();
-  RealScalar absdet = abs(m1.diagonal().prod());
+  Scalar det = m1.diagonal().prod();
+  RealScalar absdet = abs(det);
   m3 = qr.matrixQ(); // get a unitary
-  m1 = m3 * m1 * m3;
+  m1 = m3 * m1 * m3.adjoint();
   qr.compute(m1);
+  VERIFY_IS_APPROX(det, qr.determinant());
   VERIFY_IS_APPROX(absdet, qr.absDeterminant());
   VERIFY_IS_APPROX(log(absdet), qr.logAbsDeterminant());
 }
@@ -121,6 +123,7 @@ template<typename MatrixType> void qr_verify_assert()
   VERIFY_RAISES_ASSERT(qr.isSurjective())
   VERIFY_RAISES_ASSERT(qr.isInvertible())
   VERIFY_RAISES_ASSERT(qr.inverse())
+  VERIFY_RAISES_ASSERT(qr.determinant())
   VERIFY_RAISES_ASSERT(qr.absDeterminant())
   VERIFY_RAISES_ASSERT(qr.logAbsDeterminant())
 }
