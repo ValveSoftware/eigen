@@ -37,7 +37,7 @@ inline T REF_NMADD(const T& a, const T& b, const T& c) {
 }
 template <typename T>
 inline T REF_NMSUB(const T& a, const T& b, const T& c) {
-  return (-a * b)  - c;
+  return (-a * b) - c;
 }
 template <typename T>
 inline T REF_DIV(const T& a, const T& b) {
@@ -680,9 +680,20 @@ void packetmath() {
   CHECK_CWISE1_IF(PacketTraits::HasRsqrt, numext::rsqrt, internal::prsqrt);
   CHECK_CWISE3_IF(true, REF_MADD, internal::pmadd);
   if (!std::is_same<Scalar, bool>::value && NumTraits<Scalar>::IsSigned) {
+    CHECK_CWISE3_IF(true, REF_NMSUB, internal::pnmsub);
+  }
+  
+  // For pmsub, pnmadd, the values can cancel each other to become near zero,
+  // which can lead to very flaky tests. Here we ensure the signs are such that
+  // they do not cancel.
+  for (int i = 0; i < PacketSize; ++i) {
+    data1[i] = numext::abs(internal::random<Scalar>());
+    data1[i + PacketSize] = numext::abs(internal::random<Scalar>());
+    data1[i + 2 * PacketSize] = -numext::abs(internal::random<Scalar>());
+  }
+  if (!std::is_same<Scalar, bool>::value && NumTraits<Scalar>::IsSigned) {
     CHECK_CWISE3_IF(true, REF_MSUB, internal::pmsub);
     CHECK_CWISE3_IF(true, REF_NMADD, internal::pnmadd);
-    CHECK_CWISE3_IF(true, REF_NMSUB, internal::pnmsub);
   }
 }
 
