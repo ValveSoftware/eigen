@@ -288,6 +288,25 @@ template<typename SparseMatrixType> void sparse_block(const SparseMatrixType& re
       VERIFY_IS_APPROX(m3, refMat3);
     }
   }
+  
+  // Explicit inner iterator.
+  {
+    DenseMatrix refMat2 = DenseMatrix::Zero(rows, cols);
+    SparseMatrixType m2(rows, cols);
+    initSparse<Scalar>(density, refMat2, m2);
+    
+    Index j0 =internal::random<Index>(0, outer - 1);
+    auto v = innervec(m2, j0);
+    
+    typename decltype(v)::InnerIterator block_iterator(v);
+    typename SparseMatrixType::InnerIterator matrix_iterator(m2, j0);
+    while (block_iterator) {
+      VERIFY_IS_EQUAL(block_iterator.index(), matrix_iterator.index());
+      ++block_iterator;
+      ++matrix_iterator;
+    }
+
+  }
 }
 
 EIGEN_DECLARE_TEST(sparse_block)
