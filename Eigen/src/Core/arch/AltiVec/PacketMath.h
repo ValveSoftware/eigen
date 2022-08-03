@@ -513,6 +513,7 @@ EIGEN_ALWAYS_INLINE Packet pload_partial_common(const __UNPACK_TYPE__(Packet)* f
   eigen_assert(n + offset <= packet_size && "number of elements plus offset will read past end of packet");
   const Index size = sizeof(__UNPACK_TYPE__(Packet));
 #ifdef _ARCH_PWR9
+  EIGEN_UNUSED_VARIABLE(packet_size);
   EIGEN_DEBUG_ALIGNED_LOAD
   EIGEN_UNUSED_VARIABLE(from);
   Packet load = vec_xl_len(const_cast<__UNPACK_TYPE__(Packet)*>(from), n * size);
@@ -645,6 +646,7 @@ template<typename Packet> EIGEN_ALWAYS_INLINE void pstore_partial_common(__UNPAC
   eigen_assert(n + offset <= packet_size && "number of elements plus offset will write past end of packet");
   const Index size = sizeof(__UNPACK_TYPE__(Packet));
 #ifdef _ARCH_PWR9
+  EIGEN_UNUSED_VARIABLE(packet_size);
   EIGEN_UNUSED_VARIABLE(to);
   EIGEN_DEBUG_ALIGNED_STORE
   Packet store = from;
@@ -1215,6 +1217,7 @@ template<typename Packet> EIGEN_ALWAYS_INLINE Packet ploadu_partial_common(const
   eigen_assert(n <= packet_size && "number of elements will read past end of packet");
   const Index size = sizeof(__UNPACK_TYPE__(Packet));
 #ifdef _ARCH_PWR9
+  EIGEN_UNUSED_VARIABLE(packet_size);
   EIGEN_DEBUG_ALIGNED_LOAD
   EIGEN_DEBUG_UNALIGNED_LOAD
   return vec_xl_len(const_cast<__UNPACK_TYPE__(Packet)*>(from), n * size);
@@ -1402,6 +1405,7 @@ template<typename Packet> EIGEN_ALWAYS_INLINE void pstoreu_partial_common(__UNPA
   eigen_assert(n <= packet_size && "number of elements will write past end of packet");
   const Index size = sizeof(__UNPACK_TYPE__(Packet));
 #ifdef _ARCH_PWR9
+  EIGEN_UNUSED_VARIABLE(packet_size);
   EIGEN_DEBUG_UNALIGNED_STORE
   vec_xst_len(from, to, n * size);
 #else
