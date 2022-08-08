@@ -102,6 +102,7 @@ template<> struct packet_traits<std::complex<float> >  : default_packet_traits
     HasAbs2   = 0,
     HasMin    = 0,
     HasMax    = 0,
+    HasSqrt   = 1,
 #ifdef __VSX__
     HasBlend  = 1,
 #endif
@@ -370,6 +371,7 @@ template<> struct packet_traits<std::complex<double> >  : default_packet_traits
     HasAbs2   = 0,
     HasMin    = 0,
     HasMax    = 0,
+    HasSqrt   = 1,
     HasSetLinear = 0
   };
 };
