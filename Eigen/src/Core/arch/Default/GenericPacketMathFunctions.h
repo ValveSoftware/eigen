@@ -852,6 +852,79 @@ Packet psqrt_complex(const Packet& a) {
                   pselect(is_real_inf, real_inf_result,result));
 }
 
+
+/** \internal \returns -1 if a is strictly negative, 0 otherwise, +1 if a is
+    strictly positive. */
+template<typename Packet> 
+EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
+std::enable_if_t<(!NumTraits<typename unpacket_traits<Packet>::type>::IsComplex &&
+                  !NumTraits<typename unpacket_traits<Packet>::type>::IsInteger), Packet>
+psign(const Packet& a) {
+  using Scalar = typename unpacket_traits<Packet>::type;
+  const Packet cst_one = pset1<Packet>(Scalar(1));
+  const Packet cst_minus_one = pset1<Packet>(Scalar(-1));
+  const Packet cst_zero = pzero(a);
+
+  const Packet not_nan_mask = pcmp_eq(a, a);
+  const Packet positive_mask = pcmp_lt(cst_zero, a);
+  const Packet positive = pand(positive_mask, cst_one);
+  const Packet negative_mask = pcmp_lt(a, cst_zero);
+  const Packet negative = pand(negative_mask, cst_minus_one);
+
+  return pselect(not_nan_mask, por(positive, negative), a);
+}
+
+template<typename Packet> 
+EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
+std::enable_if_t<(!NumTraits<typename unpacket_traits<Packet>::type>::IsComplex &&
+                  NumTraits<typename unpacket_traits<Packet>::type>::IsInteger), Packet>
+psign(const Packet& a) {
+  using Scalar = typename unpacket_traits<Packet>::type;
+  const Packet cst_one = pset1<Packet>(Scalar(1));
+  const Packet cst_minus_one = pset1<Packet>(Scalar(-1));
+  const Packet cst_zero = pzero(a);
+
+  const Packet positive_mask = pcmp_lt(cst_zero, a);
+  const Packet positive = pand(positive_mask, cst_one);
+  const Packet negative_mask = pcmp_lt(a, cst_zero);
+  const Packet negative = pand(negative_mask, cst_minus_one);
+
+  return por(positive, negative);
+}
+
+// \internal \returns the the sign of a complex number z, defined as z / abs(z).
+template<typename Packet>
+EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
+std::enable_if_t<NumTraits<typename unpacket_traits<Packet>::type>::IsComplex, Packet>
+psign(const Packet& a) {
+  typedef typename unpacket_traits<Packet>::type Scalar;
+  typedef typename Scalar::value_type RealScalar;
+  typedef typename unpacket_traits<Packet>::as_real RealPacket;
+
+  // Step 1. Compute (for each element z = x + i*y in a)
+  //     l = abs(z) = sqrt(x^2 + y^2).
+  // To avoid over- and underflow, we use the stable formula for each hypotenuse
+  //    l = (zmin == 0 ? zmax : zmax * sqrt(1 + (zmin/zmax)**2)),
+  // where zmax = max(|x|, |y|), zmin = min(|x|, |y|),
+  RealPacket a_abs = pabs(a.v);
+  RealPacket a_abs_flip = pcplxflip(Packet(a_abs)).v;
+  RealPacket a_max = pmax(a_abs, a_abs_flip);
+  RealPacket a_min = pmin(a_abs, a_abs_flip);
+  RealPacket a_min_zero_mask = pcmp_eq(a_min, pzero(a_min));
+  RealPacket a_max_zero_mask = pcmp_eq(a_max, pzero(a_max));
+  RealPacket r = pdiv(a_min, a_max);
+  const RealPacket cst_one  = pset1<RealPacket>(RealScalar(1));
+  RealPacket l = pmul(a_max, psqrt(padd(cst_one, pmul(r, r))));  // [l0, l0, l1, l1]
+  // Set l to a_max if a_min is zero, since the roundtrip sqrt(a_max^2) may be
+  // lossy.
+  l = pselect(a_min_zero_mask, a_max, l);
+  // Step 2 compute a / abs(a).
+  RealPacket sign_as_real = pandnot(pdiv(a.v, l), a_max_zero_mask);
+  Packet sign;
+  sign.v = sign_as_real;
+  return sign;
+}
+
 // TODO(rmlarsen): The following set of utilities for double word arithmetic
 // should perhaps be refactored as a separate file, since it would be generally
 // useful for special function implementation etc. Writing the algorithms in

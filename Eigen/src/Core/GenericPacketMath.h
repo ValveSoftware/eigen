@@ -59,6 +59,7 @@ struct default_packet_traits
     HasMax       = 1,
     HasConj      = 1,
     HasSetLinear = 1,
+    HasSign      = 1,
     HasBlend     = 0,
     // This flag is used to indicate whether packet comparison is supported.
     // pcmp_eq, pcmp_lt and pcmp_le should be defined for it to be true.
@@ -101,8 +102,7 @@ struct default_packet_traits
     HasRound  = 0,
     HasRint   = 0,
     HasFloor  = 0,
-    HasCeil   = 0,
-    HasSign   = 0
+    HasCeil   = 0
   };
 };
 
@@ -179,7 +179,7 @@ struct eigen_packet_wrapper
  */
 template<typename Packet>
 struct is_scalar {
-  typedef typename unpacket_traits<Packet>::type Scalar;
+  using Scalar = typename unpacket_traits<Packet>::type;
   enum {
     value = internal::is_same<Packet, Scalar>::value
   };
