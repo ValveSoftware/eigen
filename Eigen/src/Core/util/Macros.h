@@ -910,6 +910,22 @@
 #define EIGEN_UNUSED
 #endif
 
+#if EIGEN_COMP_GNUC
+  #define EIGEN_PRAGMA(tokens) _Pragma(#tokens)
+  #define EIGEN_DIAGNOSTICS(tokens) EIGEN_PRAGMA(GCC diagnostic tokens)
+  #define EIGEN_DIAGNOSTICS_OFF(msc, gcc) EIGEN_DIAGNOSTICS(gcc)
+#elif EIGEN_COMP_MSVC
+  #define EIGEN_PRAGMA(tokens) __pragma(tokens)
+  #define EIGEN_DIAGNOSTICS(tokens) EIGEN_PRAGMA(warning(tokens))
+  #define EIGEN_DIAGNOSTICS_OFF(msc, gcc) EIGEN_DIAGNOSTICS(msc)
+#else
+  #define EIGEN_PRAGMA(tokens)
+  #define EIGEN_DIAGNOSTICS(tokens)
+  #define EIGEN_DIAGNOSTICS_OFF(msc, gcc)
+#endif
+
+#define EIGEN_DISABLE_DEPRECATED_WARNING EIGEN_DIAGNOSTICS_OFF(disable : 4996, ignored "-Wdeprecated-declarations")
+
 // Suppresses 'unused variable' warnings.
 namespace Eigen {
   namespace internal {
