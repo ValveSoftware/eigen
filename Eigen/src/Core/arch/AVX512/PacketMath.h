@@ -1881,60 +1881,11 @@ ploadquad(const Eigen::half* from) {
 }
 
 EIGEN_STRONG_INLINE Packet16f half2float(const Packet16h& a) {
-#ifdef EIGEN_HAS_FP16_C
   return _mm512_cvtph_ps(a);
-#else
-  EIGEN_ALIGN64 half aux[16];
-  pstore(aux, a);
-  float f0(aux[0]);
-  float f1(aux[1]);
-  float f2(aux[2]);
-  float f3(aux[3]);
-  float f4(aux[4]);
-  float f5(aux[5]);
-  float f6(aux[6]);
-  float f7(aux[7]);
-  float f8(aux[8]);
-  float f9(aux[9]);
-  float fa(aux[10]);
-  float fb(aux[11]);
-  float fc(aux[12]);
-  float fd(aux[13]);
-  float fe(aux[14]);
-  float ff(aux[15]);
-
-  return _mm512_set_ps(
-      ff, fe, fd, fc, fb, fa, f9, f8, f7, f6, f5, f4, f3, f2, f1, f0);
-#endif
 }
 
 EIGEN_STRONG_INLINE Packet16h float2half(const Packet16f& a) {
-#ifdef EIGEN_HAS_FP16_C
   return _mm512_cvtps_ph(a, _MM_FROUND_TO_NEAREST_INT|_MM_FROUND_NO_EXC);
-#else
-  EIGEN_ALIGN64 float aux[16];
-  pstore(aux, a);
-  half h0(aux[0]);
-  half h1(aux[1]);
-  half h2(aux[2]);
-  half h3(aux[3]);
-  half h4(aux[4]);
-  half h5(aux[5]);
-  half h6(aux[6]);
-  half h7(aux[7]);
-  half h8(aux[8]);
-  half h9(aux[9]);
-  half ha(aux[10]);
-  half hb(aux[11]);
-  half hc(aux[12]);
-  half hd(aux[13]);
-  half he(aux[14]);
-  half hf(aux[15]);
-
-  return _mm256_set_epi16(
-      hf.x, he.x, hd.x, hc.x, hb.x, ha.x, h9.x, h8.x,
-      h7.x, h6.x, h5.x, h4.x, h3.x, h2.x, h1.x, h0.x);
-#endif
 }
 
 template<> EIGEN_STRONG_INLINE Packet16h ptrue(const Packet16h& a) {
