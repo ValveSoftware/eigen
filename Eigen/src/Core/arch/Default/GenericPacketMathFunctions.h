@@ -1690,6 +1690,225 @@ struct pchebevl {
   }
 };
 
+namespace unary_pow {
+template <typename ScalarExponent, bool IsIntegerAtCompileTime = NumTraits<ScalarExponent>::IsInteger>
+struct is_odd {
+  static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE ScalarExponent run(const ScalarExponent& x) {
+    ScalarExponent xdiv2 = x / ScalarExponent(2);
+    ScalarExponent floorxdiv2 = numext::floor(xdiv2);
+    return xdiv2 != floorxdiv2;
+  }
+};
+template <typename ScalarExponent>
+struct is_odd<ScalarExponent, true> {
+  static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE ScalarExponent run(const ScalarExponent& x) {
+    return x % ScalarExponent(2);
+  }
+};
+
+template <typename Packet, typename ScalarExponent,
+          bool BaseIsIntegerType = NumTraits<typename unpacket_traits<Packet>::type>::IsInteger>
+struct do_div {
+  static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet run(const Packet& x, const ScalarExponent& exponent) {
+    typedef typename unpacket_traits<Packet>::type Scalar;
+    const Packet cst_pos_one = pset1<Packet>(Scalar(1));
+    return exponent < 0 ? pdiv(cst_pos_one, x) : x;
+  }
+};
+
+template <typename Packet, typename ScalarExponent>
+struct do_div<Packet, ScalarExponent, true> {
+  // pdiv not defined, nor necessary for integer base types
+  static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet run(const Packet& x, const ScalarExponent& exponent) {
+    EIGEN_UNUSED_VARIABLE(exponent);
+    return x;
+  }
+};
+
+template <typename Packet, typename ScalarExponent>
+static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet int_pow(const Packet& x, const ScalarExponent& exponent) {
+  typedef typename unpacket_traits<Packet>::type Scalar;
+  const Packet cst_pos_one = pset1<Packet>(Scalar(1));
+  if (exponent == 0) return cst_pos_one;
+  Packet result = x;
+  Packet y = cst_pos_one;
+  ScalarExponent m = numext::abs(exponent);
+  while (m > 1) {
+    bool odd = is_odd<ScalarExponent>::run(m);
+    if (odd) y = pmul(y, result);
+    result = pmul(result, result);
+    m = numext::floor(m / ScalarExponent(2));
+  }
+  result = pmul(y, result);
+  result = do_div<Packet, ScalarExponent>::run(result, exponent);
+  return result;
+}
+
+template <typename Packet>
+static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet gen_pow(const Packet& x,
+                                                            const typename unpacket_traits<Packet>::type& exponent) {
+  const Packet exponent_packet = pset1<Packet>(exponent);
+  return generic_pow_impl(x, exponent_packet);
+}
+
+template <typename Packet, typename ScalarExponent>
+static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet handle_nonint_int_errors(const Packet& x, const Packet& powx,
+                                                                             const ScalarExponent& exponent) {
+  typedef typename unpacket_traits<Packet>::type Scalar;
+
+  // non-integer base, integer exponent case
+
+  const bool exponent_is_odd = is_odd<ScalarExponent>::run(exponent);
+  const bool exponent_is_neg = exponent < 0;
+
+  const Packet exp_is_odd = exponent_is_odd ? ptrue(x) : pzero(x);
+  const Packet exp_is_neg = exponent_is_neg ? ptrue(x) : pzero(x);
+
+  const Scalar pos_zero = Scalar(0);
+  const Scalar neg_zero = -Scalar(0);
+  const Scalar pos_one = Scalar(1);
+  const Scalar pos_inf = NumTraits<Scalar>::infinity();
+  const Scalar neg_inf = -NumTraits<Scalar>::infinity();
+
+  const Packet cst_pos_zero = pset1<Packet>(pos_zero);
+  const Packet cst_neg_zero = pset1<Packet>(neg_zero);
+  const Packet cst_pos_one = pset1<Packet>(pos_one);
+  const Packet cst_pos_inf = pset1<Packet>(pos_inf);
+  const Packet cst_neg_inf = pset1<Packet>(neg_inf);
+
+  const Packet abs_x = pabs(x);
+  const Packet abs_x_is_zero = pcmp_eq(abs_x, cst_pos_zero);
+  const Packet abs_x_is_one = pcmp_eq(abs_x, cst_pos_one);
+  const Packet abs_x_is_inf = pcmp_eq(abs_x, cst_pos_inf);
+
+  const Packet x_has_signbit = pcmp_eq(por(pand(x, cst_neg_inf), cst_pos_inf), cst_neg_inf);
+  const Packet x_is_neg = pandnot(x_has_signbit, abs_x_is_zero);
+  const Packet x_is_neg_zero = pand(x_has_signbit, abs_x_is_zero);
+
+  if (exponent == 0) {
+    return cst_pos_one;
+  }
+
+  Packet pow_is_pos_inf = pand(pandnot(abs_x_is_zero, x_is_neg_zero), pand(exp_is_odd, exp_is_neg));
+  pow_is_pos_inf = por(pow_is_pos_inf, pand(abs_x_is_zero, pandnot(exp_is_neg, exp_is_odd)));
+  pow_is_pos_inf = por(pow_is_pos_inf, pand(pand(abs_x_is_inf, x_is_neg), pandnot(pnot(exp_is_neg), exp_is_odd)));
+  pow_is_pos_inf = por(pow_is_pos_inf, pandnot(pandnot(abs_x_is_inf, x_is_neg), exp_is_neg));
+
+  Packet pow_is_neg_inf = pand(x_is_neg_zero, pand(exp_is_neg, exp_is_odd));
+  pow_is_neg_inf = por(pow_is_neg_inf, pand(pand(abs_x_is_inf, x_is_neg), pandnot(exp_is_odd, exp_is_neg)));
+
+  Packet pow_is_pos_zero = pandnot(abs_x_is_zero, exp_is_neg);
+  pow_is_pos_zero = por(pow_is_pos_zero, pand(pand(abs_x_is_inf, x_is_neg), pandnot(exp_is_neg, exp_is_odd)));
+  pow_is_pos_zero = por(pow_is_pos_zero, pand(pandnot(abs_x_is_inf, x_is_neg), exp_is_neg));
+
+  Packet pow_is_neg_zero = pand(x_is_neg_zero, pandnot(exp_is_odd, exp_is_neg));
+  pow_is_neg_zero = por(pow_is_neg_zero, pand(pand(abs_x_is_inf, x_is_neg), pand(exp_is_odd, exp_is_neg)));
+
+  Packet result = pselect(pow_is_neg_inf, cst_neg_inf, powx);
+  result = pselect(pow_is_neg_zero, cst_neg_zero, result);
+  result = pselect(pow_is_pos_zero, cst_pos_zero, result);
+  result = pselect(pow_is_pos_inf, cst_pos_inf, result);
+  result = pselect(pandnot(abs_x_is_one, x_is_neg), cst_pos_one, result);
+  return result;
+}
+
+template <typename Packet, typename ScalarExponent>
+static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet handle_nonint_nonint_errors(const Packet& x, const Packet& powx,
+                                                                                const ScalarExponent& exponent) {
+  typedef typename unpacket_traits<Packet>::type Scalar;
+
+  // non-integer base and exponent case
+
+  const bool exponent_is_fin = (numext::isfinite)(exponent);
+  const bool exponent_is_nan = (numext::isnan)(exponent);
+  const bool exponent_is_neg = exponent < 0;
+  const bool exponent_is_inf = !exponent_is_fin && !exponent_is_nan;
+
+  const Packet exp_is_neg = exponent_is_neg ? ptrue(x) : pzero(x);
+  const Packet exp_is_inf = exponent_is_inf ? ptrue(x) : pzero(x);
+
+  const Scalar pos_zero = Scalar(0);
+  const Scalar pos_one = Scalar(1);
+  const Scalar pos_inf = NumTraits<Scalar>::infinity();
+  const Scalar neg_inf = -NumTraits<Scalar>::infinity();
+  const Scalar nan = NumTraits<Scalar>::quiet_NaN();
+
+  const Packet cst_pos_zero = pset1<Packet>(pos_zero);
+  const Packet cst_pos_one = pset1<Packet>(pos_one);
+  const Packet cst_pos_inf = pset1<Packet>(pos_inf);
+  const Packet cst_neg_inf = pset1<Packet>(neg_inf);
+  const Packet cst_nan = pset1<Packet>(nan);
+
+  const Packet abs_x = pabs(x);
+  const Packet abs_x_is_zero = pcmp_eq(abs_x, cst_pos_zero);
+  const Packet abs_x_is_lt_one = pcmp_lt(abs_x, cst_pos_one);
+  const Packet abs_x_is_gt_one = pcmp_lt(cst_pos_one, abs_x);
+  const Packet abs_x_is_one = pcmp_eq(abs_x, cst_pos_one);
+  const Packet abs_x_is_inf = pcmp_eq(abs_x, cst_pos_inf);
+
+  const Packet x_has_signbit = pcmp_eq(por(pand(x, cst_neg_inf), cst_pos_inf), cst_neg_inf);
+  const Packet x_is_neg = pandnot(x_has_signbit, abs_x_is_zero);
+  const Packet x_is_neg_zero = pand(x_has_signbit, abs_x_is_zero);
+
+  if (exponent_is_nan) {
+    return pselect(pandnot(abs_x_is_one, x_is_neg), cst_pos_one, cst_nan);
+  }
+
+  Packet pow_is_pos_zero = pandnot(abs_x_is_zero, exp_is_neg);
+  pow_is_pos_zero = por(pow_is_pos_zero, pand(abs_x_is_gt_one, pand(exp_is_inf, exp_is_neg)));
+  pow_is_pos_zero = por(pow_is_pos_zero, pand(abs_x_is_lt_one, pandnot(exp_is_inf, exp_is_neg)));
+  pow_is_pos_zero = por(pow_is_pos_zero, pand(abs_x_is_inf, exp_is_neg));
+
+  const Packet pow_is_pos_one = pand(abs_x_is_one, exp_is_inf);
+
+  Packet pow_is_pos_inf = pand(abs_x_is_zero, exp_is_neg);
+  pow_is_pos_inf = por(pow_is_pos_inf, pand(abs_x_is_lt_one, pand(exp_is_inf, exp_is_neg)));
+  pow_is_pos_inf = por(pow_is_pos_inf, pand(abs_x_is_gt_one, pandnot(exp_is_inf, exp_is_neg)));
+  pow_is_pos_inf = por(pow_is_pos_inf, pandnot(abs_x_is_inf, exp_is_neg));
+
+  const Packet pow_is_nan = pandnot(pandnot(x_is_neg, abs_x_is_inf), exp_is_inf);
+
+  Packet result = pselect(pow_is_pos_inf, cst_pos_inf, powx);
+  result = pselect(pow_is_pos_one, cst_pos_one, result);
+  result = pselect(pow_is_pos_zero, cst_pos_zero, result);
+  result = pselect(pow_is_nan, cst_nan, result);
+  result = pselect(pandnot(abs_x_is_one, x_is_neg), cst_pos_one, result);
+  return result;
+}
+}  // end namespace unary_pow
+
+template <typename Packet, typename ScalarExponent,
+          bool BaseIsIntegerType = NumTraits<typename unpacket_traits<Packet>::type>::IsInteger,
+          bool ExponentIsIntegerType = NumTraits<ScalarExponent>::IsInteger>
+struct unary_pow_impl;
+
+template <typename Packet, typename ScalarExponent>
+struct unary_pow_impl<Packet, ScalarExponent, false, false> {
+  typedef typename unpacket_traits<Packet>::type Scalar;
+  static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet run(const Packet& x, const ScalarExponent& exponent) {
+    const bool exponent_is_integer = (numext::isfinite)(exponent) && numext::round(exponent) == exponent;
+    if (exponent_is_integer) {
+      Packet result = unary_pow::int_pow(x, exponent);
+      result = unary_pow::handle_nonint_int_errors(x, result, exponent);
+      return result;
+    } else {
+      Packet result = unary_pow::gen_pow(x, exponent);
+      result = unary_pow::handle_nonint_nonint_errors(x, result, exponent);
+      return result;
+    }
+  }
+};
+
+template <typename Packet, typename ScalarExponent>
+struct unary_pow_impl<Packet, ScalarExponent, false, true> {
+  typedef typename unpacket_traits<Packet>::type Scalar;
+  static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet run(const Packet& x, const ScalarExponent& exponent) {
+    Packet result = unary_pow::int_pow(x, exponent);
+    result = unary_pow::handle_nonint_int_errors(x, result, exponent);
+    return result;
+  }
+};
+
 } // end namespace internal
 } // end namespace Eigen
 

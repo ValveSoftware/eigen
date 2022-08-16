@@ -109,23 +109,25 @@ namespace Eigen
     *
     * \relates ArrayBase
     */
+    
+template <typename Derived, typename ScalarExponent>
+using GlobalUnaryPowReturnType = std::enable_if_t<
+    !internal::is_arithmetic<Derived>::value && internal::is_arithmetic<ScalarExponent>::value,
+    CwiseUnaryOp<internal::scalar_unary_pow_op<typename Derived::Scalar, ScalarExponent>, const Derived> >;
+
 #ifdef EIGEN_PARSED_BY_DOXYGEN
-  template<typename Derived,typename ScalarExponent>
-  inline const CwiseBinaryOp<internal::scalar_pow_op<Derived::Scalar,ScalarExponent>,Derived,Constant<ScalarExponent> >
-  pow(const Eigen::ArrayBase<Derived>& x, const ScalarExponent& exponent);
+template <typename Derived, typename ScalarExponent>
+EIGEN_DEVICE_FUNC inline const GlobalUnaryPowReturnType<Derived, ScalarExponent>
+pow(const Eigen::ArrayBase<Derived>& x, const ScalarExponent& exponent);
 #else
-  template <typename Derived,typename ScalarExponent>
-  EIGEN_DEVICE_FUNC inline
-    const EIGEN_EXPR_BINARYOP_SCALAR_RETURN_TYPE(Derived,typename internal::promote_scalar_arg<typename Derived::Scalar
-                                                 EIGEN_COMMA ScalarExponent EIGEN_COMMA
-                                                 EIGEN_SCALAR_BINARY_SUPPORTED(pow,typename Derived::Scalar,ScalarExponent)>::type,pow)
-  pow(const Eigen::ArrayBase<Derived>& x, const ScalarExponent& exponent)
-  {
-    typedef typename internal::promote_scalar_arg<typename Derived::Scalar,ScalarExponent,
-                                                  EIGEN_SCALAR_BINARY_SUPPORTED(pow,typename Derived::Scalar,ScalarExponent)>::type PromotedExponent;
-    return EIGEN_EXPR_BINARYOP_SCALAR_RETURN_TYPE(Derived,PromotedExponent,pow)(x.derived(),
-           typename internal::plain_constant_type<Derived,PromotedExponent>::type(x.derived().rows(), x.derived().cols(), internal::scalar_constant_op<PromotedExponent>(exponent)));
-  }
+template <typename Derived, typename ScalarExponent>
+EIGEN_DEVICE_FUNC inline const typename std::enable_if<
+    !internal::is_arithmetic<Derived>::value && internal::is_arithmetic<ScalarExponent>::value,
+    CwiseUnaryOp<internal::scalar_unary_pow_op<typename Derived::Scalar, ScalarExponent>, const Derived> >::type
+pow(const Eigen::ArrayBase<Derived>& x, const ScalarExponent& exponent) {
+  return CwiseUnaryOp<internal::scalar_unary_pow_op<typename Derived::Scalar, ScalarExponent>, const Derived>(
+      x.derived(), internal::scalar_unary_pow_op<typename Derived::Scalar, ScalarExponent>(exponent));
+}
 #endif
 
   /** \returns an expression of the coefficient-wise power of \a x to the given array of \a exponents.

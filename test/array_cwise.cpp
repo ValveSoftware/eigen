@@ -79,6 +79,50 @@ void pow_test() {
       }
     }
   }
+
+  typedef typename internal::make_integer<Scalar>::type Int_t;
+
+  // ensure both vectorized and non-vectorized paths taken
+  Index test_size = 2 * internal::packet_traits<Scalar>::size + 1;
+  
+  Array<Scalar, Dynamic, 1> eigenPow(test_size);
+  for (int i = 0; i < num_cases; ++i) {
+    Array<Scalar, Dynamic, 1> bases = x.col(i);
+    for (Scalar abs_exponent : abs_vals){
+      for (Scalar exponent : {-abs_exponent, abs_exponent}){
+        // test floating point exponent code path
+        eigenPow.setZero();
+        eigenPow = bases.pow(exponent);
+        for (int j = 0; j < num_repeats; j++){
+          Scalar e = static_cast<Scalar>(std::pow(bases(j), exponent));
+          Scalar a = eigenPow(j);
+          bool success = (a == e) || ((numext::isfinite)(e) && internal::isApprox(a, e, tol)) || ((numext::isnan)(a) && (numext::isnan)(e));
+          all_pass &= success;
+          if (!success) {
+            std::cout << "pow(" << x(i, j) << "," << y(i, j) << ")   =   " << a << " !=  " << e << std::endl;
+          }
+        }
+        // test integer exponent code path
+        bool exponent_is_integer = (numext::isfinite)(exponent) && (numext::round(exponent) == exponent) && (numext::abs(exponent) < static_cast<Scalar>(NumTraits<Int_t>::highest()));
+        if (exponent_is_integer)
+        {
+          Int_t exponent_as_int = static_cast<Int_t>(exponent);
+          eigenPow.setZero();
+          eigenPow = bases.pow(exponent_as_int);
+          for (int j = 0; j < num_repeats; j++){
+            Scalar e = static_cast<Scalar>(std::pow(bases(j), exponent));
+            Scalar a = eigenPow(j);
+            bool success = (a == e) || ((numext::isfinite)(e) && internal::isApprox(a, e, tol)) || ((numext::isnan)(a) && (numext::isnan)(e));
+            all_pass &= success;
+            if (!success) {
+              std::cout << "pow(" << x(i, j) << "," << y(i, j) << ")   =   " << a << " !=  " << e << std::endl;
+            }
+          }
+        }
+      }
+    }
+  }
+
   VERIFY(all_pass);
 }
 
