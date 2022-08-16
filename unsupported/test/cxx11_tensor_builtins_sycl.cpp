@@ -86,7 +86,8 @@ void test_unary_builtins_for_scalar(const Eigen::SyclDevice& sycl_device,
   {
     /* Assignment(out, Operator(out)) */
     Tensor<DataType, 3, DataLayout, int64_t> out(tensor_range);
-    out = out.random() + DataType(0.01);
+    // Offset with 1 to avoid tiny output (< 1e-6) as they can easily fail.
+    out = out.random() + DataType(1);
     Tensor<DataType, 3, DataLayout, int64_t> reference(out);
     DataType *gpu_data_out = static_cast<DataType *>(
         sycl_device.allocate(out.size() * sizeof(DataType)));
