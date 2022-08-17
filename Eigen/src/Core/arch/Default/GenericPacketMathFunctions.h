@@ -1094,31 +1094,22 @@ void twoprod(const Packet& x_hi, const Packet& x_lo,
   fast_twosum(p_hi_hi, p_hi_lo, p_lo_hi, p_lo_lo, p_hi, p_lo);
 }
 
-// This function computes the reciprocal of a floating point number
-// with extra precision and returns the result as a double word.
+// This function implements the division of double word {x_hi, x_lo}
+// by float y. This is Algorithm 15 from "Tight and rigourous error bounds
+// for basic building blocks of double-word arithmetic", Joldes, Muller, & Popescu,
+// 2017. https://hal.archives-ouvertes.fr/hal-01351529
 template <typename Packet>
-void doubleword_reciprocal(const Packet& x, Packet& recip_hi, Packet& recip_lo) {
-  typedef typename unpacket_traits<Packet>::type Scalar;
-  // 1. Approximate the reciprocal as the reciprocal of the high order element.
-  Packet approx_recip = prsqrt(x);
-  approx_recip = pmul(approx_recip, approx_recip);
-
-  // 2. Run one step of Newton-Raphson iteration in double word arithmetic
-  // to get the bottom half. The NR iteration for reciprocal of 'a' is
-  //    x_{i+1} = x_i * (2 - a * x_i)
-
-  // -a*x_i
-  Packet t1_hi, t1_lo;
-  twoprod(pnegate(x), approx_recip, t1_hi, t1_lo);
-  // 2 - a*x_i
-  Packet t2_hi, t2_lo;
-  fast_twosum(pset1<Packet>(Scalar(2)), t1_hi, t2_hi, t2_lo);
-  Packet t3_hi, t3_lo;
-  fast_twosum(t2_hi, padd(t2_lo, t1_lo), t3_hi, t3_lo);
-  // x_i * (2 - a * x_i)
-  twoprod(t3_hi, t3_lo, approx_recip, recip_hi, recip_lo);
+void doubleword_div_fp(const Packet& x_hi, const Packet& x_lo, const Packet& y,
+                           Packet& z_hi, Packet& z_lo) {
+  const Packet t_hi = pdiv(x_hi, y);
+  Packet pi_hi, pi_lo;
+  twoprod(t_hi, y, pi_hi, pi_lo);
+  const Packet delta_hi = psub(x_hi, pi_hi);
+  const Packet delta_t = psub(delta_hi, pi_lo);
+  const Packet delta = padd(delta_t, x_lo);
+  const Packet t_lo = pdiv(delta, y);
+  fast_twosum(t_hi, t_lo, z_hi, z_lo);
 }
-
 
 // This function computes log2(x) and returns the result as a double word.
 template <typename Scalar>
@@ -1258,16 +1249,13 @@ struct accurate_log2<double> {
     const Packet cst_2_log2e_hi = pset1<Packet>(2.88539008177792677);
     const Packet cst_2_log2e_lo = pset1<Packet>(4.07660016854549667e-17);
     // c * (x - 1)
-    Packet num_hi, num_lo;
-    twoprod(cst_2_log2e_hi, cst_2_log2e_lo, psub(x, one), num_hi, num_lo);
-    // TODO(rmlarsen): Investigate if using the division algorithm by
-    // Muller et al. is faster/more accurate.
-    // 1 / (x + 1)
-    Packet denom_hi, denom_lo;
-    doubleword_reciprocal(padd(x, one), denom_hi, denom_lo);
-    // r =  c * (x-1) / (x+1),
+    Packet t_hi, t_lo;
+    // t = c * (x-1)
+    twoprod(cst_2_log2e_hi, cst_2_log2e_lo, psub(x, one), t_hi, t_lo);
+    // r = c * (x-1) / (x+1),
     Packet r_hi, r_lo;
-    twoprod(num_hi, num_lo, denom_hi, denom_lo, r_hi, r_lo);
+    doubleword_div_fp(t_hi, t_lo, padd(x, one), r_hi, r_lo);
+
     // r2 = r * r
     Packet r2_hi, r2_lo;
     twoprod(r_hi, r_lo, r_hi, r_lo, r2_hi, r2_lo);
