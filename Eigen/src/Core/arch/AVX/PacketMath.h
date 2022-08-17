@@ -33,7 +33,9 @@ namespace internal {
 typedef __m256  Packet8f;
 typedef eigen_packet_wrapper<__m256i, 0> Packet8i;
 typedef __m256d Packet4d;
+#ifndef EIGEN_VECTORIZE_AVX512FP16
 typedef eigen_packet_wrapper<__m128i, 2> Packet8h;
+#endif
 typedef eigen_packet_wrapper<__m128i, 3> Packet8bf;
 
 #ifdef EIGEN_VECTORIZE_AVX2
@@ -45,7 +47,9 @@ template<> struct is_arithmetic<__m256>  { enum { value = true }; };
 template<> struct is_arithmetic<__m256i> { enum { value = true }; };
 template<> struct is_arithmetic<__m256d> { enum { value = true }; };
 template<> struct is_arithmetic<Packet8i> { enum { value = true }; };
+#ifndef EIGEN_VECTORIZE_AVX512FP16
 template<> struct is_arithmetic<Packet8h> { enum { value = true }; };
+#endif
 template<> struct is_arithmetic<Packet8bf> { enum { value = true }; };
 #ifdef EIGEN_VECTORIZE_AVX2
 template<> struct is_arithmetic<Packet4l> { enum { value = true }; };
@@ -1347,8 +1351,9 @@ template<> EIGEN_STRONG_INLINE Packet4d pblend(const Selector<4>& ifPacket, cons
 }
 
 // Packet math for Eigen::half
-
+#ifndef EIGEN_VECTORIZE_AVX512FP16
 template<> struct unpacket_traits<Packet8h> { typedef Eigen::half type; enum {size=8, alignment=Aligned16, vectorizable=true, masked_load_available=false, masked_store_available=false}; typedef Packet8h half; };
+#endif
 
 template<> EIGEN_STRONG_INLINE Packet8h pset1<Packet8h>(const Eigen::half& from) {
   return _mm_set1_epi16(numext::bit_cast<numext::uint16_t>(from));
@@ -1495,6 +1500,7 @@ template<> EIGEN_STRONG_INLINE Packet8h pnegate(const Packet8h& a) {
   return _mm_xor_si128(a, sign_mask);
 }
 
+#ifndef EIGEN_VECTORIZE_AVX512FP16
 template<> EIGEN_STRONG_INLINE Packet8h padd<Packet8h>(const Packet8h& a, const Packet8h& b) {
   Packet8f af = half2float(a);
   Packet8f bf = half2float(b);
@@ -1522,6 +1528,7 @@ template<> EIGEN_STRONG_INLINE Packet8h pdiv<Packet8h>(const Packet8h& a, const 
   Packet8f rf = pdiv(af, bf);
   return float2half(rf);
 }
+#endif
 
 template<> EIGEN_STRONG_INLINE Packet8h pgather<Eigen::half, Packet8h>(const Eigen::half* from, Index stride)
 {
@@ -1550,11 +1557,14 @@ template<> EIGEN_STRONG_INLINE void pscatter<Eigen::half, Packet8h>(Eigen::half*
   to[stride*7] = aux[7];
 }
 
+
+#ifndef EIGEN_VECTORIZE_AVX512FP16
 template<> EIGEN_STRONG_INLINE Eigen::half predux<Packet8h>(const Packet8h& a) {
   Packet8f af = half2float(a);
   float reduced = predux<Packet8f>(af);
   return Eigen::half(reduced);
 }
+#endif
 
 template<> EIGEN_STRONG_INLINE Eigen::half predux_max<Packet8h>(const Packet8h& a) {
   Packet8f af = half2float(a);

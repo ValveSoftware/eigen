@@ -40,7 +40,9 @@ namespace internal {
 typedef __m512 Packet16f;
 typedef __m512i Packet16i;
 typedef __m512d Packet8d;
+#ifndef EIGEN_VECTORIZE_AVX512FP16
 typedef eigen_packet_wrapper<__m256i, 1> Packet16h;
+#endif
 typedef eigen_packet_wrapper<__m256i, 2> Packet16bf;
 
 template <>
@@ -56,6 +58,7 @@ struct is_arithmetic<__m512d> {
   enum { value = true };
 };
 
+#ifndef EIGEN_VECTORIZE_AVX512FP16
 template<> struct is_arithmetic<Packet16h> { enum { value = true }; };
 
 template <>
@@ -100,6 +103,7 @@ struct packet_traits<half> : default_packet_traits {
     HasRint   = 1
   };
 };
+#endif
 
 template<> struct packet_traits<float>  : default_packet_traits
 {
@@ -196,12 +200,14 @@ struct unpacket_traits<Packet16i> {
   enum { size = 16, alignment=Aligned64, vectorizable=true, masked_load_available=false, masked_store_available=false };
 };
 
+#ifndef EIGEN_VECTORIZE_AVX512FP16
 template<>
 struct unpacket_traits<Packet16h> {
   typedef Eigen::half type;
   typedef Packet8h half;
   enum {size=16, alignment=Aligned32, vectorizable=true, masked_load_available=false, masked_store_available=false};
 };
+#endif
 
 template <>
 EIGEN_STRONG_INLINE Packet16f pset1<Packet16f>(const float& from) {
@@ -1975,6 +1981,7 @@ template<> EIGEN_STRONG_INLINE Packet16h pnegate(const Packet16h& a) {
   return _mm256_xor_si256(a, sign_mask);
 }
 
+#ifndef EIGEN_VECTORIZE_AVX512FP16
 template<> EIGEN_STRONG_INLINE Packet16h padd<Packet16h>(const Packet16h& a, const Packet16h& b) {
   Packet16f af = half2float(a);
   Packet16f bf = half2float(b);
@@ -2007,6 +2014,8 @@ template<> EIGEN_STRONG_INLINE half predux<Packet16h>(const Packet16h& from) {
   Packet16f from_float = half2float(from);
   return half(predux(from_float));
 }
+
+#endif
 
 template <>
 EIGEN_STRONG_INLINE Packet8h predux_half_dowto4<Packet16h>(const Packet16h& a) {
