@@ -855,7 +855,7 @@ Packet psqrt_complex(const Packet& a) {
 
 /** \internal \returns -1 if a is strictly negative, 0 otherwise, +1 if a is
     strictly positive. */
-template<typename Packet> 
+template<typename Packet>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
 std::enable_if_t<(!NumTraits<typename unpacket_traits<Packet>::type>::IsComplex &&
                   !NumTraits<typename unpacket_traits<Packet>::type>::IsInteger), Packet>
@@ -877,6 +877,7 @@ psign(const Packet& a) {
 template<typename Packet> 
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
 std::enable_if_t<(!NumTraits<typename unpacket_traits<Packet>::type>::IsComplex &&
+                  NumTraits<typename unpacket_traits<Packet>::type>::IsSigned &&
                   NumTraits<typename unpacket_traits<Packet>::type>::IsInteger), Packet>
 psign(const Packet& a) {
   using Scalar = typename unpacket_traits<Packet>::type;
@@ -890,6 +891,20 @@ psign(const Packet& a) {
   const Packet negative = pand(negative_mask, cst_minus_one);
 
   return por(positive, negative);
+}
+
+template<typename Packet> 
+EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
+std::enable_if_t<(!NumTraits<typename unpacket_traits<Packet>::type>::IsComplex &&
+                  !NumTraits<typename unpacket_traits<Packet>::type>::IsSigned &&
+                  NumTraits<typename unpacket_traits<Packet>::type>::IsInteger), Packet>
+psign(const Packet& a) {
+  using Scalar = typename unpacket_traits<Packet>::type;
+  const Packet cst_one = pset1<Packet>(Scalar(1));
+  const Packet cst_zero = pzero(a);
+
+  const Packet zero_mask = pcmp_eq(cst_zero, a);
+  return pandnot(cst_one, zero_mask);
 }
 
 // \internal \returns the the sign of a complex number z, defined as z / abs(z).

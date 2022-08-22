@@ -218,7 +218,6 @@ template<> struct packet_traits<bool> : default_packet_traits
     HasMin       = 0,
     HasMax       = 0,
     HasConj      = 0,
-    HasSign      = 0,
     HasSqrt      = 1
   };
 };
