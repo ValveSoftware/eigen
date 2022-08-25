@@ -601,7 +601,7 @@ class SparseMatrix
         return;
           
       m_outerIndex = internal::conditional_aligned_realloc_new_auto<StorageIndex, true>(
-          m_outerSize + outerChange + 1, m_outerSize + 1);
+          m_outerIndex, m_outerSize + outerChange + 1, m_outerSize + 1);
       if (outerChange > 0)
       {
         StorageIndex lastIdx = m_outerSize == 0 ? 0 : m_outerIndex[m_outerSize];
