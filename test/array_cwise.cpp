@@ -136,8 +136,20 @@ template<typename ArrayType> void array(const ArrayType& m)
   Index rows = m.rows();
   Index cols = m.cols();
 
-  ArrayType m1 = ArrayType::Random(rows, cols),
-             m2 = ArrayType::Random(rows, cols),
+  ArrayType m1 = ArrayType::Random(rows, cols);
+  if (NumTraits<RealScalar>::IsInteger && NumTraits<RealScalar>::IsSigned
+      && !NumTraits<Scalar>::IsComplex) {
+    // Here we cap the size of the values in m1 such that pow(3)/cube()
+    // doesn't overflow and result in undefined behavior. Notice that because
+    // pow(int, int) promotes its inputs and output to double (according to
+    // the C++ standard), we hvae to make sure that the result fits in 53 bits
+    // for int64,
+    RealScalar max_val =
+        numext::mini(RealScalar(std::cbrt(NumTraits<RealScalar>::highest())),
+                     RealScalar(std::cbrt(1LL << 53)))/2;
+    m1.array() = (m1.abs().array() <= max_val).select(m1, Scalar(max_val));
+  }
+  ArrayType  m2 = ArrayType::Random(rows, cols),
              m3(rows, cols);
   ArrayType m4 = m1; // copy constructor
   VERIFY_IS_APPROX(m1, m4);
@@ -163,23 +175,23 @@ template<typename ArrayType> void array(const ArrayType& m)
   VERIFY_IS_APPROX(m3, m1 - s1);
 
   // scalar operators via Maps
-  m3 = m1;
-  ArrayType::Map(m1.data(), m1.rows(), m1.cols()) -= ArrayType::Map(m2.data(), m2.rows(), m2.cols());
-  VERIFY_IS_APPROX(m1, m3 - m2);
+  m3 = m1;  m4 = m1;
+  ArrayType::Map(m4.data(), m4.rows(), m4.cols()) -= ArrayType::Map(m2.data(), m2.rows(), m2.cols());
+  VERIFY_IS_APPROX(m4, m3 - m2);
 
-  m3 = m1;
-  ArrayType::Map(m1.data(), m1.rows(), m1.cols()) += ArrayType::Map(m2.data(), m2.rows(), m2.cols());
-  VERIFY_IS_APPROX(m1, m3 + m2);
+  m3 = m1;  m4 = m1;
+  ArrayType::Map(m4.data(), m4.rows(), m4.cols()) += ArrayType::Map(m2.data(), m2.rows(), m2.cols());
+  VERIFY_IS_APPROX(m4, m3 + m2);
 
-  m3 = m1;
-  ArrayType::Map(m1.data(), m1.rows(), m1.cols()) *= ArrayType::Map(m2.data(), m2.rows(), m2.cols());
-  VERIFY_IS_APPROX(m1, m3 * m2);
+  m3 = m1; m4 = m1;
+  ArrayType::Map(m4.data(), m4.rows(), m4.cols()) *= ArrayType::Map(m2.data(), m2.rows(), m2.cols());
+  VERIFY_IS_APPROX(m4, m3 * m2);
 
-  m3 = m1;
+  m3 = m1; m4 = m1;
   m2 = ArrayType::Random(rows,cols);
   m2 = (m2==0).select(1,m2);
-  ArrayType::Map(m1.data(), m1.rows(), m1.cols()) /= ArrayType::Map(m2.data(), m2.rows(), m2.cols());
-  VERIFY_IS_APPROX(m1, m3 / m2);
+  ArrayType::Map(m4.data(), m4.rows(), m4.cols()) /= ArrayType::Map(m2.data(), m2.rows(), m2.cols());
+  VERIFY_IS_APPROX(m4, m3 / m2);
 
   // reductions
   VERIFY_IS_APPROX(m1.abs().colwise().sum().sum(), m1.abs().sum());
