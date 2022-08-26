@@ -697,7 +697,7 @@ ndtri() const
 
 template <typename ScalarExponent>
 using UnaryPowReturnType =
-    std::enable_if_t<internal::is_arithmetic<ScalarExponent>::value,
+    std::enable_if_t<internal::is_arithmetic<typename NumTraits<ScalarExponent>::Real>::value,
                      CwiseUnaryOp<internal::scalar_unary_pow_op<Scalar, ScalarExponent>, const Derived>>;
 
 #ifndef EIGEN_PARSED_BY_DOXYGEN

@@ -197,8 +197,10 @@ template<typename Scalar> struct scalar_random_op;
 template<typename Scalar> struct scalar_constant_op;
 template<typename Scalar> struct scalar_identity_op;
 template<typename Scalar> struct scalar_sign_op;
-template<typename Scalar,typename ScalarExponent> struct scalar_pow_op;
-template <typename Scalar, typename ScalarExponent, bool BaseIsIntegerType, bool ExponentIsIntegerType>
+template <typename Scalar, typename ScalarExponent>
+struct scalar_pow_op;
+template <typename Scalar, typename ScalarExponent, bool BaseIsInteger, bool ExponentIsInteger, bool BaseIsComplex,
+          bool ExponentIsComplex>
 struct scalar_unary_pow_op;
 template<typename LhsScalar,typename RhsScalar=LhsScalar> struct scalar_hypot_op;
 template<typename LhsScalar,typename RhsScalar=LhsScalar> struct scalar_product_op;

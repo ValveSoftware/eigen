@@ -1070,11 +1070,14 @@ struct functor_traits<scalar_logistic_op<T> > {
   };
 };
 
-template <typename Scalar, typename ScalarExponent, bool BaseIsIntegerType = NumTraits<Scalar>::IsInteger,
-          bool ExponentIsIntegerType = NumTraits<ScalarExponent>::IsInteger>
+template <typename Scalar, typename ScalarExponent, 
+          bool BaseIsInteger = NumTraits<Scalar>::IsInteger,
+          bool ExponentIsInteger = NumTraits<ScalarExponent>::IsInteger,
+          bool BaseIsComplex = NumTraits<Scalar>::IsComplex,
+          bool ExponentIsComplex = NumTraits<ScalarExponent>::IsComplex>
 struct scalar_unary_pow_op {
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE scalar_unary_pow_op(const ScalarExponent& exponent) : m_exponent(exponent) {
-    EIGEN_STATIC_ASSERT((is_arithmetic<ScalarExponent>::value), EXPONENT_MUST_BE_ARITHMETIC);
+    EIGEN_STATIC_ASSERT((is_arithmetic<typename NumTraits<ScalarExponent>::Real>::value), EXPONENT_MUST_BE_ARITHMETIC_OR_COMPLEX);
   }
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Scalar operator()(const Scalar& a) const {
     EIGEN_USING_STD(pow);
@@ -1087,7 +1090,7 @@ struct scalar_unary_pow_op {
 };
 
 template <typename Scalar, typename ScalarExponent>
-struct scalar_unary_pow_op<Scalar, ScalarExponent, false, false> {
+struct scalar_unary_pow_op<Scalar, ScalarExponent, false, false, false, false> {
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE scalar_unary_pow_op(const ScalarExponent& exponent) : m_exponent(exponent) {
     EIGEN_STATIC_ASSERT((is_same<Scalar, ScalarExponent>::value), NON_INTEGER_EXPONENT_MUST_BE_SAME_TYPE_AS_BASE);
     EIGEN_STATIC_ASSERT((is_arithmetic<ScalarExponent>::value), EXPONENT_MUST_BE_ARITHMETIC);
@@ -1107,10 +1110,11 @@ struct scalar_unary_pow_op<Scalar, ScalarExponent, false, false> {
 };
 
 template <typename Scalar, typename ScalarExponent>
-struct scalar_unary_pow_op<Scalar, ScalarExponent, false, true> {
+struct scalar_unary_pow_op<Scalar, ScalarExponent, false, true, false, false> {
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE scalar_unary_pow_op(const ScalarExponent& exponent) : m_exponent(exponent) {
     EIGEN_STATIC_ASSERT((is_arithmetic<ScalarExponent>::value), EXPONENT_MUST_BE_ARITHMETIC);
   }
+  // TODO: error handling logic for complex^real_integer
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Scalar operator()(const Scalar& a) const {
     return unary_pow_impl<Scalar, ScalarExponent>::run(a, m_exponent);
   }

@@ -96,7 +96,7 @@ cwiseArg() const { return CwiseArgReturnType(derived()); }
 
 template <typename ScalarExponent>
 using CwisePowReturnType =
-    std::enable_if_t<internal::is_arithmetic<ScalarExponent>::value,
+    std::enable_if_t<internal::is_arithmetic<typename NumTraits<ScalarExponent>::Real>::value,
                      CwiseUnaryOp<internal::scalar_unary_pow_op<Scalar, ScalarExponent>, const Derived>>;
 
 template <typename ScalarExponent>
