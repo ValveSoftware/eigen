@@ -695,6 +695,12 @@ template<> EIGEN_STRONG_INLINE Packet8i pmax<Packet8i>(const Packet8i& a, const 
 #endif
 }
 
+#ifdef EIGEN_VECTORIZE_AVX2
+template<> EIGEN_STRONG_INLINE Packet8i psign(const Packet8i& a) {
+  return _mm256_sign_epi32(_mm256_set1_epi32(1), a);
+}
+#endif
+
 // Add specializations for min/max with prescribed NaN progation.
 template<>
 EIGEN_STRONG_INLINE Packet8f pmin<PropagateNumbers, Packet8f>(const Packet8f& a, const Packet8f& b) {

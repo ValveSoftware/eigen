@@ -269,6 +269,17 @@ struct sign_impl<Scalar, true, IsInteger>
   }
 };
 
+// The sign function for bool is the identity.
+template<>
+struct sign_impl<bool, false, true>
+{
+  EIGEN_DEVICE_FUNC
+  static inline bool run(const bool& a)
+  {
+    return a;
+  }
+};
+
 template<typename Scalar>
 struct sign_retval
 {

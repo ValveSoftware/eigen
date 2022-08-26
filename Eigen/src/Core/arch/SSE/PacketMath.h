@@ -207,7 +207,7 @@ template<> struct packet_traits<bool> : default_packet_traits
     AlignedOnScalar = 1,
     HasHalfPacket = 0,
     size=16,
-
+    
     HasAdd       = 1,
     HasSub       = 1,
     HasShift     = 0,
@@ -218,7 +218,8 @@ template<> struct packet_traits<bool> : default_packet_traits
     HasMin       = 0,
     HasMax       = 0,
     HasConj      = 0,
-    HasSqrt      = 1
+    HasSqrt      = 1,
+    HasSign      = 0   // Don't try to vectorize psign<bool> = identity.
   };
 };
 

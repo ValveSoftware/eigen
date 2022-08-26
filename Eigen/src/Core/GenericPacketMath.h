@@ -921,6 +921,24 @@ Packet print(const Packet& a) { using numext::rint; return rint(a); }
 template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
 Packet pceil(const Packet& a) { using numext::ceil; return ceil(a); }
 
+template<typename Packet, typename EnableIf = void>
+struct psign_impl {
+  static EIGEN_DEVICE_FUNC inline Packet run(const Packet& a) {
+    return numext::sign(a);
+  }
+};
+
+/** \internal \returns the sign of \a a (coeff-wise) */
+template<typename Packet> EIGEN_DEVICE_FUNC inline Packet
+psign(const Packet& a) {
+  return psign_impl<Packet>::run(a);
+}
+
+template<> EIGEN_DEVICE_FUNC inline bool
+psign(const bool& a) {
+  return a;
+}
+
 /** \internal \returns the first element of a packet */
 template<typename Packet>
 EIGEN_DEVICE_FUNC inline typename unpacket_traits<Packet>::type
