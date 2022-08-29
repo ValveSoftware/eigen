@@ -122,6 +122,9 @@ template<> struct packet_traits<float>  : default_packet_traits
     HasBlend = 0,
     HasSin = EIGEN_FAST_MATH,
     HasCos = EIGEN_FAST_MATH,
+    HasACos = 1,
+    HasASin = 1,
+    HasATan = 1,
 #if EIGEN_HAS_AVX512_MATH
     HasLog = 1,
     HasLog1p  = 1,

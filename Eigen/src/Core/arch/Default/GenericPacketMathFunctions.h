@@ -719,6 +719,151 @@ Packet pcos_float(const Packet& x)
   return psincos_float<false>(x);
 }
 
+// Generic implementation of acos(x).
+template<typename Packet>
+EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
+Packet pacos_float(const Packet& x_in) {
+  typedef typename unpacket_traits<Packet>::type Scalar;
+  static_assert(std::is_same<Scalar, float>::value, "Scalar type must be float");
+
+  const Packet cst_one = pset1<Packet>(Scalar(1));
+  const Packet cst_pi = pset1<Packet>(Scalar(EIGEN_PI));
+  const Packet p6 = pset1<Packet>(Scalar(2.26911413483321666717529296875e-3));
+  const Packet p5 = pset1<Packet>(Scalar(-1.1063250713050365447998046875e-2));
+  const Packet p4 = pset1<Packet>(Scalar(2.680264413356781005859375e-2));
+  const Packet p3 = pset1<Packet>(Scalar(-4.87488098442554473876953125e-2));
+  const Packet p2 = pset1<Packet>(Scalar(8.874166011810302734375e-2));
+  const Packet p1 = pset1<Packet>(Scalar(-0.2145837843418121337890625));
+  const Packet p0 = pset1<Packet>(Scalar(1.57079613208770751953125));
+
+  // For x in [0:1], we approximate acos(x)/sqrt(1-x), which is a smooth
+  // function, by a 6'th order polynomial.
+  // For x in [-1:0) we use that acos(-x) = pi - acos(x).
+  const Packet neg_mask = pcmp_lt(x_in, pzero(x_in));
+  Packet x = pabs(x_in);
+  const Packet invalid_mask = pcmp_lt(pset1<Packet>(1.0f), x);
+
+  // Evaluate the polynomial using Horner's rule:
+  //   P(x) = p0 + x * (p1 +  x * (p2 + ... (p5 + x * p6)) ... ) .
+  // We evaluate even and odd terms independently to increase
+  // instruction level parallelism.
+  Packet x2 = pmul(x_in,x_in);
+  Packet p_even = pmadd(p6, x2, p4);
+  Packet p_odd = pmadd(p5, x2, p3);
+  p_even = pmadd(p_even, x2, p2);
+  p_odd = pmadd(p_odd, x2, p1);
+  p_even = pmadd(p_even, x2, p0);
+  Packet p = pmadd(p_odd, x, p_even);
+
+  // The polynomial approximates acos(x)/sqrt(1-x), so
+  // multiply by sqrt(1-x) to get acos(x).
+  Packet denom = psqrt(psub(cst_one, x));
+  Packet result = pmul(denom, p);
+
+  // Undo mapping for negative arguments.
+  result = pselect(neg_mask, psub(cst_pi, result), result);
+  // Return NaN for arguments outside [-1:1].
+  return pselect(invalid_mask,
+                 pset1<Packet>(std::numeric_limits<float>::quiet_NaN()),
+                 result);
+}
+
+// Generic implementation of asin(x).
+template<typename Packet>
+EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
+Packet pasin_float(const Packet& x_in) {
+  typedef typename unpacket_traits<Packet>::type Scalar;
+  static_assert(std::is_same<Scalar, float>::value, "Scalar type must be float");
+
+  // For |x| < 0.5 approximate asin(x)/x by an 8th order polynomial with
+  // even terms only.
+  const Packet p9 = pset1<Packet>(Scalar(5.08838854730129241943359375e-2f));
+  const Packet p7 = pset1<Packet>(Scalar(3.95139865577220916748046875e-2f));
+  const Packet p5 = pset1<Packet>(Scalar(7.550220191478729248046875e-2f));
+  const Packet p3 = pset1<Packet>(Scalar(0.16664917767047882080078125f));
+  const Packet p1 = pset1<Packet>(Scalar(1.00000011920928955078125f));
+
+  const Packet neg_mask = pcmp_lt(x_in, pzero(x_in));
+  Packet x = pabs(x_in);
+  const Packet invalid_mask = pcmp_lt(pset1<Packet>(1.0f), x);
+  // For arguments |x| > 0.5, we map x back to [0:0.5] using
+  // the transformation x_large = sqrt(0.5*(1-x)), and use the
+  // identity
+  //   asin(x) = pi/2 - 2 * asin( sqrt( 0.5 * (1 - x)))
+  const Packet cst_half = pset1<Packet>(Scalar(0.5f));
+  const Packet cst_two = pset1<Packet>(Scalar(2));
+  Packet x_large = psqrt(pnmadd(cst_half, x, cst_half));
+  const Packet large_mask = pcmp_lt(cst_half, x);
+  x = pselect(large_mask, x_large, x);
+
+  // Compute polynomial.
+  // x * (p1 + x^2*(p3 + x^2*(p5 + x^2*(p7 + x^2*p9))))
+  Packet x2 = pmul(x, x);
+  Packet p = pmadd(p9, x2, p7);
+  p = pmadd(p, x2, p5);
+  p = pmadd(p, x2, p3);
+  p = pmadd(p, x2, p1);
+  p = pmul(p, x);
+
+  constexpr float kPiOverTwo = static_cast<float>(0.5*EIGEN_PI);
+  Packet p_large = pnmadd(cst_two, p, pset1<Packet>(kPiOverTwo));
+  p = pselect(large_mask, p_large, p);
+  // Flip the sign for negative arguments.
+  p = pselect(neg_mask, pnegate(p), p);
+
+  // Return NaN for arguments outside [-1:1].
+  return pselect(invalid_mask, pset1<Packet>(std::numeric_limits<float>::quiet_NaN()), p);
+}
+
+template<typename Packet>
+EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
+Packet patan_float(const Packet& x_in) {
+  typedef typename unpacket_traits<Packet>::type Scalar;
+  static_assert(std::is_same<Scalar, float>::value, "Scalar type must be float");
+
+  const Packet cst_one = pset1<Packet>(1.0f);
+  constexpr float kPiOverTwo = static_cast<float>(EIGEN_PI/2);
+  const Packet cst_pi_over_two = pset1<Packet>(kPiOverTwo);
+  constexpr float kPiOverFour = static_cast<float>(EIGEN_PI/4);
+  const Packet cst_pi_over_four = pset1<Packet>(kPiOverFour);
+  const Packet cst_large = pset1<Packet>(2.4142135623730950488016887f);  // tan(3*pi/8);
+  const Packet cst_medium = pset1<Packet>(0.4142135623730950488016887f);  // tan(pi/8);
+  const Packet q0 = pset1<Packet>(-0.333329379558563232421875f);
+  const Packet q2 = pset1<Packet>(0.19977366924285888671875f);
+  const Packet q4 = pset1<Packet>(-0.13874518871307373046875f);
+  const Packet q6 = pset1<Packet>(8.044691383838653564453125e-2f);
+
+  const Packet neg_mask = pcmp_lt(x_in, pzero(x_in));
+  Packet x = pabs(x_in);
+
+  // Use the same range reduction strategy (to [0:tan(pi/8)]) as the
+  // Cephes library:
+  //   "Large": For x >= tan(3*pi/8), use atan(1/x) = pi/2 - atan(x).
+  //   "Medium": For x in [tan(pi/8) : tan(3*pi/8)),
+  //             use atan(x) = pi/4 + atan((x-1)/(x+1)).
+  //   "Small": For x < pi/8, approximate atan(x) directly by a polynomial
+  //            calculated using Sollya.
+  const Packet large_mask = pcmp_lt(cst_large, x);
+  x = pselect(large_mask, preciprocal(x), x);
+  const Packet medium_mask = pandnot(pcmp_lt(cst_medium, x), large_mask);
+  x = pselect(medium_mask, pdiv(psub(x, cst_one), padd(x, cst_one)), x);
+
+  // Approximate atan(x) on [0:tan(pi/8)] by a polynomial of the form
+  //   P(x) = x + x^3 * Q(x^2),
+  // where Q(x^2) is a cubic polynomial in x^2.
+  const Packet x2 = pmul(x, x);
+  const Packet x4 = pmul(x2, x2);
+  Packet q_odd = pmadd(q6, x4, q2);
+  Packet q_even = pmadd(q4, x4, q0);
+  const Packet q = pmadd(q_odd, x2, q_even);
+  Packet p = pmadd(q, pmul(x, x2), x);
+
+  // Apply transformations according to the range reduction masks.
+  p = pselect(large_mask, psub(cst_pi_over_two, p), p);
+  p = pselect(medium_mask, padd(cst_pi_over_four, p), p);
+  return pselect(neg_mask, pnegate(p), p);
+}
+
 template<typename Packet>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
 Packet pdiv_complex(const Packet& x, const Packet& y) {
