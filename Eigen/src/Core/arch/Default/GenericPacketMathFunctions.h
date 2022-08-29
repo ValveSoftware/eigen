@@ -1880,6 +1880,36 @@ static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet handle_nonint_nonint_errors(
   result = pselect(pandnot(abs_x_is_one, x_is_neg), cst_pos_one, result);
   return result;
 }
+
+template <typename Packet, typename ScalarExponent>
+static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet handle_int_int(const Packet& x, const ScalarExponent& exponent) {
+  typedef typename unpacket_traits<Packet>::type Scalar;
+
+  // integer base, integer exponent case
+
+  // This routine handles negative and very large positive exponents
+  // Signed integer overflow and divide by zero is undefined behavior
+  // Unsigned intgers do not overflow
+
+  const bool exponent_is_odd = unary_pow::is_odd<ScalarExponent>::run(exponent);
+
+  const Scalar zero = Scalar(0);
+  const Scalar pos_one = Scalar(1);
+
+  const Packet cst_zero = pset1<Packet>(zero);
+  const Packet cst_pos_one = pset1<Packet>(pos_one);
+
+  const Packet abs_x = pabs(x);
+
+  const Packet pow_is_zero = exponent < 0 ? pcmp_lt(cst_pos_one, abs_x) : pzero(x);
+  const Packet pow_is_one = pcmp_eq(cst_pos_one, abs_x);
+  const Packet pow_is_neg = exponent_is_odd ? pcmp_lt(x, cst_zero) : pzero(x);
+
+  Packet result = pselect(pow_is_zero, cst_zero, x);
+  result = pselect(pandnot(pow_is_one, pow_is_neg), cst_pos_one, result);
+  result = pselect(pand(pow_is_one, pow_is_neg), pnegate(cst_pos_one), result);
+  return result;
+}
 }  // end namespace unary_pow
 
 template <typename Packet, typename ScalarExponent,
@@ -1912,6 +1942,19 @@ struct unary_pow_impl<Packet, ScalarExponent, false, true> {
     result = unary_pow::handle_nonint_int_errors(x, result, exponent);
     return result;
   }
+};
+
+template <typename Packet, typename ScalarExponent>
+struct unary_pow_impl<Packet, ScalarExponent, true, true> {
+    typedef typename unpacket_traits<Packet>::type Scalar;
+    static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet run(const Packet& x, const ScalarExponent& exponent) {
+        if (exponent < 0 || exponent > NumTraits<Scalar>::digits()) {
+            return unary_pow::handle_int_int(x, exponent);
+        }
+        else {
+            return unary_pow::int_pow(x, exponent);
+        }
+    }
 };
 
 } // end namespace internal

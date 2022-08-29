@@ -253,7 +253,8 @@ struct packet_traits<int> : default_packet_traits {
     HasShift = 1,
     HasMul   = 1,
     HasDiv   = 0,
-    HasBlend = 1
+    HasBlend = 1,
+    HasCmp = 1
   };
 };
 
@@ -271,7 +272,8 @@ struct packet_traits<short int> : default_packet_traits {
     HasSub  = 1,
     HasMul  = 1,
     HasDiv  = 0,
-    HasBlend = 1
+    HasBlend = 1,
+    HasCmp = 1
   };
 };
 
@@ -289,7 +291,8 @@ struct packet_traits<unsigned short int> : default_packet_traits {
     HasSub  = 1,
     HasMul  = 1,
     HasDiv  = 0,
-    HasBlend = 1
+    HasBlend = 1,
+    HasCmp = 1
   };
 };
 
@@ -307,7 +310,8 @@ struct packet_traits<signed char> : default_packet_traits {
     HasSub  = 1,
     HasMul  = 1,
     HasDiv  = 0,
-    HasBlend = 1
+    HasBlend = 1,
+    HasCmp = 1
   };
 };
 
@@ -325,7 +329,8 @@ struct packet_traits<unsigned char> : default_packet_traits {
     HasSub  = 1,
     HasMul  = 1,
     HasDiv  = 0,
-    HasBlend = 1
+    HasBlend = 1,
+    HasCmp = 1
   };
 };
 

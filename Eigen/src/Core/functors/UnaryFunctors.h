@@ -1109,8 +1109,8 @@ struct scalar_unary_pow_op<Scalar, ScalarExponent, false, false, false, false> {
   scalar_unary_pow_op() {}
 };
 
-template <typename Scalar, typename ScalarExponent>
-struct scalar_unary_pow_op<Scalar, ScalarExponent, false, true, false, false> {
+template <typename Scalar, typename ScalarExponent, bool BaseIsInteger>
+struct scalar_unary_pow_op<Scalar, ScalarExponent, BaseIsInteger, true, false, false> {
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE scalar_unary_pow_op(const ScalarExponent& exponent) : m_exponent(exponent) {
     EIGEN_STATIC_ASSERT((is_arithmetic<ScalarExponent>::value), EXPONENT_MUST_BE_ARITHMETIC);
   }
@@ -1132,7 +1132,7 @@ template <typename Scalar, typename ScalarExponent>
 struct functor_traits<scalar_unary_pow_op<Scalar, ScalarExponent>> {
   enum {
     GenPacketAccess = functor_traits<scalar_pow_op<Scalar, ScalarExponent>>::PacketAccess,
-    IntPacketAccess = !NumTraits<Scalar>::IsComplex && !NumTraits<Scalar>::IsInteger && packet_traits<Scalar>::HasMul && packet_traits<Scalar>::HasDiv && packet_traits<Scalar>::HasCmp,
+    IntPacketAccess = !NumTraits<Scalar>::IsComplex && packet_traits<Scalar>::HasMul && (packet_traits<Scalar>::HasDiv || NumTraits<Scalar>::IsInteger) && packet_traits<Scalar>::HasCmp,
     PacketAccess = NumTraits<ScalarExponent>::IsInteger ? IntPacketAccess : (IntPacketAccess && GenPacketAccess),
     Cost = functor_traits<scalar_pow_op<Scalar, ScalarExponent>>::Cost
   };

@@ -191,6 +191,7 @@ template<> struct packet_traits<int>    : default_packet_traits
   enum {
     Vectorizable = 1,
     AlignedOnScalar = 1,
+    HasCmp = 1,
     size=4,
 
     HasShift = 1,
