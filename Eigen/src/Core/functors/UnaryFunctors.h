@@ -1076,10 +1076,14 @@ template <typename Scalar, typename ScalarExponent,
           bool BaseIsComplex = NumTraits<Scalar>::IsComplex,
           bool ExponentIsComplex = NumTraits<ScalarExponent>::IsComplex>
 struct scalar_unary_pow_op {
+  typedef typename internal::promote_scalar_arg<
+      Scalar, ScalarExponent,
+      internal::has_ReturnType<ScalarBinaryOpTraits<Scalar,ScalarExponent,scalar_unary_pow_op> >::value>::type PromotedExponent;
+  typedef typename ScalarBinaryOpTraits<Scalar, PromotedExponent, scalar_unary_pow_op>::ReturnType result_type;
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE scalar_unary_pow_op(const ScalarExponent& exponent) : m_exponent(exponent) {
     EIGEN_STATIC_ASSERT((is_arithmetic<typename NumTraits<ScalarExponent>::Real>::value), EXPONENT_MUST_BE_ARITHMETIC_OR_COMPLEX);
   }
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Scalar operator()(const Scalar& a) const {
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE result_type operator()(const Scalar& a) const {
     EIGEN_USING_STD(pow);
     return pow(a, m_exponent);
   }
@@ -1095,12 +1099,12 @@ struct scalar_unary_pow_op<Scalar, ScalarExponent, false, false, false, false> {
     EIGEN_STATIC_ASSERT((is_same<Scalar, ScalarExponent>::value), NON_INTEGER_EXPONENT_MUST_BE_SAME_TYPE_AS_BASE);
     EIGEN_STATIC_ASSERT((is_arithmetic<ScalarExponent>::value), EXPONENT_MUST_BE_ARITHMETIC);
   }
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Scalar operator()(const Scalar& a) const {
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Scalar operator()(const Scalar& a) const {
     EIGEN_USING_STD(pow);
     return pow(a, m_exponent);
   }
   template <typename Packet>
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Packet packetOp(const Packet& a) const {
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet packetOp(const Packet& a) const {
     return unary_pow_impl<Packet, ScalarExponent>::run(a, m_exponent);
   }
 
@@ -1115,11 +1119,11 @@ struct scalar_unary_pow_op<Scalar, ScalarExponent, BaseIsInteger, true, false, f
     EIGEN_STATIC_ASSERT((is_arithmetic<ScalarExponent>::value), EXPONENT_MUST_BE_ARITHMETIC);
   }
   // TODO: error handling logic for complex^real_integer
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Scalar operator()(const Scalar& a) const {
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Scalar operator()(const Scalar& a) const {
     return unary_pow_impl<Scalar, ScalarExponent>::run(a, m_exponent);
   }
   template <typename Packet>
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Packet packetOp(const Packet& a) const {
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet packetOp(const Packet& a) const {
     return unary_pow_impl<Packet, ScalarExponent>::run(a, m_exponent);
   }
 
