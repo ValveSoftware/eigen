@@ -229,6 +229,11 @@ inline void* aligned_realloc(void *ptr, std::size_t new_size, std::size_t old_si
   if (!result && new_size)
     throw_std_bad_alloc();
 
+#ifdef EIGEN_RUNTIME_NO_MALLOC
+  if (result != ptr)
+    check_that_malloc_is_allowed();
+#endif
+
   return result;
 }
 
