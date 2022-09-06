@@ -129,15 +129,15 @@ void pow_test() {
 template <typename Scalar, typename ScalarExponent>
 Scalar calc_overflow_threshold(const ScalarExponent exponent) {
     EIGEN_USING_STD(exp2);
+    EIGEN_USING_STD(log2);
     EIGEN_STATIC_ASSERT((NumTraits<Scalar>::digits() < 2 * NumTraits<double>::digits()), BASE_TYPE_IS_TOO_BIG);
 
     if (exponent < 2)
         return NumTraits<Scalar>::highest();
     else {
-        const double max_exponent = static_cast<double>(NumTraits<Scalar>::digits());
-        const double clamped_exponent = exponent < max_exponent ? static_cast<double>(exponent) : max_exponent;
-        const double threshold = exp2(max_exponent / clamped_exponent);
-        return static_cast<Scalar>(threshold);
+        // base^e <= highest ==> base <= 2^(log2(highest)/e)
+        return static_cast<Scalar>(
+          numext::floor(exp2(log2(NumTraits<Scalar>::highest()) / static_cast<double>(exponent))));
     }
 }
 
