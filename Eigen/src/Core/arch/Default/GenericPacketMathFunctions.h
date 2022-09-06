@@ -805,7 +805,7 @@ Packet pasin_float(const Packet& x_in) {
   p = pmadd(p, x2, p1);
   p = pmul(p, x);
 
-  constexpr float kPiOverTwo = static_cast<float>(0.5*EIGEN_PI);
+  constexpr float kPiOverTwo = static_cast<float>(EIGEN_PI/2);
   Packet p_large = pnmadd(cst_two, p, pset1<Packet>(kPiOverTwo));
   p = pselect(large_mask, p_large, p);
   // Flip the sign for negative arguments.

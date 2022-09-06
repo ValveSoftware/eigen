@@ -152,10 +152,6 @@ void test_exponent(Exponent exponent) {
     double double_threshold = calc_overflow_threshold<double, Exponent>(numext::abs(exponent));
     // use the lesser of these two thresholds
     Base testing_threshold = threshold < double_threshold ? threshold : static_cast<Base>(double_threshold);
-    // avoid divide by zero
-    Base min_abs_base = exponent < 0 ? 1 : 0;
-    // avoid excessively long test
-    Base max_abs_base = numext::mini(testing_threshold, max_abs_bases);
     // test both vectorized and non-vectorized code paths
     const Index array_size = 2 * internal::packet_traits<Base>::size + 1;
 
