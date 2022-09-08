@@ -136,8 +136,11 @@ Scalar calc_overflow_threshold(const ScalarExponent exponent) {
         return NumTraits<Scalar>::highest();
     else {
         // base^e <= highest ==> base <= 2^(log2(highest)/e)
+        // For floating-point types, consider the bound for integer values that can be reproduced exactly = 2 ^ digits
+        double highest_bits = numext::mini(static_cast<double>(NumTraits<Scalar>::digits()),
+                                           log2(NumTraits<Scalar>::highest()));
         return static_cast<Scalar>(
-          numext::floor(exp2(log2(NumTraits<Scalar>::highest()) / static_cast<double>(exponent))));
+          numext::floor(exp2(highest_bits / static_cast<double>(exponent))));
     }
 }
 
