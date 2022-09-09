@@ -264,6 +264,7 @@ template<typename Derived> class MatrixBase
     EIGEN_DEVICE_FUNC
     const DiagonalWrapper<const Derived> asDiagonal() const;
     const PermutationWrapper<const Derived> asPermutation() const;
+    EIGEN_DEVICE_FUNC
     const SkewSymmetricWrapper<const Derived> asSkewSymmetric() const;
 
     EIGEN_DEVICE_FUNC
