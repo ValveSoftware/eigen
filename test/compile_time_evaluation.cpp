@@ -5,15 +5,12 @@
 
 using namespace Eigen;
 
-inline void error_if_not_constexpr() {} // not constexpr
-#if EIGEN_COMP_CXXVER >= 20
-consteval
-#else
-constexpr
-#endif
-void assert_constexpr(bool b) {
-  if (!b) error_if_not_constexpr();
-}
+template<int Blah>
+struct AssertConstexpr {};
+#define assert_constexpr(expr)            \
+  do {                                    \
+    (void)  AssertConstexpr<(expr, 1)>(); \
+  } while (false)
 
 constexpr bool zeroSized()
 {
