@@ -25,10 +25,6 @@ void constructors() {
   VERIFY_IS_APPROX(v1, s2.vector());
   VERIFY_IS_APPROX(s1.toDenseMatrix(), s2.toDenseMatrix());
 
-  // default constructor leaves the matrix uninitialised
-  SkewSymmetricMatrix3<Scalar> s3;
-  VERIFY_IS_NOT_APPROX(v1, s3.vector());
-
   // from scalars
   SkewSymmetricMatrix3<Scalar> s4(v1(0), v1(1), v1(2));
   VERIFY_IS_APPROX(v1, s4.vector());
