@@ -144,6 +144,22 @@ Scalar calc_overflow_threshold(const ScalarExponent exponent) {
     }
 }
 
+template <typename Base, typename Exponent, bool ExpIsInteger = NumTraits<Exponent>::IsInteger>
+struct ref_pow {
+  static Base run(Base base, Exponent exponent) {
+    EIGEN_USING_STD(pow);
+    return pow(base, static_cast<Base>(exponent));
+  }
+};
+
+template <typename Base, typename Exponent>
+struct ref_pow<Base, Exponent, true> {
+  static Base run(Base base, Exponent exponent) {
+    EIGEN_USING_STD(pow);
+    return pow(base, exponent);
+  }
+};
+
 template <typename Base, typename Exponent>
 void test_exponent(Exponent exponent) {
   const Base max_abs_bases = static_cast<Base>(10000);
@@ -166,9 +182,8 @@ void test_exponent(Exponent exponent) {
     if (exponent < 0 && base == 0) continue;
     x.setConstant(base);
     y = x.pow(exponent);
-    EIGEN_USING_STD(pow);
-    Base e = pow(base, static_cast<Base>(exponent));
     for (Base a : y) {
+      Base e = ref_pow<Base, Exponent>::run(base, exponent);
       bool pass = (a == e);
       if (!NumTraits<Base>::IsInteger) {
         pass = pass || (((numext::isfinite)(e) && internal::isApprox(a, e)) ||
