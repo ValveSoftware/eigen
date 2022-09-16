@@ -25,7 +25,7 @@ struct all_unroller
     j = (UnrollCount-1) % InnerSize
   };
 
-  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR static inline bool run(const Derived &mat)
+  EIGEN_DEVICE_FUNC static inline bool run(const Derived &mat)
   {
     return all_unroller<Derived, UnrollCount-1, InnerSize>::run(mat) && mat.coeff(IsRowMajor ? i : j, IsRowMajor ? j : i);
   }
@@ -34,13 +34,13 @@ struct all_unroller
 template<typename Derived, int InnerSize>
 struct all_unroller<Derived, 0, InnerSize>
 {
-  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR static inline bool run(const Derived &/*mat*/) { return true; }
+  EIGEN_DEVICE_FUNC static inline bool run(const Derived &/*mat*/) { return true; }
 };
 
 template<typename Derived, int InnerSize>
 struct all_unroller<Derived, Dynamic, InnerSize>
 {
-  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR static inline bool run(const Derived &) { return false; }
+  EIGEN_DEVICE_FUNC static inline bool run(const Derived &) { return false; }
 };
 
 template<typename Derived, int UnrollCount, int InnerSize>
@@ -52,7 +52,7 @@ struct any_unroller
     j = (UnrollCount-1) % InnerSize
   };
 
-  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR static inline bool run(const Derived &mat)
+  EIGEN_DEVICE_FUNC static inline bool run(const Derived &mat)
   {
     return any_unroller<Derived, UnrollCount-1, InnerSize>::run(mat) || mat.coeff(IsRowMajor ? i : j, IsRowMajor ? j : i);
   }
@@ -61,13 +61,13 @@ struct any_unroller
 template<typename Derived, int InnerSize>
 struct any_unroller<Derived, 0, InnerSize>
 {
-  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR static inline bool run(const Derived & /*mat*/) { return false; }
+  EIGEN_DEVICE_FUNC static inline bool run(const Derived & /*mat*/) { return false; }
 };
 
 template<typename Derived, int InnerSize>
 struct any_unroller<Derived, Dynamic, InnerSize>
 {
-  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR static inline bool run(const Derived &) { return false; }
+  EIGEN_DEVICE_FUNC static inline bool run(const Derived &) { return false; }
 };
 
 } // end namespace internal
@@ -80,7 +80,7 @@ struct any_unroller<Derived, Dynamic, InnerSize>
   * \sa any(), Cwise::operator<()
   */
 template<typename Derived>
-EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR inline bool DenseBase<Derived>::all() const
+EIGEN_DEVICE_FUNC inline bool DenseBase<Derived>::all() const
 {
   typedef internal::evaluator<Derived> Evaluator;
   enum {
@@ -104,7 +104,7 @@ EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR inline bool DenseBase<Derived>::all() const
   * \sa all()
   */
 template<typename Derived>
-EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR inline bool DenseBase<Derived>::any() const
+EIGEN_DEVICE_FUNC inline bool DenseBase<Derived>::any() const
 {
   typedef internal::evaluator<Derived> Evaluator;
   enum {
@@ -128,7 +128,7 @@ EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR inline bool DenseBase<Derived>::any() const
   * \sa all(), any()
   */
 template<typename Derived>
-EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR inline Eigen::Index DenseBase<Derived>::count() const
+EIGEN_DEVICE_FUNC inline Eigen::Index DenseBase<Derived>::count() const
 {
   return derived().template cast<bool>().template cast<Index>().sum();
 }

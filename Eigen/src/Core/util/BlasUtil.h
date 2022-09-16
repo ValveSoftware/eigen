@@ -487,8 +487,8 @@ template<typename XprType> struct blas_traits
     ExtractType,
     typename ExtractType_::PlainObject
     > DirectLinearAccessType;
-  static inline EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR ExtractType extract(const XprType& x) { return x; }
-  static inline EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR const Scalar extractScalarFactor(const XprType&) { return Scalar(1); }
+  static inline EIGEN_DEVICE_FUNC ExtractType extract(const XprType& x) { return x; }
+  static inline EIGEN_DEVICE_FUNC const Scalar extractScalarFactor(const XprType&) { return Scalar(1); }
 };
 
 // pop conjugate
@@ -576,7 +576,7 @@ struct blas_traits<Transpose<NestedXpr> >
   enum {
     IsTransposed = Base::IsTransposed ? 0 : 1
   };
-  static inline EIGEN_CONSTEXPR ExtractType extract(const XprType& x) { return ExtractType(Base::extract(x.nestedExpression())); }
+  static inline ExtractType extract(const XprType& x) { return ExtractType(Base::extract(x.nestedExpression())); }
   static inline Scalar extractScalarFactor(const XprType& x) { return Base::extractScalarFactor(x.nestedExpression()); }
 };
 
@@ -587,7 +587,7 @@ struct blas_traits<const T>
 
 template<typename T, bool HasUsableDirectAccess=blas_traits<T>::HasUsableDirectAccess>
 struct extract_data_selector {
-  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE EIGEN_CONSTEXPR static const typename T::Scalar* run(const T& m)
+  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE static const typename T::Scalar* run(const T& m)
   {
     return blas_traits<T>::extract(m).data();
   }
@@ -599,7 +599,7 @@ struct extract_data_selector<T,false> {
 };
 
 template<typename T>
-EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE EIGEN_CONSTEXPR const typename T::Scalar* extract_data(const T& m)
+EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE const typename T::Scalar* extract_data(const T& m)
 {
   return extract_data_selector<T>::run(m);
 }

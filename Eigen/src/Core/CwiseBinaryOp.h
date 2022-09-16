@@ -111,7 +111,7 @@ class CwiseBinaryOp :
     CwiseBinaryOp(const CwiseBinaryOp<BinaryOp,LhsType,RhsType>&) = default;
 #endif
 
-    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
     CwiseBinaryOp(const Lhs& aLhs, const Rhs& aRhs, const BinaryOp& func = BinaryOp())
       : m_lhs(aLhs), m_rhs(aRhs), m_functor(func)
     {
@@ -130,13 +130,13 @@ class CwiseBinaryOp :
     }
 
     /** \returns the left hand side nested expression */
-    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
     const LhsNested_& lhs() const { return m_lhs; }
     /** \returns the right hand side nested expression */
-    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
     const RhsNested_& rhs() const { return m_rhs; }
     /** \returns the functor representing the binary operation */
-    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
     const BinaryOp& functor() const { return m_functor; }
 
   protected:
@@ -173,7 +173,7 @@ MatrixBase<Derived>::operator-=(const MatrixBase<OtherDerived> &other)
   */
 template<typename Derived>
 template<typename OtherDerived>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR Derived &
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Derived &
 MatrixBase<Derived>::operator+=(const MatrixBase<OtherDerived>& other)
 {
   call_assignment(derived(), other.derived(), internal::add_assign_op<Scalar,typename OtherDerived::Scalar>());

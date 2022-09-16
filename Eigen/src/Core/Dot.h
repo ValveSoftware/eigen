@@ -28,7 +28,7 @@ struct dot_nocheck
   typedef scalar_conj_product_op<typename traits<T>::Scalar,typename traits<U>::Scalar> conj_prod;
   typedef typename conj_prod::result_type ResScalar;
   EIGEN_DEVICE_FUNC
-  EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
+  EIGEN_STRONG_INLINE
   static ResScalar run(const MatrixBase<T>& a, const MatrixBase<U>& b)
   {
     return a.template binaryExpr<conj_prod>(b).sum();
@@ -41,7 +41,7 @@ struct dot_nocheck<T, U, true>
   typedef scalar_conj_product_op<typename traits<T>::Scalar,typename traits<U>::Scalar> conj_prod;
   typedef typename conj_prod::result_type ResScalar;
   EIGEN_DEVICE_FUNC
-  EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
+  EIGEN_STRONG_INLINE
   static ResScalar run(const MatrixBase<T>& a, const MatrixBase<U>& b)
   {
     return a.transpose().template binaryExpr<conj_prod>(b).sum();
@@ -64,7 +64,7 @@ struct dot_nocheck<T, U, true>
 template<typename Derived>
 template<typename OtherDerived>
 EIGEN_DEVICE_FUNC
-EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
+EIGEN_STRONG_INLINE
 typename ScalarBinaryOpTraits<typename internal::traits<Derived>::Scalar,typename internal::traits<OtherDerived>::Scalar>::ReturnType
 MatrixBase<Derived>::dot(const MatrixBase<OtherDerived>& other) const
 {
@@ -90,7 +90,7 @@ MatrixBase<Derived>::dot(const MatrixBase<OtherDerived>& other) const
   * \sa dot(), norm(), lpNorm()
   */
 template<typename Derived>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR typename NumTraits<typename internal::traits<Derived>::Scalar>::Real MatrixBase<Derived>::squaredNorm() const
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE typename NumTraits<typename internal::traits<Derived>::Scalar>::Real MatrixBase<Derived>::squaredNorm() const
 {
   return numext::real((*this).cwiseAbs2().sum());
 }

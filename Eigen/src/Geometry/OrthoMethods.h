@@ -29,7 +29,7 @@ namespace Eigen {
 template<typename Derived>
 template<typename OtherDerived>
 #ifndef EIGEN_PARSED_BY_DOXYGEN
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
 typename MatrixBase<Derived>::template cross_product_return_type<OtherDerived>::type
 #else
 typename MatrixBase<Derived>::PlainObject

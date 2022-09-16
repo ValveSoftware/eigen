@@ -106,7 +106,7 @@ struct redux_novec_unroller
 
   typedef typename Evaluator::Scalar Scalar;
 
-  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+  EIGEN_DEVICE_FUNC
   static EIGEN_STRONG_INLINE Scalar run(const Evaluator &eval, const Func& func)
   {
     return func(redux_novec_unroller<Func, Evaluator, Start, HalfLength>::run(eval,func),
@@ -124,7 +124,7 @@ struct redux_novec_unroller<Func, Evaluator, Start, 1>
 
   typedef typename Evaluator::Scalar Scalar;
 
-  EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+  EIGEN_DEVICE_FUNC
   static EIGEN_STRONG_INLINE Scalar run(const Evaluator &eval, const Func&)
   {
     return eval.coeffByOuterInner(outer, inner);
@@ -196,7 +196,7 @@ struct redux_impl<Func, Evaluator, DefaultTraversal, NoUnrolling>
   typedef typename Evaluator::Scalar Scalar;
 
   template<typename XprType>
-  EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
+  EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE
   Scalar run(const Evaluator &eval, const Func& func, const XprType& xpr)
   {
     eigen_assert(xpr.rows()>0 && xpr.cols()>0 && "you are using an empty matrix");
@@ -217,7 +217,7 @@ struct redux_impl<Func,Evaluator, DefaultTraversal, CompleteUnrolling>
   typedef redux_novec_unroller<Func,Evaluator, 0, Evaluator::SizeAtCompileTime> Base;
   typedef typename Evaluator::Scalar Scalar;
   template<typename XprType>
-  EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
+  EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE
   Scalar run(const Evaluator &eval, const Func& func, const XprType& /*xpr*/)
   {
     return Base::run(eval,func);
@@ -360,7 +360,7 @@ class redux_evaluator : public internal::evaluator<XprType_>
   typedef internal::evaluator<XprType_> Base;
 public:
   typedef XprType_ XprType;
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
   explicit redux_evaluator(const XprType &xpr) : Base(xpr) {}
   
   typedef typename XprType::Scalar Scalar;
@@ -376,16 +376,16 @@ public:
     SizeAtCompileTime = XprType::SizeAtCompileTime,
     InnerSizeAtCompileTime = XprType::InnerSizeAtCompileTime
   };
-
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
+  
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
   CoeffReturnType coeffByOuterInner(Index outer, Index inner) const
   { return Base::coeff(IsRowMajor ? outer : inner, IsRowMajor ? inner : outer); }
-
+  
   template<int LoadMode, typename PacketType>
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
   PacketType packetByOuterInner(Index outer, Index inner) const
   { return Base::template packet<LoadMode,PacketType>(IsRowMajor ? outer : inner, IsRowMajor ? inner : outer); }
-
+  
 };
 
 } // end namespace internal
@@ -406,7 +406,7 @@ public:
   */
 template<typename Derived>
 template<typename Func>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR typename internal::traits<Derived>::Scalar
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE typename internal::traits<Derived>::Scalar
 DenseBase<Derived>::redux(const Func& func) const
 {
   eigen_assert(this->rows()>0 && this->cols()>0 && "you are using an empty matrix");
@@ -428,13 +428,13 @@ DenseBase<Derived>::redux(const Func& func) const
   */
 template<typename Derived>
 template<int NaNPropagation>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR typename internal::traits<Derived>::Scalar
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE typename internal::traits<Derived>::Scalar
 DenseBase<Derived>::minCoeff() const
 {
   return derived().redux(Eigen::internal::scalar_min_op<Scalar,Scalar, NaNPropagation>());
 }
 
-/** \returns the maximum of all coefficients of \c *this.
+/** \returns the maximum of all coefficients of \c *this. 
   * In case \c *this contains NaN, NaNPropagation determines the behavior:
   *   NaNPropagation == PropagateFast : undefined
   *   NaNPropagation == PropagateNaN : result is NaN
@@ -443,7 +443,7 @@ DenseBase<Derived>::minCoeff() const
   */
 template<typename Derived>
 template<int NaNPropagation>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR typename internal::traits<Derived>::Scalar
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE typename internal::traits<Derived>::Scalar
 DenseBase<Derived>::maxCoeff() const
 {
   return derived().redux(Eigen::internal::scalar_max_op<Scalar,Scalar, NaNPropagation>());
@@ -456,7 +456,7 @@ DenseBase<Derived>::maxCoeff() const
   * \sa trace(), prod(), mean()
   */
 template<typename Derived>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR typename internal::traits<Derived>::Scalar
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE typename internal::traits<Derived>::Scalar
 DenseBase<Derived>::sum() const
 {
   if(SizeAtCompileTime==0 || (SizeAtCompileTime==Dynamic && size()==0))
@@ -469,7 +469,7 @@ DenseBase<Derived>::sum() const
 * \sa trace(), prod(), sum()
 */
 template<typename Derived>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR typename internal::traits<Derived>::Scalar
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE typename internal::traits<Derived>::Scalar
 DenseBase<Derived>::mean() const
 {
 #ifdef __INTEL_COMPILER
@@ -490,7 +490,7 @@ DenseBase<Derived>::mean() const
   * \sa sum(), mean(), trace()
   */
 template<typename Derived>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR typename internal::traits<Derived>::Scalar
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE typename internal::traits<Derived>::Scalar
 DenseBase<Derived>::prod() const
 {
   if(SizeAtCompileTime==0 || (SizeAtCompileTime==Dynamic && size()==0))
@@ -505,7 +505,7 @@ DenseBase<Derived>::prod() const
   * \sa diagonal(), sum()
   */
 template<typename Derived>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR typename internal::traits<Derived>::Scalar
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE typename internal::traits<Derived>::Scalar
 MatrixBase<Derived>::trace() const
 {
   return derived().diagonal().sum();

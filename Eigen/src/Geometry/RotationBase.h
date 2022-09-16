@@ -40,8 +40,8 @@ class RotationBase
     typedef Matrix<Scalar,Dim,1> VectorType;
 
   public:
-    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR inline const Derived& derived() const { return *static_cast<const Derived*>(this); }
-    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR inline Derived& derived() { return *static_cast<Derived*>(this); }
+    EIGEN_DEVICE_FUNC inline const Derived& derived() const { return *static_cast<const Derived*>(this); }
+    EIGEN_DEVICE_FUNC inline Derived& derived() { return *static_cast<Derived*>(this); }
 
     /** \returns an equivalent rotation matrix */
     EIGEN_DEVICE_FUNC inline RotationMatrixType toRotationMatrix() const { return derived().toRotationMatrix(); }
@@ -69,7 +69,7 @@ class RotationBase
       *  - a vector of size Dim
       */
     template<typename OtherDerived>
-    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR typename internal::rotation_base_generic_product_selector<Derived,OtherDerived,OtherDerived::IsVectorAtCompileTime>::ReturnType
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE typename internal::rotation_base_generic_product_selector<Derived,OtherDerived,OtherDerived::IsVectorAtCompileTime>::ReturnType
     operator*(const EigenBase<OtherDerived>& e) const
     { return internal::rotation_base_generic_product_selector<Derived,OtherDerived>::run(derived(), e.derived()); }
 
@@ -125,7 +125,7 @@ struct rotation_base_generic_product_selector<RotationDerived,OtherVectorType,tr
 {
   enum { Dim = RotationDerived::Dim };
   typedef Matrix<typename RotationDerived::Scalar,Dim,1> ReturnType;
-  EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE EIGEN_CONSTEXPR ReturnType run(const RotationDerived& r, const OtherVectorType& v)
+  EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE ReturnType run(const RotationDerived& r, const OtherVectorType& v)
   {
     return r._transformVector(v);
   }

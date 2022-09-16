@@ -41,7 +41,7 @@ EIGEN_DOC_UNARY_ADDONS(cwiseAbs2,squared absolute value)
 ///
 /// \sa cwiseAbs()
 ///
-EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+EIGEN_DEVICE_FUNC
 EIGEN_STRONG_INLINE const CwiseAbs2ReturnType
 cwiseAbs2() const { return CwiseAbs2ReturnType(derived()); }
 

@@ -34,7 +34,7 @@ struct evaluator<Product<Lhs, Rhs, Options> >
   typedef Product<Lhs, Rhs, Options> XprType;
   typedef product_evaluator<XprType> Base;
 
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR explicit evaluator(const XprType& xpr) : Base(xpr) {}
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE explicit evaluator(const XprType& xpr) : Base(xpr) {}
 };
 
 // Catch "scalar * ( A * B )" and transform it to "(A*scalar) * B"
@@ -139,7 +139,7 @@ struct Assignment<DstXprType, Product<Lhs,Rhs,Options>, internal::assign_op<Scal
   std::enable_if_t<(Options==DefaultProduct || Options==AliasFreeProduct)>>
 {
   typedef Product<Lhs,Rhs,Options> SrcXprType;
-  static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
+  static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
   void run(DstXprType &dst, const SrcXprType &src, const internal::assign_op<Scalar,Scalar> &)
   {
     Index dstRows = src.rows();
@@ -314,7 +314,7 @@ struct generic_product_impl<Lhs,Rhs,DenseShape,DenseShape,OuterProduct>
   };
 
   template<typename Dst>
-  static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR void evalTo(Dst& dst, const Lhs& lhs, const Rhs& rhs)
+  static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE void evalTo(Dst& dst, const Lhs& lhs, const Rhs& rhs)
   {
     internal::outer_product_selector_run(dst, lhs, rhs, set(), is_row_major<Dst>());
   }
@@ -397,7 +397,7 @@ struct generic_product_impl<Lhs,Rhs,DenseShape,DenseShape,CoeffBasedProductMode>
   typedef typename Product<Lhs,Rhs>::Scalar Scalar;
 
   template<typename Dst>
-  static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR void evalTo(Dst& dst, const Lhs& lhs, const Rhs& rhs)
+  static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE void evalTo(Dst& dst, const Lhs& lhs, const Rhs& rhs)
   {
     // Same as: dst.noalias() = lhs.lazyProduct(rhs);
     // but easier on the compiler side
@@ -497,7 +497,7 @@ struct product_evaluator<Product<Lhs, Rhs, LazyProduct>, ProductTag, DenseShape,
   typedef typename XprType::Scalar Scalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
 
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
   explicit product_evaluator(const XprType& xpr)
     : m_lhs(xpr.lhs()),
       m_rhs(xpr.rhs()),
@@ -603,7 +603,7 @@ struct product_evaluator<Product<Lhs, Rhs, LazyProduct>, ProductTag, DenseShape,
                         && (int(InnerSize) % packet_traits<Scalar>::size == 0)
   };
 
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR const CoeffReturnType coeff(Index row, Index col) const
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const CoeffReturnType coeff(Index row, Index col) const
   {
     return (m_lhs.row(row).transpose().cwiseProduct( m_rhs.col(col) )).sum();
   }

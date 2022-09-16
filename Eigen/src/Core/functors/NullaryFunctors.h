@@ -18,9 +18,9 @@ namespace internal {
 
 template<typename Scalar>
 struct scalar_constant_op {
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR scalar_constant_op(const scalar_constant_op& other) : m_other(other.m_other) { }
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR scalar_constant_op(const Scalar& other) : m_other(other) { }
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR const Scalar operator() () const { return m_other; }
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE scalar_constant_op(const scalar_constant_op& other) : m_other(other.m_other) { }
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE scalar_constant_op(const Scalar& other) : m_other(other) { }
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Scalar operator() () const { return m_other; }
   template<typename PacketType>
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const PacketType packetOp() const { return internal::pset1<PacketType>(m_other); }
   const Scalar m_other;
@@ -32,7 +32,7 @@ struct functor_traits<scalar_constant_op<Scalar> >
 
 template<typename Scalar> struct scalar_identity_op {
   template<typename IndexType>
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR const Scalar operator() (IndexType row, IndexType col) const { return row==col ? Scalar(1) : Scalar(0); }
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Scalar operator() (IndexType row, IndexType col) const { return row==col ? Scalar(1) : Scalar(0); }
 };
 template<typename Scalar>
 struct functor_traits<scalar_identity_op<Scalar> >

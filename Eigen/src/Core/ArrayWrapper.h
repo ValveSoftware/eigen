@@ -59,7 +59,7 @@ class ArrayWrapper : public ArrayBase<ArrayWrapper<ExpressionType> >
 
     using Base::coeffRef;
 
-    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+    EIGEN_DEVICE_FUNC
     explicit EIGEN_STRONG_INLINE ArrayWrapper(ExpressionType& matrix) : m_expression(matrix) {}
 
     EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
@@ -89,10 +89,10 @@ class ArrayWrapper : public ArrayBase<ArrayWrapper<ExpressionType> >
     }
 
     template<typename Dest>
-    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+    EIGEN_DEVICE_FUNC
     inline void evalTo(Dest& dst) const { dst = m_expression; }
 
-    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+    EIGEN_DEVICE_FUNC
     const internal::remove_all_t<NestedExpressionType>&
     nestedExpression() const
     {
@@ -157,7 +157,7 @@ class MatrixWrapper : public MatrixBase<MatrixWrapper<ExpressionType> >
 
     using Base::coeffRef;
 
-    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+    EIGEN_DEVICE_FUNC
     explicit inline MatrixWrapper(ExpressionType& matrix) : m_expression(matrix) {}
 
     EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
@@ -186,7 +186,7 @@ class MatrixWrapper : public MatrixBase<MatrixWrapper<ExpressionType> >
       return m_expression.coeffRef(index);
     }
 
-    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+    EIGEN_DEVICE_FUNC
     const internal::remove_all_t<NestedExpressionType>&
     nestedExpression() const
     {

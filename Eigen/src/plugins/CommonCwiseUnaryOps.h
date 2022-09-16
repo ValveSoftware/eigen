@@ -40,7 +40,7 @@ typedef CwiseUnaryOp<internal::scalar_opposite_op<Scalar>, const Derived> Negati
 ///
 EIGEN_DOC_UNARY_ADDONS(operator-,opposite)
 ///
-EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+EIGEN_DEVICE_FUNC
 inline const NegativeReturnType
 operator-() const { return NegativeReturnType(derived()); }
 
@@ -57,7 +57,7 @@ EIGEN_DOC_UNARY_ADDONS(cast,conversion function)
 /// \sa class CwiseUnaryOp
 ///
 template<typename NewType>
-EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+EIGEN_DEVICE_FUNC
 typename CastXpr<NewType>::Type
 cast() const
 {

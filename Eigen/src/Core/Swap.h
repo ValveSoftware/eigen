@@ -32,7 +32,7 @@ public:
   typedef typename Base::DstXprType DstXprType;
   typedef swap_assign_op<Scalar> Functor;
   
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
   generic_dense_assignment_kernel(DstEvaluatorTypeT &dst, const SrcEvaluatorTypeT &src, const Functor &func, DstXprType& dstExpr)
     : Base(dst, src, func, dstExpr)
   {}
