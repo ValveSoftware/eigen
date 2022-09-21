@@ -212,6 +212,7 @@ template<> struct packet_traits<int> : default_packet_traits
     Vectorizable = 1,
     AlignedOnScalar = 1,
     HasCmp = 1,
+    HasDiv = 1,
     size=8
   };
 };
@@ -545,13 +546,19 @@ template<> EIGEN_STRONG_INLINE Packet8i pmul<Packet8i>(const Packet8i& a, const 
 
 template<> EIGEN_STRONG_INLINE Packet8f pdiv<Packet8f>(const Packet8f& a, const Packet8f& b) { return _mm256_div_ps(a,b); }
 template<> EIGEN_STRONG_INLINE Packet4d pdiv<Packet4d>(const Packet4d& a, const Packet4d& b) { return _mm256_div_pd(a,b); }
-template<> EIGEN_STRONG_INLINE Packet8i pdiv<Packet8i>(const Packet8i& /*a*/, const Packet8i& /*b*/)
-{ eigen_assert(false && "packet integer division are not supported by AVX");
-  return pset1<Packet8i>(0);
+
+template<> EIGEN_STRONG_INLINE Packet8i pdiv<Packet8i>(const Packet8i& a, const Packet8i& b)
+{
+#ifdef EIGEN_VECTORIZE_AVX512
+  return _mm512_cvttpd_epi32(_mm512_div_pd(_mm512_cvtepi32_pd(a), _mm512_cvtepi32_pd(b)));
+#else  
+  Packet4i lo = pdiv<Packet4i>(_mm256_extractf128_si256(a, 0), _mm256_extractf128_si256(b, 0));
+  Packet4i hi = pdiv<Packet4i>(_mm256_extractf128_si256(a, 1), _mm256_extractf128_si256(b, 1));
+  return _mm256_insertf128_si256(_mm256_castsi128_si256(lo), hi, 1);
+#endif
 }
 
 #ifdef EIGEN_VECTORIZE_FMA
-
 template <>
 EIGEN_STRONG_INLINE Packet8f pmadd(const Packet8f& a, const Packet8f& b, const Packet8f& c) {
   return _mm256_fmadd_ps(a, b, c);
@@ -1226,7 +1233,12 @@ template<> EIGEN_STRONG_INLINE double predux_max<Packet4d>(const Packet4d& a)
 
 template<> EIGEN_STRONG_INLINE bool predux_any(const Packet8f& x)
 {
-  return _mm256_movemask_ps(x)!=0;
+  return _mm256_movemask_ps(x) != 0;
+}
+
+template<> EIGEN_STRONG_INLINE bool predux_any(const Packet8i& x)
+{
+  return _mm256_movemask_ps(_mm256_castsi256_ps(x)) != 0;
 }
 
 EIGEN_DEVICE_FUNC inline void

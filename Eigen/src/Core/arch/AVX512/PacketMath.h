@@ -178,6 +178,7 @@ template<> struct packet_traits<int> : default_packet_traits
     Vectorizable = 1,
     AlignedOnScalar = 1,
     HasCmp = 1,
+    HasDiv = 1,
     size=16
   };
 };
@@ -389,10 +390,19 @@ EIGEN_STRONG_INLINE Packet16f pdiv<Packet16f>(const Packet16f& a,
                                               const Packet16f& b) {
   return _mm512_div_ps(a, b);
 }
+
 template <>
 EIGEN_STRONG_INLINE Packet8d pdiv<Packet8d>(const Packet8d& a,
                                             const Packet8d& b) {
   return _mm512_div_pd(a, b);
+}
+
+template <>
+EIGEN_STRONG_INLINE Packet16i pdiv<Packet16i>(const Packet16i& a,
+                                              const Packet16i& b) {
+  Packet8i q_lo = pdiv<Packet8i>(_mm512_extracti64x4_epi64(a, 0), _mm512_extracti64x4_epi64(b,0));
+  Packet8i q_hi = pdiv<Packet8i>(_mm512_extracti64x4_epi64(a, 1), _mm512_extracti64x4_epi64(b, 1));
+  return _mm512_inserti64x4(_mm512_castsi256_si512(q_lo), q_hi, 1);
 }
 
 #ifdef EIGEN_VECTORIZE_FMA
@@ -1378,7 +1388,11 @@ template<> EIGEN_STRONG_INLINE bool predux_any(const Packet16f& x)
   return !_mm512_kortestz(tmp,tmp);
 }
 
-
+template<> EIGEN_STRONG_INLINE bool predux_any(const Packet16i& x)
+{
+  __mmask16 tmp = _mm512_test_epi32_mask(x,x);
+  return !_mm512_kortestz(tmp,tmp);
+}
 
 #define PACK_OUTPUT(OUTPUT, INPUT, INDEX, STRIDE) \
   EIGEN_INSERT_8f_INTO_16f(OUTPUT[INDEX], INPUT[INDEX], INPUT[INDEX + STRIDE]);
