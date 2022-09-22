@@ -5,6 +5,10 @@ namespace internal {
   
 #if EIGEN_ARCH_ARM && EIGEN_COMP_CLANG
 
+#ifndef EIGEN_NEON_GEBP_NR
+#define EIGEN_NEON_GEBP_NR 8
+#endif
+
 // Clang seems to excessively spill registers in the GEBP kernel on 32-bit arm.
 // Here we specialize gebp_traits to eliminate these register spills.
 // See #2138.
@@ -49,11 +53,8 @@ struct gebp_traits <float,float,false,false,Architecture::NEON,GEBPPacketFull>
 {
   typedef float RhsPacket;
   typedef float32x4_t RhsPacketx4;
-  enum {
-    nr = 8
-  };
-  EIGEN_STRONG_INLINE void loadRhs(const RhsScalar* b, RhsPacket& dest) const
-  {
+  enum { nr = EIGEN_NEON_GEBP_NR };
+  EIGEN_STRONG_INLINE void loadRhs(const RhsScalar* b, RhsPacket& dest) const {
     dest = *b;
   }
 
@@ -115,9 +116,7 @@ struct gebp_traits <double,double,false,false,Architecture::NEON>
  : gebp_traits<double,double,false,false,Architecture::Generic>
 {
   typedef double RhsPacket;
-  enum {
-    nr = 8
-  };
+  enum { nr = EIGEN_NEON_GEBP_NR };
   struct RhsPacketx4 {
     float64x2_t B_0, B_1;
   };
@@ -193,9 +192,8 @@ struct gebp_traits <half,half,false,false,Architecture::NEON>
   typedef half RhsPacket;
   typedef float16x4_t RhsPacketx4;
   typedef float16x4_t PacketHalf;
-  enum {
-    nr = 8
-  };
+  enum { nr = EIGEN_NEON_GEBP_NR };
+
   EIGEN_STRONG_INLINE void loadRhs(const RhsScalar* b, RhsPacket& dest) const
   {
     dest = *b;
