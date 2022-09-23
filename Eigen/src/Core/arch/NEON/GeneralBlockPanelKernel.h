@@ -5,10 +5,6 @@ namespace internal {
   
 #if EIGEN_ARCH_ARM && EIGEN_COMP_CLANG
 
-#ifndef EIGEN_NEON_GEBP_NR
-#define EIGEN_NEON_GEBP_NR 8
-#endif
-
 // Clang seems to excessively spill registers in the GEBP kernel on 32-bit arm.
 // Here we specialize gebp_traits to eliminate these register spills.
 // See #2138.
@@ -46,6 +42,10 @@ struct gebp_traits <float,float,false,false,Architecture::NEON,GEBPPacketFull>
 #endif // EIGEN_ARCH_ARM && EIGEN_COMP_CLANG
 
 #if EIGEN_ARCH_ARM64
+
+#ifndef EIGEN_NEON_GEBP_NR
+#define EIGEN_NEON_GEBP_NR 8
+#endif
 
 template<>
 struct gebp_traits <float,float,false,false,Architecture::NEON,GEBPPacketFull>
