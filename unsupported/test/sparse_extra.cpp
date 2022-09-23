@@ -167,8 +167,7 @@ void check_marketio_dense()
 template <typename Scalar>
 void check_sparse_inverse() {
   typedef SparseMatrix<Scalar> MatrixType;
-  typedef SparseMatrix<Scalar, RowMajor> RowMatrixType;
-
+ 
   Matrix<Scalar, -1, -1> A;
   A.resize(1000, 1000);
   A.fill(0);
