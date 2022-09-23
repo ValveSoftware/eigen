@@ -354,7 +354,7 @@ inline void computeProductBlockingSizes(Index& k, Index& m, Index& n, Index num_
 template <typename RhsPacket, typename RhsPacketx4, int registers_taken>
 struct RhsPanelHelper {
  private:
-  static const int remaining_registers = EIGEN_ARCH_DEFAULT_NUMBER_OF_REGISTERS - registers_taken;
+  static constexpr int remaining_registers = (std::max)(int(EIGEN_ARCH_DEFAULT_NUMBER_OF_REGISTERS) - registers_taken, 0);
  public:
   typedef std::conditional_t<remaining_registers>=4, RhsPacketx4, RhsPacket> type;
 };
@@ -1221,6 +1221,7 @@ struct lhs_process_one_packet
     // (LhsProgress x depth)
     for(Index i=peelStart; i<peelEnd; i+=LhsProgress)
     {
+      EIGEN_IF_CONSTEXPR(nr>=8) {
       for(Index j2=0; j2<packet_cols8; j2+=8)
       {
         const LhsScalar* blA = &blockA[i*strideA+offsetA*(LhsProgress)];
@@ -1343,6 +1344,8 @@ struct lhs_process_one_packet
           r6.storePacket(0, R0);
           r7.storePacket(0, R1);
       }
+      }
+
       // loops on each largest micro vertical panel of rhs (depth * nr)
       for(Index j2=packet_cols8; j2<packet_cols4; j2+=4)
       {
@@ -1568,7 +1571,7 @@ void gebp_kernel<LhsScalar,RhsScalar,Index,DataMapper,mr,nr,ConjugateLhs,Conjuga
       {
         const Index actual_panel_end = (std::min)(i1+actual_panel_rows, peeled_mc3);
 
-        // nr >= 8
+        EIGEN_IF_CONSTEXPR(nr>=8) {
         for(Index j2=0; j2<packet_cols8; j2+=8)
         {
           for(Index i=i1; i<actual_panel_end; i+=3*LhsProgress)
@@ -1777,6 +1780,7 @@ void gebp_kernel<LhsScalar,RhsScalar,Index,DataMapper,mr,nr,ConjugateLhs,Conjuga
             r7.storePacket(1 * Traits::ResPacketSize, R1);
             r7.storePacket(2 * Traits::ResPacketSize, R2);
           }
+        }
         }
 
         for(Index j2=packet_cols8; j2<packet_cols4; j2+=4)
@@ -2025,6 +2029,7 @@ void gebp_kernel<LhsScalar,RhsScalar,Index,DataMapper,mr,nr,ConjugateLhs,Conjuga
       for(Index i1=peeled_mc3; i1<peeled_mc2; i1+=actual_panel_rows)
       {
         Index actual_panel_end = (std::min)(i1+actual_panel_rows, peeled_mc2);
+        EIGEN_IF_CONSTEXPR(nr>=8) {
         for(Index j2=0; j2<packet_cols8; j2+=8)
         {
           for(Index i=i1; i<actual_panel_end; i+=2*LhsProgress)
@@ -2186,6 +2191,7 @@ void gebp_kernel<LhsScalar,RhsScalar,Index,DataMapper,mr,nr,ConjugateLhs,Conjuga
             r7.storePacket(0 * Traits::ResPacketSize, R2);
             r7.storePacket(1 * Traits::ResPacketSize, R3);
           }
+        }
         }
 
         for(Index j2=packet_cols8; j2<packet_cols4; j2+=4)
@@ -2405,6 +2411,7 @@ void gebp_kernel<LhsScalar,RhsScalar,Index,DataMapper,mr,nr,ConjugateLhs,Conjuga
     //---------- Process remaining rows, 1 at once ----------
     if(peeled_mc_quarter<rows)
     {
+      EIGEN_IF_CONSTEXPR(nr>=8) {
       // loop on each panel of the rhs
       for(Index j2=0; j2<packet_cols8; j2+=8)
       {
@@ -2457,7 +2464,7 @@ void gebp_kernel<LhsScalar,RhsScalar,Index,DataMapper,mr,nr,ConjugateLhs,Conjuga
           res(i, j2 + 7) += alpha * C7;
         }
       }
-
+      }
       for(Index j2=packet_cols8; j2<packet_cols4; j2+=4)
       {
         // loop on each row of the lhs (1*LhsProgress x depth)
@@ -2949,7 +2956,7 @@ EIGEN_DONT_INLINE void gemm_pack_rhs<Scalar, Index, DataMapper, nr, ColMajor, Co
   Index count = 0;
   const Index peeled_k = (depth/PacketSize)*PacketSize;
 
-  if(nr>=8)
+  EIGEN_IF_CONSTEXPR(nr>=8)
   {
     for(Index j2=0; j2<packet_cols8; j2+=8)
     {
@@ -3063,8 +3070,8 @@ EIGEN_DONT_INLINE void gemm_pack_rhs<Scalar, Index, DataMapper, nr, ColMajor, Co
       if(PanelMode) count += 8 * (stride-offset-depth);
     }
   }
-
-  if(nr>=4)
+  
+  EIGEN_IF_CONSTEXPR(nr>=4)
   {
     for(Index j2=packet_cols8; j2<packet_cols4; j2+=4)
     {
@@ -3142,8 +3149,7 @@ struct gemm_pack_rhs<Scalar, Index, DataMapper, nr, RowMajor, Conjugate, PanelMo
     Index packet_cols8 = nr>=8 ? (cols/8) * 8 : 0;
     Index packet_cols4 = nr>=4 ? (cols/4) * 4 : 0;
     Index count = 0;
-
-    if(nr>=8)
+    EIGEN_IF_CONSTEXPR(nr>=8)
     {
       for(Index j2=0; j2<packet_cols8; j2+=8)
       {
@@ -3245,8 +3251,7 @@ inline std::ptrdiff_t l2CacheSize()
   return l2;
 }
 
-/** \returns the currently set level 3 cpu cache size (in bytes) used to estimate the ideal blocking size paramete\
-rs.                                                                                                                
+/** \returns the currently set level 3 cpu cache size (in bytes) used to estimate the ideal blocking size parameters.
 * \sa setCpuCacheSize */
 inline std::ptrdiff_t l3CacheSize()
 {

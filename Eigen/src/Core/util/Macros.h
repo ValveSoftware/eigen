@@ -1263,4 +1263,12 @@ bool all(T t, Ts ... ts){ return t && all(ts...); }
   #define EIGEN_UNROLL_LOOP
 #endif
 
+// Notice: Use this macro with caution. The code in the if body should still
+// compile with C++14.
+#if defined(EIGEN_HAS_CXX17_IFCONSTEXPR)
+#define EIGEN_IF_CONSTEXPR(X) if constexpr (X)
+#else
+#define EIGEN_IF_CONSTEXPR(X) if (X)
+#endif
+
 #endif // EIGEN_MACROS_H
