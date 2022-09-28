@@ -1221,6 +1221,7 @@ struct lhs_process_one_packet
     // (LhsProgress x depth)
     for(Index i=peelStart; i<peelEnd; i+=LhsProgress)
     {
+#if EIGEN_ARCH_ARM64
       EIGEN_IF_CONSTEXPR(nr>=8) {
       for(Index j2=0; j2<packet_cols8; j2+=8)
       {
@@ -1345,7 +1346,8 @@ struct lhs_process_one_packet
           r7.storePacket(0, R1);
       }
       }
-
+#endif
+      
       // loops on each largest micro vertical panel of rhs (depth * nr)
       for(Index j2=packet_cols8; j2<packet_cols4; j2+=4)
       {
@@ -1570,7 +1572,7 @@ void gebp_kernel<LhsScalar,RhsScalar,Index,DataMapper,mr,nr,ConjugateLhs,Conjuga
       for(Index i1=0; i1<peeled_mc3; i1+=actual_panel_rows)
       {
         const Index actual_panel_end = (std::min)(i1+actual_panel_rows, peeled_mc3);
-
+#if EIGEN_ARCH_ARM64
         EIGEN_IF_CONSTEXPR(nr>=8) {
         for(Index j2=0; j2<packet_cols8; j2+=8)
         {
@@ -1782,7 +1784,7 @@ void gebp_kernel<LhsScalar,RhsScalar,Index,DataMapper,mr,nr,ConjugateLhs,Conjuga
           }
         }
         }
-
+#endif
         for(Index j2=packet_cols8; j2<packet_cols4; j2+=4)
         {
           for(Index i=i1; i<actual_panel_end; i+=3*LhsProgress)
@@ -2029,6 +2031,7 @@ void gebp_kernel<LhsScalar,RhsScalar,Index,DataMapper,mr,nr,ConjugateLhs,Conjuga
       for(Index i1=peeled_mc3; i1<peeled_mc2; i1+=actual_panel_rows)
       {
         Index actual_panel_end = (std::min)(i1+actual_panel_rows, peeled_mc2);
+#if EIGEN_ARCH_ARM64
         EIGEN_IF_CONSTEXPR(nr>=8) {
         for(Index j2=0; j2<packet_cols8; j2+=8)
         {
@@ -2193,7 +2196,7 @@ void gebp_kernel<LhsScalar,RhsScalar,Index,DataMapper,mr,nr,ConjugateLhs,Conjuga
           }
         }
         }
-
+#endif
         for(Index j2=packet_cols8; j2<packet_cols4; j2+=4)
         {
           for(Index i=i1; i<actual_panel_end; i+=2*LhsProgress)
@@ -2411,6 +2414,7 @@ void gebp_kernel<LhsScalar,RhsScalar,Index,DataMapper,mr,nr,ConjugateLhs,Conjuga
     //---------- Process remaining rows, 1 at once ----------
     if(peeled_mc_quarter<rows)
     {
+#if EIGEN_ARCH_ARM64
       EIGEN_IF_CONSTEXPR(nr>=8) {
       // loop on each panel of the rhs
       for(Index j2=0; j2<packet_cols8; j2+=8)
@@ -2465,6 +2469,8 @@ void gebp_kernel<LhsScalar,RhsScalar,Index,DataMapper,mr,nr,ConjugateLhs,Conjuga
         }
       }
       }
+#endif
+
       for(Index j2=packet_cols8; j2<packet_cols4; j2+=4)
       {
         // loop on each row of the lhs (1*LhsProgress x depth)
@@ -2956,6 +2962,7 @@ EIGEN_DONT_INLINE void gemm_pack_rhs<Scalar, Index, DataMapper, nr, ColMajor, Co
   Index count = 0;
   const Index peeled_k = (depth/PacketSize)*PacketSize;
 
+#if EIGEN_ARCH_ARM64
   EIGEN_IF_CONSTEXPR(nr>=8)
   {
     for(Index j2=0; j2<packet_cols8; j2+=8)
@@ -3070,6 +3077,7 @@ EIGEN_DONT_INLINE void gemm_pack_rhs<Scalar, Index, DataMapper, nr, ColMajor, Co
       if(PanelMode) count += 8 * (stride-offset-depth);
     }
   }
+#endif
   
   EIGEN_IF_CONSTEXPR(nr>=4)
   {
@@ -3149,6 +3157,8 @@ struct gemm_pack_rhs<Scalar, Index, DataMapper, nr, RowMajor, Conjugate, PanelMo
     Index packet_cols8 = nr>=8 ? (cols/8) * 8 : 0;
     Index packet_cols4 = nr>=4 ? (cols/4) * 4 : 0;
     Index count = 0;
+
+#if EIGEN_ARCH_ARM64
     EIGEN_IF_CONSTEXPR(nr>=8)
     {
       for(Index j2=0; j2<packet_cols8; j2+=8)
@@ -3184,6 +3194,8 @@ struct gemm_pack_rhs<Scalar, Index, DataMapper, nr, RowMajor, Conjugate, PanelMo
         if(PanelMode) count += 8 * (stride-offset-depth);
       }
     }
+#endif
+    
     if(nr>=4)
     {
       for(Index j2=packet_cols8; j2<packet_cols4; j2+=4)
@@ -3251,7 +3263,8 @@ inline std::ptrdiff_t l2CacheSize()
   return l2;
 }
 
-/** \returns the currently set level 3 cpu cache size (in bytes) used to estimate the ideal blocking size parameters.
+/** \returns the currently set level 3 cpu cache size (in bytes) used to estimate the ideal blocking size paramete\
+rs.
 * \sa setCpuCacheSize */
 inline std::ptrdiff_t l3CacheSize()
 {
