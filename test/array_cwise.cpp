@@ -531,6 +531,8 @@ template<typename ArrayType> void array_real(const ArrayType& m)
   VERIFY_IS_APPROX(m1.sinh(), sinh(m1));
   VERIFY_IS_APPROX(m1.cosh(), cosh(m1));
   VERIFY_IS_APPROX(m1.tanh(), tanh(m1));
+  VERIFY_IS_APPROX(m1.atan2(m2), atan2(m1,m2));
+
 #if EIGEN_HAS_CXX11_MATH
   VERIFY_IS_APPROX(m1.tanh().atanh(), atanh(tanh(m1)));
   VERIFY_IS_APPROX(m1.sinh().asinh(), asinh(sinh(m1)));
@@ -592,6 +594,13 @@ template<typename ArrayType> void array_real(const ArrayType& m)
   VERIFY_IS_APPROX( m1.sign(), -(-m1).sign() );
   VERIFY_IS_APPROX( m1*m1.sign(),m1.abs());
   VERIFY_IS_APPROX(m1.sign() * m1.abs(), m1);
+  
+  ArrayType tmp = m1.atan2(m2);
+  for (Index i = 0; i < tmp.size(); ++i) {
+    Scalar actual = tmp.array()(i);
+    Scalar expected = atan2(m1.array()(i), m2.array()(i));
+    VERIFY_IS_APPROX(actual, expected);
+  }
 
   VERIFY_IS_APPROX(numext::abs2(numext::real(m1)) + numext::abs2(numext::imag(m1)), numext::abs2(m1));
   VERIFY_IS_APPROX(numext::abs2(Eigen::real(m1)) + numext::abs2(Eigen::imag(m1)), numext::abs2(m1));
@@ -683,7 +692,6 @@ template<typename ArrayType> void array_complex(const ArrayType& m)
   VERIFY_IS_APPROX(m1.cube(), cube(m1));
   VERIFY_IS_APPROX(cos(m1+RealScalar(3)*m2), cos((m1+RealScalar(3)*m2).eval()));
   VERIFY_IS_APPROX(m1.sign(), sign(m1));
-
 
   VERIFY_IS_APPROX(m1.exp() * m2.exp(), exp(m1+m2));
   VERIFY_IS_APPROX(m1.exp(), exp(m1));

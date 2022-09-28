@@ -509,6 +509,64 @@ struct functor_traits<scalar_absolute_difference_op<LhsScalar,RhsScalar> > {
 };
 
 
+template <typename LhsScalar, typename RhsScalar>
+struct scalar_atan2_op {
+  using Scalar = LhsScalar;
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE std::enable_if_t<is_same<LhsScalar,RhsScalar>::value, Scalar>
+  operator()(const Scalar& y, const Scalar& x) const {
+    EIGEN_USING_STD(atan2);
+    return static_cast<Scalar>(atan2(y, x));
+  }
+  template <typename Packet>
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE std::enable_if_t<is_same<LhsScalar,RhsScalar>::value, Packet> packetOp(const Packet& y,
+                                                        const Packet& x) const {
+    // See https://en.cppreference.com/w/cpp/numeric/math/atan2
+    // for how corner cases are supposed to be handles according to the
+    // IEEE floating-point standard (IEC 60559).
+    constexpr Scalar k3PiO3f = Scalar(3.0 * M_PI_4);
+    const Packet kSignMask = pset1<Packet>(Scalar(-0.0));
+    const Packet kPi = pset1<Packet>(Scalar(EIGEN_PI));
+    const Packet kPiO2 = pset1<Packet>(Scalar(M_PI_2));
+    const Packet kPiO4 = pset1<Packet>(Scalar(M_PI_4));
+    const Packet k3PiO4 = pset1<Packet>(k3PiO3f);
+    Packet x_neg = pcmp_lt(x, pzero(x));
+    Packet x_sign = pand(x, kSignMask);
+    Packet y_sign = pand(y, kSignMask);
+    Packet x_zero = pcmp_eq(x, pzero(x));
+    Packet y_zero = pcmp_eq(y, pzero(y));
+
+    // Compute the normal case. Notice that we expect that
+    // finite/infinite = +/-0 here.
+    Packet result = patan(pdiv(y, x));
+
+    // Compute shift for when x != 0 and y != 0.
+    Packet shift = pselect(x_neg, por(kPi, y_sign), pzero(x));
+
+    // Special cases:
+    //   Handle  x = +/-inf && y = +/-inf.
+    Packet is_not_nan = pcmp_eq(result, result);
+    result = pselect(is_not_nan, padd(shift, result),
+                     pselect(x_neg, por(k3PiO4, y_sign), por(kPiO4, y_sign)));
+    //   Handle x == +/-0.
+    result =
+        pselect(x_zero, pselect(y_zero, pzero(y), por(y_sign, kPiO2)), result);
+    //   Handle y == +/-0.
+    result = pselect(y_zero,
+                     pselect(x_sign, por(y_sign, kPi), por(y_sign, pzero(y))),
+                     result);
+
+    return result;
+  }
+};
+
+template<typename LhsScalar,typename RhsScalar>
+    struct functor_traits<scalar_atan2_op<LhsScalar, RhsScalar>> {
+  enum {
+    PacketAccess = is_same<LhsScalar,RhsScalar>::value && packet_traits<LhsScalar>::HasATan && packet_traits<LhsScalar>::HasDiv && !NumTraits<LhsScalar>::IsInteger && !NumTraits<LhsScalar>::IsComplex,
+    Cost =
+        scalar_div_cost<LhsScalar, PacketAccess>::value + 5 * NumTraits<LhsScalar>::MulCost + 5 * NumTraits<LhsScalar>::AddCost
+  };
+};
 
 //---------- binary functors bound to a constant, thus appearing as a unary functor ----------
 

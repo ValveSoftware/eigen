@@ -181,6 +181,25 @@ namespace Eigen
   }
 #endif
 
+  /** \returns an expression of the coefficient-wise atan2(\a x, \a y). \a x and \a y must be of the same type.
+    *
+    * This function computes the coefficient-wise atan2().
+    *
+    * \sa ArrayBase::atan2()
+    *
+    * \relates ArrayBase
+    */
+  template <typename LhsDerived, typename RhsDerived>
+  inline const std::enable_if_t<
+      std::is_same<typename LhsDerived::Scalar, typename RhsDerived::Scalar>::value,
+      Eigen::CwiseBinaryOp<Eigen::internal::scalar_atan2_op<typename LhsDerived::Scalar, typename RhsDerived::Scalar>, const LhsDerived, const RhsDerived>
+      >
+  atan2(const Eigen::ArrayBase<LhsDerived>& x, const Eigen::ArrayBase<RhsDerived>& exponents) {
+    return Eigen::CwiseBinaryOp<Eigen::internal::scalar_atan2_op<typename LhsDerived::Scalar, typename RhsDerived::Scalar>, const LhsDerived, const RhsDerived>(
+      x.derived(),
+      exponents.derived()
+    );
+  }
 
   namespace internal
   {
