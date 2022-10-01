@@ -161,6 +161,7 @@ template<> struct packet_traits<double> : default_packet_traits
     HasSqrt = EIGEN_FAST_MATH,
     HasRsqrt = EIGEN_FAST_MATH,
 #endif
+    HasATan = 1,
     HasCmp  = 1,
     HasDiv = 1,
     HasRound = 1,
