@@ -60,12 +60,6 @@ Packet4f patan<Packet4f>(const Packet4f& _x)
   return patan_float(_x);
 }
 
-template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-Packet2d patan<Packet2d>(const Packet2d& _x)
-{
-  return patan_double(_x);
-}
-
 #ifdef __VSX__
 #ifndef EIGEN_COMP_CLANG
 template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
@@ -78,6 +72,12 @@ template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
 Packet2d prsqrt<Packet2d>(const Packet2d& x)
 {
   return  vec_rsqrt(x);
+}
+
+template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
+Packet2d patan<Packet2d>(const Packet2d& _x)
+{
+  return patan_double(_x);
 }
 #endif
 
