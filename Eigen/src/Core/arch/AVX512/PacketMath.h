@@ -1836,7 +1836,7 @@ template <>
 EIGEN_STRONG_INLINE Packet16f pblend(const Selector<16>& /*ifPacket*/,
                                      const Packet16f& /*thenPacket*/,
                                      const Packet16f& /*elsePacket*/) {
-  assert(false && "To be implemented");
+  eigen_assert(false && "To be implemented");
   return Packet16f();
 }
 template <>
