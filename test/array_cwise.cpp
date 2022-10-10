@@ -533,11 +533,9 @@ template<typename ArrayType> void array_real(const ArrayType& m)
   VERIFY_IS_APPROX(m1.tanh(), tanh(m1));
   VERIFY_IS_APPROX(m1.atan2(m2), atan2(m1,m2));
 
-#if EIGEN_HAS_CXX11_MATH
   VERIFY_IS_APPROX(m1.tanh().atanh(), atanh(tanh(m1)));
   VERIFY_IS_APPROX(m1.sinh().asinh(), asinh(sinh(m1)));
   VERIFY_IS_APPROX(m1.cosh().acosh(), acosh(cosh(m1)));
-#endif
   VERIFY_IS_APPROX(m1.logistic(), logistic(m1));
 
   VERIFY_IS_APPROX(m1.arg(), arg(m1));
