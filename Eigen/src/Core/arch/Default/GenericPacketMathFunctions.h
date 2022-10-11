@@ -921,9 +921,9 @@ Packet patan_double(const Packet& x_in) {
   static_assert(std::is_same<Scalar, double>::value, "Scalar type must be double");
 
   const Packet cst_one = pset1<Packet>(1.0);
-  constexpr double kPiOverTwo = static_cast<double>(M_PI_2);
+  constexpr double kPiOverTwo = static_cast<double>(EIGEN_PI / 2);
   const Packet cst_pi_over_two = pset1<Packet>(kPiOverTwo);
-  constexpr double kPiOverFour = static_cast<double>(M_PI_4);
+  constexpr double kPiOverFour = static_cast<double>(EIGEN_PI / 4);
   const Packet cst_pi_over_four = pset1<Packet>(kPiOverFour);
   const Packet cst_large = pset1<Packet>(2.4142135623730950488016887);  // tan(3*pi/8);
   const Packet cst_medium = pset1<Packet>(0.4142135623730950488016887);  // tan(pi/8);
