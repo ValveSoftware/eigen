@@ -7,12 +7,11 @@
 // Public License v. 2.0. If a copy of the MPL was not distributed
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include <vector>
 #include "main.h"
 
-
-// Test the corner cases of pow(x, y) for real types.
-template<typename Scalar>
-void pow_test() {
+template <typename Scalar>
+std::vector<Scalar> special_values() {
   const Scalar zero = Scalar(0);
   const Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
   const Scalar one = Scalar(1);
@@ -27,25 +26,19 @@ void pow_test() {
   const Scalar max = (std::numeric_limits<Scalar>::max)();
   const Scalar max_exp = (static_cast<Scalar>(int(Eigen::NumTraits<Scalar>::max_exponent())) * Scalar(EIGEN_LN2)) / eps;
 
-  const static Scalar abs_vals[] = {zero,
-                                    denorm_min,
-                                    min,
-                                    eps,
-                                    sqrt_half,
-                                    one,
-                                    sqrt2,
-                                    two,
-                                    three,
-                                    max_exp,
-                                    max,
-                                    inf,
-                                    nan};
-  const int abs_cases = 13;
+  return {zero, denorm_min, min, eps, sqrt_half, one, sqrt2, two, three, max_exp, max, inf, nan};
+}
+
+template<typename Scalar>
+void special_value_pairs(Array<Scalar, Dynamic, Dynamic>& x,
+                         Array<Scalar, Dynamic, Dynamic>& y) {
+  std::vector<Scalar> abs_vals = special_values<Scalar>();
+  const int abs_cases = abs_vals.size();
   const int num_cases = 2*abs_cases * 2*abs_cases;
-  // Repeat the same value to make sure we hit the vectorized path.
-  const int num_repeats = 32;
-  Array<Scalar, Dynamic, Dynamic> x(num_repeats, num_cases);
-  Array<Scalar, Dynamic, Dynamic> y(num_repeats, num_cases);
+  // ensure both vectorized and non-vectorized paths taken
+  const int num_repeats = 2 * internal::packet_traits<Scalar>::size + 1;
+  x.resize(num_repeats, num_cases);
+  y.resize(num_repeats, num_cases);
   int count = 0;
   for (int i = 0; i < abs_cases; ++i) {
     const Scalar abs_x = abs_vals[i];
@@ -64,65 +57,85 @@ void pow_test() {
       }
     }
   }
+}
 
-  Array<Scalar, Dynamic, Dynamic> actual = x.pow(y);
+template <typename Scalar, typename Fn, typename RefFn>
+void binary_op_test(std::string name, Fn fun, RefFn ref) {
   const Scalar tol = test_precision<Scalar>();
+  Array<Scalar, Dynamic, Dynamic> x;
+  Array<Scalar, Dynamic, Dynamic> y;
+  special_value_pairs(x, y);
+
+  Array<Scalar, Dynamic, Dynamic> actual = fun(x, y);
   bool all_pass = true;
-  for (int i = 0; i < 1; ++i) {
-    for (int j = 0; j < num_cases; ++j) {
-      Scalar e = static_cast<Scalar>(std::pow(x(i,j), y(i,j)));
+  for (int i = 0; i < x.rows(); ++i) {
+    for (int j = 0; j < x.cols(); ++j) {
+      Scalar e = static_cast<Scalar>(ref(x(i,j), y(i,j)));
       Scalar a = actual(i, j);
       bool success = (a==e) || ((numext::isfinite)(e) && internal::isApprox(a, e, tol)) || ((numext::isnan)(a) && (numext::isnan)(e));
       all_pass &= success;
       if (!success) {
-        std::cout << "pow(" << x(i,j) << "," << y(i,j) << ")   =   " << a << " !=  " << e << std::endl;
+        std::cout << name << "(" << x(i,j) << "," << y(i,j) << ") = " << a << " !=  " << e << std::endl;
       }
     }
   }
+  VERIFY(all_pass);
+}
 
-  typedef typename internal::make_integer<Scalar>::type Int_t;
+template <typename Scalar>
+void binary_ops_test() {
+  binary_op_test<Scalar>("pow",
+                         [](auto x, auto y) { return Eigen::pow(x, y); },
+                         [](auto x, auto y) { return std::pow(x, y); });
+  binary_op_test<Scalar>("atan2",
+                         [](auto x, auto y) { return Eigen::atan2(x, y); },
+                         [](auto x, auto y) { return std::atan2(x, y); });
+}
 
-  // ensure both vectorized and non-vectorized paths taken
-  Index test_size = 2 * internal::packet_traits<Scalar>::size + 1;
-  
-  Array<Scalar, Dynamic, 1> eigenPow(test_size);
-  for (int i = 0; i < num_cases; ++i) {
-    Array<Scalar, Dynamic, 1> bases = x.col(i);
-    for (Scalar abs_exponent : abs_vals){
-      for (Scalar exponent : {-abs_exponent, abs_exponent}){
-        // test floating point exponent code path
-        eigenPow.setZero();
-        eigenPow = bases.pow(exponent);
-        for (int j = 0; j < num_repeats; j++){
+template <typename Scalar>
+void pow_scalar_exponent_test() {
+  using Int_t = typename internal::make_integer<Scalar>::type;
+  const Scalar tol = test_precision<Scalar>();
+
+  std::vector<Scalar> abs_vals = special_values<Scalar>();
+  const int num_vals = abs_vals.size();
+  Map<Array<Scalar, Dynamic, 1>> bases(abs_vals.data(), num_vals);
+
+  bool all_pass = true;
+  for (Scalar abs_exponent : abs_vals) {
+    for (Scalar exponent : {-abs_exponent, abs_exponent}) {
+      // test integer exponent code path
+      bool exponent_is_integer = (numext::isfinite)(exponent) && (numext::round(exponent) == exponent) &&
+                                 (numext::abs(exponent) < static_cast<Scalar>(NumTraits<Int_t>::highest()));
+      if (exponent_is_integer) {
+        Int_t exponent_as_int = static_cast<Int_t>(exponent);
+        Array<Scalar, Dynamic, 1> eigenPow = bases.pow(exponent_as_int);
+        for (int j = 0; j < num_vals; j++) {
           Scalar e = static_cast<Scalar>(std::pow(bases(j), exponent));
           Scalar a = eigenPow(j);
-          bool success = (a == e) || ((numext::isfinite)(e) && internal::isApprox(a, e, tol)) || ((numext::isnan)(a) && (numext::isnan)(e));
+          bool success = (a == e) || ((numext::isfinite)(e) && internal::isApprox(a, e, tol)) ||
+                         ((numext::isnan)(a) && (numext::isnan)(e));
           all_pass &= success;
           if (!success) {
-            std::cout << "pow(" << x(i, j) << "," << y(i, j) << ")   =   " << a << " !=  " << e << std::endl;
+            std::cout << "pow(" << bases(j) << "," << exponent << ") = " << a << " !=  " << e << std::endl;
           }
         }
-        // test integer exponent code path
-        bool exponent_is_integer = (numext::isfinite)(exponent) && (numext::round(exponent) == exponent) && (numext::abs(exponent) < static_cast<Scalar>(NumTraits<Int_t>::highest()));
-        if (exponent_is_integer)
-        {
-          Int_t exponent_as_int = static_cast<Int_t>(exponent);
-          eigenPow.setZero();
-          eigenPow = bases.pow(exponent_as_int);
-          for (int j = 0; j < num_repeats; j++){
-            Scalar e = static_cast<Scalar>(std::pow(bases(j), exponent));
-            Scalar a = eigenPow(j);
-            bool success = (a == e) || ((numext::isfinite)(e) && internal::isApprox(a, e, tol)) || ((numext::isnan)(a) && (numext::isnan)(e));
-            all_pass &= success;
-            if (!success) {
-              std::cout << "pow(" << x(i, j) << "," << y(i, j) << ")   =   " << a << " !=  " << e << std::endl;
-            }
+      } else {
+        // test floating point exponent code path
+        Array<Scalar, Dynamic, 1> eigenPow = bases.pow(exponent);
+        for (int j = 0; j < num_vals; j++) {
+          Scalar e = static_cast<Scalar>(std::pow(bases(j), exponent));
+          Scalar a = eigenPow(j);
+          bool success = (a == e) || ((numext::isfinite)(e) && internal::isApprox(a, e, tol)) ||
+                         ((numext::isnan)(a) && (numext::isnan)(e));
+          all_pass &= success;
+          if (!success) {
+            std::cout << "pow(" << bases(j) << "," << exponent << ")   =   " << a << " !=  " << e << std::endl;
           }
         }
       }
     }
   }
-
   VERIFY(all_pass);
 }
 
@@ -626,7 +639,10 @@ template<typename ArrayType> void array_real(const ArrayType& m)
   // Avoid inf and NaN.
   m3 = (m1.square()<NumTraits<Scalar>::epsilon()).select(Scalar(1),m3);
   VERIFY_IS_APPROX(m3.pow(RealScalar(-2)), m3.square().inverse());
-  pow_test<Scalar>();
+
+  // Test pow and atan2 on special IEEE values.
+  binary_ops_test<Scalar>();
+  pow_scalar_exponent_test<Scalar>();
 
   VERIFY_IS_APPROX(log10(m3), log(m3)/numext::log(Scalar(10)));
   VERIFY_IS_APPROX(log2(m3), log(m3)/numext::log(Scalar(2)));

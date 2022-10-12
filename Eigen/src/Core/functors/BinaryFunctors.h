@@ -523,7 +523,7 @@ struct scalar_atan2_op {
     // See https://en.cppreference.com/w/cpp/numeric/math/atan2
     // for how corner cases are supposed to be handled according to the
     // IEEE floating-point standard (IEC 60559).
-    const Packet kSignMask = pnegate(pzero(x));
+    const Packet kSignMask = pset1<Packet>(-Scalar(0.0));
     const Packet kPi = pset1<Packet>(Scalar(EIGEN_PI));
     const Packet kPiO2 = pset1<Packet>(Scalar(EIGEN_PI / 2));
     const Packet kPiO4 = pset1<Packet>(Scalar(EIGEN_PI / 4));
