@@ -930,7 +930,7 @@ struct functor_traits<scalar_sign_op<Scalar> >
         NumTraits<Scalar>::IsComplex
         ? ( 8*NumTraits<Scalar>::MulCost  ) // roughly
         : ( 3*NumTraits<Scalar>::AddCost),
-    PacketAccess = packet_traits<Scalar>::HasSign
+    PacketAccess = packet_traits<Scalar>::HasSign && packet_traits<Scalar>::Vectorizable
   };
 };
 

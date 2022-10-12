@@ -1146,7 +1146,8 @@ struct psign_impl<Packet, std::enable_if_t<!NumTraits<typename unpacket_traits<P
 
 // \internal \returns the the sign of a complex number z, defined as z / abs(z).
 template <typename Packet>
-struct psign_impl<Packet, std::enable_if_t<NumTraits<typename unpacket_traits<Packet>::type>::IsComplex>> {
+struct psign_impl<Packet, std::enable_if_t<NumTraits<typename unpacket_traits<Packet>::type>::IsComplex &&
+                                           unpacket_traits<Packet>::vectorizable>> {
   static EIGEN_DEVICE_FUNC inline Packet run(const Packet& a) {
     typedef typename unpacket_traits<Packet>::type Scalar;
     typedef typename Scalar::value_type RealScalar;
