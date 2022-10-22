@@ -96,19 +96,17 @@ inline void throw_std_bad_alloc()
 
 /* ----- Hand made implementations of aligned malloc/free and realloc ----- */
 
-/** \internal Like malloc, but the returned pointer is guaranteed to be 16-byte aligned.
-  * Fast, but wastes 16 additional bytes of memory. Does not throw any exception.
+/** \internal Like malloc, but the returned pointer is guaranteed to be aligned to `alignment`.
+  * Fast, but wastes `alignment` additional bytes of memory. Does not throw any exception.
   */
 EIGEN_DEVICE_FUNC inline void* handmade_aligned_malloc(std::size_t size, std::size_t alignment = EIGEN_DEFAULT_ALIGN_BYTES)
 {
   eigen_assert(alignment >= sizeof(void*) && (alignment & (alignment-1)) == 0 && "Alignment must be at least sizeof(void*) and a power of 2");
-
-  EIGEN_USING_STD(malloc)
-  void *original = malloc(size+alignment);
-  
+  void* original = std::malloc(size + alignment);
   if (original == 0) return 0;
-  void *aligned = reinterpret_cast<void*>((reinterpret_cast<std::size_t>(original) & ~(std::size_t(alignment-1))) + alignment);
-  *(reinterpret_cast<void**>(aligned) - 1) = original;
+  uint8_t offset = alignment - reinterpret_cast<std::size_t>(original) & (alignment - 1);
+  void* aligned = static_cast<char*>(original) + offset;
+  *(static_cast<char*>(aligned) - 1) = offset;
   return aligned;
 }
 
@@ -116,8 +114,9 @@ EIGEN_DEVICE_FUNC inline void* handmade_aligned_malloc(std::size_t size, std::si
 EIGEN_DEVICE_FUNC inline void handmade_aligned_free(void *ptr)
 {
   if (ptr) {
-    EIGEN_USING_STD(free)
-    free(*(reinterpret_cast<void**>(ptr) - 1));
+    uint8_t offset = *(static_cast<char*>(ptr) - 1);
+    void* original = static_cast<char*>(ptr) - offset;
+    std::free(original);
   }
 }
 
@@ -126,20 +125,21 @@ EIGEN_DEVICE_FUNC inline void handmade_aligned_free(void *ptr)
   * Since we know that our handmade version is based on std::malloc
   * we can use std::realloc to implement efficient reallocation.
   */
-inline void* handmade_aligned_realloc(void* ptr, std::size_t size, std::size_t = 0)
+EIGEN_DEVICE_FUNC inline void* handmade_aligned_realloc(void* ptr, std::size_t size, std::size_t alignment = EIGEN_DEFAULT_ALIGN_BYTES)
 {
-  if (ptr == 0) return handmade_aligned_malloc(size);
-  void *original = *(reinterpret_cast<void**>(ptr) - 1);
-  std::ptrdiff_t previous_offset = static_cast<char *>(ptr)-static_cast<char *>(original);
-  original = std::realloc(original,size+EIGEN_DEFAULT_ALIGN_BYTES);
+  if (ptr == 0) return handmade_aligned_malloc(size, alignment);
+  uint8_t previous_offset = *(static_cast<char*>(ptr) - 1);
+  void* previous_original = static_cast<char*>(ptr) - previous_offset;
+  void* original = std::realloc(previous_original, size + alignment);
   if (original == 0) return 0;
-  void *aligned = reinterpret_cast<void*>((reinterpret_cast<std::size_t>(original) & ~(std::size_t(EIGEN_DEFAULT_ALIGN_BYTES-1))) + EIGEN_DEFAULT_ALIGN_BYTES);
-  void *previous_aligned = static_cast<char *>(original)+previous_offset;
-  if(aligned!=previous_aligned)
-    std::memmove(aligned, previous_aligned, size);
-
-  *(reinterpret_cast<void**>(aligned) - 1) = original;
-  return aligned;
+  if (original != previous_original) {
+    uint8_t offset = alignment - reinterpret_cast<std::size_t>(original) & (alignment - 1);
+    void* aligned = static_cast<char*>(original) + offset;
+    std::memmove(aligned, ptr, size);
+    *(static_cast<char*>(aligned) - 1) = offset;
+    return aligned;
+  }
+  return ptr;
 }
 
 /*****************************************************************************
@@ -214,7 +214,7 @@ EIGEN_DEVICE_FUNC inline void aligned_free(void *ptr)
   * \brief Reallocates an aligned block of memory.
   * \throws std::bad_alloc on allocation failure
   */
-inline void* aligned_realloc(void *ptr, std::size_t new_size, std::size_t old_size)
+EIGEN_DEVICE_FUNC inline void* aligned_realloc(void *ptr, std::size_t new_size, std::size_t old_size)
 {
   if (ptr == 0) return aligned_malloc(new_size);
   EIGEN_UNUSED_VARIABLE(old_size)
@@ -223,7 +223,7 @@ inline void* aligned_realloc(void *ptr, std::size_t new_size, std::size_t old_si
 #if (EIGEN_DEFAULT_ALIGN_BYTES==0) || EIGEN_MALLOC_ALREADY_ALIGNED
   result = std::realloc(ptr,new_size);
 #else
-  result = handmade_aligned_realloc(ptr,new_size,old_size);
+  result = handmade_aligned_realloc(ptr,new_size);
 #endif
 
   if (!result && new_size)
@@ -273,12 +273,12 @@ template<> EIGEN_DEVICE_FUNC inline void conditional_aligned_free<false>(void *p
   free(ptr);
 }
 
-template<bool Align> inline void* conditional_aligned_realloc(void* ptr, std::size_t new_size, std::size_t old_size)
+template<bool Align> EIGEN_DEVICE_FUNC inline void* conditional_aligned_realloc(void* ptr, std::size_t new_size, std::size_t old_size)
 {
   return aligned_realloc(ptr, new_size, old_size);
 }
 
-template<> inline void* conditional_aligned_realloc<false>(void* ptr, std::size_t new_size, std::size_t)
+template<> EIGEN_DEVICE_FUNC inline void* conditional_aligned_realloc<false>(void* ptr, std::size_t new_size, std::size_t)
 {
   return std::realloc(ptr, new_size);
 }
@@ -471,7 +471,7 @@ template<typename T, bool Align> EIGEN_DEVICE_FUNC inline T* conditional_aligned
   return result;
 }
 
-template<typename T, bool Align> inline T* conditional_aligned_realloc_new_auto(T* pts, std::size_t new_size, std::size_t old_size)
+template<typename T, bool Align> EIGEN_DEVICE_FUNC inline T* conditional_aligned_realloc_new_auto(T* pts, std::size_t new_size, std::size_t old_size)
 {
   if (NumTraits<T>::RequireInitialization) {
     return conditional_aligned_realloc_new<T, Align>(pts, new_size, old_size);
