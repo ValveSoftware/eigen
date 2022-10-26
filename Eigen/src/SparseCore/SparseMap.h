@@ -127,7 +127,13 @@ class SparseMapBase<Derived,ReadOnlyAccessors>
                               ScalarPointer valuePtr, IndexPointer innerNonZerosPtr = 0)
       : m_outerSize(IsRowMajor?rows:cols), m_innerSize(IsRowMajor?cols:rows), m_zero_nnz(0,internal::convert_index<StorageIndex>(nnz)), m_outerIndex(outerIndexPtr),
         m_innerIndices(innerIndexPtr), m_values(valuePtr), m_innerNonZeros(innerNonZerosPtr)
-    {}
+    {
+      eigen_assert(
+        outerIndexPtr == nullptr  // Sparse Vector.
+        || ((m_innerNonZeros == nullptr && outerIndexPtr[m_outerSize] == nnz)  // Compressed Matrix.
+            || (m_innerNonZeros != nullptr && outerIndexPtr[m_outerSize] >= outerIndexPtr[m_outerSize-1] + m_innerNonZeros[m_outerSize - 1])  // Non-compressed Matrix.
+            && "The outer index ptr must have m_outerSize+1 elements, and the last value must indicate the total size of the valuePtr array."));
+    }
 
     // for vectors
     inline SparseMapBase(Index size, Index nnz, IndexPointer innerIndexPtr, ScalarPointer valuePtr)
