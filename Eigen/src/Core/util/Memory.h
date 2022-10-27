@@ -104,7 +104,7 @@ EIGEN_DEVICE_FUNC inline void* handmade_aligned_malloc(std::size_t size, std::si
   eigen_assert(alignment >= sizeof(void*) && (alignment & (alignment-1)) == 0 && "Alignment must be at least sizeof(void*) and a power of 2");
   void* original = std::malloc(size + alignment);
   if (original == 0) return 0;
-  uint8_t offset = alignment - reinterpret_cast<std::size_t>(original) & (alignment - 1);
+  uint8_t offset = alignment - (reinterpret_cast<std::size_t>(original) & (alignment - 1));
   void* aligned = static_cast<char*>(original) + offset;
   *(static_cast<char*>(aligned) - 1) = offset;
   return aligned;
@@ -133,7 +133,7 @@ EIGEN_DEVICE_FUNC inline void* handmade_aligned_realloc(void* ptr, std::size_t s
   void* original = std::realloc(previous_original, size + alignment);
   if (original == 0) return 0;
   if (original != previous_original) {
-    uint8_t offset = alignment - reinterpret_cast<std::size_t>(original) & (alignment - 1);
+    uint8_t offset = alignment - (reinterpret_cast<std::size_t>(original) & (alignment - 1));
     void* aligned = static_cast<char*>(original) + offset;
     std::memmove(aligned, ptr, size);
     *(static_cast<char*>(aligned) - 1) = offset;
