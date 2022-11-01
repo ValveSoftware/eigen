@@ -353,11 +353,11 @@ class DenseStorage<T, 0, Dynamic, Cols_, Options_> {
     }
     EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR Index rows(void) const EIGEN_NOEXCEPT {return m_rows;}
     EIGEN_DEVICE_FUNC static EIGEN_CONSTEXPR Index cols(void) EIGEN_NOEXCEPT {return Cols_;}
-    EIGEN_DEVICE_FUNC void conservativeResize(Index, Index rows, Index cols) {
+    EIGEN_DEVICE_FUNC void conservativeResize(Index, Index rows, Index) {
       m_rows = rows;
       eigen_assert(m_rows * Cols_ == 0 && "The number of rows times columns must equal the storage size.");
     }
-    EIGEN_DEVICE_FUNC void resize(Index, Index rows, Index cols) {
+    EIGEN_DEVICE_FUNC void resize(Index, Index rows, Index) {
       m_rows = rows;
       eigen_assert(m_rows * Cols_ == 0 && "The number of rows times columns must equal the storage size.");
     }
