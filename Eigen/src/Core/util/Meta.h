@@ -43,6 +43,32 @@ typedef std::uint32_t uint32_t;
 typedef std::int32_t  int32_t;
 typedef std::uint64_t uint64_t;
 typedef std::int64_t  int64_t;
+
+template <size_t Size>
+struct get_integer_by_size {
+    typedef void signed_type;
+    typedef void unsigned_type;
+};
+template <>
+struct get_integer_by_size<1> {
+    typedef int8_t signed_type;
+    typedef uint8_t unsigned_type;
+};
+template <>
+struct get_integer_by_size<2> {
+    typedef int16_t signed_type;
+    typedef uint16_t unsigned_type;
+};
+template <>
+struct get_integer_by_size<4> {
+    typedef int32_t signed_type;
+    typedef uint32_t unsigned_type;
+};
+template <>
+struct get_integer_by_size<8> {
+    typedef int64_t signed_type;
+    typedef uint64_t unsigned_type;
+};
 }
 }
 

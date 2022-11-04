@@ -239,6 +239,58 @@ void check_rsqrt() {
   check_rsqrt_impl<T>::run();
 }
 
+template <typename T, bool IsInteger = NumTraits<T>::IsInteger>
+struct ref_signbit_func_impl {
+  static bool run(const T& x) { return std::signbit(x); }
+};
+template <typename T>
+struct ref_signbit_func_impl<T, true> {
+  // MSVC (perhaps others) does not have a std::signbit overload for integers
+  static bool run(const T& x) { return x < T(0); }
+};
+template <typename T>
+bool ref_signbit_func(const T& x) {
+  return ref_signbit_func_impl<T>::run(x);
+}
+
+template <typename T>
+struct check_signbit_impl {
+  static void run() {
+    T true_mask;
+    std::memset(static_cast<void*>(&true_mask), 0xff, sizeof(T));
+    T false_mask;
+    std::memset(static_cast<void*>(&false_mask), 0x00, sizeof(T));
+
+    // has sign bit
+    const T neg_zero = static_cast<T>(-0.0);
+    const T neg_one = static_cast<T>(-1.0);
+    const T neg_inf = -std::numeric_limits<T>::infinity();
+    const T neg_nan = -std::numeric_limits<T>::quiet_NaN();
+    // does not have sign bit
+    const T pos_zero = static_cast<T>(0.0);
+    const T pos_one = static_cast<T>(1.0);
+    const T pos_inf = std::numeric_limits<T>::infinity();
+    const T pos_nan = std::numeric_limits<T>::quiet_NaN();
+
+    std::vector<T> values = {neg_zero, neg_one, neg_inf, neg_nan, pos_zero, pos_one, pos_inf, pos_nan};
+
+    bool all_pass = true;
+
+    for (T val : values) {
+      const T numext_val = numext::signbit(val);
+      const T ref_val = ref_signbit_func(val) ? true_mask : false_mask;
+      bool not_same = internal::predux_any(internal::bitwise_helper<T>::bitwise_xor(ref_val, numext_val));
+      all_pass = all_pass && !not_same;
+      if (not_same) std::cout << "signbit(" << val << ") != " << numext_val << "\n";
+    }
+    VERIFY(all_pass);
+  }
+};
+template <typename T>
+void check_signbit() {
+  check_signbit_impl<T>::run();
+}
+
 EIGEN_DECLARE_TEST(numext) {
   for(int k=0; k<g_repeat; ++k)
   {
@@ -271,5 +323,20 @@ EIGEN_DECLARE_TEST(numext) {
     CALL_SUBTEST( check_rsqrt<double>() );
     CALL_SUBTEST( check_rsqrt<std::complex<float> >() );
     CALL_SUBTEST( check_rsqrt<std::complex<double> >() );
+
+    CALL_SUBTEST( check_signbit<half>());
+    CALL_SUBTEST( check_signbit<bfloat16>());
+    CALL_SUBTEST( check_signbit<float>());
+    CALL_SUBTEST( check_signbit<double>());
+
+    CALL_SUBTEST( check_signbit<uint8_t>());
+    CALL_SUBTEST( check_signbit<uint16_t>());
+    CALL_SUBTEST( check_signbit<uint32_t>());
+    CALL_SUBTEST( check_signbit<uint64_t>());
+
+    CALL_SUBTEST( check_signbit<int8_t>());
+    CALL_SUBTEST( check_signbit<int16_t>());
+    CALL_SUBTEST( check_signbit<int32_t>());
+    CALL_SUBTEST( check_signbit<int64_t>());
   }
 }

@@ -229,10 +229,7 @@ template<> struct packet_traits<int64_t> : default_packet_traits
     Vectorizable = 1,
     AlignedOnScalar = 1,
     HasCmp = 1,
-    size=4,
-
-    // requires AVX512
-    HasShift     = 0,
+    size=4
   };
 };
 #endif
@@ -360,6 +357,35 @@ template <int N>
 EIGEN_STRONG_INLINE Packet4l plogical_shift_left(Packet4l a) {
   return _mm256_slli_epi64(a, N);
 }
+#ifdef EIGEN_VECTORIZE_AVX512FP16
+template <int N>
+EIGEN_STRONG_INLINE Packet4l parithmetic_shift_right(Packet4l a) { return _mm256_srai_epi64(a, N); }
+#else
+template <int N>
+EIGEN_STRONG_INLINE std::enable_if_t< (N == 0), Packet4l> parithmetic_shift_right(Packet4l a) {
+  return a;
+}
+template <int N>
+EIGEN_STRONG_INLINE std::enable_if_t< (N > 0) && (N < 32), Packet4l> parithmetic_shift_right(Packet4l a) {
+  __m256i hi_word = _mm256_srai_epi32(a, N);
+  __m256i lo_word = _mm256_srli_epi64(a, N);
+  return _mm256_blend_epi32(hi_word, lo_word, 0b01010101);
+}
+template <int N>
+EIGEN_STRONG_INLINE std::enable_if_t< (N >= 32) && (N < 63), Packet4l> parithmetic_shift_right(Packet4l a) {
+  __m256i hi_word = _mm256_srai_epi32(a, 31);
+  __m256i lo_word = _mm256_shuffle_epi32(_mm256_srai_epi32(a, N - 32), (shuffle_mask<1, 1, 3, 3>::mask));
+  return _mm256_blend_epi32(hi_word, lo_word, 0b01010101);
+}
+template <int N>
+EIGEN_STRONG_INLINE std::enable_if_t< (N == 63), Packet4l> parithmetic_shift_right(Packet4l a) {
+  return _mm256_shuffle_epi32(_mm256_srai_epi32(a, 31), (shuffle_mask<1, 1, 3, 3>::mask));
+}
+template <int N>
+EIGEN_STRONG_INLINE std::enable_if_t< (N < 0) || (N > 63), Packet4l> parithmetic_shift_right(Packet4l a) {
+  return parithmetic_shift_right<int(N&63)>(a);
+}
+#endif
 template <>
 EIGEN_STRONG_INLINE Packet4l pload<Packet4l>(const int64_t* from) {
   EIGEN_DEBUG_ALIGNED_LOAD return _mm256_load_si256(reinterpret_cast<const __m256i*>(from));
@@ -1102,6 +1128,11 @@ template<> EIGEN_STRONG_INLINE Packet8i pabs(const Packet8i& a)
   return _mm256_insertf128_si256(_mm256_castsi128_si256(lo), (hi), 1);
 #endif
 }
+
+template<> EIGEN_STRONG_INLINE Packet8h  psignbit(const Packet8h&  a) { return _mm_srai_epi16(a, 15); }
+template<> EIGEN_STRONG_INLINE Packet8bf psignbit(const Packet8bf& a) { return _mm_srai_epi16(a, 15); }
+template<> EIGEN_STRONG_INLINE Packet8f  psignbit(const Packet8f&  a) { return _mm256_castsi256_ps(parithmetic_shift_right<31>((Packet8i)_mm256_castps_si256(a))); }
+template<> EIGEN_STRONG_INLINE Packet4d  psignbit(const Packet4d& a)  { return _mm256_castsi256_pd(parithmetic_shift_right<63>((Packet4l)_mm256_castpd_si256(a))); }
 
 template<> EIGEN_STRONG_INLINE Packet8f pfrexp<Packet8f>(const Packet8f& a, Packet8f& exponent) {
   return pfrexp_generic(a,exponent);

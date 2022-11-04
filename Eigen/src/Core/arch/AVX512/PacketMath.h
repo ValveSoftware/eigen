@@ -1127,6 +1127,11 @@ template<> EIGEN_STRONG_INLINE Packet16i pabs(const Packet16i& a)
   return _mm512_abs_epi32(a);
 }
 
+template<> EIGEN_STRONG_INLINE Packet16h  psignbit(const Packet16h&  a) { return _mm256_srai_epi16(a, 15); }
+template<> EIGEN_STRONG_INLINE Packet16bf psignbit(const Packet16bf& a) { return _mm256_srai_epi16(a, 15); }
+template<> EIGEN_STRONG_INLINE Packet16f  psignbit(const Packet16f&  a) { return _mm512_castsi512_ps(_mm512_srai_epi32(_mm512_castps_si512(a), 31)); }
+template<> EIGEN_STRONG_INLINE Packet8d   psignbit(const Packet8d&   a) { return _mm512_castsi512_pd(_mm512_srai_epi64(_mm512_castpd_si512(a), 63)); }
+
 template<>
 EIGEN_STRONG_INLINE Packet16f pfrexp<Packet16f>(const Packet16f& a, Packet16f& exponent){
   return pfrexp_generic(a, exponent);

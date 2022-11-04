@@ -196,6 +196,13 @@ EIGEN_STRONG_INLINE Packet32h pabs<Packet32h>(const Packet32h& a) {
   return _mm512_abs_ph(a);
 }
 
+// psignbit
+
+template <>
+EIGEN_STRONG_INLINE Packet32h psignbit<Packet32h>(const Packet32h& a) {
+  return _mm512_castsi512_ph(_mm512_srai_epi16(_mm512_castph_si512(a), 15));
+}
+
 // pmin
 
 template <>
