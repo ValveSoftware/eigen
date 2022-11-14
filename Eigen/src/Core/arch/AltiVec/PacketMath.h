@@ -1576,7 +1576,7 @@ template<> EIGEN_STRONG_INLINE Packet8bf  pabs(const Packet8bf& a) {
 }
 
 template<> EIGEN_STRONG_INLINE Packet8bf psignbit(const Packet8bf& a) { return vec_sra(a.m_val, vec_splat_u16(15)); }
-template<> EIGEN_STRONG_INLINE Packet4f  psignbit(const Packet4f&  a) { return  (Packet4f)vec_sra((Packet4i)a, vec_splats(uint32_t(31))); }
+template<> EIGEN_STRONG_INLINE Packet4f  psignbit(const Packet4f&  a) { return  (Packet4f)vec_sra((Packet4i)a, vec_splats(unsigned int(31))); }
 
 template<int N> EIGEN_STRONG_INLINE Packet4i parithmetic_shift_right(const Packet4i& a)
 { return vec_sra(a,reinterpret_cast<Packet4ui>(pset1<Packet4i>(N))); }
@@ -2931,7 +2931,7 @@ template<> EIGEN_STRONG_INLINE Packet2d preverse(const Packet2d& a)
   return vec_sld(a, a, 8);
 }
 template<> EIGEN_STRONG_INLINE Packet2d pabs(const Packet2d& a) { return vec_abs(a); }
-template<> EIGEN_STRONG_INLINE Packet2d psignbit(const Packet2d&  a) { return (Packet2d)vec_sra((Packet2l)a, vec_splats(uint64_t(63))); }
+template<> EIGEN_STRONG_INLINE Packet2d psignbit(const Packet2d&  a) { return (Packet2d)vec_sra((Packet2l)a, vec_splats(unsigned long long(63))); }
 // VSX support varies between different compilers and even different
 // versions of the same compiler.  For gcc version >= 4.9.3, we can use
 // vec_cts to efficiently convert Packet2d to Packet2l.  Otherwise, use
