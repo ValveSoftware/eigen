@@ -270,8 +270,10 @@ template<typename VectorsType, typename CoeffsType, int Side=OnTheLeft> class Ho
 template<typename Scalar>     class JacobiRotation;
 
 // Geometry module:
+namespace internal {
+template<typename Derived, typename OtherDerived, int Size = MatrixBase<Derived>::SizeAtCompileTime> struct cross_impl;
+}
 template<typename Derived, int Dim_> class RotationBase;
-template<typename Lhs, typename Rhs> class Cross;
 template<typename Derived> class QuaternionBase;
 template<typename Scalar> class Rotation2D;
 template<typename Scalar> class AngleAxis;

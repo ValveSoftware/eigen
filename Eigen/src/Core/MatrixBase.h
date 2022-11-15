@@ -387,20 +387,9 @@ template<typename Derived> class MatrixBase
 
 /////////// Geometry module ///////////
 
-    #ifndef EIGEN_PARSED_BY_DOXYGEN
-    /// \internal helper struct to form the return type of the cross product
-    template<typename OtherDerived> struct cross_product_return_type {
-      typedef typename ScalarBinaryOpTraits<typename internal::traits<Derived>::Scalar,typename internal::traits<OtherDerived>::Scalar>::ReturnType Scalar;
-      typedef Matrix<Scalar,MatrixBase::RowsAtCompileTime,MatrixBase::ColsAtCompileTime> type;
-    };
-    #endif // EIGEN_PARSED_BY_DOXYGEN
     template<typename OtherDerived>
     EIGEN_DEVICE_FUNC
-#ifndef EIGEN_PARSED_BY_DOXYGEN
-    inline typename cross_product_return_type<OtherDerived>::type
-#else
-    inline PlainObject
-#endif
+    inline typename internal::cross_impl<Derived, OtherDerived>::return_type
     cross(const MatrixBase<OtherDerived>& other) const;
 
     template<typename OtherDerived>
