@@ -790,9 +790,19 @@ void packetmath_real() {
   const int PacketSize = internal::unpacket_traits<Packet>::size;
 
   const int size = PacketSize * 4;
-  EIGEN_ALIGN_MAX Scalar data1[PacketSize * 4];
-  EIGEN_ALIGN_MAX Scalar data2[PacketSize * 4];
-  EIGEN_ALIGN_MAX Scalar ref[PacketSize * 4];
+  EIGEN_ALIGN_MAX Scalar data1[PacketSize * 4] = {};
+  EIGEN_ALIGN_MAX Scalar data2[PacketSize * 4] = {};
+  EIGEN_ALIGN_MAX Scalar ref[PacketSize * 4] = {};
+  
+  // Negate with -0.
+  if (PacketTraits::HasNegate) {
+    test::packet_helper<PacketTraits::HasNegate,Packet> h;
+    data1[0] = Scalar{-0};
+    h.store(data2, internal::pnegate(h.load(data1)));
+    typedef typename internal::make_unsigned<typename internal::make_integer<Scalar>::type>::type Bits;
+    Bits bits = numext::bit_cast<Bits>(data2[0]);
+    VERIFY_IS_EQUAL(bits, static_cast<Bits>(Bits(1)<<(sizeof(Scalar)*CHAR_BIT - 1)));
+  }
 
   for (int i = 0; i < size; ++i) {
     data1[i] = Scalar(internal::random<double>(0, 1) * std::pow(10., internal::random<double>(-6, 6)));
