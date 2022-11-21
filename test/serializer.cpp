@@ -9,8 +9,71 @@
 
 #include "main.h"
 
-#include <vector>
 #include <Eigen/Core>
+#include <Eigen/SparseCore>
+#include <vector>
+
+template <typename T>
+struct RandomImpl {
+  static auto Create(Eigen::Index rows, Eigen::Index cols) {
+    return T::Random(rows, cols);
+  }
+};
+
+template <typename Scalar, int Options, typename DenseIndex>
+struct RandomImpl<Eigen::SparseMatrix<Scalar, Options, DenseIndex>> {
+  using T = Eigen::SparseMatrix<Scalar, Options, DenseIndex>;
+
+  static auto Create(Eigen::Index rows, Eigen::Index cols) {
+    Eigen::SparseMatrix<Scalar, Options, DenseIndex> M(rows, cols);
+    M.setZero();
+    double density = 0.1;
+
+    // Reserve some space along each inner dim.
+    int nnz = static_cast<int>(density * 1.5 * M.innerSize());
+    M.reserve(Eigen::VectorXi::Constant(M.outerSize(), nnz));
+
+    for (int j = 0; j < M.outerSize(); j++) {
+      for (int i = 0; i < M.innerSize(); i++) {
+        bool zero = (Eigen::internal::random<double>(0, 1) > density);
+        if (!zero) {
+          M.insertByOuterInner(j, i) = internal::random<Scalar>();
+        }
+      }
+    }
+
+    // 50-50 whether to compress or not.
+    if (Eigen::internal::random<double>(0, 1) >= 0.5) {
+      M.makeCompressed();
+    }
+
+    return M;
+  }
+};
+
+template <typename Scalar, int Options, typename DenseIndex>
+struct RandomImpl<Eigen::SparseVector<Scalar, Options, DenseIndex>> {
+  using T = Eigen::SparseVector<Scalar, Options, DenseIndex>;
+
+  static auto Create(Eigen::Index rows, Eigen::Index cols) {
+    Eigen::SparseVector<Scalar, Options, DenseIndex> M(rows, cols);
+    M.setZero();
+    double density = 0.1;
+
+    // Reserve some space along each inner dim.
+    int nnz = static_cast<int>(density * 1.5 * M.innerSize());
+    M.reserve(nnz);
+
+    for (int i = 0; i < M.innerSize(); i++) {
+      bool zero = (Eigen::internal::random<double>(0, 1) > density);
+      if (!zero) {
+        M.insert(i) = internal::random<Scalar>();
+      }
+    }
+
+    return M;
+  }
+};
 
 struct MyPodType {
   double x;
@@ -67,9 +130,9 @@ template<typename T>
 void test_eigen_type(const T& type) {
   const Index rows = type.rows();
   const Index cols = type.cols();
-  
-  const T initial = T::Random(rows, cols);
-  
+
+  const T initial = RandomImpl<T>::Create(rows, cols);
+
   // Serialize.
   Eigen::Serializer<T> serializer;
   size_t buffer_size = serializer.size(initial);
@@ -160,7 +223,9 @@ EIGEN_DECLARE_TEST(serializer)
     CALL_SUBTEST( test_eigen_type(Eigen::Vector3f()) );
     CALL_SUBTEST( test_eigen_type(Eigen::Matrix4d()) );
     CALL_SUBTEST( test_eigen_type(Eigen::MatrixXd(15, 17)) );
-    
+    CALL_SUBTEST(test_eigen_type(Eigen::SparseMatrix<float>(13, 12)));
+    CALL_SUBTEST(test_eigen_type(Eigen::SparseVector<float>(17)));
+
     CALL_SUBTEST( test_dense_types( Eigen::Array33f(),
                                     Eigen::ArrayXd(10),
                                     Eigen::MatrixXd(15, 17)) );

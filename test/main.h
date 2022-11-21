@@ -670,6 +670,12 @@ bool test_isCwiseApprox(const DenseBase<Derived1>& m1,
   return true;
 }
 
+template <typename Derived1, typename Derived2>
+bool test_isCwiseApprox(const SparseMatrixBase<Derived1>& m1,
+                        const SparseMatrixBase<Derived2>& m2, bool exact) {
+  return test_isCwiseApprox(m1.toDense(), m2.toDense(), exact);
+}
+
 template<typename T, typename U>
 bool test_is_equal(const T& actual, const U& expected, bool expect_equal)
 {
