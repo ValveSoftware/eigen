@@ -207,8 +207,9 @@ void checkOptimalTraversal() {
   
   // Unrolled - ColMajor.
   {
-    Eigen::Matrix4f X = Eigen::Matrix4f::Random();
-    TrackedVisitor<double, false> visitor;
+    using MatrixType = Matrix<float, 4, 4, ColMajor>;
+    MatrixType X = MatrixType::Random(4, 4);
+    TrackedVisitor<MatrixType::Scalar, false> visitor;
     X.visit(visitor);
     Index count = 0;
     for (Index j=0; j<X.cols(); ++j) {
@@ -221,10 +222,10 @@ void checkOptimalTraversal() {
   }
   
   // Unrolled - RowMajor.
-  using Matrix4fRowMajor = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
   {
-    Matrix4fRowMajor X = Matrix4fRowMajor::Random();
-    TrackedVisitor<double, false> visitor;
+    using MatrixType = Matrix<float, 4, 4, RowMajor>;
+    MatrixType X = MatrixType::Random(4, 4);
+    TrackedVisitor<MatrixType::Scalar, false> visitor;
     X.visit(visitor);
     Index count = 0;
     for (Index i=0; i<X.rows(); ++i) {
@@ -238,8 +239,9 @@ void checkOptimalTraversal() {
   
   // Not unrolled - ColMajor
   {
-    Eigen::MatrixXf X = Eigen::MatrixXf::Random(4, 4);
-    TrackedVisitor<double, false> visitor;
+    using MatrixType = Matrix<float, Dynamic, Dynamic, ColMajor>;
+    MatrixType X = MatrixType::Random(4, 4);
+    TrackedVisitor<MatrixType::Scalar, false> visitor;
     X.visit(visitor);
     Index count = 0;
     for (Index j=0; j<X.cols(); ++j) {
@@ -252,10 +254,10 @@ void checkOptimalTraversal() {
   }
   
   // Not unrolled - RowMajor.
-  using MatrixXfRowMajor = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
   {
-    MatrixXfRowMajor X = MatrixXfRowMajor::Random(4, 4);
-    TrackedVisitor<double, false> visitor;
+    using MatrixType = Matrix<float, Dynamic, Dynamic, RowMajor>;
+    MatrixType X = MatrixType::Random(4, 4);
+    TrackedVisitor<MatrixType::Scalar, false> visitor;
     X.visit(visitor);
     Index count = 0;
     for (Index i=0; i<X.rows(); ++i) {
@@ -269,10 +271,11 @@ void checkOptimalTraversal() {
   
   // Vectorized - ColMajor
   {
+    using MatrixType = Matrix<float, Dynamic, Dynamic, ColMajor>;
     // Ensure rows/cols is larger than packet size.
-    constexpr int PacketSize = Eigen::internal::packet_traits<float>::size;
-    Eigen::MatrixXf X = Eigen::MatrixXf::Random(4 * PacketSize, 4 * PacketSize);
-    TrackedVisitor<double, true> visitor;
+    constexpr int PacketSize = Eigen::internal::packet_traits<MatrixType::Scalar>::size;
+    MatrixType X = MatrixType::Random(4 * PacketSize, 4 * PacketSize);
+    TrackedVisitor<MatrixType::Scalar, true> visitor;
     X.visit(visitor);
     Index previ = -1;
     Index prevj = 0;
@@ -287,17 +290,18 @@ void checkOptimalTraversal() {
       previ = i;
       prevj = j;
     }
-    if (Eigen::internal::packet_traits<float>::Vectorizable) {
+    if (Eigen::internal::packet_traits<MatrixType::Scalar>::Vectorizable) {
       VERIFY(visitor.vectorized);
     }
   }
   
   // Vectorized - RowMajor.
   {
+    using MatrixType = Matrix<float, Dynamic, Dynamic, RowMajor>;
     // Ensure rows/cols is larger than packet size.
-    constexpr int PacketSize = Eigen::internal::packet_traits<float>::size;
-    MatrixXfRowMajor X = MatrixXfRowMajor::Random(4 * PacketSize, 4 * PacketSize);
-    TrackedVisitor<double, true> visitor;
+    constexpr int PacketSize = Eigen::internal::packet_traits<MatrixType::Scalar>::size;
+    MatrixType X = MatrixType::Random(4 * PacketSize, 4 * PacketSize);
+    TrackedVisitor<MatrixType::Scalar, true> visitor;
     X.visit(visitor);
     Index previ = 0;
     Index prevj = -1;
@@ -312,7 +316,7 @@ void checkOptimalTraversal() {
       previ = i;
       prevj = j;
     }
-    if (Eigen::internal::packet_traits<float>::Vectorizable) {
+    if (Eigen::internal::packet_traits<MatrixType::Scalar>::Vectorizable) {
       VERIFY(visitor.vectorized);
     }
   }
