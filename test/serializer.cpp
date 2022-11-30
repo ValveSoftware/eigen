@@ -30,7 +30,7 @@ struct RandomImpl<Eigen::SparseMatrix<Scalar, Options, DenseIndex>> {
     double density = 0.1;
 
     // Reserve some space along each inner dim.
-    int nnz = static_cast<int>(density * 1.5 * M.innerSize());
+    int nnz = static_cast<int>(std::ceil(density * 1.5 * M.innerSize()));
     M.reserve(Eigen::VectorXi::Constant(M.outerSize(), nnz));
 
     for (int j = 0; j < M.outerSize(); j++) {
