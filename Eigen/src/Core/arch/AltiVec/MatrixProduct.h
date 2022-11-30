@@ -91,6 +91,20 @@ struct quad_traits<double>
   };
 };
 
+template<>
+struct quad_traits<bfloat16>
+{
+  typedef Packet8bf                       vectortype;
+  typedef PacketBlock<vectortype,4>             type;
+  typedef vectortype                         rhstype;
+  enum
+  {
+    vectorsize = packet_traits<bfloat16>::size,
+    size = 8,
+    rows = 4
+  };
+};
+
 // MatrixProduct decomposes real/imaginary vectors into a real vector and an imaginary vector, this turned out
 // to be faster than Eigen's usual approach of having real/imaginary pairs on a single vector. This constants then
 // are responsible to extract from convert between Eigen's and MatrixProduct approach.
@@ -2781,6 +2795,31 @@ void gebp_kernel<double, std::complex<double>, Index, DataMapper, mr, nr, Conjug
     #endif
     gemm_function(res, blockA, blockB, rows, depth, cols, alpha, strideA, strideB, offsetA, offsetB);
   }
+
+#if defined(__MMA__)
+template<typename Index, typename DataMapper, int mr, int nr, bool ConjugateLhs, bool ConjugateRhs>
+struct gebp_kernel<bfloat16, bfloat16, Index, DataMapper, mr, nr, ConjugateLhs, ConjugateRhs>
+{
+  typedef typename quad_traits<bfloat16>::vectortype   Packet;
+  typedef typename quad_traits<bfloat16>::rhstype      RhsPacket;
+
+  void operator()(const DataMapper& res, const bfloat16* blockA, const bfloat16* blockB,
+                  Index rows, Index depth, Index cols, bfloat16 alpha,
+                  Index strideA=-1, Index strideB=-1, Index offsetA=0, Index offsetB=0);
+};
+
+template<typename Index, typename DataMapper, int mr, int nr, bool ConjugateLhs, bool ConjugateRhs>
+void gebp_kernel<bfloat16, bfloat16, Index, DataMapper, mr, nr, ConjugateLhs, ConjugateRhs>
+  ::operator()(const DataMapper& res, const bfloat16* blockA, const bfloat16* blockB,
+               Index rows, Index depth, Index cols, bfloat16 alpha,
+               Index strideA, Index strideB, Index offsetA, Index offsetB)
+  {
+    const Index accRows = quad_traits<bfloat16>::rows;
+    const Index accCols = quad_traits<bfloat16>::size;
+
+    Eigen::internal::gemmMMAbfloat16<Index, Packet, RhsPacket, DataMapper, accRows, accCols>(res, blockA, blockB, rows, depth, cols, alpha, strideA, strideB, offsetA, offsetB);
+  }
+#endif
 } // end namespace internal
 
 } // end namespace Eigen

@@ -290,6 +290,7 @@ EIGEN_DECLARE_TEST(product_small)
     CALL_SUBTEST_3( product(Matrix3d()) );
     CALL_SUBTEST_4( product(Matrix4d()) );
     CALL_SUBTEST_5( product(Matrix4f()) );
+    CALL_SUBTEST_50( product(Matrix<bfloat16, 3, 2>()) );
     CALL_SUBTEST_6( product1x1<0>() );
 
     CALL_SUBTEST_11( test_lazy_l1<float>() );

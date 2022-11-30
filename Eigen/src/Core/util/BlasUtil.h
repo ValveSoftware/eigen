@@ -379,11 +379,12 @@ public:
     storePacketBlock_helper<SubPacket, Scalar_, n, idx-1> spbh;
     EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE void store(const blas_data_mapper<Scalar, Index, StorageOrder, AlignmentType, Incr>* sup, Index i, Index j, const PacketBlock<SubPacket, n>& block) const {
       spbh.store(sup, i,j,block);
-      for(int l = 0; l < unpacket_traits<SubPacket>::size; l++)
-      {
-        Scalar_ *v = &sup->operator()(i+l, j+idx);
-        *v = block.packet[idx][l];
-      }
+      sup->template storePacket<SubPacket>(i, j+idx, block.packet[idx]);
+      //for(int l = 0; l < unpacket_traits<SubPacket>::size; l++)
+      //{
+      //  Scalar_ *v = &sup->operator()(i+l, j+idx);
+      //  *v = *reinterpret_cast<Scalar_ *>(&block.packet[idx][l]);
+      //}
     }
   };
 
@@ -393,12 +394,7 @@ public:
     storePacketBlock_helper<SubPacket, std::complex<float>, n, idx-1> spbh;
     EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE void store(const blas_data_mapper<Scalar, Index, StorageOrder, AlignmentType, Incr>* sup, Index i, Index j, const PacketBlock<SubPacket, n>& block) const {
       spbh.store(sup,i,j,block);
-      for(int l = 0; l < unpacket_traits<SubPacket>::size; l++)
-      {
-        std::complex<float> *v = &sup->operator()(i+l, j+idx);
-        v->real(block.packet[idx].v[2*l+0]);
-        v->imag(block.packet[idx].v[2*l+1]);
-      }
+      sup->template storePacket<SubPacket>(i, j+idx, block.packet[idx]);
     }
   };
 
