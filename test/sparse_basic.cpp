@@ -28,8 +28,8 @@ template<typename SparseMatrixType> void sparse_basic(const SparseMatrixType& re
   
   const Index rows = ref.rows();
   const Index cols = ref.cols();
-  //const Index inner = ref.innerSize();
-  //const Index outer = ref.outerSize();
+  const Index inner = ref.innerSize();
+  const Index outer = ref.outerSize();
 
   typedef typename SparseMatrixType::Scalar Scalar;
   typedef typename SparseMatrixType::RealScalar RealScalar;
@@ -91,8 +91,12 @@ template<typename SparseMatrixType> void sparse_basic(const SparseMatrixType& re
         for (Index k=0; k<nnz; ++k)
         {
           Index i = internal::random<Index>(0,rows-1);
-          if (m1.coeff(i,j)==Scalar(0))
-            m2.insert(i,j) = m1(i,j) = internal::random<Scalar>();
+          if (m1.coeff(i, j) == Scalar(0)) {
+            Scalar v = internal::random<Scalar>();
+            if (v == Scalar(0)) v = Scalar(1);
+            m1(i, j) = v;
+            m2.insert(i, j) = v;
+          }
         }
       }
       
@@ -116,13 +120,18 @@ template<typename SparseMatrixType> void sparse_basic(const SparseMatrixType& re
       {
         Index i = internal::random<Index>(0,rows-1);
         Index j = internal::random<Index>(0,cols-1);
-        if ((m1.coeff(i,j)==Scalar(0)) && (internal::random<int>()%2))
-          m2.insert(i,j) = m1(i,j) = internal::random<Scalar>();
+        if ((m1.coeff(i, j) == Scalar(0)) && (internal::random<int>() % 2)) {
+          Scalar v = internal::random<Scalar>();
+          if (v == Scalar(0)) v = Scalar(1);
+          m1(i, j) = v;
+          m2.insert(i, j) = v;
+        }
         else
         {
           Scalar v = internal::random<Scalar>();
-          m2.coeffRef(i,j) += v;
-          m1(i,j) += v;
+          if (v == Scalar(0)) v = Scalar(1);
+          m1(i, j) = v;
+          m2.coeffRef(i, j) = v;
         }
       }
       VERIFY_IS_APPROX(m2,m1);
@@ -140,14 +149,75 @@ template<typename SparseMatrixType> void sparse_basic(const SparseMatrixType& re
       {
         Index i = internal::random<Index>(0,rows-1);
         Index j = internal::random<Index>(0,cols-1);
-        if (m1.coeff(i,j)==Scalar(0))
-          m2.insert(i,j) = m1(i,j) = internal::random<Scalar>();
+        if (m1.coeff(i, j) == Scalar(0)) {
+          Scalar v = internal::random<Scalar>();
+          if (v == Scalar(0)) v = Scalar(1);
+          m1(i, j) = v;
+          m2.insert(i, j) = v;
+        }
         if(mode==3)
           m2.reserve(r);
       }
       if(internal::random<int>()%2)
         m2.makeCompressed();
       VERIFY_IS_APPROX(m2,m1);
+    }
+
+    // test sort
+    if (inner > 1) {
+      bool StorageOrdersMatch = DenseMatrix::IsRowMajor == SparseMatrixType::IsRowMajor;
+      DenseMatrix m1(rows, cols);
+      m1.setZero();
+      SparseMatrixType m2(rows, cols);
+      // generate random inner indices with no repeats
+      Vector<Index, Dynamic> innerIndices(inner);
+      innerIndices.setLinSpaced(inner, 0, inner - 1);
+      for (Index j = 0; j < outer; j++) {
+        std::random_shuffle(innerIndices.begin(), innerIndices.end());
+        Index nzj = internal::random<Index>(2, inner / 2);
+        for (Index k = 0; k < nzj; k++) {
+          Index i = innerIndices[k];
+          Scalar val = internal::random<Scalar>();
+          m1.coeffRefByOuterInner(StorageOrdersMatch ? j : i, StorageOrdersMatch ? i : j) = val;
+          m2.insertByOuterInner(j, i) = val;
+        }
+      }
+
+      VERIFY_IS_APPROX(m2, m1);
+      // sort wrt greater
+      m2.template sortInnerIndices<std::greater<>>();
+      // verify that all inner vectors are not sorted wrt less
+      VERIFY_IS_EQUAL(m2.template innerIndicesAreSorted<std::less<>>(), 0);
+      // verify that all inner vectors are sorted wrt greater
+      VERIFY_IS_EQUAL(m2.template innerIndicesAreSorted<std::greater<>>(), m2.outerSize());
+      // verify that sort does not change evaluation
+      VERIFY_IS_APPROX(m2, m1);
+      // sort wrt less
+      m2.template sortInnerIndices<std::less<>>();
+      // verify that all inner vectors are sorted wrt less
+      VERIFY_IS_EQUAL(m2.template innerIndicesAreSorted<std::less<>>(), m2.outerSize());
+      // verify that all inner vectors are not sorted wrt greater
+      VERIFY_IS_EQUAL(m2.template innerIndicesAreSorted<std::greater<>>(), 0);
+      // verify that sort does not change evaluation
+      VERIFY_IS_APPROX(m2, m1);
+
+      m2.makeCompressed();
+      // sort wrt greater
+      m2.template sortInnerIndices<std::greater<>>();
+      // verify that all inner vectors are not sorted wrt less
+      VERIFY_IS_EQUAL(m2.template innerIndicesAreSorted<std::less<>>(), 0);
+      // verify that all inner vectors are sorted wrt greater
+      VERIFY_IS_EQUAL(m2.template innerIndicesAreSorted<std::greater<>>(), m2.outerSize());
+      // verify that sort does not change evaluation
+      VERIFY_IS_APPROX(m2, m1);
+      // sort wrt less
+      m2.template sortInnerIndices<std::less<>>();
+      // verify that all inner vectors are sorted wrt less
+      VERIFY_IS_EQUAL(m2.template innerIndicesAreSorted<std::less<>>(), m2.outerSize());
+      // verify that all inner vectors are not sorted wrt greater
+      VERIFY_IS_EQUAL(m2.template innerIndicesAreSorted<std::greater<>>(), 0);
+      // verify that sort does not change evaluation
+      VERIFY_IS_APPROX(m2, m1);
     }
 
   // test basic computations
@@ -729,9 +799,12 @@ EIGEN_DECLARE_TEST(sparse_basic)
     CALL_SUBTEST_1(( sparse_basic(SparseMatrix<double>(8, 8)) ));
     CALL_SUBTEST_2(( sparse_basic(SparseMatrix<std::complex<double>, ColMajor>(r, c)) ));
     CALL_SUBTEST_2(( sparse_basic(SparseMatrix<std::complex<double>, RowMajor>(r, c)) ));
-    CALL_SUBTEST_1(( sparse_basic(SparseMatrix<double>(r, c)) ));
-    CALL_SUBTEST_5(( sparse_basic(SparseMatrix<double,ColMajor,long int>(r, c)) ));
-    CALL_SUBTEST_5(( sparse_basic(SparseMatrix<double,RowMajor,long int>(r, c)) ));
+    CALL_SUBTEST_2(( sparse_basic(SparseMatrix<float,  RowMajor>(r, c))));
+    CALL_SUBTEST_2(( sparse_basic(SparseMatrix<float,  ColMajor>(r, c))));
+    CALL_SUBTEST_3(( sparse_basic(SparseMatrix<double, ColMajor>(r, c))));
+    CALL_SUBTEST_3(( sparse_basic(SparseMatrix<double, RowMajor>(r, c))));
+    CALL_SUBTEST_4(( sparse_basic(SparseMatrix<double, ColMajor,long int>(r, c)) ));
+    CALL_SUBTEST_4(( sparse_basic(SparseMatrix<double, RowMajor,long int>(r, c)) ));
     
     r = Eigen::internal::random<int>(1,100);
     c = Eigen::internal::random<int>(1,100);
@@ -739,14 +812,14 @@ EIGEN_DECLARE_TEST(sparse_basic)
       r = c; // check square matrices in 25% of tries
     }
     
-    CALL_SUBTEST_6(( sparse_basic(SparseMatrix<double,ColMajor,short int>(short(r), short(c))) ));
-    CALL_SUBTEST_6(( sparse_basic(SparseMatrix<double,RowMajor,short int>(short(r), short(c))) ));
+    CALL_SUBTEST_5(( sparse_basic(SparseMatrix<double,ColMajor,short int>(short(r), short(c))) ));
+    CALL_SUBTEST_5(( sparse_basic(SparseMatrix<double,RowMajor,short int>(short(r), short(c))) ));
   }
 
   // Regression test for bug 900: (manually insert higher values here, if you have enough RAM):
-  CALL_SUBTEST_3((big_sparse_triplet<SparseMatrix<float, RowMajor, int> >(10000, 10000, 0.125)));
-  CALL_SUBTEST_4((big_sparse_triplet<SparseMatrix<double, ColMajor, long int> >(10000, 10000, 0.125)));
+  CALL_SUBTEST_5(( big_sparse_triplet<SparseMatrix<float, RowMajor, int>>(10000, 10000, 0.125)));
+  CALL_SUBTEST_5(( big_sparse_triplet<SparseMatrix<double, ColMajor, long int>>(10000, 10000, 0.125)));
 
-  CALL_SUBTEST_7( bug1105<0>() );
+  CALL_SUBTEST_5(bug1105<0>());
 }
 #endif
