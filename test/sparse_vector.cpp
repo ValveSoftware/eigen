@@ -15,6 +15,7 @@ template<typename Scalar,typename StorageIndex> void sparse_vector(int rows, int
   double densityVec = (std::max)(8./(rows), 0.1);
   typedef Matrix<Scalar,Dynamic,Dynamic> DenseMatrix;
   typedef Matrix<Scalar,Dynamic,1> DenseVector;
+  typedef Matrix<DenseIndex,Dynamic,1> DenseIndexVector;
   typedef SparseVector<Scalar,0,StorageIndex> SparseVectorType;
   typedef SparseMatrix<Scalar,0,StorageIndex> SparseMatrixType;
   Scalar eps = 1e-6;
@@ -148,7 +149,7 @@ template<typename Scalar,typename StorageIndex> void sparse_vector(int rows, int
   {
     SparseVectorType vec1(rows);
     DenseVector refVec1 = DenseVector::Zero(rows);
-    DenseVector innerIndices(rows);
+    DenseIndexVector innerIndices(rows);
     innerIndices.setLinSpaced(0, rows - 1);
     std::random_shuffle(innerIndices.begin(), innerIndices.end());
     Index nz = internal::random<Index>(2, rows / 2);
