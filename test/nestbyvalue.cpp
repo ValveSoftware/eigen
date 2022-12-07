@@ -33,5 +33,7 @@ EIGEN_DECLARE_TEST(nestbyvalue)
     MatrixXd b = x;
     VERIFY_IS_EQUAL(nb_temporaries,6+1);
     VERIFY_IS_APPROX(b, a.rowwise().reverse().eval() + (a+a).eval());
+    // Block expressions work with dense NestByValue.
+    VERIFY_IS_APPROX(b, a.nestByValue().rowwise().reverse().eval() + (a.nestByValue()+a.nestByValue()).eval());
   }
 }
