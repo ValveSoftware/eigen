@@ -161,8 +161,8 @@ struct equalspaced_op {
     const Packet cst_lin0 = plset<Packet>(Scalar(0));
     const Packet cst_offset = pmadd(cst_lin0, cst_step, cst_start);
 
-    Packet istep = pset1<Packet>(static_cast<Scalar>(i) * m_step);
-    return padd(cst_offset, istep);
+    Packet i_packet = pset1<Packet>(static_cast<Scalar>(i));
+    return pmadd(i_packet, cst_step, cst_offset);
   }
   const Scalar m_start;
   const Scalar m_step;
