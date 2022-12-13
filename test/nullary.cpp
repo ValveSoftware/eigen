@@ -78,8 +78,9 @@ void testVectorType(const VectorType& base)
   const Scalar step = ((size == 1) ? 1 : (high-low)/RealScalar(size-1));
 
   // check whether the result yields what we expect it to do
-  VectorType m(base);
+  VectorType m(base), o(base);
   m.setLinSpaced(size,low,high);
+  o.setEqualSpaced(size, low, step);
 
   if(!NumTraits<Scalar>::IsInteger)
   {
@@ -87,6 +88,7 @@ void testVectorType(const VectorType& base)
     for (int i=0; i<size; ++i)
       n(i) = low+RealScalar(i)*step;
     VERIFY_IS_APPROX(m,n);
+    VERIFY_IS_APPROX(n,o);
 
     CALL_SUBTEST( check_extremity_accuracy(m, low, high) );
   }
@@ -256,11 +258,12 @@ void nullary_overflow()
 {
   // Check possible overflow issue
   int n = 60000;
-  ArrayXi a1(n), a2(n);
-  a1.setLinSpaced(n, 0, n-1);
-  for(int i=0; i<n; ++i)
-    a2(i) = i;
-  VERIFY_IS_APPROX(a1,a2);
+  ArrayXi a1(n), a2(n), a_ref(n);
+  a1.setLinSpaced(n, 0, n - 1);
+  a2.setEqualSpaced(n, 0, 1);
+  for (int i = 0; i < n; ++i) a_ref(i) = i;
+  VERIFY_IS_APPROX(a1, a_ref);
+  VERIFY_IS_APPROX(a2, a_ref);
 }
 
 template<int>
