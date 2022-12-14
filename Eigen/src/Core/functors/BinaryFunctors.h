@@ -388,7 +388,11 @@ template <typename Packet>
 struct maybe_raise_div_by_zero<Packet, true> {
   static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE void run(Packet x) {
     if (EIGEN_PREDICT_FALSE(predux_any(pcmp_eq(x, pzero(x))))) {
-      std::raise(SIGFPE);
+      // Use volatile variables to force a division by zero, which will
+      // result in the default platform behaviour (usually SIGFPE).
+      volatile typename unpacket_traits<Packet>::type zero = 0;
+      volatile typename unpacket_traits<Packet>::type val = 1;
+      val = val / zero;
     }
   }
 };

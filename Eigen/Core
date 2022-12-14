@@ -177,10 +177,6 @@ using std::ptrdiff_t;
 #include "src/Core/arch/Default/TypeCasting.h"
 #include "src/Core/arch/Default/GenericPacketMathFunctionsFwd.h"
 
-#ifndef EIGEN_GPU_COMPILE_PHASE
-  #include <csignal>
-#endif
-
 #if defined EIGEN_VECTORIZE_AVX512
   #if defined EIGEN_VECTORIZE_AVX512FP16
     #include "src/Core/arch/AVX512/PacketMathFP16.h"
