@@ -411,15 +411,17 @@ public:
     return *this;
   }
 
-  inline bool operator==(const CompressedStorageIterator& other) const { return m_index == other.m_index; }
-  inline bool operator!=(const CompressedStorageIterator& other) const { return m_index != other.m_index; }
-  inline bool operator< (const CompressedStorageIterator& other) const { return m_index <  other.m_index; }
   inline CompressedStorageIterator operator+(difference_type offset) const { return CompressedStorageIterator(m_index + offset, m_data); }
   inline CompressedStorageIterator operator-(difference_type offset) const { return CompressedStorageIterator(m_index - offset, m_data); }
   inline difference_type operator-(const CompressedStorageIterator& other) const { return m_index - other.m_index; }
   inline CompressedStorageIterator& operator++() { ++m_index; return *this; }
   inline CompressedStorageIterator& operator--() { --m_index; return *this; }
+  inline CompressedStorageIterator& operator+=(difference_type offset) { m_index += offset; return *this; }
+  inline CompressedStorageIterator& operator-=(difference_type offset) { m_index -= offset; return *this; }
   inline reference operator*() const { return reference(m_data.m_innerIndexIterator + m_index, m_data.m_valueIterator + m_index); }
+
+  #define MAKE_COMP(OP) inline bool operator OP(const CompressedStorageIterator& other) const { return m_index OP other.m_index; }
+  MAKE_COMP(<) MAKE_COMP(>) MAKE_COMP(>=) MAKE_COMP(<=) MAKE_COMP(!=) MAKE_COMP(==)
 
 protected:
   difference_type m_index;
