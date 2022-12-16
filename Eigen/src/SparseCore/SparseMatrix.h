@@ -1550,7 +1550,7 @@ class Serializer<SparseMatrix<Scalar, Options, StorageIndex>, void> {
 
     // innerNonZeros.
     if (!header.compressed) {
-      std:size_t data_bytes = sizeof(StorageIndex) * header.outer_size;
+      std::size_t data_bytes = sizeof(StorageIndex) * header.outer_size;
       memcpy(dest, value.innerNonZeroPtr(), data_bytes);
       dest += data_bytes;
     }
