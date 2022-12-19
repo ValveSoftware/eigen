@@ -2,7 +2,7 @@
 
 namespace Eigen {
 namespace internal {
-  
+
 #if EIGEN_ARCH_ARM && EIGEN_COMP_CLANG
 
 // Clang seems to excessively spill registers in the GEBP kernel on 32-bit arm.
@@ -218,7 +218,9 @@ struct gebp_traits <half,half,false,false,Architecture::NEON>
 
   EIGEN_STRONG_INLINE void loadRhsQuad(const RhsScalar* b, RhsPacket& dest) const
   {
-    loadRhs(b,dest);
+    // If LHS is a Packet8h, we cannot correctly mimic a ploadquad of the RHS
+    // using a single scalar value.
+    eigen_assert(false && "Cannot loadRhsQuad for a scalar RHS.");
   }
 
   EIGEN_STRONG_INLINE void madd(const LhsPacket& a, const RhsPacket& b, AccPacket& c, RhsPacket& /*tmp*/, const FixedInt<0>&) const

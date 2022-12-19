@@ -281,6 +281,25 @@ void product_small_regressions()
   }
 }
 
+template<typename T>
+void product_sweep(int max_m, int max_k, int max_n) {
+  using Matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
+  for (int m = 1; m < max_m; ++m) {
+    for (int n = 1; n < max_n; ++n) {
+      Matrix C = Matrix::Zero(m, n);
+      Matrix Cref = Matrix::Zero(m, n);
+      for (int k = 1; k < max_k; ++k) {
+        Matrix A = Matrix::Random(m, k);
+        Matrix B = Matrix::Random(k, n);
+        C = A * B;
+        Cref.setZero();
+        ref_prod(Cref, A, B);
+        VERIFY_IS_APPROX(C, Cref);
+      }
+    }
+  }   
+}
+
 EIGEN_DECLARE_TEST(product_small)
 {
   for(int i = 0; i < g_repeat; i++) {
@@ -290,7 +309,7 @@ EIGEN_DECLARE_TEST(product_small)
     CALL_SUBTEST_3( product(Matrix3d()) );
     CALL_SUBTEST_4( product(Matrix4d()) );
     CALL_SUBTEST_5( product(Matrix4f()) );
-    CALL_SUBTEST_50( product(Matrix<bfloat16, 3, 2>()) );
+    CALL_SUBTEST_10( product(Matrix<bfloat16, 3, 2>()) );
     CALL_SUBTEST_6( product1x1<0>() );
 
     CALL_SUBTEST_11( test_lazy_l1<float>() );
@@ -317,6 +336,12 @@ EIGEN_DECLARE_TEST(product_small)
     CALL_SUBTEST_6( bug_1311<5>() );
 
     CALL_SUBTEST_9( test_dynamic_bool() );
+    
+    // Commonly specialized vectorized types.
+    CALL_SUBTEST_50( product_sweep<float>(10, 10, 10) );
+    CALL_SUBTEST_51( product_sweep<double>(10, 10, 10) );
+    CALL_SUBTEST_52( product_sweep<Eigen::half>(10, 10, 10) );
+    CALL_SUBTEST_53( product_sweep<Eigen::bfloat16>(10, 10, 10) );
   }
 
   CALL_SUBTEST_6( product_small_regressions<0>() );
