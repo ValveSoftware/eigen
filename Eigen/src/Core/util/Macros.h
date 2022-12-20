@@ -650,11 +650,11 @@
 // The macro EIGEN_COMP_CXXVER defines the c++ version expected by the compiler.
 // For instance, if compiling with gcc and -std=c++17, then EIGEN_COMP_CXXVER
 // is defined to 17.
-#if EIGEN_CPLUSPLUS > 201703L
+#if EIGEN_CPLUSPLUS >= 202002L
   #define EIGEN_COMP_CXXVER 20
-#elif EIGEN_CPLUSPLUS > 201402L
+#elif EIGEN_CPLUSPLUS >= 201703L
   #define EIGEN_COMP_CXXVER 17
-#elif EIGEN_CPLUSPLUS > 201103L
+#elif EIGEN_CPLUSPLUS >= 201402L
   #define EIGEN_COMP_CXXVER 14
 #elif EIGEN_CPLUSPLUS >= 201103L
   #define EIGEN_COMP_CXXVER 11

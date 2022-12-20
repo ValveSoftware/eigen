@@ -15,7 +15,7 @@ EIGEN_DECLARE_TEST(constexpr) {
   // until after the constructor returns:
   // error: member ‘Eigen::internal::plain_array<int, 9, 0, 0>::array’ must be initialized by mem-initializer in
   // ‘constexpr’ constructor
-#if EIGEN_COMP_CXXVER >= 20 || defined(__clang__)
+#if EIGEN_COMP_CXXVER >= 20
   constexpr Matrix3i mat({{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
   VERIFY_IS_EQUAL(mat.size(), 9);
   VERIFY_IS_EQUAL(mat(0, 0), 1);
@@ -35,7 +35,7 @@ EIGEN_DECLARE_TEST(constexpr) {
   VERIFY_IS_EQUAL(dyn_arr(0, 0), 1);
   VERIFY_IS_EQUAL(dyn_arr.size(), 9);
   static_assert(dyn_arr.coeff(0,1) == 2);
-#endif  // EIGEN_COMP_CXXVER >= 20 || defined(__clang__)
+#endif  // EIGEN_COMP_CXXVER >= 20
 }
 
 // Check that we can use the std::initializer_list constructor for constexpr variables.
