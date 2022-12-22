@@ -216,7 +216,7 @@ struct gebp_traits <half,half,false,false,Architecture::NEON>
   EIGEN_STRONG_INLINE void updateRhs(const RhsScalar*, RhsPacketx4&) const
   {}
 
-  EIGEN_STRONG_INLINE void loadRhsQuad(const RhsScalar* b, RhsPacket& dest) const
+  EIGEN_STRONG_INLINE void loadRhsQuad(const RhsScalar*, RhsPacket&) const
   {
     // If LHS is a Packet8h, we cannot correctly mimic a ploadquad of the RHS
     // using a single scalar value.
