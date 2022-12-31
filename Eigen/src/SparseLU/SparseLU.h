@@ -40,6 +40,7 @@ public:
   SparseLUTransposeView() : APIBase(), m_sparseLU(NULL) {}
   SparseLUTransposeView(const SparseLUTransposeView& view) : APIBase() {
     this->m_sparseLU = view.m_sparseLU;
+    this->m_isInitialized = view.m_isInitialized;
   }
   void setIsInitialized(const bool isInitialized) {this->m_isInitialized = isInitialized;}
   void setSparseLU(SparseLUType* sparseLU) {m_sparseLU = sparseLU;}
