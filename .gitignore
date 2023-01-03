@@ -36,3 +36,4 @@ lapack/reference
 .settings
 Makefile
 !ci/build.gitlab-ci.yml
+!scripts/buildtests.in
