@@ -713,13 +713,16 @@
 //       and it could be that XCode 9 works just fine.
 // NOTE: the MSVC version is based on https://en.cppreference.com/w/cpp/compiler_support
 //       and not tested.
+// NOTE: Intel C++ Compiler Classic (icc) Version 19.0 and later supports dynamic allocation
+//       for over-aligned data, but not in a manner that is compatible with Eigen.
+//       See https://gitlab.com/libeigen/eigen/-/issues/2575
 #ifndef EIGEN_HAS_CXX17_OVERALIGN
 #if EIGEN_MAX_CPP_VER>=17 && EIGEN_COMP_CXXVER>=17 && (                                 \
            (EIGEN_COMP_MSVC >= 1912)                                                    \
         || (EIGEN_GNUC_AT_LEAST(7,0))                                                   \
         || ((!defined(__apple_build_version__)) && (EIGEN_COMP_CLANG>=500))             \
         || (( defined(__apple_build_version__)) && (__apple_build_version__>=10000000)) \
-      )
+      ) && (!defined(EIGEN_COMP_ICC))
 #define EIGEN_HAS_CXX17_OVERALIGN 1
 #else
 #define EIGEN_HAS_CXX17_OVERALIGN 0
