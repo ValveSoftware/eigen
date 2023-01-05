@@ -722,7 +722,7 @@
         || (EIGEN_GNUC_AT_LEAST(7,0))                                                   \
         || ((!defined(__apple_build_version__)) && (EIGEN_COMP_CLANG>=500))             \
         || (( defined(__apple_build_version__)) && (__apple_build_version__>=10000000)) \
-      ) && (!defined(EIGEN_COMP_ICC))
+      ) && !EIGEN_COMP_ICC
 #define EIGEN_HAS_CXX17_OVERALIGN 1
 #else
 #define EIGEN_HAS_CXX17_OVERALIGN 0
