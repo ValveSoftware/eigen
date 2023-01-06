@@ -9,8 +9,6 @@
 
 #include "main.h"
 
-#include <Eigen/src/Core/arch/Default/Half.h>
-
 #define VERIFY_HALF_BITS_EQUAL(h, bits) \
   VERIFY_IS_EQUAL((numext::bit_cast<numext::uint16_t>(h)), (static_cast<numext::uint16_t>(bits)))
 

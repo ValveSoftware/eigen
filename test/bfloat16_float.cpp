@@ -11,8 +11,6 @@
 
 #include "main.h"
 
-#include <Eigen/src/Core/arch/Default/BFloat16.h>
-
 #define VERIFY_BFLOAT16_BITS_EQUAL(h, bits) \
   VERIFY_IS_EQUAL((numext::bit_cast<numext::uint16_t>(h)), (static_cast<numext::uint16_t>(bits)))
 

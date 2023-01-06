@@ -12,9 +12,6 @@
 
 #include <iostream>
 
-#define EIGEN_USE_GPU
-#include <unsupported/Eigen/CXX11/src/Tensor/TensorGpuHipCudaDefines.h>
-
 #if !defined(__CUDACC__) && !defined(__HIPCC__)
 dim3 threadIdx, blockDim, blockIdx;
 #endif

@@ -16,6 +16,7 @@
 #define EIGEN_TEST_NO_LONGDOUBLE
 #define EIGEN_DEFAULT_DENSE_INDEX_TYPE int
 
+#define EIGEN_USE_GPU
 #include "main.h"
 #include "gpu_common.h"
 

@@ -9,6 +9,7 @@
 
 // The following is an example GPU test.
 
+#define EIGEN_USE_GPU
 #include "main.h"  // Include the main test utilities.
 
 // Define a kernel functor.

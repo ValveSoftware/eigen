@@ -152,6 +152,4 @@ initSparse(double density,
   }
 }
 
-
-#include <unsupported/Eigen/SparseExtra>
 #endif // EIGEN_TESTSPARSE_H
