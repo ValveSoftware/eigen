@@ -60,7 +60,9 @@ void jacobisvd_all_options(const MatrixType& input = MatrixType()) {
 }
 
 template <typename MatrixType>
-void jacobisvd_verify_assert(const MatrixType& m = MatrixType()) {
+void jacobisvd_verify_assert(const MatrixType& input = MatrixType()) {
+  MatrixType m(input.rows(), input.cols());
+  svd_fill_random(m);
   svd_verify_assert<MatrixType, 0>(m);
   svd_verify_assert<MatrixType, ColPivHouseholderQRPreconditioner>(m);
   svd_verify_assert<MatrixType, HouseholderQRPreconditioner>(m);
