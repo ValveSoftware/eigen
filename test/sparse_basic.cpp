@@ -477,14 +477,45 @@ template<typename SparseMatrixType> void sparse_basic(const SparseMatrixType& re
         refMat_prod(r,c) *= v;
       refMat_last(r,c) = v;
     }
+
     SparseMatrixType m(rows,cols);
     m.setFromTriplets(triplets.begin(), triplets.end());
     VERIFY_IS_APPROX(m, refMat_sum);
+    VERIFY_IS_EQUAL(m.innerIndicesAreSorted(), m.outerSize());
 
     m.setFromTriplets(triplets.begin(), triplets.end(), std::multiplies<Scalar>());
     VERIFY_IS_APPROX(m, refMat_prod);
+    VERIFY_IS_EQUAL(m.innerIndicesAreSorted(), m.outerSize());
     m.setFromTriplets(triplets.begin(), triplets.end(), [] (Scalar,Scalar b) { return b; });
     VERIFY_IS_APPROX(m, refMat_last);
+    VERIFY_IS_EQUAL(m.innerIndicesAreSorted(), m.outerSize());
+
+    // test setFromSortedTriplets
+
+    struct triplet_comp {
+      inline bool operator()(const TripletType& a, const TripletType& b) {
+        return SparseMatrixType::IsRowMajor ? ((a.row() != b.row()) ? (a.row() < b.row()) : (a.col() < b.col()))
+                                            : ((a.col() != b.col()) ? (a.col() < b.col()) : (a.row() < b.row()));
+      }
+    };
+
+    // stable_sort is only necessary when the reduction functor is dependent on the order of the triplets
+    // this is the case with refMat_last
+    // for most cases, std::sort is sufficient and preferred
+    std::stable_sort(triplets.begin(), triplets.end(), triplet_comp());
+
+    m.setZero();
+    m.setFromSortedTriplets(triplets.begin(), triplets.end());
+    VERIFY_IS_APPROX(m, refMat_sum);
+    VERIFY_IS_EQUAL(m.innerIndicesAreSorted(), m.outerSize());
+
+    m.setFromSortedTriplets(triplets.begin(), triplets.end(), std::multiplies<Scalar>());
+    VERIFY_IS_APPROX(m, refMat_prod);
+    VERIFY_IS_EQUAL(m.innerIndicesAreSorted(), m.outerSize());
+
+    m.setFromSortedTriplets(triplets.begin(), triplets.end(), [](Scalar, Scalar b) { return b; });
+    VERIFY_IS_APPROX(m, refMat_last);
+    VERIFY_IS_EQUAL(m.innerIndicesAreSorted(), m.outerSize());
   }
   
   // test Map
