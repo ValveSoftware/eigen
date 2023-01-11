@@ -77,9 +77,9 @@ EIGEN_ALWAYS_INLINE EIGEN_CONSTEXPR lapack_int lapack_storage_of(const EigenBase
 }
 
 /// translate UpLo type to the corresponding letter code
-template<UpLoType mode> char translate_mode;
-template<> constexpr char translate_mode<Lower> = 'L';
-template<> constexpr char translate_mode<Upper> = 'U';
+//template<UpLoType mode> char translate_mode;
+//template<> constexpr char translate_mode<Lower> = 'L';
+//template<> constexpr char translate_mode<Upper> = 'U';
 
 
 // ---------------------------------------------------------------------------------------------------------------------

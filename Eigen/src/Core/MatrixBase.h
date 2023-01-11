@@ -362,9 +362,9 @@ template<typename Derived> class MatrixBase
 /////////// QR module ///////////
 
     inline const HouseholderQR<PlainObject> householderQr() const;
-    inline const ColPivHouseholderQR<PlainObject> colPivHouseholderQr() const;
-    inline const FullPivHouseholderQR<PlainObject> fullPivHouseholderQr() const;
-    inline const CompleteOrthogonalDecomposition<PlainObject> completeOrthogonalDecomposition() const;
+    template<typename StorageIndex = DefaultStorageIndex> inline const ColPivHouseholderQR<PlainObject, StorageIndex> colPivHouseholderQr() const;
+    template<typename StorageIndex = int> inline const FullPivHouseholderQR<PlainObject, StorageIndex> fullPivHouseholderQr() const;
+    template<typename StorageIndex = DefaultStorageIndex> inline const CompleteOrthogonalDecomposition<PlainObject, StorageIndex> completeOrthogonalDecomposition() const;
 
 /////////// Eigenvalues module ///////////
 
