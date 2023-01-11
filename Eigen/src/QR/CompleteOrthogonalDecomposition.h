@@ -15,12 +15,12 @@
 namespace Eigen {
 
 namespace internal {
-template <typename MatrixType_, typename StorageIndex_>
-struct traits<CompleteOrthogonalDecomposition<MatrixType_, StorageIndex_> >
+template <typename MatrixType_>
+struct traits<CompleteOrthogonalDecomposition<MatrixType_> >
     : traits<MatrixType_> {
   typedef MatrixXpr XprKind;
   typedef SolverStorage StorageKind;
-  typedef StorageIndex_ StorageIndex;
+  typedef int StorageIndex;
   enum { Flags = 0 };
 };
 
@@ -49,8 +49,8 @@ struct traits<CompleteOrthogonalDecomposition<MatrixType_, StorageIndex_> >
   * 
   * \sa MatrixBase::completeOrthogonalDecomposition()
   */
-template <typename MatrixType_, typename StorageIndex_> class CompleteOrthogonalDecomposition
-          : public SolverBase<CompleteOrthogonalDecomposition<MatrixType_, StorageIndex_> >
+template <typename MatrixType_> class CompleteOrthogonalDecomposition
+          : public SolverBase<CompleteOrthogonalDecomposition<MatrixType_> >
 {
  public:
   typedef MatrixType_ MatrixType;
@@ -65,7 +65,7 @@ template <typename MatrixType_, typename StorageIndex_> class CompleteOrthogonal
     MaxColsAtCompileTime = MatrixType::MaxColsAtCompileTime
   };
   typedef typename internal::plain_diag_type<MatrixType>::type HCoeffsType;
-  typedef PermutationMatrix<ColsAtCompileTime, MaxColsAtCompileTime, StorageIndex>
+  typedef PermutationMatrix<ColsAtCompileTime, MaxColsAtCompileTime>
       PermutationType;
   typedef typename internal::plain_row_type<MatrixType, Index>::type
       IntRowVectorType;
@@ -77,6 +77,9 @@ template <typename MatrixType_, typename StorageIndex_> class CompleteOrthogonal
                       typename HCoeffsType::ConjugateReturnType>>
       HouseholderSequenceType;
   typedef typename MatrixType::PlainObject PlainObject;
+
+ private:
+  typedef typename PermutationType::Index PermIndexType;
 
  public:
   /**
@@ -414,26 +417,26 @@ template <typename MatrixType_, typename StorageIndex_> class CompleteOrthogonal
   template <typename Rhs>
   void applyZAdjointOnTheLeftInPlace(Rhs& rhs) const;
 
-  ColPivHouseholderQR<MatrixType, StorageIndex> m_cpqr;
+  ColPivHouseholderQR<MatrixType> m_cpqr;
   HCoeffsType m_zCoeffs;
   RowVectorType m_temp;
 };
 
-template <typename MatrixType, typename StorageIndex>
+template <typename MatrixType>
 typename MatrixType::Scalar
-CompleteOrthogonalDecomposition<MatrixType, StorageIndex>::determinant() const {
+CompleteOrthogonalDecomposition<MatrixType>::determinant() const {
   return m_cpqr.determinant();
 }
 
-template <typename MatrixType, typename StorageIndex>
+template <typename MatrixType>
 typename MatrixType::RealScalar
-CompleteOrthogonalDecomposition<MatrixType, StorageIndex>::absDeterminant() const {
+CompleteOrthogonalDecomposition<MatrixType>::absDeterminant() const {
   return m_cpqr.absDeterminant();
 }
 
-template <typename MatrixType, typename StorageIndex>
+template <typename MatrixType>
 typename MatrixType::RealScalar
-CompleteOrthogonalDecomposition<MatrixType, StorageIndex>::logAbsDeterminant() const {
+CompleteOrthogonalDecomposition<MatrixType>::logAbsDeterminant() const {
   return m_cpqr.logAbsDeterminant();
 }
 
@@ -444,10 +447,11 @@ CompleteOrthogonalDecomposition<MatrixType, StorageIndex>::logAbsDeterminant() c
  * \sa class CompleteOrthogonalDecomposition,
  * CompleteOrthogonalDecomposition(const MatrixType&)
  */
-template <typename MatrixType, typename StorageIndex>
-void CompleteOrthogonalDecomposition<MatrixType, StorageIndex>::computeInPlace()
+template <typename MatrixType>
+void CompleteOrthogonalDecomposition<MatrixType>::computeInPlace()
 {
-  eigen_assert(m_cpqr.cols() <= NumTraits<StorageIndex>::highest());
+  // the column permutation is stored as int indices, so just to be sure:
+  eigen_assert(m_cpqr.cols() <= NumTraits<int>::highest());
 
   const Index rank = m_cpqr.rank();
   const Index cols = m_cpqr.cols();
@@ -499,9 +503,9 @@ void CompleteOrthogonalDecomposition<MatrixType, StorageIndex>::computeInPlace()
   }
 }
 
-template <typename MatrixType, typename StorageIndex>
+template <typename MatrixType>
 template <bool Conjugate, typename Rhs>
-void CompleteOrthogonalDecomposition<MatrixType, StorageIndex>::applyZOnTheLeftInPlace(
+void CompleteOrthogonalDecomposition<MatrixType>::applyZOnTheLeftInPlace(
     Rhs& rhs) const {
   const Index cols = this->cols();
   const Index nrhs = rhs.cols();
@@ -521,9 +525,9 @@ void CompleteOrthogonalDecomposition<MatrixType, StorageIndex>::applyZOnTheLeftI
   }
 }
 
-template <typename MatrixType, typename StorageIndex>
+template <typename MatrixType>
 template <typename Rhs>
-void CompleteOrthogonalDecomposition<MatrixType, StorageIndex>::applyZAdjointOnTheLeftInPlace(
+void CompleteOrthogonalDecomposition<MatrixType>::applyZAdjointOnTheLeftInPlace(
     Rhs& rhs) const {
   const Index cols = this->cols();
   const Index nrhs = rhs.cols();
@@ -544,9 +548,9 @@ void CompleteOrthogonalDecomposition<MatrixType, StorageIndex>::applyZAdjointOnT
 }
 
 #ifndef EIGEN_PARSED_BY_DOXYGEN
-template <typename MatrixType_, typename StorageIndex_>
+template <typename MatrixType_>
 template <typename RhsType, typename DstType>
-void CompleteOrthogonalDecomposition<MatrixType_, StorageIndex_>::_solve_impl(
+void CompleteOrthogonalDecomposition<MatrixType_>::_solve_impl(
     const RhsType& rhs, DstType& dst) const {
   const Index rank = this->rank();
   if (rank == 0) {
@@ -576,9 +580,9 @@ void CompleteOrthogonalDecomposition<MatrixType_, StorageIndex_>::_solve_impl(
   dst = colsPermutation() * dst;
 }
 
-template<typename MatrixType_, typename StorageIndex_>
+template<typename MatrixType_>
 template<bool Conjugate, typename RhsType, typename DstType>
-void CompleteOrthogonalDecomposition<MatrixType_, StorageIndex_>::_solve_impl_transposed(const RhsType &rhs, DstType &dst) const
+void CompleteOrthogonalDecomposition<MatrixType_>::_solve_impl_transposed(const RhsType &rhs, DstType &dst) const
 {
   const Index rank = this->rank();
 
@@ -607,17 +611,17 @@ void CompleteOrthogonalDecomposition<MatrixType_, StorageIndex_>::_solve_impl_tr
 
 namespace internal {
 
-template<typename MatrixType, typename StorageIndex>
-struct traits<Inverse<CompleteOrthogonalDecomposition<MatrixType, StorageIndex> > >
+template<typename MatrixType>
+struct traits<Inverse<CompleteOrthogonalDecomposition<MatrixType> > >
   : traits<typename Transpose<typename MatrixType::PlainObject>::PlainObject>
 {
   enum { Flags = 0 };
 };
 
-template<typename DstXprType, typename MatrixType, typename StorageIndex>
-struct Assignment<DstXprType, Inverse<CompleteOrthogonalDecomposition<MatrixType, StorageIndex> >, internal::assign_op<typename DstXprType::Scalar,typename CompleteOrthogonalDecomposition<MatrixType, StorageIndex>::Scalar>, Dense2Dense>
+template<typename DstXprType, typename MatrixType>
+struct Assignment<DstXprType, Inverse<CompleteOrthogonalDecomposition<MatrixType> >, internal::assign_op<typename DstXprType::Scalar,typename CompleteOrthogonalDecomposition<MatrixType>::Scalar>, Dense2Dense>
 {
-  typedef CompleteOrthogonalDecomposition<MatrixType, StorageIndex> CodType;
+  typedef CompleteOrthogonalDecomposition<MatrixType> CodType;
   typedef Inverse<CodType> SrcXprType;
   static void run(DstXprType &dst, const SrcXprType &src, const internal::assign_op<typename DstXprType::Scalar,typename CodType::Scalar> &)
   {
@@ -629,9 +633,9 @@ struct Assignment<DstXprType, Inverse<CompleteOrthogonalDecomposition<MatrixType
 } // end namespace internal
 
 /** \returns the matrix Q as a sequence of householder transformations */
-template <typename MatrixType, typename StorageIndex>
-typename CompleteOrthogonalDecomposition<MatrixType, StorageIndex>::HouseholderSequenceType
-CompleteOrthogonalDecomposition<MatrixType, StorageIndex>::householderQ() const {
+template <typename MatrixType>
+typename CompleteOrthogonalDecomposition<MatrixType>::HouseholderSequenceType
+CompleteOrthogonalDecomposition<MatrixType>::householderQ() const {
   return m_cpqr.householderQ();
 }
 
@@ -640,8 +644,7 @@ CompleteOrthogonalDecomposition<MatrixType, StorageIndex>::householderQ() const 
   * \sa class CompleteOrthogonalDecomposition
   */
 template <typename Derived>
-template <typename StorageIndex>
-const CompleteOrthogonalDecomposition<typename MatrixBase<Derived>::PlainObject, StorageIndex>
+const CompleteOrthogonalDecomposition<typename MatrixBase<Derived>::PlainObject>
 MatrixBase<Derived>::completeOrthogonalDecomposition() const {
   return CompleteOrthogonalDecomposition<PlainObject>(eval());
 }

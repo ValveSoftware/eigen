@@ -16,12 +16,12 @@
 namespace Eigen {
 
 namespace internal {
-template<typename MatrixType_, typename StorageIndex_> struct traits<ColPivHouseholderQR<MatrixType_, StorageIndex_> >
+template<typename MatrixType_> struct traits<ColPivHouseholderQR<MatrixType_> >
  : traits<MatrixType_>
 {
   typedef MatrixXpr XprKind;
   typedef SolverStorage StorageKind;
-  typedef StorageIndex_ StorageIndex;
+  typedef int StorageIndex;
   enum { Flags = 0 };
 };
 
@@ -50,8 +50,8 @@ template<typename MatrixType_, typename StorageIndex_> struct traits<ColPivHouse
   * 
   * \sa MatrixBase::colPivHouseholderQr()
   */
-template<typename MatrixType_, typename StorageIndex_> class ColPivHouseholderQR
-        : public SolverBase<ColPivHouseholderQR<MatrixType_, StorageIndex_> >
+template<typename MatrixType_> class ColPivHouseholderQR
+        : public SolverBase<ColPivHouseholderQR<MatrixType_> >
 {
   public:
 
@@ -65,12 +65,16 @@ template<typename MatrixType_, typename StorageIndex_> class ColPivHouseholderQR
       MaxColsAtCompileTime = MatrixType::MaxColsAtCompileTime
     };
     typedef typename internal::plain_diag_type<MatrixType>::type HCoeffsType;
-    typedef PermutationMatrix<ColsAtCompileTime, MaxColsAtCompileTime, StorageIndex> PermutationType;
+    typedef PermutationMatrix<ColsAtCompileTime, MaxColsAtCompileTime> PermutationType;
     typedef typename internal::plain_row_type<MatrixType, Index>::type IntRowVectorType;
     typedef typename internal::plain_row_type<MatrixType>::type RowVectorType;
     typedef typename internal::plain_row_type<MatrixType, RealScalar>::type RealRowVectorType;
     typedef HouseholderSequence<MatrixType,internal::remove_all_t<typename HCoeffsType::ConjugateReturnType>> HouseholderSequenceType;
     typedef typename MatrixType::PlainObject PlainObject;
+
+  private:
+
+    typedef typename PermutationType::StorageIndex PermIndexType;
 
   public:
 
@@ -100,7 +104,7 @@ template<typename MatrixType_, typename StorageIndex_> class ColPivHouseholderQR
     ColPivHouseholderQR(Index rows, Index cols)
       : m_qr(rows, cols),
         m_hCoeffs((std::min)(rows,cols)),
-        m_colsPermutation(cols),
+        m_colsPermutation(PermIndexType(cols)),
         m_colsTranspositions(cols),
         m_temp(cols),
         m_colNormsUpdated(cols),
@@ -124,7 +128,7 @@ template<typename MatrixType_, typename StorageIndex_> class ColPivHouseholderQR
     explicit ColPivHouseholderQR(const EigenBase<InputType>& matrix)
       : m_qr(matrix.rows(), matrix.cols()),
         m_hCoeffs((std::min)(matrix.rows(),matrix.cols())),
-        m_colsPermutation(matrix.cols()),
+        m_colsPermutation(PermIndexType(matrix.cols())),
         m_colsTranspositions(matrix.cols()),
         m_temp(matrix.cols()),
         m_colNormsUpdated(matrix.cols()),
@@ -145,7 +149,7 @@ template<typename MatrixType_, typename StorageIndex_> class ColPivHouseholderQR
     explicit ColPivHouseholderQR(EigenBase<InputType>& matrix)
       : m_qr(matrix.derived()),
         m_hCoeffs((std::min)(matrix.rows(),matrix.cols())),
-        m_colsPermutation(matrix.cols()),
+        m_colsPermutation(PermIndexType(matrix.cols())),
         m_colsTranspositions(matrix.cols()),
         m_temp(matrix.cols()),
         m_colNormsUpdated(matrix.cols()),
@@ -437,7 +441,7 @@ template<typename MatrixType_, typename StorageIndex_> class ColPivHouseholderQR
 
   protected:
 
-    friend class CompleteOrthogonalDecomposition<MatrixType, StorageIndex>;
+    friend class CompleteOrthogonalDecomposition<MatrixType>;
 
     EIGEN_STATIC_ASSERT_NON_INTEGER(Scalar)
 
@@ -456,8 +460,8 @@ template<typename MatrixType_, typename StorageIndex_> class ColPivHouseholderQR
     Index m_det_p;
 };
 
-template<typename MatrixType, typename StorageIndex>
-typename MatrixType::Scalar ColPivHouseholderQR<MatrixType, StorageIndex>::determinant() const
+template<typename MatrixType>
+typename MatrixType::Scalar ColPivHouseholderQR<MatrixType>::determinant() const
 {
   eigen_assert(m_isInitialized && "HouseholderQR is not initialized.");
   eigen_assert(m_qr.rows() == m_qr.cols() && "You can't take the determinant of a non-square matrix!");
@@ -466,8 +470,8 @@ typename MatrixType::Scalar ColPivHouseholderQR<MatrixType, StorageIndex>::deter
   return m_qr.diagonal().prod() * detQ * Scalar(m_det_p);
 }
 
-template<typename MatrixType, typename StorageIndex>
-typename MatrixType::RealScalar ColPivHouseholderQR<MatrixType, StorageIndex>::absDeterminant() const
+template<typename MatrixType>
+typename MatrixType::RealScalar ColPivHouseholderQR<MatrixType>::absDeterminant() const
 {
   using std::abs;
   eigen_assert(m_isInitialized && "ColPivHouseholderQR is not initialized.");
@@ -475,8 +479,8 @@ typename MatrixType::RealScalar ColPivHouseholderQR<MatrixType, StorageIndex>::a
   return abs(m_qr.diagonal().prod());
 }
 
-template<typename MatrixType, typename StorageIndex>
-typename MatrixType::RealScalar ColPivHouseholderQR<MatrixType, StorageIndex>::logAbsDeterminant() const
+template<typename MatrixType>
+typename MatrixType::RealScalar ColPivHouseholderQR<MatrixType>::logAbsDeterminant() const
 {
   eigen_assert(m_isInitialized && "ColPivHouseholderQR is not initialized.");
   eigen_assert(m_qr.rows() == m_qr.cols() && "You can't take the determinant of a non-square matrix!");
@@ -489,20 +493,20 @@ typename MatrixType::RealScalar ColPivHouseholderQR<MatrixType, StorageIndex>::l
   *
   * \sa class ColPivHouseholderQR, ColPivHouseholderQR(const MatrixType&)
   */
-template<typename MatrixType, typename StorageIndex>
+template<typename MatrixType>
 template<typename InputType>
-ColPivHouseholderQR<MatrixType, StorageIndex>& ColPivHouseholderQR<MatrixType, StorageIndex>::compute(const EigenBase<InputType>& matrix)
+ColPivHouseholderQR<MatrixType>& ColPivHouseholderQR<MatrixType>::compute(const EigenBase<InputType>& matrix)
 {
   m_qr = matrix.derived();
   computeInPlace();
   return *this;
 }
 
-template<typename MatrixType, typename StorageIndex>
-void ColPivHouseholderQR<MatrixType, StorageIndex>::computeInPlace()
+template<typename MatrixType>
+void ColPivHouseholderQR<MatrixType>::computeInPlace()
 {
-
-  eigen_assert(m_qr.cols()<=NumTraits<StorageIndex>::highest());
+  // the column permutation is stored as int indices, so just to be sure:
+  eigen_assert(m_qr.cols()<=NumTraits<int>::highest());
 
   using std::abs;
 
@@ -591,18 +595,18 @@ void ColPivHouseholderQR<MatrixType, StorageIndex>::computeInPlace()
     }
   }
 
-  m_colsPermutation.setIdentity(cols);
-  for(Index k = 0; k < size/*m_nonzero_pivots*/; ++k)
-    m_colsPermutation.applyTranspositionOnTheRight(k, m_colsTranspositions.coeff(k));
+  m_colsPermutation.setIdentity(PermIndexType(cols));
+  for(PermIndexType k = 0; k < size/*m_nonzero_pivots*/; ++k)
+    m_colsPermutation.applyTranspositionOnTheRight(k, PermIndexType(m_colsTranspositions.coeff(k)));
 
   m_det_p = (number_of_transpositions%2) ? -1 : 1;
   m_isInitialized = true;
 }
 
 #ifndef EIGEN_PARSED_BY_DOXYGEN
-template<typename MatrixType_, typename StorageIndex_>
+template<typename MatrixType_>
 template<typename RhsType, typename DstType>
-void ColPivHouseholderQR<MatrixType_, StorageIndex_>::_solve_impl(const RhsType &rhs, DstType &dst) const
+void ColPivHouseholderQR<MatrixType_>::_solve_impl(const RhsType &rhs, DstType &dst) const
 {
   const Index nonzero_pivots = nonzeroPivots();
 
@@ -624,9 +628,9 @@ void ColPivHouseholderQR<MatrixType_, StorageIndex_>::_solve_impl(const RhsType 
   for(Index i = nonzero_pivots; i < cols(); ++i) dst.row(m_colsPermutation.indices().coeff(i)).setZero();
 }
 
-template<typename MatrixType_, typename StorageIndex_>
+template<typename MatrixType_>
 template<bool Conjugate, typename RhsType, typename DstType>
-void ColPivHouseholderQR<MatrixType_, StorageIndex_>::_solve_impl_transposed(const RhsType &rhs, DstType &dst) const
+void ColPivHouseholderQR<MatrixType_>::_solve_impl_transposed(const RhsType &rhs, DstType &dst) const
 {
   const Index nonzero_pivots = nonzeroPivots();
 
@@ -652,10 +656,10 @@ void ColPivHouseholderQR<MatrixType_, StorageIndex_>::_solve_impl_transposed(con
 
 namespace internal {
 
-template<typename DstXprType, typename MatrixType, typename StorageIndex>
-struct Assignment<DstXprType, Inverse<ColPivHouseholderQR<MatrixType, StorageIndex> >, internal::assign_op<typename DstXprType::Scalar,typename ColPivHouseholderQR<MatrixType, StorageIndex>::Scalar>, Dense2Dense>
+template<typename DstXprType, typename MatrixType>
+struct Assignment<DstXprType, Inverse<ColPivHouseholderQR<MatrixType> >, internal::assign_op<typename DstXprType::Scalar,typename ColPivHouseholderQR<MatrixType>::Scalar>, Dense2Dense>
 {
-  typedef ColPivHouseholderQR<MatrixType, StorageIndex> QrType;
+  typedef ColPivHouseholderQR<MatrixType> QrType;
   typedef Inverse<QrType> SrcXprType;
   static void run(DstXprType &dst, const SrcXprType &src, const internal::assign_op<typename DstXprType::Scalar,typename QrType::Scalar> &)
   {
@@ -668,8 +672,8 @@ struct Assignment<DstXprType, Inverse<ColPivHouseholderQR<MatrixType, StorageInd
 /** \returns the matrix Q as a sequence of householder transformations.
   * You can extract the meaningful part only by using:
   * \code qr.householderQ().setLength(qr.nonzeroPivots()) \endcode*/
-template<typename MatrixType, typename StorageIndex>
-typename ColPivHouseholderQR<MatrixType, StorageIndex>::HouseholderSequenceType ColPivHouseholderQR<MatrixType, StorageIndex>
+template<typename MatrixType>
+typename ColPivHouseholderQR<MatrixType>::HouseholderSequenceType ColPivHouseholderQR<MatrixType>
   ::householderQ() const
 {
   eigen_assert(m_isInitialized && "ColPivHouseholderQR is not initialized.");
@@ -681,11 +685,10 @@ typename ColPivHouseholderQR<MatrixType, StorageIndex>::HouseholderSequenceType 
   * \sa class ColPivHouseholderQR
   */
 template<typename Derived>
-template<typename StorageIndex>
-const ColPivHouseholderQR<typename MatrixBase<Derived>::PlainObject, StorageIndex>
+const ColPivHouseholderQR<typename MatrixBase<Derived>::PlainObject>
 MatrixBase<Derived>::colPivHouseholderQr() const
 {
-  return ColPivHouseholderQR<PlainObject, StorageIndex>(eval());
+  return ColPivHouseholderQR<PlainObject>(eval());
 }
 
 } // end namespace Eigen

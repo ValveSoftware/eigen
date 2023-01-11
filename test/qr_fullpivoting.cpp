@@ -12,8 +12,9 @@
 #include <Eigen/QR>
 #include "solverbase.h"
 
-template<typename MatrixType, typename StorageIndex> void qr()
+template<typename MatrixType> void qr()
 {
+  STATIC_CHECK(( internal::is_same<typename FullPivHouseholderQR<MatrixType>::StorageIndex,int>::value ));
 
   static const int Rows = MatrixType::RowsAtCompileTime, Cols = MatrixType::ColsAtCompileTime;
   Index max_size = EIGEN_TEST_MAX_SIZE;
@@ -27,7 +28,7 @@ template<typename MatrixType, typename StorageIndex> void qr()
   typedef Matrix<Scalar, MatrixType::RowsAtCompileTime, MatrixType::RowsAtCompileTime> MatrixQType;
   MatrixType m1;
   createRandomPIMatrixOfRank(rank,rows,cols,m1);
-  FullPivHouseholderQR<MatrixType, StorageIndex> qr(m1);
+  FullPivHouseholderQR<MatrixType> qr(m1);
   VERIFY_IS_EQUAL(rank, qr.rank());
   VERIFY_IS_EQUAL(cols - qr.rank(), qr.dimensionOfKernel());
   VERIFY(!qr.isInjective());
@@ -66,7 +67,7 @@ template<typename MatrixType, typename StorageIndex> void qr()
   }
 }
 
-template<typename MatrixType, typename StorageIndex> void qr_invertible()
+template<typename MatrixType> void qr_invertible()
 {
   using std::log;
   using std::abs;
@@ -87,7 +88,7 @@ template<typename MatrixType, typename StorageIndex> void qr_invertible()
     m1 += a * a.adjoint();
   }
 
-  FullPivHouseholderQR<MatrixType, StorageIndex> qr(m1);
+  FullPivHouseholderQR<MatrixType> qr(m1);
   VERIFY(qr.isInjective());
   VERIFY(qr.isInvertible());
   VERIFY(qr.isSurjective());
@@ -107,11 +108,11 @@ template<typename MatrixType, typename StorageIndex> void qr_invertible()
   VERIFY_IS_APPROX(log(absdet), qr.logAbsDeterminant());
 }
 
-template<typename MatrixType, typename StorageIndex> void qr_verify_assert()
+template<typename MatrixType> void qr_verify_assert()
 {
   MatrixType tmp;
 
-  FullPivHouseholderQR<MatrixType, StorageIndex> qr;
+  FullPivHouseholderQR<MatrixType> qr;
   VERIFY_RAISES_ASSERT(qr.matrixQR())
   VERIFY_RAISES_ASSERT(qr.solve(tmp))
   VERIFY_RAISES_ASSERT(qr.transpose().solve(tmp))
@@ -129,35 +130,33 @@ template<typename MatrixType, typename StorageIndex> void qr_verify_assert()
 
 EIGEN_DECLARE_TEST(qr_fullpivoting)
 {
-  typedef int StorageIndex;
-
   for(int i = 0; i < 1; i++) {
-    CALL_SUBTEST_5( (qr<Matrix3f, StorageIndex>()) );
-    CALL_SUBTEST_6( (qr<Matrix3d, StorageIndex>()) );
-    CALL_SUBTEST_8( (qr<Matrix2f, StorageIndex>()) );
-    CALL_SUBTEST_1( (qr<MatrixXf, StorageIndex>()) );
-    CALL_SUBTEST_2( (qr<MatrixXd, StorageIndex>()) );
-    CALL_SUBTEST_3( (qr<MatrixXcd, StorageIndex>()) );
+    CALL_SUBTEST_5( qr<Matrix3f>() );
+    CALL_SUBTEST_6( qr<Matrix3d>() );
+    CALL_SUBTEST_8( qr<Matrix2f>() );
+    CALL_SUBTEST_1( qr<MatrixXf>() );
+    CALL_SUBTEST_2( qr<MatrixXd>() );
+    CALL_SUBTEST_3( qr<MatrixXcd>() );
   }
 
   for(int i = 0; i < g_repeat; i++) {
-    CALL_SUBTEST_1( (qr_invertible<MatrixXf, StorageIndex>()) );
-    CALL_SUBTEST_2( (qr_invertible<MatrixXd, StorageIndex>()) );
-    CALL_SUBTEST_4( (qr_invertible<MatrixXcf, StorageIndex>()) );
-    CALL_SUBTEST_3( (qr_invertible<MatrixXcd, StorageIndex>()) );
+    CALL_SUBTEST_1( qr_invertible<MatrixXf>() );
+    CALL_SUBTEST_2( qr_invertible<MatrixXd>() );
+    CALL_SUBTEST_4( qr_invertible<MatrixXcf>() );
+    CALL_SUBTEST_3( qr_invertible<MatrixXcd>() );
   }
 
-  CALL_SUBTEST_5( (qr_verify_assert<Matrix3f, StorageIndex>()) );
-  CALL_SUBTEST_6( (qr_verify_assert<Matrix3d, StorageIndex>()) );
-  CALL_SUBTEST_1( (qr_verify_assert<MatrixXf, StorageIndex>()) );
-  CALL_SUBTEST_2( (qr_verify_assert<MatrixXd, StorageIndex>()) );
-  CALL_SUBTEST_4( (qr_verify_assert<MatrixXcf, StorageIndex>()) );
-  CALL_SUBTEST_3( (qr_verify_assert<MatrixXcd, StorageIndex>()) );
+  CALL_SUBTEST_5(qr_verify_assert<Matrix3f>());
+  CALL_SUBTEST_6(qr_verify_assert<Matrix3d>());
+  CALL_SUBTEST_1(qr_verify_assert<MatrixXf>());
+  CALL_SUBTEST_2(qr_verify_assert<MatrixXd>());
+  CALL_SUBTEST_4(qr_verify_assert<MatrixXcf>());
+  CALL_SUBTEST_3(qr_verify_assert<MatrixXcd>());
 
   // Test problem size constructors
-  CALL_SUBTEST_7( (FullPivHouseholderQR<MatrixXf,StorageIndex>(10, 20)));
-  CALL_SUBTEST_7( (FullPivHouseholderQR<Matrix<float, 10, 20>, StorageIndex>(10, 20)));
-  CALL_SUBTEST_7( (FullPivHouseholderQR<Matrix<float, 10, 20>, StorageIndex>(Matrix<float,10,20>::Random())));
-  CALL_SUBTEST_7( (FullPivHouseholderQR<Matrix<float, 20, 10>, StorageIndex>(20, 10)));
-  CALL_SUBTEST_7( (FullPivHouseholderQR<Matrix<float, 20, 10>, StorageIndex>(Matrix<float,20,10>::Random())));
+  CALL_SUBTEST_7(FullPivHouseholderQR<MatrixXf>(10, 20));
+  CALL_SUBTEST_7((FullPivHouseholderQR<Matrix<float,10,20> >(10,20)));
+  CALL_SUBTEST_7((FullPivHouseholderQR<Matrix<float,10,20> >(Matrix<float,10,20>::Random())));
+  CALL_SUBTEST_7((FullPivHouseholderQR<Matrix<float,20,10> >(20,10)));
+  CALL_SUBTEST_7((FullPivHouseholderQR<Matrix<float,20,10> >(Matrix<float,20,10>::Random())));
 }
