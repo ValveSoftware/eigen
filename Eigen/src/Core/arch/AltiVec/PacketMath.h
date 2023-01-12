@@ -173,7 +173,7 @@ struct packet_traits<float> : default_packet_traits {
     HasATan = 1,
     HasLog = 1,
     HasExp = 1,
-#ifdef __VSX__
+#ifdef EIGEN_VECTORIZE_VSX
     HasSqrt = 1,
 #if !EIGEN_COMP_CLANG
     HasRsqrt = 1,
@@ -218,7 +218,7 @@ struct packet_traits<bfloat16> : default_packet_traits {
     HasCos = EIGEN_FAST_MATH,
     HasLog = 1,
     HasExp = 1,
-#ifdef __VSX__
+#ifdef EIGEN_VECTORIZE_VSX
     HasSqrt = 1,
 #if !EIGEN_COMP_CLANG
     HasRsqrt = 1,
@@ -446,7 +446,7 @@ EIGEN_STRONG_INLINE Packet pload_common(const __UNPACK_TYPE__(Packet)* from)
   // ignoring these warnings for now.
   EIGEN_UNUSED_VARIABLE(from);
   EIGEN_DEBUG_ALIGNED_LOAD
-#ifdef __VSX__
+#ifdef EIGEN_VECTORIZE_VSX
   return vec_xl(0, const_cast<__UNPACK_TYPE__(Packet)*>(from));
 #else
   return vec_ld(0, from);
@@ -501,7 +501,7 @@ EIGEN_ALWAYS_INLINE Packet pload_ignore(const __UNPACK_TYPE__(Packet)* from)
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
-#ifdef __VSX__
+#ifdef EIGEN_VECTORIZE_VSX
   return vec_xl(0, const_cast<__UNPACK_TYPE__(Packet)*>(from));
 #else
   return vec_ld(0, from);
@@ -608,7 +608,7 @@ EIGEN_STRONG_INLINE void pstore_common(__UNPACK_TYPE__(Packet)* to, const Packet
   // ignoring these warnings for now.
   EIGEN_UNUSED_VARIABLE(to);
   EIGEN_DEBUG_ALIGNED_STORE
-#ifdef __VSX__
+#ifdef EIGEN_VECTORIZE_VSX
   vec_xst(from, 0, to);
 #else
   vec_st(from, 0, to);
@@ -1054,7 +1054,7 @@ template<> EIGEN_STRONG_INLINE Packet4i pmadd(const Packet4i& a, const Packet4i&
 template<> EIGEN_STRONG_INLINE Packet8s pmadd(const Packet8s& a, const Packet8s& b, const Packet8s& c) { return vec_madd(a,b,c); }
 template<> EIGEN_STRONG_INLINE Packet8us pmadd(const Packet8us& a, const Packet8us& b, const Packet8us& c) { return vec_madd(a,b,c); }
 
-#ifdef __VSX__
+#ifdef EIGEN_VECTORIZE_VSX
 template<> EIGEN_STRONG_INLINE Packet4f pmsub(const Packet4f& a, const Packet4f& b, const Packet4f& c) { return vec_msub(a,b,c); }
 template<> EIGEN_STRONG_INLINE Packet4f pnmadd(const Packet4f& a, const Packet4f& b, const Packet4f& c) { return vec_nmsub(a,b,c); }
 template<> EIGEN_STRONG_INLINE Packet4f pnmsub(const Packet4f& a, const Packet4f& b, const Packet4f& c) { return vec_nmadd(a,b,c); }
@@ -1062,7 +1062,7 @@ template<> EIGEN_STRONG_INLINE Packet4f pnmsub(const Packet4f& a, const Packet4f
 
 template<> EIGEN_STRONG_INLINE Packet4f pmin<Packet4f>(const Packet4f& a, const Packet4f& b)
 {
-  #ifdef __VSX__
+  #ifdef EIGEN_VECTORIZE_VSX
   // NOTE: about 10% slower than vec_min, but consistent with std::min and SSE regarding NaN
   Packet4f ret;
   __asm__ ("xvcmpgesp %x0,%x1,%x2\n\txxsel %x0,%x1,%x2,%x0" : "=&wa" (ret) : "wa" (a), "wa" (b));
@@ -1080,7 +1080,7 @@ template<> EIGEN_STRONG_INLINE Packet16uc pmin<Packet16uc>(const Packet16uc& a, 
 
 template<> EIGEN_STRONG_INLINE Packet4f pmax<Packet4f>(const Packet4f& a, const Packet4f& b)
 {
-  #ifdef __VSX__
+  #ifdef EIGEN_VECTORIZE_VSX
   // NOTE: about 10% slower than vec_max, but consistent with std::max and SSE regarding NaN
   Packet4f ret;
   __asm__ ("xvcmpgtsp %x0,%x2,%x1\n\txxsel %x0,%x1,%x2,%x0" : "=&wa" (ret) : "wa" (a), "wa" (b));
@@ -1103,27 +1103,27 @@ template<> EIGEN_STRONG_INLINE Packet4f pcmp_lt_or_nan(const Packet4f& a, const 
   return vec_nor(c,c);
 }
 
-#ifdef __VSX__
+#ifdef EIGEN_VECTORIZE_VSX
 template<> EIGEN_STRONG_INLINE Packet4i pcmp_le(const Packet4i& a, const Packet4i& b) { return reinterpret_cast<Packet4i>(vec_cmple(a,b)); }
 #endif
 template<> EIGEN_STRONG_INLINE Packet4i pcmp_lt(const Packet4i& a, const Packet4i& b) { return reinterpret_cast<Packet4i>(vec_cmplt(a,b)); }
 template<> EIGEN_STRONG_INLINE Packet4i pcmp_eq(const Packet4i& a, const Packet4i& b) { return reinterpret_cast<Packet4i>(vec_cmpeq(a,b)); }
-#ifdef __VSX__
+#ifdef EIGEN_VECTORIZE_VSX
 template<> EIGEN_STRONG_INLINE Packet8s pcmp_le(const Packet8s& a, const Packet8s& b) { return reinterpret_cast<Packet8s>(vec_cmple(a,b)); }
 #endif
 template<> EIGEN_STRONG_INLINE Packet8s pcmp_lt(const Packet8s& a, const Packet8s& b) { return reinterpret_cast<Packet8s>(vec_cmplt(a,b)); }
 template<> EIGEN_STRONG_INLINE Packet8s pcmp_eq(const Packet8s& a, const Packet8s& b) { return reinterpret_cast<Packet8s>(vec_cmpeq(a,b)); }
-#ifdef __VSX__
+#ifdef EIGEN_VECTORIZE_VSX
 template<> EIGEN_STRONG_INLINE Packet8us pcmp_le(const Packet8us& a, const Packet8us& b) { return reinterpret_cast<Packet8us>(vec_cmple(a,b)); }
 #endif
 template<> EIGEN_STRONG_INLINE Packet8us pcmp_lt(const Packet8us& a, const Packet8us& b) { return reinterpret_cast<Packet8us>(vec_cmplt(a,b)); }
 template<> EIGEN_STRONG_INLINE Packet8us pcmp_eq(const Packet8us& a, const Packet8us& b) { return reinterpret_cast<Packet8us>(vec_cmpeq(a,b)); }
-#ifdef __VSX__
+#ifdef EIGEN_VECTORIZE_VSX
 template<> EIGEN_STRONG_INLINE Packet16c pcmp_le(const Packet16c& a, const Packet16c& b) { return reinterpret_cast<Packet16c>(vec_cmple(a,b)); }
 #endif
 template<> EIGEN_STRONG_INLINE Packet16c pcmp_lt(const Packet16c& a, const Packet16c& b) { return reinterpret_cast<Packet16c>(vec_cmplt(a,b)); }
 template<> EIGEN_STRONG_INLINE Packet16c pcmp_eq(const Packet16c& a, const Packet16c& b) { return reinterpret_cast<Packet16c>(vec_cmpeq(a,b)); }
-#ifdef __VSX__
+#ifdef EIGEN_VECTORIZE_VSX
 template<> EIGEN_STRONG_INLINE Packet16uc pcmp_le(const Packet16uc& a, const Packet16uc& b) { return reinterpret_cast<Packet16uc>(vec_cmple(a,b)); }
 #endif
 template<> EIGEN_STRONG_INLINE Packet16uc pcmp_lt(const Packet16uc& a, const Packet16uc& b) { return reinterpret_cast<Packet16uc>(vec_cmplt(a,b)); }
@@ -1164,7 +1164,7 @@ template<> EIGEN_STRONG_INLINE Packet4f pround<Packet4f>(const Packet4f& a)
     Packet4f t = vec_add(reinterpret_cast<Packet4f>(vec_or(vec_and(reinterpret_cast<Packet4ui>(a), p4ui_SIGN), p4ui_PREV0DOT5)), a);
     Packet4f res;
 
-#ifdef __VSX__
+#ifdef EIGEN_VECTORIZE_VSX
     __asm__("xvrspiz %x0, %x1\n\t"
         : "=&wa" (res)
         : "wa" (t));
@@ -1178,7 +1178,7 @@ template<> EIGEN_STRONG_INLINE Packet4f pround<Packet4f>(const Packet4f& a)
 }
 template<> EIGEN_STRONG_INLINE Packet4f pceil<Packet4f>(const  Packet4f& a) { return vec_ceil(a); }
 template<> EIGEN_STRONG_INLINE Packet4f pfloor<Packet4f>(const Packet4f& a) { return vec_floor(a); }
-#ifdef __VSX__
+#ifdef EIGEN_VECTORIZE_VSX
 template<> EIGEN_STRONG_INLINE Packet4f print<Packet4f>(const Packet4f& a)
 {
     Packet4f res;
@@ -1194,7 +1194,7 @@ template<> EIGEN_STRONG_INLINE Packet4f print<Packet4f>(const Packet4f& a)
 template<typename Packet> EIGEN_STRONG_INLINE Packet ploadu_common(const __UNPACK_TYPE__(Packet)* from)
 {
   EIGEN_DEBUG_ALIGNED_LOAD
-#if defined(__VSX__) || !defined(_BIG_ENDIAN)
+#if defined(EIGEN_VECTORIZE_VSX) || !defined(_BIG_ENDIAN)
   EIGEN_DEBUG_UNALIGNED_LOAD
   return vec_xl(0, const_cast<__UNPACK_TYPE__(Packet)*>(from));
 #else
@@ -1377,7 +1377,7 @@ template<> EIGEN_STRONG_INLINE Packet16uc ploaddup<Packet16uc>(const unsigned ch
 template<typename Packet> EIGEN_STRONG_INLINE void pstoreu_common(__UNPACK_TYPE__(Packet)*  to, const Packet& from)
 {
   EIGEN_DEBUG_UNALIGNED_STORE
-#if defined(__VSX__) || !defined(_BIG_ENDIAN)
+#if defined(EIGEN_VECTORIZE_VSX) || !defined(_BIG_ENDIAN)
   vec_xst(from, 0, to);
 #else
   // Taken from http://developer.apple.com/hardwaredrivers/ve/alignment.html
@@ -1773,7 +1773,7 @@ template<> EIGEN_STRONG_INLINE Packet8bf pceil<Packet8bf> (const Packet8bf& a){
 template<> EIGEN_STRONG_INLINE Packet8bf pround<Packet8bf> (const Packet8bf& a){
   BF16_TO_F32_UNARY_OP_WRAPPER(pround<Packet4f>, a);
 }
-#ifdef __VSX__
+#ifdef EIGEN_VECTORIZE_VSX
 template<> EIGEN_STRONG_INLINE Packet8bf print<Packet8bf> (const Packet8bf& a){
   BF16_TO_F32_UNARY_OP_WRAPPER(print<Packet4f>, a);
 }
@@ -2657,7 +2657,7 @@ template<> EIGEN_STRONG_INLINE Packet4f preinterpret<Packet4f,Packet4i>(const Pa
 
 
 //---------- double ----------
-#ifdef __VSX__
+#ifdef EIGEN_VECTORIZE_VSX
 typedef __vector double              Packet2d;
 typedef __vector unsigned long long  Packet2ul;
 typedef __vector long long           Packet2l;

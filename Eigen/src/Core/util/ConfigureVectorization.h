@@ -352,10 +352,10 @@
       #endif
     } // end extern "C"
 
-  #elif defined __VSX__
+  #elif defined(__VSX__) && !defined(__APPLE__)
 
     #define EIGEN_VECTORIZE
-    #define EIGEN_VECTORIZE_VSX
+    #define EIGEN_VECTORIZE_VSX 1
     #include <altivec.h>
     // We need to #undef all these ugly tokens defined in <altivec.h>
     // => use __vector instead of vector
