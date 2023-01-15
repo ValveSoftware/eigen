@@ -876,7 +876,7 @@
 #ifdef EIGEN_INTERNAL_DEBUGGING
 #define eigen_internal_assert(x) eigen_assert(x)
 #else
-#define eigen_internal_assert(x)
+#define eigen_internal_assert(x) ((void)0)
 #endif
 
 #ifdef EIGEN_NO_DEBUG
@@ -1238,10 +1238,10 @@ namespace Eigen {
 namespace Eigen {
 namespace internal {
 
-inline bool all(){ return true; }
+EIGEN_DEVICE_FUNC inline bool all(){ return true; }
 
 template<typename T, typename ...Ts>
-bool all(T t, Ts ... ts){ return t && all(ts...); }
+EIGEN_DEVICE_FUNC bool all(T t, Ts ... ts){ return t && all(ts...); }
 
 }
 }
