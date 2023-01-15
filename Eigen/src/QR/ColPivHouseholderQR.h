@@ -76,12 +76,12 @@ template<typename MatrixType_, typename PermutationIndex_> class ColPivHousehold
 private:
     void init(Index rows, Index cols) {
       Index diag = numext::mini(rows, cols);
-      m_hCoeffs = HCoeffsType(diag);
-      m_colsPermutation = PermutationType(cols);
-      m_colsTranspositions = IntRowVectorType(cols);
-      m_temp = RealRowVectorType(cols);
-      m_colNormsUpdated = RealRowVectorType(cols);
-      m_colNormsDirect = RealRowVectorType(cols);
+      m_hCoeffs.resize(diag);
+      m_colsPermutation.resize(cols);
+      m_colsTranspositions.resize(cols);
+      m_temp.resize(cols);
+      m_colNormsUpdated.resize(cols);
+      m_colNormsDirect.resize(cols);
       m_isInitialized = false;
       m_usePrescribedThreshold = false;
     }

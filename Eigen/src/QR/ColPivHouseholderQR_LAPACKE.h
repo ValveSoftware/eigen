@@ -101,8 +101,8 @@ namespace Eigen {
                               bool& usePrescribedThreshold, bool& isInitialized) {
 
         Index diag = numext::mini(rows, cols);
-        hCoeffs = HCoeffsType(diag);
-        colsPermutation = PermutationType(cols);
+        hCoeffs.resize(diag);
+        colsPermutation.resize(cols);
         usePrescribedThreshold = false;
         isInitialized = false;
       }
