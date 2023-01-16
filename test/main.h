@@ -18,6 +18,9 @@
 #include <vector>
 #include <typeinfo>
 #include <functional>
+#ifdef EIGEN_USE_SYCL
+#include <CL/sycl.hpp>
+#endif
 
 // The following includes of STL headers have to be done _before_ the
 // definition of macros min() and max().  The reason is that many STL
@@ -121,9 +124,7 @@ struct imag {};
 #define FORBIDDEN_IDENTIFIER (this_identifier_is_forbidden_to_avoid_clashes) this_identifier_is_forbidden_to_avoid_clashes
 // B0 is defined in POSIX header termios.h
 #define B0 FORBIDDEN_IDENTIFIER
-// `I` may be defined by complex.h:
 #define I  FORBIDDEN_IDENTIFIER
-
 // Unit tests calling Eigen's blas library must preserve the default blocking size
 // to avoid troubles.
 #ifndef EIGEN_NO_DEBUG_SMALL_PRODUCT_BLOCKS
@@ -301,15 +302,16 @@ namespace Eigen
       }
     #endif //EIGEN_EXCEPTIONS
 
-  #elif !defined(__CUDACC__) && !defined(__HIPCC__) && !defined(SYCL_DEVICE_ONLY) // EIGEN_DEBUG_ASSERTS
+  #elif !defined(__CUDACC__) && !defined(__HIPCC__) && !defined(__SYCL_DEVICE_ONLY__) // EIGEN_DEBUG_ASSERTS
     #define eigen_assert(a) \
       if( (!(a)) && (!no_more_assert) )       \
       {                                       \
         Eigen::no_more_assert = true;         \
-        if(report_on_cerr_on_assert_failure)  \
+        if(report_on_cerr_on_assert_failure) { \
           eigen_plain_assert(a);              \
-        else                                  \
+        } else {                                  \
           EIGEN_THROW_X(Eigen::eigen_assert_exception()); \
+        } \
       }
 
     #ifdef EIGEN_EXCEPTIONS

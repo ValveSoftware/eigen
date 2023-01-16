@@ -122,6 +122,7 @@ ei_add_test(special_packetmath "-DEIGEN_FAST_MATH=1")
 
 if(EIGEN_TEST_SYCL)
   set(EIGEN_SYCL ON)
+  set(CMAKE_CXX_STANDARD 17)
   # Forward CMake options as preprocessor definitions
   if(EIGEN_SYCL_USE_DEFAULT_SELECTOR)
     add_definitions(-DEIGEN_SYCL_USE_DEFAULT_SELECTOR=${EIGEN_SYCL_USE_DEFAULT_SELECTOR})
@@ -172,10 +173,7 @@ if(EIGEN_TEST_SYCL)
     add_definitions(-DEIGEN_SYCL_DISABLE_ARM_GPU_CACHE_OPTIMISATION=${EIGEN_SYCL_DISABLE_ARM_GPU_CACHE_OPTIMISATION})
   endif()
 
-  if(EIGEN_SYCL_TRISYCL)
-    # triSYCL now requires c++17.
-    set(CMAKE_CXX_STANDARD 17)
-  else()
+  if(EIGEN_SYCL_ComputeCpp)
     if(MSVC)
       list(APPEND COMPUTECPP_USER_FLAGS -DWIN32)
     else()
@@ -193,7 +191,7 @@ if(EIGEN_TEST_SYCL)
         -no-serial-memop
         -Xclang
         -cl-mad-enable)
-  endif()
+  endif(EIGEN_SYCL_ComputeCpp)
 
   ei_add_test(cxx11_tensor_sycl)
   ei_add_test(cxx11_tensor_image_op_sycl)
@@ -409,4 +407,3 @@ if (EIGEN_TEST_HIP)
   endif()
 
 endif()
-

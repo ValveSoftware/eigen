@@ -27,16 +27,63 @@ using Eigen::TensorMap;
 
 // Functions used to compare the TensorMap implementation on the device with
 // the equivalent on the host
-namespace cl {
-namespace sycl {
-template <typename T> T abs(T x) { return cl::sycl::fabs(x); }
+namespace SYCL {
+template <typename T> T abs(T x) { 
+  return cl::sycl::abs(x);
+}
+
+template <> float abs(float x) { 
+  return cl::sycl::fabs(x);
+}
+
+template <> double abs(double x) { 
+  return cl::sycl::fabs(x);
+}
+
 template <typename T> T square(T x) { return x * x; }
 template <typename T> T cube(T x) { return x * x * x; }
 template <typename T> T inverse(T x) { return T(1) / x; }
-template <typename T> T cwiseMax(T x, T y) { return cl::sycl::max(x, y); }
-template <typename T> T cwiseMin(T x, T y) { return cl::sycl::min(x, y); }
+template <typename T> T cwiseMax(T x, T y) { 
+return cl::sycl::max(x, y);
+}
+template <typename T> T cwiseMin(T x, T y) { 
+  return cl::sycl::min(x, y); 
 }
 }
+
+
+#define DECLARE_UNARY_STRUCT_NON_SYCL(FUNC)                        \
+  struct op_##FUNC {                                               \
+    template <typename T>                                          \
+    auto operator()(const T& x)  {                                 \
+      return SYCL::FUNC(x);                                        \
+    }                                                              \
+    template <typename T>                                          \
+    auto operator()(const TensorMap<T>& x) {                       \
+      return x.FUNC();                                             \
+    }                                                              \
+  };
+
+DECLARE_UNARY_STRUCT_NON_SYCL(abs)
+DECLARE_UNARY_STRUCT_NON_SYCL(square)
+DECLARE_UNARY_STRUCT_NON_SYCL(cube)
+DECLARE_UNARY_STRUCT_NON_SYCL(inverse)
+
+#define DECLARE_BINARY_STRUCT_NON_SYCL(FUNC)                                                 \
+  struct op_##FUNC {                                                                         \
+    template <typename T1, typename T2>                                                      \
+    auto operator()(const T1& x, const T2& y){                                               \
+      return SYCL::FUNC(x, y);                                                               \
+    }                                                                                        \
+    template <typename T1, typename T2>                                                      \
+    auto operator()(const TensorMap<T1>& x, const TensorMap<T2>& y) {                        \
+      return x.FUNC(y);                                                                      \
+    }                                                                                        \
+  };
+
+DECLARE_BINARY_STRUCT_NON_SYCL(cwiseMax)
+DECLARE_BINARY_STRUCT_NON_SYCL(cwiseMin)
+
 
 struct EqualAssignment {
   template <typename Lhs, typename Rhs>
@@ -119,12 +166,9 @@ void test_unary_builtins_for_scalar(const Eigen::SyclDevice& sycl_device,
     }                                                              \
   };
 
-DECLARE_UNARY_STRUCT(abs)
+
 DECLARE_UNARY_STRUCT(sqrt)
 DECLARE_UNARY_STRUCT(rsqrt)
-DECLARE_UNARY_STRUCT(square)
-DECLARE_UNARY_STRUCT(cube)
-DECLARE_UNARY_STRUCT(inverse)
 DECLARE_UNARY_STRUCT(tanh)
 DECLARE_UNARY_STRUCT(exp)
 DECLARE_UNARY_STRUCT(expm1)
@@ -288,8 +332,6 @@ void test_binary_builtins_fixed_arg2(const Eigen::SyclDevice& sycl_device,
     }                                                                                        \
   };
 
-DECLARE_BINARY_STRUCT(cwiseMax)
-DECLARE_BINARY_STRUCT(cwiseMin)
 
 #define DECLARE_BINARY_STRUCT_OP(NAME, OPERATOR)                          \
   struct op_##NAME {                                                      \
