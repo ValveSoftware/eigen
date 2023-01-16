@@ -59,6 +59,25 @@
 
 #endif
 
+#ifndef EIGEN_MALLOC_CHECK_THREAD_LOCAL
+
+// Check whether we can use the thread_local keyword to allow or disallow
+// allocating memory with per-thread granularity, by means of the
+// set_is_malloc_allowed() function.
+#ifndef EIGEN_AVOID_THREAD_LOCAL
+
+#if ((EIGEN_COMP_GNUC) || __has_feature(cxx_thread_local) || EIGEN_COMP_MSVC >= 1900) && !defined(EIGEN_GPU_COMPILE_PHASE)
+#define EIGEN_MALLOC_CHECK_THREAD_LOCAL thread_local
+#else
+#define EIGEN_MALLOC_CHECK_THREAD_LOCAL
+#endif
+
+#else // EIGEN_AVOID_THREAD_LOCAL
+#define EIGEN_MALLOC_CHECK_THREAD_LOCAL
+#endif // EIGEN_AVOID_THREAD_LOCAL
+
+#endif
+
 #include "../InternalHeaderCheck.h"
 
 namespace Eigen {
@@ -156,7 +175,7 @@ EIGEN_DEVICE_FUNC inline void check_that_malloc_is_allowed()
 #elif defined EIGEN_RUNTIME_NO_MALLOC
 EIGEN_DEVICE_FUNC inline bool is_malloc_allowed_impl(bool update, bool new_value = false)
 {
-  static bool value = true;
+  EIGEN_MALLOC_CHECK_THREAD_LOCAL static bool value = true;
   if (update == 1)
     value = new_value;
   return value;
