@@ -31,7 +31,7 @@ namespace internal {
 #endif
 
 // Disable the code for older versions of gcc that don't support many of the required avx512 math instrinsics.
-#if EIGEN_GNUC_AT_LEAST(5, 3) || EIGEN_COMP_CLANG || EIGEN_COMP_MSVC >= 1923 || EIGEN_COMP_ICC >= 1900
+#if EIGEN_GNUC_STRICT_AT_LEAST(5,3,0) || EIGEN_COMP_CLANG || EIGEN_COMP_MSVC >= 1923 || EIGEN_COMP_ICC >= 1900
 #define EIGEN_HAS_AVX512_MATH 1
 #else
 #define EIGEN_HAS_AVX512_MATH 0
@@ -2384,7 +2384,7 @@ EIGEN_STRONG_INLINE Packet16f Bf16ToF32(const Packet16bf& a) {
 EIGEN_STRONG_INLINE Packet16bf F32ToBf16(const Packet16f& a) {
   Packet16bf r;
 
-#if defined(EIGEN_VECTORIZE_AVX512BF16) && EIGEN_GNUC_AT_LEAST(10, 1)
+#if defined(EIGEN_VECTORIZE_AVX512BF16) && EIGEN_GNUC_STRICT_AT_LEAST(10,1,0)
   // Since GCC 10.1 supports avx512bf16 and C style explicit cast
   // (C++ static_cast is not supported yet), do conversion via intrinsic
   // and register path for performance.

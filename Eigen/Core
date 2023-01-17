@@ -34,16 +34,16 @@
   #include <new>
 #endif
 
-// Disable the ipa-cp-clone optimization flag with MinGW 6.x or newer (enabled by default with -O3)
+// Disable the ipa-cp-clone optimization flag with MinGW 6.x or older (enabled by default with -O3)
 // See http://eigen.tuxfamily.org/bz/show_bug.cgi?id=556 for details.
-#if EIGEN_COMP_MINGW && EIGEN_GNUC_AT_MOST(5,5)
+#if EIGEN_COMP_MINGW && EIGEN_GNUC_STRICT_LESS_THAN(6,0,0)
   #pragma GCC optimize ("-fno-ipa-cp-clone")
 #endif
 
 // Prevent ICC from specializing std::complex operators that silently fail
 // on device. This allows us to use our own device-compatible specializations
 // instead.
-#if defined(EIGEN_COMP_ICC) && defined(EIGEN_GPU_COMPILE_PHASE) \
+#if EIGEN_COMP_ICC && defined(EIGEN_GPU_COMPILE_PHASE) \
     && !defined(_OVERRIDE_COMPLEX_SPECIALIZATION_)
 #define _OVERRIDE_COMPLEX_SPECIALIZATION_ 1
 #endif

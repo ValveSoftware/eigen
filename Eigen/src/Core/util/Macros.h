@@ -59,18 +59,25 @@
 // Compiler identification, EIGEN_COMP_*
 //------------------------------------------------------------------------------------------
 
-/// \internal EIGEN_COMP_GNUC set to 1 for all compilers compatible with GCC
+/// \internal EIGEN_COMP_GNUC set to version (e.g., 951 for GCC 9.5.1) for all compilers compatible with GCC
 #ifdef __GNUC__
-  #define EIGEN_COMP_GNUC (__GNUC__*10+__GNUC_MINOR__)
+  #define EIGEN_COMP_GNUC (__GNUC__*100+__GNUC_MINOR__*10+__GNUC_PATCH__)
 #else
   #define EIGEN_COMP_GNUC 0
 #endif
 
-/// \internal EIGEN_COMP_CLANG set to major+minor version (e.g., 307 for clang 3.7) if the compiler is clang
+/// \internal EIGEN_COMP_CLANG set to version (e.g., 372 for clang 3.7.2) if the compiler is clang
 #if defined(__clang__)
-  #define EIGEN_COMP_CLANG (__clang_major__*100+__clang_minor__)
+  #define EIGEN_COMP_CLANG (__clang_major__*100+__clang_minor__*10+__clang_patchlevel__)
 #else
   #define EIGEN_COMP_CLANG 0
+#endif
+
+/// \internal EIGEN_COMP_CLANGAPPLE set to the version number (e.g. 9000000 for AppleClang 9.0) if the compiler is AppleClang
+#if defined(__clang__) && defined(__apple_build_version__)
+  #define EIGEN_COMP_CLANGAPPLE __apple_build_version__
+#else
+  #define EIGEN_COMP_CLANGAPPLE 0
 #endif
 
 /// \internal EIGEN_COMP_CASTXML set to 1 if being preprocessed by CastXML
@@ -244,24 +251,47 @@
 #endif
 
 
-/// \internal EIGEN_GNUC_STRICT set to 1 if the compiler is really GCC and not a compatible compiler (e.g., ICC, clang, mingw, etc.)
+/// \internal EIGEN_COMP_GNUC_STRICT set to 1 if the compiler is really GCC and not a compatible compiler (e.g., ICC, clang, mingw, etc.)
 #if EIGEN_COMP_GNUC && !(EIGEN_COMP_CLANG || EIGEN_COMP_ICC || EIGEN_COMP_CLANGICC || EIGEN_COMP_MINGW || EIGEN_COMP_PGI || EIGEN_COMP_IBM || EIGEN_COMP_ARM || EIGEN_COMP_EMSCRIPTEN || EIGEN_COMP_FCC || EIGEN_COMP_CLANGFCC || EIGEN_COMP_CPE || EIGEN_COMP_CLANGCPE || EIGEN_COMP_LCC)
   #define EIGEN_COMP_GNUC_STRICT 1
 #else
   #define EIGEN_COMP_GNUC_STRICT 0
 #endif
 
-
-#if EIGEN_COMP_GNUC
-  #define EIGEN_GNUC_AT_LEAST(x,y) ((__GNUC__==x && __GNUC_MINOR__>=y) || __GNUC__>x)
-  #define EIGEN_GNUC_AT_MOST(x,y)  ((__GNUC__==x && __GNUC_MINOR__<=y) || __GNUC__<x)
-  #define EIGEN_GNUC_AT(x,y)       ( __GNUC__==x && __GNUC_MINOR__==y )
+// GCC, and compilers that pretend to be it, have different version schemes, so this only makes sense to use with the real GCC.
+#if EIGEN_COMP_GNUC_STRICT
+  #define EIGEN_GNUC_STRICT_AT_LEAST(x,y,z)  ((__GNUC__ > x) || \
+                                              (__GNUC__ == x && __GNUC_MINOR__ > y) || \
+                                              (__GNUC__ == x && __GNUC_MINOR__ == y && __GNUC_PATCH__ >= z))
+  #define EIGEN_GNUC_STRICT_LESS_THAN(x,y,z) ((__GNUC__ < x) || \
+                                              (__GNUC__ == x && __GNUC_MINOR__ < y) || \
+                                              (__GNUC__ == x && __GNUC_MINOR__ == y && __GNUC_PATCH__ < z))
 #else
-  #define EIGEN_GNUC_AT_LEAST(x,y) 0
-  #define EIGEN_GNUC_AT_MOST(x,y)  0
-  #define EIGEN_GNUC_AT(x,y)       0
+  #define EIGEN_GNUC_STRICT_AT_LEAST(x,y,z)  0
+  #define EIGEN_GNUC_STRICT_LESS_THAN(x,y,z) 0
 #endif
 
+
+
+/// \internal EIGEN_COMP_CLANG_STRICT set to 1 if the compiler is really Clang and not a compatible compiler (e.g., AppleClang, etc.)
+#if EIGEN_COMP_CLANG && !(EIGEN_COMP_CLANGAPPLE || EIGEN_COMP_CLANGICC || EIGEN_COMP_CLANGFCC || EIGEN_COMP_CLANGCPE)
+  #define EIGEN_COMP_CLANG_STRICT 1
+#else
+  #define EIGEN_COMP_CLANG_STRICT 0
+#endif
+
+// Clang, and compilers forked from it, have different version schemes, so this only makes sense to use with the real Clang.
+#if EIGEN_COMP_CLANG_STRICT
+  #define EIGEN_CLANG_STRICT_AT_LEAST(x,y,z)  ((__clang_major__ > x) || \
+                                               (__clang_major__ == x && __clang_minor__ > y) || \
+                                               (__clang_major__ == x && __clang_minor__ == y && __clang_patchlevel__ >= z))
+  #define EIGEN_CLANG_STRICT_LESS_THAN(x,y,z) ((__clang_major__ < x) || \
+                                               (__clang_major__ == x && __clang_minor__ < y) || \
+                                               (__clang_major__ == x && __clang_minor__ == y && __clang_patchlevel__ < z))
+#else
+  #define EIGEN_CLANG_STRICT_AT_LEAST(x,y,z)  0
+  #define EIGEN_CLANG_STRICT_LESS_THAN(x,y,z) 0
+#endif
 
 //------------------------------------------------------------------------------------------
 // Architecture identification, EIGEN_ARCH_*
@@ -667,10 +697,13 @@
 // but in practice we should not rely on them but rather on the availability of
 // individual features as defined later.
 // This is why there is no EIGEN_HAS_CXX17.
-#if EIGEN_MAX_CPP_VER<14 || EIGEN_COMP_CXXVER<14 || (EIGEN_COMP_MSVC && EIGEN_COMP_MSVC < 1900) || \
-  (EIGEN_COMP_ICC && EIGEN_COMP_ICC < 1500) || (EIGEN_COMP_NVCC && EIGEN_COMP_NVCC < 80000) ||     \
-  (EIGEN_COMP_CLANG && ((EIGEN_COMP_CLANG<309) || (defined(__apple_build_version__) && (__apple_build_version__ < 9000000)))) || \
-  (EIGEN_COMP_GNUC_STRICT && EIGEN_COMP_GNUC<51)
+#if EIGEN_MAX_CPP_VER < 14 || EIGEN_COMP_CXXVER < 14 || \
+  (EIGEN_COMP_MSVC && EIGEN_COMP_MSVC < 1900) || \
+  (EIGEN_COMP_ICC && EIGEN_COMP_ICC < 1500) || \
+  (EIGEN_COMP_NVCC && EIGEN_COMP_NVCC < 80000) || \
+  (EIGEN_COMP_CLANG_STRICT && EIGEN_COMP_CLANG < 390) || \
+  (EIGEN_COMP_CLANGAPPLE && EIGEN_COMP_CLANGAPPLE < 9000000) || \
+  (EIGEN_COMP_GNUC_STRICT && EIGEN_COMP_GNUC < 510)
 #error This compiler appears to be too old to be supported by Eigen
 #endif
 
@@ -717,11 +750,11 @@
 //       for over-aligned data, but not in a manner that is compatible with Eigen.
 //       See https://gitlab.com/libeigen/eigen/-/issues/2575
 #ifndef EIGEN_HAS_CXX17_OVERALIGN
-#if EIGEN_MAX_CPP_VER>=17 && EIGEN_COMP_CXXVER>=17 && (                                 \
-           (EIGEN_COMP_MSVC >= 1912)                                                    \
-        || (EIGEN_GNUC_AT_LEAST(7,0))                                                   \
-        || ((!defined(__apple_build_version__)) && (EIGEN_COMP_CLANG>=500))             \
-        || (( defined(__apple_build_version__)) && (__apple_build_version__>=10000000)) \
+#if EIGEN_MAX_CPP_VER>=17 && EIGEN_COMP_CXXVER>=17 && (                 \
+           (EIGEN_COMP_MSVC >= 1912)                                    \
+        || (EIGEN_GNUC_STRICT_AT_LEAST(7,0,0))                          \
+        || (EIGEN_CLANG_STRICT_AT_LEAST(5,0,0))                         \
+        || (EIGEN_COMP_CLANGAPPLE && EIGEN_COMP_CLANGAPPLE >= 10000000) \
       ) && !EIGEN_COMP_ICC
 #define EIGEN_HAS_CXX17_OVERALIGN 1
 #else

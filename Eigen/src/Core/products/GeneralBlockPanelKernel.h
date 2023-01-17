@@ -1212,7 +1212,7 @@ struct lhs_process_one_packet
     traits.madd(*A0, *rhs_panel, *C1, *T0, fix<1>);
     traits.madd(*A0, *rhs_panel, *C2, *T0, fix<2>);
     traits.madd(*A0, *rhs_panel, *C3, *T0, fix<3>);
-    #if EIGEN_GNUC_AT_LEAST(6,0) && defined(EIGEN_VECTORIZE_SSE) && !(EIGEN_COMP_LCC)
+    #if EIGEN_GNUC_STRICT_AT_LEAST(6,0,0) && defined(EIGEN_VECTORIZE_SSE) && !(EIGEN_COMP_LCC)
     __asm__  ("" : "+x,m" (*A0));
     #endif
     EIGEN_ASM_COMMENT("end step of gebp micro kernel 1X4");
@@ -1628,7 +1628,7 @@ void gebp_kernel<LhsScalar,RhsScalar,Index,DataMapper,mr,nr,ConjugateLhs,Conjuga
               RhsPanel27 rhs_panel;
               RhsPacket T0;
               LhsPacket A2;
-            #if EIGEN_COMP_GNUC_STRICT && EIGEN_ARCH_ARM64 && defined(EIGEN_VECTORIZE_NEON) && !(EIGEN_GNUC_AT_LEAST(9,0))
+            #if EIGEN_ARCH_ARM64 && defined(EIGEN_VECTORIZE_NEON) && EIGEN_GNUC_STRICT_LESS_THAN(9,0,0)
             // see http://eigen.tuxfamily.org/bz/show_bug.cgi?id=1633
             // without this workaround A0, A1, and A2 are loaded in the same register,
             // which is not good for pipelining
@@ -1834,7 +1834,7 @@ void gebp_kernel<LhsScalar,RhsScalar,Index,DataMapper,mr,nr,ConjugateLhs,Conjuga
             RhsPanel15 rhs_panel;
             RhsPacket T0;
             LhsPacket A2;
-            #if EIGEN_COMP_GNUC_STRICT && EIGEN_ARCH_ARM64 && defined(EIGEN_VECTORIZE_NEON) && !(EIGEN_GNUC_AT_LEAST(9,0))
+            #if EIGEN_ARCH_ARM64 && defined(EIGEN_VECTORIZE_NEON) && EIGEN_GNUC_STRICT_LESS_THAN(9,0,0)
             // see http://eigen.tuxfamily.org/bz/show_bug.cgi?id=1633
             // without this workaround A0, A1, and A2 are loaded in the same register,
             // which is not good for pipelining
@@ -2081,7 +2081,7 @@ void gebp_kernel<LhsScalar,RhsScalar,Index,DataMapper,mr,nr,ConjugateLhs,Conjuga
               RhsPacket T0;
               // NOTE: the begin/end asm comments below work around bug 935!
               // but they are not enough for gcc>=6 without FMA (bug 1637)
-              #if EIGEN_GNUC_AT_LEAST(6,0) && defined(EIGEN_VECTORIZE_SSE)
+              #if EIGEN_GNUC_STRICT_AT_LEAST(6,0,0) && defined(EIGEN_VECTORIZE_SSE)
                 #define EIGEN_GEBP_2Px8_SPILLING_WORKAROUND __asm__  ("" : [a0] "+x,m" (A0),[a1] "+x,m" (A1));
               #else
                 #define EIGEN_GEBP_2Px8_SPILLING_WORKAROUND
@@ -2245,7 +2245,7 @@ void gebp_kernel<LhsScalar,RhsScalar,Index,DataMapper,mr,nr,ConjugateLhs,Conjuga
 
           // NOTE: the begin/end asm comments below work around bug 935!
           // but they are not enough for gcc>=6 without FMA (bug 1637)
-          #if EIGEN_GNUC_AT_LEAST(6,0) && defined(EIGEN_VECTORIZE_SSE) && !(EIGEN_COMP_LCC)
+          #if EIGEN_GNUC_STRICT_AT_LEAST(6,0,0) && defined(EIGEN_VECTORIZE_SSE) && !(EIGEN_COMP_LCC)
             #define EIGEN_GEBP_2PX4_SPILLING_WORKAROUND __asm__  ("" : [a0] "+x,m" (A0),[a1] "+x,m" (A1));
           #else
             #define EIGEN_GEBP_2PX4_SPILLING_WORKAROUND

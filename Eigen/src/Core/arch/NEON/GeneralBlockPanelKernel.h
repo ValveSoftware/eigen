@@ -96,7 +96,7 @@ struct gebp_traits <float,float,false,false,Architecture::NEON,GEBPPacketFull>
   template<int LaneID>
   EIGEN_STRONG_INLINE void madd_helper(const LhsPacket& a, const RhsPacketx4& b, AccPacket& c) const
   {
-    #if EIGEN_COMP_GNUC_STRICT
+    #if EIGEN_GNUC_STRICT_LESS_THAN(9,0,0)
     // 1. workaround gcc issue https://gcc.gnu.org/bugzilla/show_bug.cgi?id=89101
     //    vfmaq_laneq_f32 is implemented through a costly dup, which was fixed in gcc9
     // 2. workaround the gcc register split problem on arm64-neon
@@ -166,7 +166,7 @@ struct gebp_traits <double,double,false,false,Architecture::NEON>
   template <int LaneID>
   EIGEN_STRONG_INLINE void madd_helper(const LhsPacket& a, const RhsPacketx4& b, AccPacket& c) const
   {
-    #if EIGEN_COMP_GNUC_STRICT
+    #if EIGEN_GNUC_STRICT_LESS_THAN(9,0,0)
     // 1. workaround gcc issue https://gcc.gnu.org/bugzilla/show_bug.cgi?id=89101
     //    vfmaq_laneq_f64 is implemented through a costly dup, which was fixed in gcc9
     // 2. workaround the gcc register split problem on arm64-neon

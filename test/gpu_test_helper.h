@@ -395,7 +395,7 @@ void print_gpu_device_info()
   std::cout << "  EIGEN_CUDA_SDK_VER:          " << int(EIGEN_CUDA_SDK_VER) << std::endl;
   #endif
 
-  #ifdef EIGEN_COMP_NVCC
+  #if EIGEN_COMP_NVCC
   std::cout << "  EIGEN_COMP_NVCC:             " << int(EIGEN_COMP_NVCC) << std::endl;
   #endif
   

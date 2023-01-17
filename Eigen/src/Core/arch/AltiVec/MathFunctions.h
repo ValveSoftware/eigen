@@ -61,7 +61,7 @@ Packet4f patan<Packet4f>(const Packet4f& _x)
 }
 
 #ifdef EIGEN_VECTORIZE_VSX
-#ifndef EIGEN_COMP_CLANG
+#if !EIGEN_COMP_CLANG
 template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
 Packet4f prsqrt<Packet4f>(const Packet4f& x)
 {
@@ -103,7 +103,7 @@ template<> EIGEN_STRONG_INLINE Packet8bf psqrt<Packet8bf> (const Packet8bf& a){
   BF16_TO_F32_UNARY_OP_WRAPPER(psqrt<Packet4f>, a);
 }
 
-#ifndef EIGEN_COMP_CLANG
+#if !EIGEN_COMP_CLANG
 template<> EIGEN_STRONG_INLINE Packet8bf prsqrt<Packet8bf> (const Packet8bf& a){
   BF16_TO_F32_UNARY_OP_WRAPPER(prsqrt<Packet4f>, a);
 }

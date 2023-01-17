@@ -3696,11 +3696,11 @@ template<> EIGEN_STRONG_INLINE Packet4bf pnegate<Packet4bf>(const Packet4bf& a)
 
 // Clang 3.5 in the iOS toolchain has an ICE triggered by NEON intrisics for double.
 // Confirmed at least with __apple_build_version__ = 6000054.
-#ifdef __apple_build_version__
+#if EIGEN_COMP_CLANGAPPLE
 // Let's hope that by the time __apple_build_version__ hits the 601* range, the bug will be fixed.
 // https://gist.github.com/yamaya/2924292 suggests that the 3 first digits are only updated with
 // major toolchain updates.
-#define EIGEN_APPLE_DOUBLE_NEON_BUG (__apple_build_version__ < 6010000)
+#define EIGEN_APPLE_DOUBLE_NEON_BUG (EIGEN_COMP_CLANGAPPLE < 6010000)
 #else
 #define EIGEN_APPLE_DOUBLE_NEON_BUG 0
 #endif
@@ -3928,7 +3928,7 @@ template<> EIGEN_STRONG_INLINE double predux<Packet2d>(const Packet2d& a)
 
 // Other reduction functions:
 // mul
-#if EIGEN_COMP_CLANG && defined(__apple_build_version__)
+#if EIGEN_COMP_CLANGAPPLE
 template<> EIGEN_STRONG_INLINE double predux_mul<Packet2d>(const Packet2d& a)
 { return (vget_low_f64(a) * vget_high_f64(a))[0]; }
 #else

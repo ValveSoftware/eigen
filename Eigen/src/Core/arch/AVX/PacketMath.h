@@ -670,7 +670,7 @@ template<> EIGEN_STRONG_INLINE Packet8i pcmp_eq(const Packet8i& a, const Packet8
 }
 
 template<> EIGEN_STRONG_INLINE Packet8f pmin<Packet8f>(const Packet8f& a, const Packet8f& b) {
-#if EIGEN_COMP_GNUC && EIGEN_COMP_GNUC < 63
+#if EIGEN_GNUC_STRICT_LESS_THAN(6,3,0)
   // There appears to be a bug in GCC, by which the optimizer may flip
   // the argument order in calls to _mm_min_ps/_mm_max_ps, so we have to
   // resort to inline ASM here. This is supposed to be fixed in gcc6.3,
@@ -684,7 +684,7 @@ template<> EIGEN_STRONG_INLINE Packet8f pmin<Packet8f>(const Packet8f& a, const 
 #endif
 }
 template<> EIGEN_STRONG_INLINE Packet4d pmin<Packet4d>(const Packet4d& a, const Packet4d& b) {
-#if EIGEN_COMP_GNUC && EIGEN_COMP_GNUC < 63
+#if EIGEN_GNUC_STRICT_LESS_THAN(6,3,0)
   // See pmin above
   Packet4d res;
   asm("vminpd %[a], %[b], %[res]" : [res] "=x" (res) : [a] "x" (a), [b] "x" (b));
@@ -705,7 +705,7 @@ template<> EIGEN_STRONG_INLINE Packet8i pmin<Packet8i>(const Packet8i& a, const 
 }
 
 template<> EIGEN_STRONG_INLINE Packet8f pmax<Packet8f>(const Packet8f& a, const Packet8f& b) {
-#if EIGEN_COMP_GNUC && EIGEN_COMP_GNUC < 63
+#if EIGEN_GNUC_STRICT_LESS_THAN(6,3,0)
   // See pmin above
   Packet8f res;
   asm("vmaxps %[a], %[b], %[res]" : [res] "=x" (res) : [a] "x" (a), [b] "x" (b));
@@ -716,7 +716,7 @@ template<> EIGEN_STRONG_INLINE Packet8f pmax<Packet8f>(const Packet8f& a, const 
 #endif
 }
 template<> EIGEN_STRONG_INLINE Packet4d pmax<Packet4d>(const Packet4d& a, const Packet4d& b) {
-#if EIGEN_COMP_GNUC && EIGEN_COMP_GNUC < 63
+#if EIGEN_GNUC_STRICT_LESS_THAN(6,3,0)
   // See pmin above
   Packet4d res;
   asm("vmaxpd %[a], %[b], %[res]" : [res] "=x" (res) : [a] "x" (a), [b] "x" (b));

@@ -17,7 +17,7 @@ namespace Eigen {
 namespace internal {
 
 // Disable the code for older versions of gcc that don't support many of the required avx512 math instrinsics.
-#if EIGEN_GNUC_AT_LEAST(5, 3) || EIGEN_COMP_CLANG || EIGEN_COMP_MSVC >= 1923 || EIGEN_COMP_ICC >= 1900
+#if EIGEN_GNUC_STRICT_AT_LEAST(5,3,0) || EIGEN_COMP_CLANG || EIGEN_COMP_MSVC >= 1923 || EIGEN_COMP_ICC >= 1900
 #define EIGEN_HAS_AVX512_MATH 1
 #else
 #define EIGEN_HAS_AVX512_MATH 0

@@ -2935,8 +2935,7 @@ template<> EIGEN_STRONG_INLINE Packet2d psignbit(const Packet2d&  a) { return (P
 // are buggy, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=70963
 template<>
 inline Packet2l pcast<Packet2d, Packet2l>(const Packet2d& x) {
-#if EIGEN_GNUC_AT_LEAST(5, 4) || \
-    (EIGEN_GNUC_AT(6, 1) && __GNUC_PATCHLEVEL__ >= 1)
+#if EIGEN_GNUC_STRICT_AT_LEAST(7,1,0)
   return vec_cts(x, 0);    // TODO: check clang version.
 #else
   double tmp[2];
