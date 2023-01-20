@@ -153,6 +153,21 @@ template<typename T> struct is_same<T,T> { enum { value = 1 }; };
 template< class T >
 struct is_void : is_same<void, std::remove_const_t<T>> {};
 
+/** \internal
+  * Implementation of std::void_t for SFINAE.
+  *
+  * Pre C++17:
+  * Custom implementation.
+  *
+  * Post C++17: Uses std::void_t
+  */
+#if EIGEN_COMP_CXXVER >= 17
+using std::void_t;
+#else
+template<typename...>
+using void_t = void;
+#endif
+
 template<> struct is_arithmetic<signed long long>   { enum { value = true }; };
 template<> struct is_arithmetic<unsigned long long> { enum { value = true }; };
 using std::is_integral;

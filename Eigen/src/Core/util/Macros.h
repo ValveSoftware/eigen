@@ -848,8 +848,8 @@
 
 // GPU stuff
 
-// Disable some features when compiling with GPU compilers (NVCC/clang-cuda/SYCL/HIPCC)
-#if defined(EIGEN_CUDACC) || defined(SYCL_DEVICE_ONLY) || defined(EIGEN_HIPCC)
+// Disable some features when compiling with GPU compilers (SYCL/HIPCC)
+#if defined(SYCL_DEVICE_ONLY) || defined(EIGEN_HIP_DEVICE_COMPILE)
   // Do not try asserts on device code
   #ifndef EIGEN_NO_DEBUG
   #define EIGEN_NO_DEBUG
@@ -858,7 +858,10 @@
   #ifdef EIGEN_INTERNAL_DEBUGGING
   #undef EIGEN_INTERNAL_DEBUGGING
   #endif
+#endif
 
+// No exceptions on device.
+#if defined(SYCL_DEVICE_ONLY) || defined(EIGEN_GPU_COMPILE_PHASE)
   #ifdef EIGEN_EXCEPTIONS
   #undef EIGEN_EXCEPTIONS
   #endif
@@ -890,17 +893,6 @@
 # endif
 #endif
 
-// eigen_plain_assert is where we implement the workaround for the assert() bug in GCC <= 4.3, see bug 89
-#ifdef EIGEN_NO_DEBUG
-  #ifdef SYCL_DEVICE_ONLY // used to silence the warning on SYCL device
-    #define eigen_plain_assert(x) EIGEN_UNUSED_VARIABLE(x)
-  #else
-    #define eigen_plain_assert(x)
-  #endif
-#else
-    #define eigen_plain_assert(x) assert(x)
-#endif
-
 // eigen_assert can be overridden
 #ifndef eigen_assert
 #define eigen_assert(x) eigen_plain_assert(x)
@@ -912,7 +904,7 @@
 #define eigen_internal_assert(x) ((void)0)
 #endif
 
-#ifdef EIGEN_NO_DEBUG
+#if defined(EIGEN_NO_DEBUG) || (defined(EIGEN_GPU_COMPILE_PHASE) && defined(EIGEN_NO_DEBUG_GPU))
 #define EIGEN_ONLY_USED_FOR_DEBUG(x) EIGEN_UNUSED_VARIABLE(x)
 #else
 #define EIGEN_ONLY_USED_FOR_DEBUG(x)
