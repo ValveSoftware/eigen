@@ -105,7 +105,6 @@ template<typename SparseMatrixType> void sparse_basic(const SparseMatrixType& re
         VERIFY(g_realloc_count==0);
       }
       
-      m2.finalize();
       VERIFY_IS_APPROX(m2,m1);
     }
 
