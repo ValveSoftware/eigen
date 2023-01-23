@@ -262,10 +262,10 @@
 #if EIGEN_COMP_GNUC_STRICT
   #define EIGEN_GNUC_STRICT_AT_LEAST(x,y,z)  ((__GNUC__ > x) || \
                                               (__GNUC__ == x && __GNUC_MINOR__ > y) || \
-                                              (__GNUC__ == x && __GNUC_MINOR__ == y && __GNUC_PATCH__ >= z))
+                                              (__GNUC__ == x && __GNUC_MINOR__ == y && __GNUC_PATCHLEVEL__ >= z))
   #define EIGEN_GNUC_STRICT_LESS_THAN(x,y,z) ((__GNUC__ < x) || \
                                               (__GNUC__ == x && __GNUC_MINOR__ < y) || \
-                                              (__GNUC__ == x && __GNUC_MINOR__ == y && __GNUC_PATCH__ < z))
+                                              (__GNUC__ == x && __GNUC_MINOR__ == y && __GNUC_PATCHLEVEL__ < z))
 #else
   #define EIGEN_GNUC_STRICT_AT_LEAST(x,y,z)  0
   #define EIGEN_GNUC_STRICT_LESS_THAN(x,y,z) 0
