@@ -192,6 +192,8 @@ template<typename Scalar> struct scalar_sin_op;
 template<typename Scalar> struct scalar_acos_op;
 template<typename Scalar> struct scalar_asin_op;
 template<typename Scalar> struct scalar_tan_op;
+template<typename Scalar> struct scalar_atan_op;
+template <typename LhsScalar, typename RhsScalar = LhsScalar> struct scalar_atan2_op;
 template<typename Scalar> struct scalar_inverse_op;
 template<typename Scalar> struct scalar_square_op;
 template<typename Scalar> struct scalar_cube_op;
