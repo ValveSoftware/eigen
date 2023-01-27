@@ -175,11 +175,6 @@ struct packet_traits<float> : default_packet_traits {
     HasExp = 1,
 #ifdef EIGEN_VECTORIZE_VSX
     HasSqrt = 1,
-#if !EIGEN_COMP_CLANG
-    HasRsqrt = 1,
-#else
-    HasRsqrt = 0,
-#endif
     HasTanh = EIGEN_FAST_MATH,
     HasErf = EIGEN_FAST_MATH,
     HasRint = 1,
@@ -220,11 +215,6 @@ struct packet_traits<bfloat16> : default_packet_traits {
     HasExp = 1,
 #ifdef EIGEN_VECTORIZE_VSX
     HasSqrt = 1,
-#if !EIGEN_COMP_CLANG
-    HasRsqrt = 1,
-#else
-    HasRsqrt = 0,
-#endif
     HasRint = 1,
 #else
     HasSqrt = 0,
@@ -2710,7 +2700,7 @@ template<> struct packet_traits<double> : default_packet_traits
     HasLog  = 0,
     HasExp  = 1,
     HasSqrt = 1,
-    HasRsqrt = 1,
+    HasRsqrt = 0,
     HasRound = 1,
     HasFloor = 1,
     HasCeil = 1,
