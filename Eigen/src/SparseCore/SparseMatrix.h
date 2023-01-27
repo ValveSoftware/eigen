@@ -246,7 +246,7 @@ class SparseMatrix
         if (capacity > 0) {
           // implies uncompressed: push to back of vector
           m_innerNonZeros[outer]++;
-          m_data.index(end) = inner;
+          m_data.index(end) = StorageIndex(inner);
           m_data.value(end) = Scalar(0);
           return m_data.value(end);
         }
@@ -379,7 +379,7 @@ class SparseMatrix
         Index count = 0;
         for(Index j=0; j<m_outerSize; ++j)
         {
-          newOuterIndex[j] = count;
+          newOuterIndex[j] = internal::convert_index<StorageIndex>(count);
           Index alreadyReserved = internal::convert_index<Index>(m_outerIndex[j+1] - m_outerIndex[j] - m_innerNonZeros[j]);
           Index reserveSize = internal::convert_index<Index>(reserveSizes[j]);
           Index toReserve = numext::maxi(reserveSize, alreadyReserved);
@@ -392,7 +392,6 @@ class SparseMatrix
         {
           StorageIndex innerNNZ = m_innerNonZeros[j];
           StorageIndex begin = m_outerIndex[j];
-          StorageIndex end = begin + innerNNZ;
           StorageIndex target = newOuterIndex[j];
           m_data.moveChunk(begin, target, innerNNZ);
         }
@@ -504,7 +503,7 @@ class SparseMatrix
         if (capacity > 0) {
           // implies uncompressed: push to back of vector
           m_innerNonZeros[j]++;
-          m_data.index(end) = i;
+          m_data.index(end) = StorageIndex(i);
           m_data.value(end) = Scalar(0);
           return m_data.value(end);
         }
@@ -529,8 +528,8 @@ class SparseMatrix
       Index copyTarget = m_innerNonZeros[0];
       for (Index j = 1; j < m_outerSize; j++)
       {
-        Index end = start + m_innerNonZeros[j];
-        Index nextStart = m_outerIndex[j + 1];
+        StorageIndex end = start + m_innerNonZeros[j];
+        StorageIndex nextStart = m_outerIndex[j + 1];
         // dont forget to move the last chunk!
         bool breakUpCopy = (end != nextStart) || (j == m_outerSize - 1);
         if (breakUpCopy)
@@ -966,7 +965,7 @@ public:
       eigen_assert(m_innerNonZeros[outer]<=(m_outerIndex[outer+1] - m_outerIndex[outer]));
 
       Index p = m_outerIndex[outer] + m_innerNonZeros[outer]++;
-      m_data.index(p) = convert_index(inner);
+      m_data.index(p) = StorageIndex(inner);
       m_data.value(p) = Scalar(0);
       return m_data.value(p);
     }
@@ -1032,7 +1031,7 @@ protected:
             Index capacity = m_outerIndex[j + 1] - end;
             Index dst = m_data.searchLowerIndex(begin, end, j);
             // the entry exists: update it now
-            if (dst != end && m_data.index(dst) == j) assignFunc.assignCoeff(m_data.value(dst), diaEval.coeff(j));
+            if (dst != end && m_data.index(dst) == StorageIndex(j)) assignFunc.assignCoeff(m_data.value(dst), diaEval.coeff(j));
             // the entry belongs at the back of the vector: push to back
             else if (dst == end && capacity > 0)
               assignFunc.assignCoeff(insertBackUncompressed(j, j), diaEval.coeff(j));
@@ -1450,7 +1449,7 @@ SparseMatrix<Scalar_, Options_, StorageIndex_>::insertUncompressed(Index row, In
     if (capacity > 0) {
       // implies uncompressed: push to back of vector
       m_innerNonZeros[outer]++;
-      m_data.index(end) = inner;
+      m_data.index(end) = StorageIndex(inner);
       m_data.value(end) = Scalar(0);
       return m_data.value(end);
     }
