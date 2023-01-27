@@ -586,7 +586,7 @@ struct extract_data_selector {
 
 template<typename T>
 struct extract_data_selector<T,false> {
-  static typename T::Scalar* run(const T&) { return 0; }
+  EIGEN_DEVICE_FUNC static typename T::Scalar* run(const T&) { return 0; }
 };
 
 template<typename T>

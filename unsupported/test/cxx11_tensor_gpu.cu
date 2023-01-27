@@ -1100,9 +1100,9 @@ void test_gpu_erfc(const Scalar stddev)
 template <typename Scalar>
 void test_gpu_ndtri()
 {
-  Tensor<Scalar, 1> in_x(8);
-  Tensor<Scalar, 1> out(8);
-  Tensor<Scalar, 1> expected_out(8);
+  Tensor<Scalar, 1> in_x(9);
+  Tensor<Scalar, 1> out(9);
+  Tensor<Scalar, 1> expected_out(9);
   out.setZero();
 
   in_x(0) = Scalar(1);
