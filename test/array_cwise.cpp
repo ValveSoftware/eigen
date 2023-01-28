@@ -83,6 +83,7 @@ void binary_op_test(std::string name, Fn fun, RefFn ref) {
       Scalar e = static_cast<Scalar>(ref(x(i,j), y(i,j)));
       Scalar a = actual(i, j);
       bool success = (a==e) || ((numext::isfinite)(e) && internal::isApprox(a, e, tol)) || ((numext::isnan)(a) && (numext::isnan)(e));
+      if ((a == a) && (e == e)) success &= (bool)numext::signbit(e) == (bool)numext::signbit(a);
       all_pass &= success;
       if (!success) {
         std::cout << name << "(" << x(i,j) << "," << y(i,j) << ") = " << a << " !=  " << e << std::endl;
@@ -125,6 +126,7 @@ void pow_scalar_exponent_test() {
           Scalar a = eigenPow(j);
           bool success = (a == e) || ((numext::isfinite)(e) && internal::isApprox(a, e, tol)) ||
                          ((numext::isnan)(a) && (numext::isnan)(e));
+          if ((a == a) && (e == e)) success &= (bool)numext::signbit(e) == (bool)numext::signbit(a);
           all_pass &= success;
           if (!success) {
             std::cout << "pow(" << bases(j) << "," << exponent << ") = " << a << " !=  " << e << std::endl;
@@ -138,6 +140,7 @@ void pow_scalar_exponent_test() {
           Scalar a = eigenPow(j);
           bool success = (a == e) || ((numext::isfinite)(e) && internal::isApprox(a, e, tol)) ||
                          ((numext::isnan)(a) && (numext::isnan)(e));
+          if ((a == a) && (e == e)) success &= (bool)numext::signbit(e) == (bool)numext::signbit(a);
           all_pass &= success;
           if (!success) {
             std::cout << "pow(" << bases(j) << "," << exponent << ")   =   " << a << " !=  " << e << std::endl;

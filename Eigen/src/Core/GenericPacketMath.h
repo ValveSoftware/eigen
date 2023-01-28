@@ -1234,38 +1234,36 @@ EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE Packet patan2(const Packet& y, const Packe
   // for how corner cases are supposed to be handled according to the
   // IEEE floating-point standard (IEC 60559).
 
+  // bend two rules:
+  // 1) inf / inf == 1
+  // 2) 0 / 0 == 0
+  // otherwise, evaluate atan(y/x) as usual and shift to the appropriate quadrant
+
   const Packet kSignMask = pset1<Packet>(-Scalar(0));
   const Packet kZero = pzero(x);
   const Packet kOne = pset1<Packet>(Scalar(1));
   const Packet kPi = pset1<Packet>(Scalar(EIGEN_PI));
-  const Packet kInf = pset1<Packet>(NumTraits<Scalar>::infinity());
 
-  const Packet abs_x = pabs(x);
-  const Packet x_is_zero = pcmp_eq(abs_x, kZero);
-  const Packet x_is_inf = pcmp_eq(abs_x, kInf);
   const Packet x_has_signbit = psignbit(x);
-
-  const Packet abs_y = pabs(y);
-  const Packet y_is_zero = pcmp_eq(abs_y, kZero);
-  const Packet y_is_inf = pcmp_eq(abs_y, kInf);
   const Packet y_signmask = pand(y, kSignMask);
+  const Packet shift = por(pand(x_has_signbit, kPi), y_signmask);
 
-  const Packet arg_signmask = pand(pxor(x, y), kSignMask);
-  const Packet shift = pxor(pand(x_has_signbit, kPi), y_signmask);
+  const Packet xor_xy = pxor(x, y);
+  // if x and y have the same absolute value, then xor(x,y) is zero
+  // make sure that neither x nor y is nan
+  // furthermore, xor(x,y) has the sign of the result
+  const Packet x_and_y_are_same = pand(pcmp_eq(xor_xy, kZero), pcmp_eq(x, x));
+  // more strictly, if x and y are both zero, then or(x,y) is zero
+  // this implicitly checks for nan
+  // the sign of or(x,y) is not meaningful
+  const Packet x_and_y_are_zero = pcmp_eq(por(x, y), kZero);
 
-  // bend two rules:
-  // 1) 0 / 0 == 0
-  // 2) inf / inf == 1
-  // otherwise, evaluate atan(y/x) as usual and shift to the appropriate quadrant
-
-  Packet arg = pdiv(abs_y, abs_x);
-  arg = pselect(pand(x_is_zero, y_is_zero), kZero, arg);
-  arg = pselect(pand(x_is_inf, y_is_inf), kOne, arg);
+  Packet arg = pdiv(y, x);
+  arg = pselect(x_and_y_are_same, por(kOne, xor_xy), arg);
+  arg = pselect(x_and_y_are_zero, xor_xy, arg);
 
   Packet result = patan(arg);
-  result = pxor(result, arg_signmask);
   result = padd(result, shift);
-
   return result;
 }
 
