@@ -60,14 +60,14 @@ class SparseCompressedBase
     /** \returns the number of non zero coefficients */
     inline Index nonZeros() const
     {
-      if(Derived::IsVectorAtCompileTime && outerIndexPtr()==0)
-        return derived().nonZeros();
-      else if(isCompressed())
-        return outerIndexPtr()[derived().outerSize()]-outerIndexPtr()[0];
-      else if(derived().outerSize()==0)
-        return 0;
-      else
-        return innerNonZeros().sum();
+     if (Derived::IsVectorAtCompileTime && outerIndexPtr() == 0)
+       return derived().nonZeros();
+     else if (derived().outerSize() == 0)
+       return 0;
+     else if (isCompressed())
+       return outerIndexPtr()[derived().outerSize()] - outerIndexPtr()[0];
+     else
+       return innerNonZeros().sum();
     }
     
     /** \returns a const pointer to the array of values.
