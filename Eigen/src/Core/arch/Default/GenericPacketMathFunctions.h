@@ -2082,13 +2082,11 @@ static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet handle_nonint_nonint_errors(
   const Scalar pos_zero = Scalar(0);
   const Scalar pos_one = Scalar(1);
   const Scalar pos_inf = NumTraits<Scalar>::infinity();
-  const Scalar neg_inf = -NumTraits<Scalar>::infinity();
   const Scalar nan = NumTraits<Scalar>::quiet_NaN();
 
   const Packet cst_pos_zero = pset1<Packet>(pos_zero);
   const Packet cst_pos_one = pset1<Packet>(pos_one);
   const Packet cst_pos_inf = pset1<Packet>(pos_inf);
-  const Packet cst_neg_inf = pset1<Packet>(neg_inf);
   const Packet cst_nan = pset1<Packet>(nan);
 
   const Packet abs_x = pabs(x);
