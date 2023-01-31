@@ -175,6 +175,11 @@ struct packet_traits<float> : default_packet_traits {
     HasExp = 1,
 #ifdef EIGEN_VECTORIZE_VSX
     HasSqrt = 1,
+#if !EIGEN_COMP_CLANG
+    HasRsqrt = 1,
+#else
+    HasRsqrt = 0,
+#endif
     HasTanh = EIGEN_FAST_MATH,
     HasErf = EIGEN_FAST_MATH,
     HasRint = 1,
@@ -215,6 +220,11 @@ struct packet_traits<bfloat16> : default_packet_traits {
     HasExp = 1,
 #ifdef EIGEN_VECTORIZE_VSX
     HasSqrt = 1,
+#if !EIGEN_COMP_CLANG
+    HasRsqrt = 1,
+#else
+    HasRsqrt = 0,
+#endif
     HasRint = 1,
 #else
     HasSqrt = 0,
@@ -992,7 +1002,7 @@ template<> EIGEN_STRONG_INLINE Packet4f pnegate(const Packet4f& a)
 #ifdef __POWER8_VECTOR__
   return vec_neg(a);
 #else
-  return p4f_ZERO - a;
+  return vec_xor(a, p4f_MZERO);
 #endif
 }
 template<> EIGEN_STRONG_INLINE Packet4i pnegate(const Packet4i& a)
@@ -1086,7 +1096,10 @@ template<> EIGEN_STRONG_INLINE Packet16c pmax<Packet16c>(const Packet16c& a, con
 template<> EIGEN_STRONG_INLINE Packet16uc pmax<Packet16uc>(const Packet16uc& a, const Packet16uc& b) { return vec_max(a, b); }
 
 template<> EIGEN_STRONG_INLINE Packet4f pcmp_le(const Packet4f& a, const Packet4f& b) { return reinterpret_cast<Packet4f>(vec_cmple(a,b)); }
+// To fix bug with vec_cmplt on older versions
+#if defined(__POWER8_VECTOR__) || EIGEN_COMP_LLVM
 template<> EIGEN_STRONG_INLINE Packet4f pcmp_lt(const Packet4f& a, const Packet4f& b) { return reinterpret_cast<Packet4f>(vec_cmplt(a,b)); }
+#endif
 template<> EIGEN_STRONG_INLINE Packet4f pcmp_eq(const Packet4f& a, const Packet4f& b) { return reinterpret_cast<Packet4f>(vec_cmpeq(a,b)); }
 template<> EIGEN_STRONG_INLINE Packet4f pcmp_lt_or_nan(const Packet4f& a, const Packet4f& b) {
   Packet4f c = reinterpret_cast<Packet4f>(vec_cmpge(a,b));
@@ -2700,7 +2713,11 @@ template<> struct packet_traits<double> : default_packet_traits
     HasLog  = 0,
     HasExp  = 1,
     HasSqrt = 1,
+#if !EIGEN_COMP_CLANG
+    HasRsqrt = 1,
+#else
     HasRsqrt = 0,
+#endif
     HasRound = 1,
     HasFloor = 1,
     HasCeil = 1,
@@ -2806,7 +2823,7 @@ template<> EIGEN_STRONG_INLINE Packet2d pnegate(const Packet2d& a)
 #ifdef __POWER8_VECTOR__
   return vec_neg(a);
 #else
-  return p2d_ZERO - a;
+  return vec_xor(a, p2d_MZERO);
 #endif
 }
 
