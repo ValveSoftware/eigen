@@ -24,10 +24,10 @@ template<typename MatrixType> void array_for_matrix(const MatrixType& m)
 
   ColVectorType cv1 = ColVectorType::Random(rows);
   RowVectorType rv1 = RowVectorType::Random(cols);
-  
+
   Scalar  s1 = internal::random<Scalar>(),
           s2 = internal::random<Scalar>();
-          
+
   // scalar addition
   VERIFY_IS_APPROX(m1.array() + s1, s1 + m1.array());
   VERIFY_IS_APPROX((m1.array() + s1).matrix(), MatrixType::Constant(rows,cols,s1) + m1);
@@ -55,18 +55,18 @@ template<typename MatrixType> void array_for_matrix(const MatrixType& m)
   VERIFY_IS_APPROX(m3.rowwise() += rv1, m1.rowwise() + rv1);
   m3 = m1;
   VERIFY_IS_APPROX(m3.rowwise() -= rv1, m1.rowwise() - rv1);
-  
-  // empty objects
-  VERIFY_IS_APPROX((m1.template block<0,Dynamic>(0,0,0,cols).colwise().sum()), RowVectorType::Zero(cols));
-  VERIFY_IS_APPROX((m1.template block<Dynamic,0>(0,0,rows,0).rowwise().sum()), ColVectorType::Zero(rows));
-  VERIFY_IS_APPROX((m1.template block<0,Dynamic>(0,0,0,cols).colwise().prod()), RowVectorType::Ones(cols));
-  VERIFY_IS_APPROX((m1.template block<Dynamic,0>(0,0,rows,0).rowwise().prod()), ColVectorType::Ones(rows));
 
-  VERIFY_IS_APPROX(m1.block(0,0,0,cols).colwise().sum(), RowVectorType::Zero(cols));
-  VERIFY_IS_APPROX(m1.block(0,0,rows,0).rowwise().sum(), ColVectorType::Zero(rows));
-  VERIFY_IS_APPROX(m1.block(0,0,0,cols).colwise().prod(), RowVectorType::Ones(cols));
-  VERIFY_IS_APPROX(m1.block(0,0,rows,0).rowwise().prod(), ColVectorType::Ones(rows));
-  
+  // empty objects
+  VERIFY_IS_EQUAL((m1.template block<0,Dynamic>(0,0,0,cols).colwise().sum()), RowVectorType::Zero(cols));
+  VERIFY_IS_EQUAL((m1.template block<Dynamic,0>(0,0,rows,0).rowwise().sum()), ColVectorType::Zero(rows));
+  VERIFY_IS_EQUAL((m1.template block<0,Dynamic>(0,0,0,cols).colwise().prod()), RowVectorType::Ones(cols));
+  VERIFY_IS_EQUAL((m1.template block<Dynamic,0>(0,0,rows,0).rowwise().prod()), ColVectorType::Ones(rows));
+
+  VERIFY_IS_EQUAL(m1.block(0,0,0,cols).colwise().sum(), RowVectorType::Zero(cols));
+  VERIFY_IS_EQUAL(m1.block(0,0,rows,0).rowwise().sum(), ColVectorType::Zero(rows));
+  VERIFY_IS_EQUAL(m1.block(0,0,0,cols).colwise().prod(), RowVectorType::Ones(cols));
+  VERIFY_IS_EQUAL(m1.block(0,0,rows,0).rowwise().prod(), ColVectorType::Ones(rows));
+
   // verify the const accessors exist
   const Scalar& ref_m1 = m.matrix().array().coeffRef(0);
   const Scalar& ref_m2 = m.matrix().array().coeffRef(0,0);
