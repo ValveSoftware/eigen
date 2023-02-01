@@ -254,7 +254,7 @@ template<typename ExpressionType, int Direction> class VectorwiseOp;
 template<typename MatrixType,int RowFactor,int ColFactor> class Replicate;
 template<typename MatrixType, int Direction = BothDirections> class Reverse;
 
-#if defined(EIGEN_USE_LAPACKE)
+#if defined(EIGEN_USE_LAPACKE) && defined(lapack_int)
 // Lapacke interface requires StorageIndex to be lapack_int
 typedef lapack_int DefaultPermutationIndex;
 #else
