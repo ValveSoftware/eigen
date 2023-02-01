@@ -198,7 +198,6 @@ public:
   pointer_based_stl_iterator() EIGEN_NO_THROW : m_ptr(0) {}
   pointer_based_stl_iterator(XprType& xpr, Index index) EIGEN_NO_THROW : m_incr(xpr.innerStride())
   {
-    eigen_assert(xpr.data() != nullptr || index == 0 || m_incr.value() == 0);
     m_ptr = xpr.data() + index * m_incr.value();
   }
 
