@@ -722,26 +722,26 @@ __global__ EIGEN_HIP_LAUNCH_BOUNDS_1024 void EigenConvolutionKernel3D(
 #endif
 
   // Load inputs to shared memory
-  const int first_x = blockIdx.x * maxX;
-  const int last_x = (first_x + maxX < numX ? first_x + maxX : numX) - 1;
-  const int num_x_input = last_x - first_x + kernelSizeX;
+  const size_t first_x = blockIdx.x * maxX;
+  const size_t last_x = (first_x + maxX < numX ? first_x + maxX : numX) - 1;
+  const size_t num_x_input = last_x - first_x + kernelSizeX;
 
-  const int first_y = blockIdx.y * maxY;
-  const int last_y = (first_y + maxY < numY ? first_y + maxY : numY) - 1;
-  const int num_y_input = last_y - first_y + kernelSizeY;
+  const size_t first_y = blockIdx.y * maxY;
+  const size_t last_y = (first_y + maxY < numY ? first_y + maxY : numY) - 1;
+  const size_t num_y_input = last_y - first_y + kernelSizeY;
 
-  const int first_z = blockIdx.z * maxZ;
-  const int last_z = (first_z + maxZ < numZ ? first_z + maxZ : numZ) - 1;
-  const int num_z_input = last_z - first_z + kernelSizeZ;
+  const size_t first_z = blockIdx.z * maxZ;
+  const size_t last_z = (first_z + maxZ < numZ ? first_z + maxZ : numZ) - 1;
+  const size_t num_z_input = last_z - first_z + kernelSizeZ;
 
   for (int p = 0; p < numPlanes; ++p) {
 
     const int plane_input_offset = indexMapper.mapGpuInputPlaneToTensorInputOffset(p);
     const int plane_kernel_offset = 0;
 
-    for (int k = threadIdx.z; k < num_z_input; k += blockDim.z) {
-      for (int j = threadIdx.y; j < num_y_input; j += blockDim.y) {
-        for (int i = threadIdx.x; i < num_x_input; i += blockDim.x) {
+    for (size_t k = threadIdx.z; k < num_z_input; k += blockDim.z) {
+      for (size_t j = threadIdx.y; j < num_y_input; j += blockDim.y) {
+        for (size_t i = threadIdx.x; i < num_x_input; i += blockDim.x) {
           const int tensor_index = plane_input_offset + indexMapper.mapGpuInputKernelToTensorInputOffset(i+first_x, j+first_y, k+first_z);
           s[i + num_x_input * (j + num_y_input * (k + plane_kernel_offset))] = eval.coeff(tensor_index);
         }
@@ -751,18 +751,18 @@ __global__ EIGEN_HIP_LAUNCH_BOUNDS_1024 void EigenConvolutionKernel3D(
     __syncthreads();
 
     // Convolution
-    const int num_z_output = last_z - first_z + 1;
-    const int num_y_output = last_y - first_y + 1;
-    const int num_x_output = last_x - first_x + 1;
+    const size_t num_z_output = last_z - first_z + 1;
+    const size_t num_y_output = last_y - first_y + 1;
+    const size_t num_x_output = last_x - first_x + 1;
     const int plane_output_offset = indexMapper.mapGpuOutputPlaneToTensorOutputOffset(p);
 
-    for (int k = threadIdx.z; k < num_z_output; k += blockDim.z) {
-      for (int j = threadIdx.y; j < num_y_output; j += blockDim.y) {
-        for (int i = threadIdx.x; i < num_x_output; i += blockDim.x) {
+    for (size_t k = threadIdx.z; k < num_z_output; k += blockDim.z) {
+      for (size_t j = threadIdx.y; j < num_y_output; j += blockDim.y) {
+        for (size_t i = threadIdx.x; i < num_x_output; i += blockDim.x) {
           float result = 0.0f;
-          for (int n = 0; n < kernelSizeZ; ++n) {
-            for (int m = 0; m < kernelSizeY; ++m) {
-              for (int l = 0; l < kernelSizeX; ++l) {
+          for (size_t n = 0; n < kernelSizeZ; ++n) {
+            for (size_t m = 0; m < kernelSizeY; ++m) {
+              for (size_t l = 0; l < kernelSizeX; ++l) {
                 result += s[i + l + num_x_input * (j + m + num_y_input * (k + n + plane_kernel_offset))] * kernel[l + kernelSizeX * (m + kernelSizeY * n)];
               }
             }

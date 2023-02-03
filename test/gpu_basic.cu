@@ -456,11 +456,10 @@ EIGEN_DECLARE_TEST(gpu_basic)
   // numeric_limits
   CALL_SUBTEST( test_with_infs_nans(numeric_limits_test<Vector3f>(), 1, in, out) );
 
-#if defined(__NVCC__)
-  // FIXME
-  // These subtests compiles only with nvcc and fail with HIPCC and clang-cuda
-  CALL_SUBTEST( run_and_compare_to_gpu(eigenvalues<Matrix4f>(), nthreads, in, out) );
-  typedef Matrix<float,6,6> Matrix6f;
-  CALL_SUBTEST( run_and_compare_to_gpu(eigenvalues<Matrix6f>(), nthreads, in, out) );
-#endif
+  // These tests require dynamic-sized matrix multiplcation, which isn't currently
+  // supported on GPU.
+  
+  // CALL_SUBTEST( run_and_compare_to_gpu(eigenvalues<Matrix4f>(), nthreads, in, out) );
+  // typedef Matrix<float,6,6> Matrix6f;
+  // CALL_SUBTEST( run_and_compare_to_gpu(eigenvalues<Matrix6f>(), nthreads, in, out) );
 }

@@ -121,6 +121,7 @@
   // The __device__ annotation seems to actually be needed in some cases,
   // otherwise resulting in kernel runtime errors.
   EIGEN_NV_DIAG_SUPPRESS(2886)
+  EIGEN_NV_DIAG_SUPPRESS(2929)
   EIGEN_NV_DIAG_SUPPRESS(2977)
   EIGEN_NV_DIAG_SUPPRESS(20012)
   #undef EIGEN_NV_DIAG_SUPPRESS
