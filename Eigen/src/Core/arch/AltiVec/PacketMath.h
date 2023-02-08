@@ -522,7 +522,7 @@ EIGEN_ALWAYS_INLINE Packet pload_partial_common(const __UNPACK_TYPE__(Packet)* f
   // some versions of GCC throw "unused-but-set-parameter".
   // ignoring these warnings for now.
   const Index packet_size = unpacket_traits<Packet>::size;
-  eigen_assert(n + offset <= packet_size && "number of elements plus offset will read past end of packet");
+  eigen_internal_assert(n + offset <= packet_size && "number of elements plus offset will read past end of packet");
   const Index size = sizeof(__UNPACK_TYPE__(Packet));
 #ifdef _ARCH_PWR9
   EIGEN_UNUSED_VARIABLE(packet_size);
@@ -655,7 +655,7 @@ template<typename Packet> EIGEN_ALWAYS_INLINE void pstore_partial_common(__UNPAC
   // some versions of GCC throw "unused-but-set-parameter" (float *to).
   // ignoring these warnings for now.
   const Index packet_size = unpacket_traits<Packet>::size;
-  eigen_assert(n + offset <= packet_size && "number of elements plus offset will write past end of packet");
+  eigen_internal_assert(n + offset <= packet_size && "number of elements plus offset will write past end of packet");
   const Index size = sizeof(__UNPACK_TYPE__(Packet));
 #ifdef _ARCH_PWR9
   EIGEN_UNUSED_VARIABLE(packet_size);
@@ -815,7 +815,7 @@ pbroadcast4<Packet4i>(const int *a,
 template<typename Packet> EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE Packet pgather_common(const __UNPACK_TYPE__(Packet)* from, Index stride, const Index n = unpacket_traits<Packet>::size)
 {
   EIGEN_ALIGN16 __UNPACK_TYPE__(Packet) a[unpacket_traits<Packet>::size];
-  eigen_assert(n <= unpacket_traits<Packet>::size && "number of elements will gather past end of packet");
+  eigen_internal_assert(n <= unpacket_traits<Packet>::size && "number of elements will gather past end of packet");
   LOAD_STORE_UNROLL_16
   for (Index i = 0; i < n; i++) {
     a[i] = from[i*stride];
@@ -897,7 +897,7 @@ template<> EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE Packet16uc pgather_partial<unsi
 template<typename Packet> EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE void pscatter_common(__UNPACK_TYPE__(Packet)* to, const Packet& from, Index stride, const Index n = unpacket_traits<Packet>::size)
 {
   EIGEN_ALIGN16 __UNPACK_TYPE__(Packet) a[unpacket_traits<Packet>::size];
-  eigen_assert(n <= unpacket_traits<Packet>::size && "number of elements will scatter past end of packet");
+  eigen_internal_assert(n <= unpacket_traits<Packet>::size && "number of elements will scatter past end of packet");
   pstore<__UNPACK_TYPE__(Packet)>(a, from);
   LOAD_STORE_UNROLL_16
   for (Index i = 0; i < n; i++) {
@@ -1243,7 +1243,7 @@ template<> EIGEN_STRONG_INLINE Packet16uc ploadu<Packet16uc>(const unsigned char
 template<typename Packet> EIGEN_ALWAYS_INLINE Packet ploadu_partial_common(const __UNPACK_TYPE__(Packet)* from, const Index n)
 {
   const Index packet_size = unpacket_traits<Packet>::size;
-  eigen_assert(n <= packet_size && "number of elements will read past end of packet");
+  eigen_internal_assert(n <= packet_size && "number of elements will read past end of packet");
   const Index size = sizeof(__UNPACK_TYPE__(Packet));
 #ifdef _ARCH_PWR9
   EIGEN_UNUSED_VARIABLE(packet_size);
@@ -1431,7 +1431,7 @@ template<> EIGEN_STRONG_INLINE void pstoreu<unsigned char>(unsigned char*      t
 template<typename Packet> EIGEN_ALWAYS_INLINE void pstoreu_partial_common(__UNPACK_TYPE__(Packet)*  to, const Packet& from, const Index n)
 {
   const Index packet_size = unpacket_traits<Packet>::size;
-  eigen_assert(n <= packet_size && "number of elements will write past end of packet");
+  eigen_internal_assert(n <= packet_size && "number of elements will write past end of packet");
   const Index size = sizeof(__UNPACK_TYPE__(Packet));
 #ifdef _ARCH_PWR9
   EIGEN_UNUSED_VARIABLE(packet_size);
