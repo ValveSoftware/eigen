@@ -30,23 +30,6 @@ EIGEN_ALWAYS_INLINE void gemm_extra_row(
   const Packet& pAlpha,
   const Packet& pMask);
 
-template<typename Scalar, typename Packet, typename DataMapper, const Index accCols, bool ConjugateLhs, bool ConjugateRhs, bool LhsIsReal, bool RhsIsReal>
-EIGEN_STRONG_INLINE void gemm_extra_cols(
-  const DataMapper& res,
-  const Scalar* blockA,
-  const Scalar* blockB,
-  Index depth,
-  Index strideA,
-  Index offsetA,
-  Index strideB,
-  Index offsetB,
-  Index col,
-  Index rows,
-  Index cols,
-  Index remaining_rows,
-  const Packet& pAlpha,
-  const Packet& pMask);
-
 template<typename Packet>
 EIGEN_ALWAYS_INLINE Packet bmask(const Index remaining_rows);
 
