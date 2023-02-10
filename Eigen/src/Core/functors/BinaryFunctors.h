@@ -534,7 +534,7 @@ template<typename LhsScalar,typename RhsScalar>
   using Scalar = LhsScalar;
   enum {
     PacketAccess = is_same<LhsScalar,RhsScalar>::value && packet_traits<Scalar>::HasATan && packet_traits<Scalar>::HasDiv && !NumTraits<Scalar>::IsInteger && !NumTraits<Scalar>::IsComplex,
-    Cost = scalar_div_cost<Scalar, PacketAccess>::value + functor_traits<scalar_atan_op<Scalar>>::Cost
+    Cost = int(scalar_div_cost<Scalar, PacketAccess>::value) + int(functor_traits<scalar_atan_op<Scalar>>::Cost)
   };
 };
 
