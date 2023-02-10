@@ -189,27 +189,11 @@ void gemmMMAbfloat16(const DataMapper& res, const bfloat16* blockA, const bfloat
   ei_declare_aligned_stack_constructed_variable(float, result, cols*rows, 0);
 
   typedef typename DataMapper::LinearMapper LinearMapper;
-  Packet4f z = pset1<Packet4f>(float(0));
   for(Index j = 0; j < cols; j++){
     const LinearMapper res2 = res.getLinearMapper(0, j);
     float *result2 = result + j*rows;
-    Index i = 0;
-    for(; i + 32 <= rows; i+=32){
-      Packet4f r32_0 = reinterpret_cast<Packet4f>(res2.template loadPacket<Packet8bf>(i +  0).m_val);
-      Packet4f r32_1 = reinterpret_cast<Packet4f>(res2.template loadPacket<Packet8bf>(i +  8).m_val);
-      Packet4f r32_2 = reinterpret_cast<Packet4f>(res2.template loadPacket<Packet8bf>(i + 16).m_val);
-      Packet4f r32_3 = reinterpret_cast<Packet4f>(res2.template loadPacket<Packet8bf>(i + 24).m_val);
-      pstore(result2 + i +  0, vec_mergeo(r32_0, z));
-      pstore(result2 + i +  4, vec_mergee(r32_0, z));
-      pstore(result2 + i +  8, vec_mergeo(r32_1, z));
-      pstore(result2 + i + 12, vec_mergee(r32_1, z));
-      pstore(result2 + i + 16, vec_mergeo(r32_2, z));
-      pstore(result2 + i + 20, vec_mergee(r32_2, z));
-      pstore(result2 + i + 24, vec_mergeo(r32_3, z));
-      pstore(result2 + i + 28, vec_mergee(r32_3, z));
-    }
     BFLOAT16_UNROLL
-    for(; i < rows; i++){
+    for(Index i = 0; i < rows; i++){
       result2[i] = res2(i);
     }
   }
