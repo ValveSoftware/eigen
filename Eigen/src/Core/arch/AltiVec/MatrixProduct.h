@@ -2188,7 +2188,7 @@ EIGEN_ALWAYS_INLINE void gemm_cols(
   gemm_cols<Scalar, Packet, DataMapper, N, accCols>(res, blockA, blockB, depth, strideA, offsetA, strideB, offsetB, col, rows, remaining_rows, pAlpha, pMask);
 
 template<typename Scalar, typename Packet, typename DataMapper, const Index accCols>
-EIGEN_STRONG_INLINE void gemm_extra_cols(
+EIGEN_ALWAYS_INLINE void gemm_extra_cols(
   const DataMapper& res,
   const Scalar* blockA,
   const Scalar* blockB,
@@ -2622,7 +2622,7 @@ EIGEN_ALWAYS_INLINE void gemm_complex_cols(
   gemm_complex_cols<Scalar, Packet, Packetc, DataMapper, N, accCols, ConjugateLhs, ConjugateRhs, LhsIsReal, RhsIsReal>(res, blockA, blockB, depth, strideA, offsetA, strideB, offsetB, col, rows, remaining_rows, pAlphaReal, pAlphaImag, pMask);
 
 template<typename Scalar, typename Packet, typename Packetc, typename DataMapper, const Index accCols, bool ConjugateLhs, bool ConjugateRhs, bool LhsIsReal, bool RhsIsReal>
-EIGEN_STRONG_INLINE void gemm_complex_extra_cols(
+EIGEN_ALWAYS_INLINE void gemm_complex_extra_cols(
   const DataMapper& res,
   const Scalar* blockA,
   const Scalar* blockB,
