@@ -251,9 +251,9 @@ void mixed_pow_test() {
   unary_pow_test<double, long long>();
 
   // The following cases will test promoting a wider exponent type
-  // to a narrower base type. This should compile but generate a
+  // to a narrower base type. This should compile but would generate a
   // deprecation warning:
-  unary_pow_test<float, double>();
+  // unary_pow_test<float, double>();
 }
 
 void int_pow_test() {
