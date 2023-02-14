@@ -90,8 +90,8 @@ typedef uint32x4_t                           Packet4ui;
 typedef int64x2_t                            Packet2l;
 typedef uint64x2_t                           Packet2ul;
 
-EIGEN_ALWAYS_INLINE Packet4f make_packet4f(float a, float b, float c, float d) { return {a, b, c, d}; }
-EIGEN_ALWAYS_INLINE Packet2f make_packet2f(float a, float b) { return {a, b}; }
+EIGEN_ALWAYS_INLINE Packet4f make_packet4f(float a, float b, float c, float d) { return Packet4f{a, b, c, d}; }
+EIGEN_ALWAYS_INLINE Packet2f make_packet2f(float a, float b) { return Packet2f{a, b}; }
 
 #endif // EIGEN_COMP_MSVC_STRICT
 
@@ -3744,7 +3744,7 @@ EIGEN_ALWAYS_INLINE Packet2d make_packet2d(double a, double b) {
 typedef float64x2_t Packet2d;
 typedef float64x1_t Packet1d;
 
-EIGEN_ALWAYS_INLINE Packet2d make_packet2d(double a, double b) { return {a, b}; }
+EIGEN_ALWAYS_INLINE Packet2d make_packet2d(double a, double b) { return Packet2d{a, b}; }
 #endif
 
 

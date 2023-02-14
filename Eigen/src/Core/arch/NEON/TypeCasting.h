@@ -43,7 +43,7 @@ EIGEN_STRONG_INLINE Packet4c preinterpret<Packet4c, Packet4uc>(const Packet4uc& 
 }
 template <>
 EIGEN_STRONG_INLINE Packet8c preinterpret<Packet8c, Packet8uc>(const Packet8uc& a) {
-  return Packet8c(preinterpret<Packet8c>(a));
+  return Packet8c(vreinterpret_s8_u8(a));
 }
 template <>
 EIGEN_STRONG_INLINE Packet16c preinterpret<Packet16c, Packet16uc>(const Packet16uc& a) {
@@ -1375,7 +1375,7 @@ struct type_casting_traits<numext::uint16_t, double> {
 template <>
 EIGEN_STRONG_INLINE Packet2d pcast<Packet8us, Packet2d>(const Packet8us& a) {
   // Discard all but first two values.
-  Packet2f tmp = pcast<Packet4us, Packet2f>(vget_low_s16(a));
+  Packet2f tmp = pcast<Packet4us, Packet2f>(vget_low_u16(a));
   return vcvt_f64_f32(tmp);
 }
 
