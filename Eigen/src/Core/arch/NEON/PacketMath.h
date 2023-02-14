@@ -91,7 +91,7 @@ typedef int64x2_t                            Packet2l;
 typedef uint64x2_t                           Packet2ul;
 
 EIGEN_ALWAYS_INLINE Packet4f make_packet4f(float a, float b, float c, float d) { return {a, b, c, d}; }
-EIGEN_ALWAYS_INLINE Packet4f make_packet2f(float a, float b) { return {a, b}; }
+EIGEN_ALWAYS_INLINE Packet2f make_packet2f(float a, float b) { return {a, b}; }
 
 #endif // EIGEN_COMP_MSVC_STRICT
 
