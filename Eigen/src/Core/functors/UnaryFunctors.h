@@ -146,6 +146,28 @@ struct functor_traits<scalar_arg_op<Scalar> >
     PacketAccess = packet_traits<Scalar>::HasArg
   };
 };
+
+/** \internal
+  * \brief Template functor to compute the complex argument, returned as a complex type
+  *
+  * \sa class CwiseUnaryOp, Cwise::carg
+  */
+template <typename Scalar>
+struct scalar_carg_op {
+  using result_type = Scalar;
+  EIGEN_DEVICE_FUNC
+  EIGEN_STRONG_INLINE const Scalar operator()(const Scalar& a) const { return Scalar(numext::arg(a)); }
+  template <typename Packet>
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Packet packetOp(const Packet& a) const {
+    return pcarg(a);
+  }
+};
+template <typename Scalar>
+struct functor_traits<scalar_carg_op<Scalar>> {
+  using RealScalar = typename NumTraits<Scalar>::Real;
+  enum { Cost = functor_traits<scalar_atan2_op<RealScalar>>::Cost, PacketAccess = packet_traits<RealScalar>::HasATan };
+};
+
 /** \internal
   * \brief Template functor to cast a scalar to another type
   *

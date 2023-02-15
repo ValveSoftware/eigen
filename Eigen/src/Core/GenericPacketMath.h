@@ -1192,27 +1192,27 @@ Packet prsqrt(const Packet& a) {
 }
 
 template <typename Packet, bool IsScalar = is_scalar<Packet>::value,
-    bool IsInteger = NumTraits<typename unpacket_traits<Packet>::type>::IsInteger>
-    struct psignbit_impl;
+          bool IsInteger = NumTraits<typename unpacket_traits<Packet>::type>::IsInteger>
+struct psignbit_impl;
 template <typename Packet, bool IsInteger>
 struct psignbit_impl<Packet, true, IsInteger> {
-     EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE static constexpr Packet run(const Packet& a) { return numext::signbit(a); }
+  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE static constexpr Packet run(const Packet& a) { return numext::signbit(a); }
 };
 template <typename Packet>
 struct psignbit_impl<Packet, false, false> {
-    // generic implementation if not specialized in PacketMath.h
-    // slower than arithmetic shift
-    typedef typename unpacket_traits<Packet>::type Scalar;
-    EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE static Packet run(const Packet& a) {
-        const Packet cst_pos_one = pset1<Packet>(Scalar(1));
-        const Packet cst_neg_one = pset1<Packet>(Scalar(-1));
-        return pcmp_eq(por(pand(a, cst_neg_one), cst_pos_one), cst_neg_one);
-    }
+  // generic implementation if not specialized in PacketMath.h
+  // slower than arithmetic shift
+  typedef typename unpacket_traits<Packet>::type Scalar;
+  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE static Packet run(const Packet& a) {
+    const Packet cst_pos_one = pset1<Packet>(Scalar(1));
+    const Packet cst_neg_one = pset1<Packet>(Scalar(-1));
+    return pcmp_eq(por(pand(a, cst_neg_one), cst_pos_one), cst_neg_one);
+  }
 };
 template <typename Packet>
 struct psignbit_impl<Packet, false, true> {
-    // generic implementation for integer packets
-    EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE static constexpr Packet run(const Packet& a) { return pcmp_lt(a, pzero(a)); }
+  // generic implementation for integer packets
+  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE static constexpr Packet run(const Packet& a) { return pcmp_lt(a, pzero(a)); }
 };
 /** \internal \returns the sign bit of \a a as a bitmask*/
 template <typename Packet>
@@ -1254,6 +1254,24 @@ EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE Packet patan2(const Packet& y, const Packe
   Packet result = patan(arg);
   result = padd(result, shift);
   return result;
+}
+
+/** \internal \returns the argument of \a a as a complex number */
+template <typename Packet, std::enable_if_t<is_scalar<Packet>::value, int> = 0>
+EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE Packet pcarg(const Packet& a) {
+  return Packet(numext::arg(a));
+}
+
+/** \internal \returns the argument of \a a as a complex number */
+template <typename Packet, std::enable_if_t<!is_scalar<Packet>::value, int> = 0>
+EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE Packet pcarg(const Packet& a) {
+  using Scalar = typename unpacket_traits<Packet>::type;
+  EIGEN_STATIC_ASSERT(NumTraits<Scalar>::IsComplex, THIS METHOD IS FOR COMPLEX TYPES ONLY)
+  using RealPacket = typename unpacket_traits<Packet>::as_real;
+  // a                                              // r     i    r     i    ...
+  RealPacket aflip = pcplxflip(a).v;                // i     r    i     r    ...
+  RealPacket result = patan2(aflip, a.v);           // atan2 crap atan2 crap ...
+  return (Packet)pand(result, peven_mask(result));  // atan2 0    atan2 0    ...
 }
 
 } // end namespace internal
