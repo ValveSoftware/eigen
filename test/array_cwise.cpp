@@ -1005,6 +1005,7 @@ EIGEN_DECLARE_TEST(array_cwise)
   }
   for(int i = 0; i < g_repeat; i++) {
     CALL_SUBTEST_4( array_complex(ArrayXXcf(internal::random<int>(1,EIGEN_TEST_MAX_SIZE), internal::random<int>(1,EIGEN_TEST_MAX_SIZE))) );
+    CALL_SUBTEST_5( array_complex(ArrayXXcd(internal::random<int>(1,EIGEN_TEST_MAX_SIZE), internal::random<int>(1,EIGEN_TEST_MAX_SIZE))));
   }
 
   for(int i = 0; i < g_repeat; i++) {
