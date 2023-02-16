@@ -485,7 +485,7 @@ void test_sum_accuracy() {
     // Test against probabilistic forward error bound. In reality, the error is much smaller
     // when we use tree summation.
     double err = Eigen::numext::abs(static_cast<double>(sum()) - expected_sum);
-    double tol = numext::sqrt(num_elements) * NumTraits<ScalarType>::epsilon() * static_cast<ScalarType>(abs_sum);
+    double tol = numext::sqrt(static_cast<double>(num_elements)) * NumTraits<ScalarType>::epsilon() * static_cast<ScalarType>(abs_sum);
     VERIFY_LE(err, tol);
   }
 }

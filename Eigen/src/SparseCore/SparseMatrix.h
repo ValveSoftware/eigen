@@ -1109,7 +1109,7 @@ void set_from_triplets(const InputIterator& begin, const InputIterator& end, Spa
   IndexMap outerIndexMap(mat.outerIndexPtr(), mat.outerSize() + 1);
   for (InputIterator it(begin); it != end; ++it) {
     eigen_assert(it->row() >= 0 && it->row() < mat.rows() && it->col() >= 0 && it->col() < mat.cols());
-    StorageIndex j = IsRowMajor ? it->row() : it->col();
+    StorageIndex j = static_cast<StorageIndex>(IsRowMajor ? it->row() : it->col());
     outerIndexMap.coeffRef(j + 1)++;
   }
 
@@ -1124,8 +1124,8 @@ void set_from_triplets(const InputIterator& begin, const InputIterator& end, Spa
 
   // push triplets to back of each inner vector
   for (InputIterator it(begin); it != end; ++it) {
-    StorageIndex j = IsRowMajor ? it->row() : it->col();
-    StorageIndex i = IsRowMajor ? it->col() : it->row();
+    StorageIndex j = static_cast<StorageIndex>(IsRowMajor ? it->row() : it->col());
+    StorageIndex i = static_cast<StorageIndex>(IsRowMajor ? it->col() : it->row());
     mat.data().index(back.coeff(j)) = i;
     mat.data().value(back.coeff(j)) = it->value();
     back.coeffRef(j)++;
