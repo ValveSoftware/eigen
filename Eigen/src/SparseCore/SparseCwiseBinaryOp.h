@@ -368,28 +368,28 @@ struct binary_evaluator<CwiseBinaryOp<scalar_quotient_op<T1,T2>, Lhs, Rhs>, Iter
 
 // "sparse && sparse"
 template<typename Lhs, typename Rhs>
-struct binary_evaluator<CwiseBinaryOp<scalar_boolean_and_op, Lhs, Rhs>, IteratorBased, IteratorBased>
-  : sparse_conjunction_evaluator<CwiseBinaryOp<scalar_boolean_and_op, Lhs, Rhs> >
+struct binary_evaluator<CwiseBinaryOp<scalar_boolean_and_op<bool>, Lhs, Rhs>, IteratorBased, IteratorBased>
+  : sparse_conjunction_evaluator<CwiseBinaryOp<scalar_boolean_and_op<bool>, Lhs, Rhs> >
 {
-  typedef CwiseBinaryOp<scalar_boolean_and_op, Lhs, Rhs> XprType;
+  typedef CwiseBinaryOp<scalar_boolean_and_op<bool>, Lhs, Rhs> XprType;
   typedef sparse_conjunction_evaluator<XprType> Base;
   explicit binary_evaluator(const XprType& xpr) : Base(xpr) {}
 };
 // "dense && sparse"
 template<typename Lhs, typename Rhs>
-struct binary_evaluator<CwiseBinaryOp<scalar_boolean_and_op, Lhs, Rhs>, IndexBased, IteratorBased>
-  : sparse_conjunction_evaluator<CwiseBinaryOp<scalar_boolean_and_op, Lhs, Rhs> >
+struct binary_evaluator<CwiseBinaryOp<scalar_boolean_and_op<bool>, Lhs, Rhs>, IndexBased, IteratorBased>
+  : sparse_conjunction_evaluator<CwiseBinaryOp<scalar_boolean_and_op<bool>, Lhs, Rhs> >
 {
-  typedef CwiseBinaryOp<scalar_boolean_and_op, Lhs, Rhs> XprType;
+  typedef CwiseBinaryOp<scalar_boolean_and_op<bool>, Lhs, Rhs> XprType;
   typedef sparse_conjunction_evaluator<XprType> Base;
   explicit binary_evaluator(const XprType& xpr) : Base(xpr) {}
 };
 // "sparse && dense"
 template<typename Lhs, typename Rhs>
-struct binary_evaluator<CwiseBinaryOp<scalar_boolean_and_op, Lhs, Rhs>, IteratorBased, IndexBased>
-  : sparse_conjunction_evaluator<CwiseBinaryOp<scalar_boolean_and_op, Lhs, Rhs> >
+struct binary_evaluator<CwiseBinaryOp<scalar_boolean_and_op<bool>, Lhs, Rhs>, IteratorBased, IndexBased>
+  : sparse_conjunction_evaluator<CwiseBinaryOp<scalar_boolean_and_op<bool>, Lhs, Rhs> >
 {
-  typedef CwiseBinaryOp<scalar_boolean_and_op, Lhs, Rhs> XprType;
+  typedef CwiseBinaryOp<scalar_boolean_and_op<bool>, Lhs, Rhs> XprType;
   typedef sparse_conjunction_evaluator<XprType> Base;
   explicit binary_evaluator(const XprType& xpr) : Base(xpr) {}
 };

@@ -913,19 +913,54 @@ struct functor_traits<scalar_isfinite_op<Scalar> >
 };
 
 /** \internal
-  * \brief Template functor to compute the logical not of a boolean
+  * \brief Template functor to compute the logical not of a scalar as if it were a boolean
   *
   * \sa class CwiseUnaryOp, ArrayBase::operator!
   */
-template<typename Scalar> struct scalar_boolean_not_op {
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE bool operator() (const bool& a) const { return !a; }
+template <typename Scalar>
+struct scalar_boolean_not_op {
+  using result_type = Scalar;
+  // `false` any value `a` that satisfies `a == Scalar(0)`
+  // `true` is the complement of `false`
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Scalar operator()(const Scalar& a) const {
+    return a == Scalar(0) ? Scalar(1) : Scalar(0);
+  }
+  template <typename Packet>
+  EIGEN_STRONG_INLINE Packet packetOp(const Packet& a) const {
+    const Packet cst_one = pset1<Packet>(Scalar(1));
+    Packet not_a = pcmp_eq(a, pzero(a));
+    return pand(not_a, cst_one);
+  }
 };
-template<typename Scalar>
-struct functor_traits<scalar_boolean_not_op<Scalar> > {
-  enum {
-    Cost = NumTraits<bool>::AddCost,
-    PacketAccess = false
-  };
+template <typename Scalar>
+struct functor_traits<scalar_boolean_not_op<Scalar>> {
+  enum { Cost = NumTraits<Scalar>::AddCost, PacketAccess = packet_traits<Scalar>::HasCmp };
+};
+
+/** \internal
+  * \brief Template functor to compute the bitwise not of a scalar
+  *
+  * \sa class CwiseUnaryOp, ArrayBase::operator~
+ */
+template <typename Scalar>
+struct scalar_bitwise_not_op {
+  EIGEN_STATIC_ASSERT(!NumTraits<Scalar>::RequireInitialization, BITWISE OPERATIONS MAY ONLY BE PERFORMED ON PLAIN DATA TYPES)
+  using result_type = Scalar;
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Scalar operator()(const Scalar& a) const {
+    Scalar result;
+    const uint8_t* a_bytes = reinterpret_cast<const uint8_t*>(&a);
+    uint8_t* r_bytes = reinterpret_cast<uint8_t*>(&result);
+    for (Index i = 0; i < sizeof(Scalar); i++) r_bytes[i] = ~a_bytes[i];
+    return result;
+  }
+  template <typename Packet>
+  EIGEN_STRONG_INLINE Packet packetOp(const Packet& a) const {
+    return pandnot(ptrue(a), a);
+  }
+};
+template <typename Scalar>
+struct functor_traits<scalar_bitwise_not_op<Scalar>> {
+  enum { Cost = NumTraits<Scalar>::AddCost, PacketAccess = true };
 };
 
 /** \internal

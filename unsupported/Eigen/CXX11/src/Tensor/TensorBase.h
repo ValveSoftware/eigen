@@ -490,34 +490,59 @@ class TensorBase<Derived, ReadOnlyAccessors>
       return binaryExpr(other.derived(), internal::scalar_quotient_op<Scalar>());
     }
 
-  template<int NaNPropagation=PropagateFast, typename OtherDerived> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
-      const TensorCwiseBinaryOp<internal::scalar_max_op<Scalar,Scalar, NaNPropagation>, const Derived, const OtherDerived>
+    template<int NaNPropagation=PropagateFast, typename OtherDerived> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+    const TensorCwiseBinaryOp<internal::scalar_max_op<Scalar,Scalar, NaNPropagation>, const Derived, const OtherDerived>
     cwiseMax(const OtherDerived& other) const {
-    return binaryExpr(other.derived(), internal::scalar_max_op<Scalar,Scalar, NaNPropagation>());
+      return binaryExpr(other.derived(), internal::scalar_max_op<Scalar,Scalar, NaNPropagation>());
     }
 
-  template<int NaNPropagation=PropagateFast, typename OtherDerived> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+    template<int NaNPropagation=PropagateFast, typename OtherDerived> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
     const TensorCwiseBinaryOp<internal::scalar_min_op<Scalar,Scalar, NaNPropagation>, const Derived, const OtherDerived>
     cwiseMin(const OtherDerived& other) const {
       return binaryExpr(other.derived(), internal::scalar_min_op<Scalar,Scalar, NaNPropagation>());
     }
 
+    // logical operators
     template<typename OtherDerived> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
-    const TensorCwiseBinaryOp<internal::scalar_boolean_and_op, const Derived, const OtherDerived>
+    const TensorCwiseBinaryOp<internal::scalar_boolean_and_op<Scalar>, const Derived, const OtherDerived>
     operator&&(const OtherDerived& other) const {
-      return binaryExpr(other.derived(), internal::scalar_boolean_and_op());
+      return binaryExpr(other.derived(), internal::scalar_boolean_and_op<Scalar>());
     }
 
     template<typename OtherDerived> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
-    const TensorCwiseBinaryOp<internal::scalar_boolean_or_op, const Derived, const OtherDerived>
+    const TensorCwiseBinaryOp<internal::scalar_boolean_or_op<Scalar>, const Derived, const OtherDerived>
     operator||(const OtherDerived& other) const {
-      return binaryExpr(other.derived(), internal::scalar_boolean_or_op());
+      return binaryExpr(other.derived(), internal::scalar_boolean_or_op<Scalar>());
     }
 
     template<typename OtherDerived> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
-    const TensorCwiseBinaryOp<internal::scalar_boolean_xor_op, const Derived, const OtherDerived>
+    const TensorCwiseBinaryOp<internal::scalar_bitwise_and_op<Scalar>, const Derived, const OtherDerived>
+    operator&(const OtherDerived& other) const {
+      return binaryExpr(other.derived(), internal::scalar_bitwise_and_op<Scalar>());
+    }
+
+    template<typename OtherDerived> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+    const TensorCwiseBinaryOp<internal::scalar_bitwise_or_op<Scalar>, const Derived, const OtherDerived>
+    operator|(const OtherDerived& other) const {
+      return binaryExpr(other.derived(), internal::scalar_bitwise_or_op<Scalar>());
+    }
+
+    template<typename OtherDerived> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+    const TensorCwiseBinaryOp<internal::scalar_bitwise_xor_op<Scalar>, const Derived, const OtherDerived>
     operator^(const OtherDerived& other) const {
-      return binaryExpr(other.derived(), internal::scalar_boolean_xor_op());
+      return binaryExpr(other.derived(), internal::scalar_bitwise_xor_op<Scalar>());
+    }
+
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+    const TensorCwiseUnaryOp<internal::scalar_boolean_not_op<Scalar>, const Derived>
+    operator!() const {
+      return unaryExpr(internal::scalar_boolean_not_op<Scalar>());
+    }
+
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+    const TensorCwiseUnaryOp<internal::scalar_bitwise_not_op<Scalar>, const Derived>
+    operator~() const {
+      return unaryExpr(internal::scalar_bitwise_not_op<Scalar>());
     }
 
     // Comparisons and tests.

@@ -216,6 +216,7 @@ template<> struct packet_traits<bool> : default_packet_traits
     
     HasAdd       = 1,
     HasSub       = 1,
+    HasCmp       = 1, // note -- only pcmp_eq is defined
     HasShift     = 0,
     HasMul       = 1,
     HasNegate    = 1,

@@ -27,7 +27,7 @@ struct all_unroller
 
   EIGEN_DEVICE_FUNC static inline bool run(const Derived &mat)
   {
-    return all_unroller<Derived, UnrollCount-1, InnerSize>::run(mat) && mat.coeff(IsRowMajor ? i : j, IsRowMajor ? j : i);
+    return all_unroller<Derived, UnrollCount-1, InnerSize>::run(mat) && mat.coeff(IsRowMajor ? i : j, IsRowMajor ? j : i) != typename Derived::CoeffReturnType(0);
   }
 };
 
@@ -54,7 +54,7 @@ struct any_unroller
 
   EIGEN_DEVICE_FUNC static inline bool run(const Derived &mat)
   {
-    return any_unroller<Derived, UnrollCount-1, InnerSize>::run(mat) || mat.coeff(IsRowMajor ? i : j, IsRowMajor ? j : i);
+    return any_unroller<Derived, UnrollCount-1, InnerSize>::run(mat) || mat.coeff(IsRowMajor ? i : j, IsRowMajor ? j : i) != typename Derived::CoeffReturnType(0);
   }
 };
 
@@ -94,7 +94,7 @@ EIGEN_DEVICE_FUNC inline bool DenseBase<Derived>::all() const
   {
     for(Index i = 0; i < derived().outerSize(); ++i)
       for(Index j = 0; j < derived().innerSize(); ++j)
-        if (!evaluator.coeff(IsRowMajor ? i : j, IsRowMajor ? j : i)) return false;
+        if (evaluator.coeff(IsRowMajor ? i : j, IsRowMajor ? j : i) == Scalar(0)) return false;
     return true;
   }
 }
@@ -118,7 +118,7 @@ EIGEN_DEVICE_FUNC inline bool DenseBase<Derived>::any() const
   {
     for(Index i = 0; i < derived().outerSize(); ++i)
       for(Index j = 0; j < derived().innerSize(); ++j)
-        if (evaluator.coeff(IsRowMajor ? i : j, IsRowMajor ? j : i)) return true;
+        if (evaluator.coeff(IsRowMajor ? i : j, IsRowMajor ? j : i) != Scalar(0)) return true;
     return false;
   }
 }
