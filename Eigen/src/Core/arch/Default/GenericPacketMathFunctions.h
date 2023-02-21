@@ -1248,7 +1248,7 @@ EIGEN_STRONG_INLINE
 void twoprod(const Packet& x, const Packet& y,
              Packet& p_hi, Packet& p_lo) {
   p_hi = pmul(x, y);
-  p_lo = pmadd(x, y, pnegate(p_hi));
+  p_lo = pmsub(x, y, p_hi);
 }
 
 #else
