@@ -82,6 +82,7 @@ struct default_packet_traits
     HasASin   = 0,
     HasACos   = 0,
     HasATan   = 0,
+    HasATanh  = 0,
     HasSinh   = 0,
     HasCosh   = 0,
     HasTanh   = 0,
@@ -857,9 +858,6 @@ Packet pasin(const Packet& a) { EIGEN_USING_STD(asin); return asin(a); }
 template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
 Packet pacos(const Packet& a) { EIGEN_USING_STD(acos); return acos(a); }
 
-/** \internal \returns the arc tangent of \a a (coeff-wise) */
-template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-Packet patan(const Packet& a) { EIGEN_USING_STD(atan); return atan(a); }
 
 /** \internal \returns the hyperbolic sine of \a a (coeff-wise) */
 template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
@@ -869,9 +867,17 @@ Packet psinh(const Packet& a) { EIGEN_USING_STD(sinh); return sinh(a); }
 template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
 Packet pcosh(const Packet& a) { EIGEN_USING_STD(cosh); return cosh(a); }
 
+/** \internal \returns the arc tangent of \a a (coeff-wise) */
+template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
+Packet patan(const Packet& a) { EIGEN_USING_STD(atan); return atan(a); }
+
 /** \internal \returns the hyperbolic tan of \a a (coeff-wise) */
 template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
 Packet ptanh(const Packet& a) { EIGEN_USING_STD(tanh); return tanh(a); }
+
+/** \internal \returns the arc tangent of \a a (coeff-wise) */
+template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
+Packet patanh(const Packet& a) { EIGEN_USING_STD(atanh); return atanh(a); }
 
 /** \internal \returns the exp of \a a (coeff-wise) */
 template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS

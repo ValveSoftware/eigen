@@ -276,6 +276,12 @@ patan<Packet16f>(const Packet16f& _x) {
 }
 
 template <>
+EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS Packet16f
+patanh<Packet16f>(const Packet16f& _x) {
+  return patanh_float(_x);
+}
+
+template <>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS Packet8d
 patan<Packet8d>(const Packet8d& _x) {
   return patan_double(_x);

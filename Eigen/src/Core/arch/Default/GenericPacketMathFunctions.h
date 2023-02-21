@@ -969,6 +969,34 @@ Packet patan_double(const Packet& x_in) {
 
 template<typename Packet>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
+Packet patanh_float(const Packet& x) {
+  typedef typename unpacket_traits<Packet>::type Scalar;
+  static_assert(std::is_same<Scalar, float>::value, "Scalar type must be float");
+  const Packet half = pset1<Packet>(0.5f);
+  const Packet x_gt_half = pcmp_le(half, pabs(x));
+  // For |x| in [0:0.5] we use a polynomial approximation of the form
+  // P(x) = x + x^3*(c3 + x^2 * (c5 + x^2 * (... x^2 * c11) ... )).
+  const Packet C3 = pset1<Packet>(0.3333373963832855224609375f);
+  const Packet C5 = pset1<Packet>(0.1997792422771453857421875f);
+  const Packet C7 = pset1<Packet>(0.14672131836414337158203125f);
+  const Packet C9 = pset1<Packet>(8.2311116158962249755859375e-2f);
+  const Packet C11 = pset1<Packet>(0.1819281280040740966796875f);
+  const Packet x2 = pmul(x,x);
+  Packet p = pmadd(C11, x2, C9);
+  p = pmadd(x2, p, C7);
+  p = pmadd(x2, p, C5);
+  p = pmadd(x2, p, C3);
+  p = pmadd(pmul(x,x2), p, x);
+
+  // For |x| in ]0.5:1.0] we use atanh = 0.5*ln((1+x)/(1-x));
+  const Packet one = pset1<Packet>(1.0f);
+  Packet r = pdiv(padd(one, x), psub(one, x));
+  r = pmul(half, plog(r));
+  return pselect(x_gt_half, r, p);
+}
+
+template<typename Packet>
+EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
 Packet pdiv_complex(const Packet& x, const Packet& y) {
   typedef typename unpacket_traits<Packet>::as_real RealPacket;
   // In the following we annotate the code for the case where the inputs

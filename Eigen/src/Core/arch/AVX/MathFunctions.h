@@ -58,6 +58,12 @@ patan<Packet4d>(const Packet4d& _x) {
 
 template <>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS Packet8f
+patanh<Packet8f>(const Packet8f& _x) {
+  return patanh_float(_x);
+}
+
+template <>
+EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS Packet8f
 plog<Packet8f>(const Packet8f& _x) {
   return plog_float(_x);
 }

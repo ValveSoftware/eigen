@@ -76,6 +76,7 @@ template<> struct packet_traits<float>  : default_packet_traits
     HasACos = 1,
     HasASin = 1,
     HasATan = 1,
+    HasATanh = 1,
     HasLog = 1,
     HasLog1p = 1,
     HasExpm1 = 1,

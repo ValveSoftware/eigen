@@ -55,6 +55,12 @@ template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS Packet2f ptanh<Pa
 template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS Packet4f ptanh<Packet4f>(const Packet4f& x)
 { return internal::generic_fast_tanh_float(x); }
 
+template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS Packet2f patanh<Packet2f>(const Packet2f& x)
+{ return patanh_float(x); }
+template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS Packet4f patanh<Packet4f>(const Packet4f& x)
+{ return patanh_float(x); }
+
+
 #if EIGEN_HAS_ARM64_FP16_VECTOR_ARITHMETIC
 template <>
 EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC
