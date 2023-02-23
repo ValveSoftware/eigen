@@ -392,12 +392,14 @@ void svd_preallocate()
 }
 
 template <typename MatrixType, int QRPreconditioner = 0>
-void svd_verify_assert_full_only(const MatrixType& m = MatrixType()) {
+void svd_verify_assert_full_only(const MatrixType& input = MatrixType()) {
   enum { RowsAtCompileTime = MatrixType::RowsAtCompileTime };
-
+  
   typedef Matrix<typename MatrixType::Scalar, RowsAtCompileTime, 1> RhsType;
-  RhsType rhs = RhsType::Zero(m.rows());
-
+  RhsType rhs = RhsType::Zero(input.rows());
+  MatrixType m(input.rows(), input.cols());
+  svd_fill_random(m);
+  
   SVD_STATIC_OPTIONS(MatrixType, QRPreconditioner) svd0;
   VERIFY_RAISES_ASSERT((svd0.matrixU()));
   VERIFY_RAISES_ASSERT((svd0.singularValues()));
@@ -420,11 +422,12 @@ void svd_verify_assert_full_only(const MatrixType& m = MatrixType()) {
 }
 
 template <typename MatrixType, int QRPreconditioner = 0>
-void svd_verify_assert(const MatrixType& m = MatrixType()) {
+void svd_verify_assert(const MatrixType& input = MatrixType()) {
   enum { RowsAtCompileTime = MatrixType::RowsAtCompileTime };
-
   typedef Matrix<typename MatrixType::Scalar, RowsAtCompileTime, 1> RhsType;
-  RhsType rhs = RhsType::Zero(m.rows());
+  RhsType rhs = RhsType::Zero(input.rows());
+  MatrixType m(input.rows(), input.cols());
+  svd_fill_random(m);
 
   SVD_STATIC_OPTIONS(MatrixType, QRPreconditioner | ComputeThinU) svdThinU(m);
   VERIFY_RAISES_ASSERT((svdThinU.matrixV()));
@@ -509,7 +512,9 @@ void svd_check_runtime_options(const MatrixType& m, unsigned int computationOpti
 }
 
 template <typename MatrixType, int QRPreconditioner = 0>
-void svd_option_checks(const MatrixType& m) {
+void svd_option_checks(const MatrixType& input) {
+  MatrixType m(input.rows(), input.cols());
+  svd_fill_random(m);
   svd_compute_checks<MatrixType, QRPreconditioner>(m);
   svd_compute_checks<MatrixType, QRPreconditioner | ComputeThinU>(m);
   svd_compute_checks<MatrixType, QRPreconditioner | ComputeThinV>(m);
@@ -543,7 +548,9 @@ void svd_option_checks(const MatrixType& m) {
 }
 
 template <typename MatrixType, int QRPreconditioner = 0>
-void svd_option_checks_full_only(const MatrixType& m) {
+void svd_option_checks_full_only(const MatrixType& input) {
+  MatrixType m(input.rows(), input.cols());
+  svd_fill_random(m);
   svd_compute_checks<MatrixType, QRPreconditioner | ComputeFullU>(m);
   svd_compute_checks<MatrixType, QRPreconditioner | ComputeFullV>(m);
   svd_compute_checks<MatrixType, QRPreconditioner | ComputeFullU | ComputeFullV>(m);
@@ -563,12 +570,14 @@ void svd_check_max_size_matrix(int initialRows, int initialCols) {
   int cols = MaxColsAtCompileTime == Dynamic ? initialCols : (std::min)(initialCols, (int)MaxColsAtCompileTime);
 
   MatrixType m(rows, cols);
+  svd_fill_random(m);
   SVD_STATIC_OPTIONS(MatrixType, QRPreconditioner | ComputeThinU | ComputeThinV) thinSvd(m);
   SVD_STATIC_OPTIONS(MatrixType, QRPreconditioner | ComputeThinU | ComputeFullV) mixedSvd1(m);
   SVD_STATIC_OPTIONS(MatrixType, QRPreconditioner | ComputeFullU | ComputeThinV) mixedSvd2(m);
   SVD_STATIC_OPTIONS(MatrixType, QRPreconditioner | ComputeFullU | ComputeFullV) fullSvd(m);
 
   MatrixType n(MaxRowsAtCompileTime, MaxColsAtCompileTime);
+  svd_fill_random(n);
   thinSvd.compute(n);
   mixedSvd1.compute(n);
   mixedSvd2.compute(n);
@@ -595,6 +604,7 @@ void svd_verify_constructor_options_assert(const MatrixType& m, bool fullOnly = 
 
   typedef Matrix<Scalar, RowsAtCompileTime, 1> RhsType;
   RhsType rhs(rows);
+  svd_fill_random(rhs);
   SvdType svd;
   VERIFY_RAISES_ASSERT(svd.matrixU())
   VERIFY_RAISES_ASSERT(svd.singularValues())

@@ -95,9 +95,7 @@ void compare_bdc_jacobi_instance(bool structure_as_m, int algoswap = 16)
 
 template <typename MatrixType>
 void bdcsvd_all_options(const MatrixType& input = MatrixType()) {
-  MatrixType m(input.rows(), input.cols());
-  svd_fill_random(m);
-  svd_option_checks<MatrixType, 0>(m);
+  svd_option_checks<MatrixType, 0>(input);
 }
 
 template <typename MatrixType>
