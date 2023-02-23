@@ -16,8 +16,6 @@ namespace Eigen {
 
 namespace internal {
 
-#if EIGEN_HAS_AVX512_MATH
-
 #define EIGEN_DECLARE_CONST_Packet16f(NAME, X) \
   const Packet16f p16f_##NAME = pset1<Packet16f>(X)
 
@@ -165,8 +163,11 @@ psqrt<Packet16f>(const Packet16f& _x) {
 template <>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS Packet8d
 psqrt<Packet8d>(const Packet8d& _x) {
-  // Double requires 2 Newton-Raphson steps for convergence.
+#ifdef EIGEN_VECTORIZE_AVX512ER
+  return generic_sqrt_newton_step<Packet8d, /*Steps=*/1>::run(_x, _mm512_rsqrt28_pd(_x));
+#else
   return generic_sqrt_newton_step<Packet8d, /*Steps=*/2>::run(_x, _mm512_rsqrt14_pd(_x));
+#endif
 }
 #else
 template <>
@@ -185,7 +186,6 @@ BF16_PACKET_FUNCTION(Packet16f, Packet16bf, psqrt)
 
 // prsqrt for float.
 #if defined(EIGEN_VECTORIZE_AVX512ER)
-
 template <>
 EIGEN_STRONG_INLINE Packet16f prsqrt<Packet16f>(const Packet16f& x) {
   return _mm512_rsqrt28_ps(x);
@@ -221,10 +221,10 @@ template<> EIGEN_STRONG_INLINE Packet16f preciprocal<Packet16f>(const Packet16f&
   return generic_reciprocal_newton_step<Packet16f, /*Steps=*/1>::run(a, _mm512_rcp14_ps(a));
 #endif
 }
+#endif
 
 F16_PACKET_FUNCTION(Packet16f, Packet16h, preciprocal)
 BF16_PACKET_FUNCTION(Packet16f, Packet16bf, preciprocal)
-#endif
 
 template<> EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
 Packet16f plog1p<Packet16f>(const Packet16f& _x) {
@@ -241,9 +241,6 @@ Packet16f pexpm1<Packet16f>(const Packet16f& _x) {
 
 F16_PACKET_FUNCTION(Packet16f, Packet16h, pexpm1)
 BF16_PACKET_FUNCTION(Packet16f, Packet16bf, pexpm1)
-
-#endif  // EIGEN_HAS_AVX512_MATH
-
 
 template <>
 EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS Packet16f
