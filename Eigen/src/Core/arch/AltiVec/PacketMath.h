@@ -256,7 +256,7 @@ struct packet_traits<int> : default_packet_traits {
     HasSub   = 1,
     HasShift = 1,
     HasMul   = 1,
-#ifdef _ARCH_PWR10
+#if defined(_ARCH_PWR10) && (EIGEN_COMP_LLVM || EIGEN_GNUC_STRICT_AT_LEAST(11,0,0))
     HasDiv   = 1,
 #else
     HasDiv   = 0,
@@ -1050,7 +1050,7 @@ template<> EIGEN_STRONG_INLINE Packet4f pdiv<Packet4f>(const Packet4f& a, const 
 
 template<> EIGEN_STRONG_INLINE Packet4i pdiv<Packet4i>(const Packet4i& a, const Packet4i& b)
 {
-#ifdef _ARCH_PWR10
+#if defined(_ARCH_PWR10) && (EIGEN_COMP_LLVM || EIGEN_GNUC_STRICT_AT_LEAST(11,0,0))
   return vec_div(a, b);
 #else
   EIGEN_UNUSED_VARIABLE(a);
