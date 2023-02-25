@@ -14,14 +14,16 @@
 using Eigen::Tensor;
 using Eigen::RowMajor;
 
+using Scalar = float;
+
 static void test_orderings()
 {
-  Tensor<float, 3> mat1(2,3,7);
-  Tensor<float, 3> mat2(2,3,7);
-  Tensor<bool, 3> lt(2,3,7);
-  Tensor<bool, 3> le(2,3,7);
-  Tensor<bool, 3> gt(2,3,7);
-  Tensor<bool, 3> ge(2,3,7);
+  Tensor<Scalar, 3> mat1(2,3,7);
+  Tensor<Scalar, 3> mat2(2,3,7);
+  Tensor<Scalar, 3> lt(2,3,7);
+  Tensor<Scalar, 3> le(2,3,7);
+  Tensor<Scalar, 3> gt(2,3,7);
+  Tensor<Scalar, 3> ge(2,3,7);
 
   mat1.setRandom();
   mat2.setRandom();
@@ -46,8 +48,8 @@ static void test_orderings()
 
 static void test_equality()
 {
-  Tensor<float, 3> mat1(2,3,7);
-  Tensor<float, 3> mat2(2,3,7);
+  Tensor<Scalar, 3> mat1(2,3,7);
+  Tensor<Scalar, 3> mat2(2,3,7);
 
   mat1.setRandom();
   mat2.setRandom();
@@ -61,8 +63,8 @@ static void test_equality()
     }
   }
 
-  Tensor<bool, 3> eq(2,3,7);
-  Tensor<bool, 3> ne(2,3,7);
+  Tensor<Scalar, 3> eq(2,3,7);
+  Tensor<Scalar, 3> ne(2,3,7);
   eq = (mat1 == mat2);
   ne = (mat1 != mat2);
 

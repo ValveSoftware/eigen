@@ -496,7 +496,7 @@ typename NumTraits<typename T1::RealScalar>::NonInteger test_relative_error(cons
   typedef typename NumTraits<typename T1::RealScalar>::NonInteger RealScalar;
   typename internal::nested_eval<T1,2>::type ea(a.derived());
   typename internal::nested_eval<T2,2>::type eb(b.derived());
-  return sqrt(RealScalar((ea-eb).cwiseAbs2().sum()) / RealScalar((std::min)(eb.cwiseAbs2().sum(),ea.cwiseAbs2().sum())));
+  return sqrt(RealScalar((ea.matrix()-eb.matrix()).cwiseAbs2().sum()) / RealScalar((std::min)(eb.cwiseAbs2().sum(),ea.cwiseAbs2().sum())));
 }
 
 template<typename T1,typename T2>

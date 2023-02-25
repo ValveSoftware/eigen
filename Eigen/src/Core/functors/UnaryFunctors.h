@@ -178,6 +178,13 @@ struct scalar_cast_op {
   typedef NewType result_type;
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const NewType operator() (const Scalar& a) const { return cast<Scalar, NewType>(a); }
 };
+
+template <typename Scalar>
+struct scalar_cast_op<Scalar, bool> {
+  typedef bool result_type;
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE bool operator()(const Scalar& a) const { return a != Scalar(0); }
+};
+
 template<typename Scalar, typename NewType>
 struct functor_traits<scalar_cast_op<Scalar,NewType> >
 { enum { Cost = is_same<Scalar, NewType>::value ? 0 : NumTraits<NewType>::AddCost, PacketAccess = false }; };
@@ -942,6 +949,27 @@ struct functor_traits<scalar_boolean_not_op<Scalar>> {
   enum { Cost = NumTraits<Scalar>::AddCost, PacketAccess = packet_traits<Scalar>::HasCmp };
 };
 
+template <typename Scalar, bool IsComplex = NumTraits<Scalar>::IsComplex>
+struct bitwise_unary_impl {
+  static constexpr size_t Size = sizeof(Scalar);
+  using uint_t = typename numext::get_integer_by_size<Size>::unsigned_type;
+  static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Scalar run_not(const Scalar& a) {
+    uint_t a_as_uint = numext::bit_cast<uint_t, Scalar>(a);
+    uint_t result = ~a_as_uint;
+    return numext::bit_cast<Scalar, uint_t>(result);
+  }
+};
+
+template <typename Scalar>
+struct bitwise_unary_impl<Scalar, true> {
+  using Real = typename NumTraits<Scalar>::Real;
+  static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Scalar run_not(const Scalar& a) {
+    Real real_result = bitwise_unary_impl<Real>::run_not(numext::real(a));
+    Real imag_result = bitwise_unary_impl<Real>::run_not(numext::imag(a));
+    return Scalar(real_result, imag_result);
+  }
+};
+
 /** \internal
   * \brief Template functor to compute the bitwise not of a scalar
   *
@@ -950,13 +978,10 @@ struct functor_traits<scalar_boolean_not_op<Scalar>> {
 template <typename Scalar>
 struct scalar_bitwise_not_op {
   EIGEN_STATIC_ASSERT(!NumTraits<Scalar>::RequireInitialization, BITWISE OPERATIONS MAY ONLY BE PERFORMED ON PLAIN DATA TYPES)
+  EIGEN_STATIC_ASSERT((!internal::is_same<Scalar, bool>::value), DONT USE BITWISE OPS ON BOOLEAN TYPES)
   using result_type = Scalar;
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Scalar operator()(const Scalar& a) const {
-    Scalar result;
-    const uint8_t* a_bytes = reinterpret_cast<const uint8_t*>(&a);
-    uint8_t* r_bytes = reinterpret_cast<uint8_t*>(&result);
-    for (Index i = 0; i < sizeof(Scalar); i++) r_bytes[i] = ~a_bytes[i];
-    return result;
+    return bitwise_unary_impl<Scalar>::run_not(a);
   }
   template <typename Packet>
   EIGEN_STRONG_INLINE Packet packetOp(const Packet& a) const {
