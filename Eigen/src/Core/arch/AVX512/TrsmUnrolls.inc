@@ -11,7 +11,7 @@
 #define EIGEN_CORE_ARCH_AVX512_TRSM_UNROLLS_H
 
 template <bool isARowMajor = true>
-static EIGEN_ALWAYS_INLINE int64_t idA(int64_t i, int64_t j, int64_t LDA) {
+EIGEN_ALWAYS_INLINE int64_t idA(int64_t i, int64_t j, int64_t LDA) {
   EIGEN_IF_CONSTEXPR(isARowMajor) return i * LDA + j;
   else return i + j * LDA;
 }
