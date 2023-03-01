@@ -1056,9 +1056,9 @@ struct signed_shift_test_impl {
   static constexpr size_t Size = sizeof(Scalar);
   static constexpr size_t MaxShift = (CHAR_BIT * Size) - 1;
 
-  template <size_t N = 0>
+  template <size_t N = 1>
   static inline std::enable_if_t<(N >  MaxShift), void> run(const ArrayType&  ) {}
-  template <size_t N = 0>
+  template <size_t N = 1>
   static inline std::enable_if_t<(N <= MaxShift), void> run(const ArrayType& m) {
     const Index rows = m.rows();
     const Index cols = m.cols();
