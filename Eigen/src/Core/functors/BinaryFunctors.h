@@ -195,7 +195,7 @@ struct functor_traits<scalar_max_op<LhsScalar,RhsScalar, NaNPropagation> > {
  * \todo Implement packet-comparisons
  */
 template <typename LhsScalar, typename RhsScalar, ComparisonName cmp,
-          bool UseTypedComparators = true>
+          bool UseTypedComparators = false>
 struct scalar_cmp_op;
 
 template <typename LhsScalar, typename RhsScalar, ComparisonName cmp, bool UseTypedComparators>
