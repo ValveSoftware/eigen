@@ -94,8 +94,8 @@ void binary_op_test(std::string name, Fn fun, RefFn ref) {
 }
 
 #define BINARY_FUNCTOR_TEST_ARGS(fun) #fun, \
-      [](const auto& x, const auto& y) { return (Eigen::fun)(x, y); },    \
-      [](const auto& x, const auto& y) { return (std::fun)(x, y); }
+      [](const auto& x_, const auto& y_) { return (Eigen::fun)(x_, y_); },    \
+      [](const auto& x_, const auto& y_) { return (std::fun)(x_, y_); }
 
 
 template <typename Scalar>
