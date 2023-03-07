@@ -270,8 +270,8 @@ typedef lapack_int DefaultPermutationIndex;
 typedef int DefaultPermutationIndex;
 #endif
 
-template<typename MatrixType> class FullPivLU;
-template<typename MatrixType> class PartialPivLU;
+template<typename MatrixType, typename PermutationIndex = DefaultPermutationIndex> class FullPivLU;
+template<typename MatrixType, typename PermutationIndex = DefaultPermutationIndex> class PartialPivLU;
 namespace internal {
 template<typename MatrixType> struct inverse_impl;
 }
