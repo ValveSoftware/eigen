@@ -663,7 +663,7 @@ template<typename ArrayType> void comparisons(const ArrayType& m)
   VERIFY_IS_CWISE_EQUAL((m1 + Scalar(1)).cwiseTypedGreater(m1.minCoeff()), typed_true);
   VERIFY_IS_CWISE_EQUAL((m1 - Scalar(1)).cwiseTypedLesser(m1.maxCoeff()), typed_true);
   VERIFY_IS_CWISE_EQUAL(m1.abs().cwiseTypedLesserOrEqual(NumTraits<Scalar>::highest()), typed_true);
-  VERIFY_IS_CWISE_EQUAL((m1 * m1).cwiseTypedGreaterOrEqual(Scalar(0)), typed_true);
+  VERIFY_IS_CWISE_EQUAL(m1.abs().cwiseTypedGreaterOrEqual(Scalar(0)), typed_true);
 
   // test boolean comparisons with scalar argument
   VERIFY_IS_CWISE_EQUAL((m1 - m1).cwiseEqual(Scalar(0)), bool_true);
@@ -671,7 +671,7 @@ template<typename ArrayType> void comparisons(const ArrayType& m)
   VERIFY_IS_CWISE_EQUAL((m1 + Scalar(1)).cwiseGreater(m1.minCoeff()), bool_true);
   VERIFY_IS_CWISE_EQUAL((m1 - Scalar(1)).cwiseLesser(m1.maxCoeff()), bool_true);
   VERIFY_IS_CWISE_EQUAL(m1.abs().cwiseLesserOrEqual(NumTraits<Scalar>::highest()), bool_true);
-  VERIFY_IS_CWISE_EQUAL((m1 * m1).cwiseGreaterOrEqual(Scalar(0)), bool_true);
+  VERIFY_IS_CWISE_EQUAL(m1.abs().cwiseGreaterOrEqual(Scalar(0)), bool_true);
 
   // test Select
   VERIFY_IS_APPROX( (m1<m2).select(m1,m2), m1.cwiseMin(m2) );
