@@ -26,9 +26,11 @@ if(CMAKE_VERSION VERSION_LESS 3.21.0)
   endif()
 endif()
 
-set(CMAKE_CXX_STANDARD 14 CACHE STRING "Default C++ standard")
-set(CMAKE_CXX_STANDARD_REQUIRED ON CACHE BOOL "Require C++ standard")
-set(CMAKE_CXX_EXTENSIONS OFF CACHE BOOL "Allow C++ extensions")
+if(PROJECT_IS_TOP_LEVEL)
+  set(CMAKE_CXX_STANDARD 14 CACHE STRING "Default C++ standard")
+  set(CMAKE_CXX_STANDARD_REQUIRED ON CACHE BOOL "Require C++ standard")
+  set(CMAKE_CXX_EXTENSIONS OFF CACHE BOOL "Allow C++ extensions")
+endif()
 
 # guard against in-source builds
 
