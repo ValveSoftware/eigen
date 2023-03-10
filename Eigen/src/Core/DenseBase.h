@@ -569,24 +569,24 @@ template<typename Derived> class DenseBase
 
     template <typename ThenDerived, typename ElseDerived>
     inline EIGEN_DEVICE_FUNC
-        CwiseTernaryOp<internal::scalar_boolean_select_op<Scalar, typename DenseBase<ThenDerived>::Scalar,
-                                                          typename DenseBase<ElseDerived>::Scalar>,
-                       Derived, ThenDerived, ElseDerived>
+        CwiseTernaryOp<internal::scalar_boolean_select_op<typename DenseBase<ThenDerived>::Scalar,
+                           typename DenseBase<ElseDerived>::Scalar, Scalar>,
+        ThenDerived, ElseDerived, Derived>
         select(const DenseBase<ThenDerived>& thenMatrix, const DenseBase<ElseDerived>& elseMatrix) const;
 
     template <typename ThenDerived>
     inline EIGEN_DEVICE_FUNC
-        CwiseTernaryOp<internal::scalar_boolean_select_op<Scalar, typename DenseBase<ThenDerived>::Scalar,
-                                                          typename DenseBase<ThenDerived>::Scalar>,
-                       Derived, ThenDerived, typename DenseBase<ThenDerived>::ConstantReturnType>
+        CwiseTernaryOp<internal::scalar_boolean_select_op<typename DenseBase<ThenDerived>::Scalar,
+                           typename DenseBase<ThenDerived>::Scalar, Scalar>,
+        ThenDerived, typename DenseBase<ThenDerived>::ConstantReturnType, Derived>
         select(const DenseBase<ThenDerived>& thenMatrix,
                const typename DenseBase<ThenDerived>::Scalar& elseScalar) const;
 
     template <typename ElseDerived>
     inline EIGEN_DEVICE_FUNC
-        CwiseTernaryOp<internal::scalar_boolean_select_op<Scalar, typename DenseBase<ElseDerived>::Scalar,
-                                                          typename DenseBase<ElseDerived>::Scalar>,
-                       Derived, typename DenseBase<ElseDerived>::ConstantReturnType, ElseDerived>
+        CwiseTernaryOp<internal::scalar_boolean_select_op<typename DenseBase<ElseDerived>::Scalar,
+                           typename DenseBase<ElseDerived>::Scalar, Scalar>,
+        typename DenseBase<ElseDerived>::ConstantReturnType, ElseDerived, Derived>
         select(const typename DenseBase<ElseDerived>::Scalar& thenScalar,
                const DenseBase<ElseDerived>& elseMatrix) const;
 
