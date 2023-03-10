@@ -336,12 +336,19 @@ EIGEN_STRONG_INLINE Packet16i psub<Packet16i>(const Packet16i& a,
 
 template <>
 EIGEN_STRONG_INLINE Packet16f pnegate(const Packet16f& a) {
-  const __m512i mask = _mm512_set1_epi32(0x80000000);
+  // NOTE: MSVC seems to struggle with _mm512_set1_epi32, leading to random results.
+  //       The intel docs give it a relatively high latency as well, so we're probably
+  //       better off with using _mm512_set_epi32 directly anyways.
+  const __m512i mask = _mm512_set_epi32(0x80000000,0x80000000,0x80000000,0x80000000,
+                                        0x80000000,0x80000000,0x80000000,0x80000000,
+                                        0x80000000,0x80000000,0x80000000,0x80000000,
+                                        0x80000000,0x80000000,0x80000000,0x80000000);
   return _mm512_castsi512_ps(_mm512_xor_epi32(_mm512_castps_si512(a), mask));
 }
 template <>
 EIGEN_STRONG_INLINE Packet8d pnegate(const Packet8d& a) {
-  const __m512i mask = _mm512_set1_epi64(0x8000000000000000ULL);
+  const __m512i mask = _mm512_set_epi64(0x8000000000000000ULL, 0x8000000000000000ULL, 0x8000000000000000ULL, 0x8000000000000000ULL,
+                                        0x8000000000000000ULL, 0x8000000000000000ULL, 0x8000000000000000ULL, 0x8000000000000000ULL);
   return _mm512_castsi512_pd(_mm512_xor_epi64(_mm512_castpd_si512(a), mask));
 }
 template <>

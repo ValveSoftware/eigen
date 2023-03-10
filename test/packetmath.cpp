@@ -10,6 +10,7 @@
 
 #include "packetmath_test_shared.h"
 #include "random_without_cast_overflow.h"
+#include "packet_ostream.h"
 
 template <typename T>
 inline T REF_ADD(const T& a, const T& b) {
