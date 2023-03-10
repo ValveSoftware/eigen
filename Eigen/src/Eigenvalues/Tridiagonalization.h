@@ -451,10 +451,10 @@ struct tridiagonalization_inplace_selector
     diag = mat.diagonal().real();
     subdiag = mat.template diagonal<-1>().real();
     if (extractQ) {
-      HouseholderSequenceType hh(mat, hCoeffs.conjugate());
-      hh.setLength(mat.rows() - 1);
-      hh.setShift(1);
-      hh.evalTo(mat, workspace);
+      HouseholderSequenceType(mat, hCoeffs.conjugate())
+          .setLength(mat.rows() - 1)
+          .setShift(1)
+          .evalTo(mat, workspace);
     }
   }
 };
