@@ -636,41 +636,41 @@ template<typename ArrayType> void comparisons(const ArrayType& m)
   // (m1 + Scalar(1)) > m1).all()
   VERIFY_IS_CWISE_EQUAL((m1 + Scalar(1)).cwiseTypedGreater(m1), typed_true);
   // (m1 - Scalar(1)) < m1).all()
-  VERIFY_IS_CWISE_EQUAL((m1 - Scalar(1)).cwiseTypedLesser(m1), typed_true);
+  VERIFY_IS_CWISE_EQUAL((m1 - Scalar(1)).cwiseTypedLess(m1), typed_true);
   // (m1 + Scalar(1)) == (m1 + Scalar(1))).all()
   VERIFY_IS_CWISE_EQUAL((m1 + Scalar(1)).cwiseTypedEqual(m1 + Scalar(1)), typed_true);
   // (m1 - Scalar(1)) != m1).all()
   VERIFY_IS_CWISE_EQUAL((m1 - Scalar(1)).cwiseTypedNotEqual(m1), typed_true);
   // (m1 <= m2 || m1 >= m2).all()
-  VERIFY_IS_CWISE_EQUAL(m1.cwiseTypedGreaterOrEqual(m2) || m1.cwiseTypedLesserOrEqual(m2), typed_true);
+  VERIFY_IS_CWISE_EQUAL(m1.cwiseTypedGreaterOrEqual(m2) || m1.cwiseTypedLessOrEqual(m2), typed_true);
 
   // use boolean comparisons, regardless of operator overload behavior
   ArrayXX<bool>::ConstantReturnType bool_true = ArrayXX<bool>::Constant(rows, cols, true);
   // (m1 + Scalar(1)) > m1).all()
   VERIFY_IS_CWISE_EQUAL((m1 + Scalar(1)).cwiseGreater(m1), bool_true);
   // (m1 - Scalar(1)) < m1).all()
-  VERIFY_IS_CWISE_EQUAL((m1 - Scalar(1)).cwiseLesser(m1), bool_true);
+  VERIFY_IS_CWISE_EQUAL((m1 - Scalar(1)).cwiseLess(m1), bool_true);
   // (m1 + Scalar(1)) == (m1 + Scalar(1))).all()
   VERIFY_IS_CWISE_EQUAL((m1 + Scalar(1)).cwiseEqual(m1 + Scalar(1)), bool_true);
   // (m1 - Scalar(1)) != m1).all()
   VERIFY_IS_CWISE_EQUAL((m1 - Scalar(1)).cwiseNotEqual(m1), bool_true);
   // (m1 <= m2 || m1 >= m2).all()
-  VERIFY_IS_CWISE_EQUAL(m1.cwiseLesserOrEqual(m2) || m1.cwiseGreaterOrEqual(m2), bool_true);
+  VERIFY_IS_CWISE_EQUAL(m1.cwiseLessOrEqual(m2) || m1.cwiseGreaterOrEqual(m2), bool_true);
 
   // test typed comparisons with scalar argument
   VERIFY_IS_CWISE_EQUAL((m1 - m1).cwiseTypedEqual(Scalar(0)), typed_true);
   VERIFY_IS_CWISE_EQUAL((m1.abs() + Scalar(1)).cwiseTypedNotEqual(Scalar(0)), typed_true);
   VERIFY_IS_CWISE_EQUAL((m1 + Scalar(1)).cwiseTypedGreater(m1.minCoeff()), typed_true);
-  VERIFY_IS_CWISE_EQUAL((m1 - Scalar(1)).cwiseTypedLesser(m1.maxCoeff()), typed_true);
-  VERIFY_IS_CWISE_EQUAL(m1.abs().cwiseTypedLesserOrEqual(NumTraits<Scalar>::highest()), typed_true);
+  VERIFY_IS_CWISE_EQUAL((m1 - Scalar(1)).cwiseTypedLess(m1.maxCoeff()), typed_true);
+  VERIFY_IS_CWISE_EQUAL(m1.abs().cwiseTypedLessOrEqual(NumTraits<Scalar>::highest()), typed_true);
   VERIFY_IS_CWISE_EQUAL(m1.abs().cwiseTypedGreaterOrEqual(Scalar(0)), typed_true);
 
   // test boolean comparisons with scalar argument
   VERIFY_IS_CWISE_EQUAL((m1 - m1).cwiseEqual(Scalar(0)), bool_true);
   VERIFY_IS_CWISE_EQUAL((m1.abs() + Scalar(1)).cwiseNotEqual(Scalar(0)), bool_true);
   VERIFY_IS_CWISE_EQUAL((m1 + Scalar(1)).cwiseGreater(m1.minCoeff()), bool_true);
-  VERIFY_IS_CWISE_EQUAL((m1 - Scalar(1)).cwiseLesser(m1.maxCoeff()), bool_true);
-  VERIFY_IS_CWISE_EQUAL(m1.abs().cwiseLesserOrEqual(NumTraits<Scalar>::highest()), bool_true);
+  VERIFY_IS_CWISE_EQUAL((m1 - Scalar(1)).cwiseLess(m1.maxCoeff()), bool_true);
+  VERIFY_IS_CWISE_EQUAL(m1.abs().cwiseLessOrEqual(NumTraits<Scalar>::highest()), bool_true);
   VERIFY_IS_CWISE_EQUAL(m1.abs().cwiseGreaterOrEqual(Scalar(0)), bool_true);
 
   // test Select

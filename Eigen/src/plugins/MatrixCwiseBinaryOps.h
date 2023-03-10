@@ -27,9 +27,9 @@ cwiseProduct(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived> &other) const
 
 template<typename OtherDerived> using CwiseBinaryEqualReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_EQ>, const Derived, const OtherDerived>;
 template<typename OtherDerived> using CwiseBinaryNotEqualReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_NEQ>, const Derived, const OtherDerived>;
-template<typename OtherDerived> using CwiseBinaryLesserReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_LT>, const Derived, const OtherDerived>;
+template<typename OtherDerived> using CwiseBinaryLessReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_LT>, const Derived, const OtherDerived>;
 template<typename OtherDerived> using CwiseBinaryGreaterReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_GT>, const Derived, const OtherDerived>;
-template<typename OtherDerived> using CwiseBinaryLesserOrEqualReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_LE>, const Derived, const OtherDerived>;
+template<typename OtherDerived> using CwiseBinaryLessOrEqualReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_LE>, const Derived, const OtherDerived>;
 template<typename OtherDerived> using CwiseBinaryGreaterOrEqualReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_GE>, const Derived, const OtherDerived>;
 
 /** \returns an expression of the coefficient-wise == operator of *this and \a other
@@ -75,10 +75,10 @@ cwiseNotEqual(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived> &other) const
 /** \returns an expression of the coefficient-wise < operator of *this and \a other */
 template<typename OtherDerived>
 EIGEN_DEVICE_FUNC
-inline const CwiseBinaryLesserReturnType<OtherDerived>
-cwiseLesser(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived>& other) const
+inline const CwiseBinaryLessReturnType<OtherDerived>
+cwiseLess(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived>& other) const
 {
-  return CwiseBinaryLesserReturnType<OtherDerived>(derived(), other.derived());
+  return CwiseBinaryLessReturnType<OtherDerived>(derived(), other.derived());
 }
 
 /** \returns an expression of the coefficient-wise > operator of *this and \a other */
@@ -93,10 +93,10 @@ cwiseGreater(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived>& other) const
 /** \returns an expression of the coefficient-wise <= operator of *this and \a other */
 template<typename OtherDerived>
 EIGEN_DEVICE_FUNC
-inline const CwiseBinaryLesserOrEqualReturnType<OtherDerived>
-cwiseLesserOrEqual(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived>& other) const
+inline const CwiseBinaryLessOrEqualReturnType<OtherDerived>
+cwiseLessOrEqual(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived>& other) const
 {
-  return CwiseBinaryLesserOrEqualReturnType<OtherDerived>(derived(), other.derived());
+  return CwiseBinaryLessOrEqualReturnType<OtherDerived>(derived(), other.derived());
 }
 
 /** \returns an expression of the coefficient-wise >= operator of *this and \a other */
@@ -180,9 +180,9 @@ cwiseQuotient(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived> &other) const
 
 using CwiseScalarEqualReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar,Scalar,internal::cmp_EQ>, const Derived, const ConstantReturnType>;
 using CwiseScalarNotEqualReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_NEQ>, const Derived, const ConstantReturnType>;
-using CwiseScalarLesserReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_LT>, const Derived, const ConstantReturnType>;
+using CwiseScalarLessReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_LT>, const Derived, const ConstantReturnType>;
 using CwiseScalarGreaterReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_GT>, const Derived, const ConstantReturnType>;
-using CwiseScalarLesserOrEqualReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_LE>, const Derived, const ConstantReturnType>;
+using CwiseScalarLessOrEqualReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_LE>, const Derived, const ConstantReturnType>;
 using CwiseScalarGreaterOrEqualReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_GE>, const Derived, const ConstantReturnType>;
 
 /** \returns an expression of the coefficient-wise == operator of \c *this and a scalar \a s
@@ -220,10 +220,10 @@ cwiseNotEqual(const Scalar& s) const
 
 /** \returns an expression of the coefficient-wise < operator of \c *this and a scalar \a s */
 EIGEN_DEVICE_FUNC
-inline const CwiseScalarLesserReturnType
-cwiseLesser(const Scalar& s) const
+inline const CwiseScalarLessReturnType
+cwiseLess(const Scalar& s) const
 {
-  return CwiseScalarLesserReturnType(derived(), Derived::Constant(rows(), cols(), s));
+  return CwiseScalarLessReturnType(derived(), Derived::Constant(rows(), cols(), s));
 }
 
 /** \returns an expression of the coefficient-wise > operator of \c *this and a scalar \a s */
@@ -236,10 +236,10 @@ cwiseGreater(const Scalar& s) const
 
 /** \returns an expression of the coefficient-wise <= operator of \c *this and a scalar \a s */
 EIGEN_DEVICE_FUNC
-inline const CwiseScalarLesserOrEqualReturnType
-cwiseLesserOrEqual(const Scalar& s) const
+inline const CwiseScalarLessOrEqualReturnType
+cwiseLessOrEqual(const Scalar& s) const
 {
-  return CwiseScalarLesserOrEqualReturnType(derived(), Derived::Constant(rows(), cols(), s));
+  return CwiseScalarLessOrEqualReturnType(derived(), Derived::Constant(rows(), cols(), s));
 }
 
 /** \returns an expression of the coefficient-wise >= operator of \c *this and a scalar \a s */
@@ -252,9 +252,9 @@ cwiseGreaterOrEqual(const Scalar& s) const
 
 template<typename OtherDerived> using CwiseBinaryTypedEqualReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_EQ, true>, const Derived, const OtherDerived>;
 template<typename OtherDerived> using CwiseBinaryTypedNotEqualReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_NEQ, true>, const Derived, const OtherDerived>;
-template<typename OtherDerived> using CwiseBinaryTypedLesserReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_LT, true>, const Derived, const OtherDerived>;
+template<typename OtherDerived> using CwiseBinaryTypedLessReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_LT, true>, const Derived, const OtherDerived>;
 template<typename OtherDerived> using CwiseBinaryTypedGreaterReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_GT, true>, const Derived, const OtherDerived>;
-template<typename OtherDerived> using CwiseBinaryTypedLesserOrEqualReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_LE, true>, const Derived, const OtherDerived>;
+template<typename OtherDerived> using CwiseBinaryTypedLessOrEqualReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_LE, true>, const Derived, const OtherDerived>;
 template<typename OtherDerived> using CwiseBinaryTypedGreaterOrEqualReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_GE, true>, const Derived, const OtherDerived>;
 
 template <typename OtherDerived>
@@ -266,16 +266,16 @@ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const CwiseBinaryTypedNotEqualReturnType<O
 cwiseTypedNotEqual(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived>& other) const { return CwiseBinaryTypedNotEqualReturnType<OtherDerived>(derived(), other.derived()); }
 
 template <typename OtherDerived>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const CwiseBinaryTypedLesserReturnType<OtherDerived>
-cwiseTypedLesser(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived>& other) const { return CwiseBinaryTypedLesserReturnType<OtherDerived>(derived(), other.derived()); }
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const CwiseBinaryTypedLessReturnType<OtherDerived>
+cwiseTypedLess(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived>& other) const { return CwiseBinaryTypedLessReturnType<OtherDerived>(derived(), other.derived()); }
 
 template <typename OtherDerived>
 EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const CwiseBinaryTypedGreaterReturnType<OtherDerived>
 cwiseTypedGreater(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived>& other) const { return CwiseBinaryTypedGreaterReturnType<OtherDerived>(derived(), other.derived()); }
 
 template <typename OtherDerived>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const CwiseBinaryTypedLesserOrEqualReturnType<OtherDerived>
-cwiseTypedLesserOrEqual(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived>& other) const { return CwiseBinaryTypedLesserOrEqualReturnType<OtherDerived>(derived(), other.derived()); }
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const CwiseBinaryTypedLessOrEqualReturnType<OtherDerived>
+cwiseTypedLessOrEqual(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived>& other) const { return CwiseBinaryTypedLessOrEqualReturnType<OtherDerived>(derived(), other.derived()); }
 
 template <typename OtherDerived>
 EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const CwiseBinaryTypedGreaterOrEqualReturnType<OtherDerived>
@@ -283,9 +283,9 @@ cwiseTypedGreaterOrEqual(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived>& o
 
 using CwiseScalarTypedEqualReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_EQ, true>, const Derived, const ConstantReturnType>;
 using CwiseScalarTypedNotEqualReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_NEQ, true>, const Derived, const ConstantReturnType>;
-using CwiseScalarTypedLesserReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_LT, true>, const Derived, const ConstantReturnType>;
+using CwiseScalarTypedLessReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_LT, true>, const Derived, const ConstantReturnType>;
 using CwiseScalarTypedGreaterReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_GT, true>, const Derived, const ConstantReturnType>;
-using CwiseScalarTypedLesserOrEqualReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_LE, true>, const Derived, const ConstantReturnType>;
+using CwiseScalarTypedLessOrEqualReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_LE, true>, const Derived, const ConstantReturnType>;
 using CwiseScalarTypedGreaterOrEqualReturnType = CwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_GE, true>, const Derived, const ConstantReturnType>;
 
 EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const CwiseScalarTypedEqualReturnType
@@ -294,15 +294,14 @@ cwiseTypedEqual(const Scalar& s) const { return CwiseScalarTypedEqualReturnType(
 EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const CwiseScalarTypedNotEqualReturnType
 cwiseTypedNotEqual(const Scalar& s) const { return CwiseScalarTypedNotEqualReturnType(derived(), ConstantReturnType(rows(), cols(), s)); }
 
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const CwiseScalarTypedLesserReturnType
-cwiseTypedLesser(const Scalar& s) const { return CwiseScalarTypedLesserReturnType(derived(), ConstantReturnType(rows(), cols(), s)); }
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const CwiseScalarTypedLessReturnType
+cwiseTypedLess(const Scalar& s) const { return CwiseScalarTypedLessReturnType(derived(), ConstantReturnType(rows(), cols(), s)); }
 
 EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const CwiseScalarTypedGreaterReturnType
 cwiseTypedGreater(const Scalar& s) const { return CwiseScalarTypedGreaterReturnType(derived(), ConstantReturnType(rows(), cols(), s)); }
 
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const CwiseScalarTypedLesserOrEqualReturnType
-cwiseTypedLesserOrEqual(const Scalar& s) const { return CwiseScalarTypedLesserOrEqualReturnType(derived(), ConstantReturnType(rows(), cols(), s)); }
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const CwiseScalarTypedLessOrEqualReturnType
+cwiseTypedLessOrEqual(const Scalar& s) const { return CwiseScalarTypedLessOrEqualReturnType(derived(), ConstantReturnType(rows(), cols(), s)); }
 
 EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const CwiseScalarTypedGreaterOrEqualReturnType
 cwiseTypedGreaterOrEqual(const Scalar& s) const { return CwiseScalarTypedGreaterOrEqualReturnType(derived(), ConstantReturnType(rows(), cols(), s)); }
-
