@@ -112,6 +112,15 @@ template<typename MatrixType> void matrixVisitor(const MatrixType& p)
     VERIFY(eigen_maxcol == 0);
     VERIFY((numext::isnan)(eigen_minc));
     VERIFY((numext::isnan)(eigen_maxc));
+
+    eigen_minc = m.template minCoeff<PropagateFast>(&eigen_minrow, &eigen_mincol);
+    eigen_maxc = m.template maxCoeff<PropagateFast>(&eigen_maxrow, &eigen_maxcol);
+    VERIFY(eigen_minrow == 0);
+    VERIFY(eigen_maxrow == 0);
+    VERIFY(eigen_mincol == 0);
+    VERIFY(eigen_maxcol == 0);
+    VERIFY((numext::isnan)(eigen_minc));
+    VERIFY((numext::isnan)(eigen_maxc));
   }
 }
 
