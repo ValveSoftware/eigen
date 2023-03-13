@@ -92,8 +92,27 @@ template<typename MatrixType> void matrixVisitor(const MatrixType& p)
     VERIFY(maxrow != eigen_maxrow || maxcol != eigen_maxcol);
     VERIFY((numext::isnan)(eigen_minc));
     VERIFY((numext::isnan)(eigen_maxc));
-  }
 
+    // Test matrix of all NaNs.
+    m.fill(NumTraits<Scalar>::quiet_NaN());
+    eigen_minc = m.template minCoeff<PropagateNumbers>(&eigen_minrow, &eigen_mincol);
+    eigen_maxc = m.template maxCoeff<PropagateNumbers>(&eigen_maxrow, &eigen_maxcol);
+    VERIFY(eigen_minrow == 0);
+    VERIFY(eigen_maxrow == 0);
+    VERIFY(eigen_mincol == 0);
+    VERIFY(eigen_maxcol == 0);
+    VERIFY((numext::isnan)(eigen_minc));
+    VERIFY((numext::isnan)(eigen_maxc));
+
+    eigen_minc = m.template minCoeff<PropagateNaN>(&eigen_minrow, &eigen_mincol);
+    eigen_maxc = m.template maxCoeff<PropagateNaN>(&eigen_maxrow, &eigen_maxcol);
+    VERIFY(eigen_minrow == 0);
+    VERIFY(eigen_maxrow == 0);
+    VERIFY(eigen_mincol == 0);
+    VERIFY(eigen_maxcol == 0);
+    VERIFY((numext::isnan)(eigen_minc));
+    VERIFY((numext::isnan)(eigen_maxc));
+  }
 }
 
 template<typename VectorType> void vectorVisitor(const VectorType& w)

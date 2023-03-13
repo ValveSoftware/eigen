@@ -453,6 +453,7 @@ struct minmax_compare<Scalar, NaNPropagation, false> {
   static EIGEN_DEVICE_FUNC inline Scalar predux(const Packet& p) { return predux_max<NaNPropagation>(p); }
 };
 
+// Default imlementatio
 template <typename Derived, bool is_min, int NaNPropagation>
 struct minmax_coeff_visitor : coeff_visitor<Derived> {
   using Scalar = typename Derived::Scalar;
@@ -489,8 +490,8 @@ struct minmax_coeff_visitor : coeff_visitor<Derived> {
   }
 };
 
-// Suppress NaN. The only case in which we return NaN is if the matrix is all NaN, in which case,
-// the row=0, col=0 is returned for the location.
+// Suppress NaN. The only case in which we return NaN is if the matrix is all NaN,
+// in which case, row=0, col=0 is returned for the location.
 template <typename Derived, bool is_min>
 struct minmax_coeff_visitor<Derived, is_min, PropagateNumbers> : coeff_visitor<Derived> {
   typedef typename Derived::Scalar Scalar;
@@ -520,6 +521,12 @@ struct minmax_coeff_visitor<Derived, is_min, PropagateNumbers> : coeff_visitor<D
   EIGEN_DEVICE_FUNC inline void initpacket(const Packet& p, Index i, Index j) {
     const Index PacketSize = packet_traits<Scalar>::size;
     Scalar value = Comparator::predux(p);
+    if ((numext::isnan)(value)) {
+      this->res = value;
+      this->row = 0;
+      this->col = 0;
+      return;
+    }
     const Packet range = preverse(plset<Packet>(Scalar(1)));
     /* mask will be zero for NaNs, so they will be ignored. */
     Packet mask = pcmp_eq(pset1<Packet>(value), p);
