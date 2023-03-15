@@ -1,0 +1,88 @@
+// This file is part of Eigen, a lightweight C++ template library
+// for linear algebra.
+//
+// Copyright (C) 2022, Valve Software
+//
+// This Source Code Form is subject to the terms of the Mozilla
+// Public License v. 2.0. If a copy of the MPL was not distributed
+// with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+// This file provides an example of how to use EIGEN_PARALLEL_PLUGIN to interface
+// with an alternative thread library. It provides a class which allows Eigen to use the
+// Intel Thread Building Blocks library for threading instead of Open MP.
+// It is included only as an example, real users would probably want to extend this.
+// To use this, include before including Eigen.
+
+#ifndef EIGEN_TBB_THREADING
+#define EIGEN_TBB_THREADING
+
+#pragma once
+
+#include "tbb/tbb.h"
+#include "tbb/flow_graph.h"
+#include "tbb/parallel_reduce.h"
+#include "tbb/blocked_range.h"
+
+
+#define EIGEN_PARALLEL_PLUGIN EigenTBBInterface
+
+class EigenTBBInterface
+{
+public:
+	static inline int get_max_threads()
+	{
+		if ( m_nMaxThreadsOverride != -1 )
+		{
+			return m_nMaxThreadsOverride;
+		}
+		else
+		{
+			return tbb::this_task_arena::max_concurrency();
+		}
+	}
+	static inline void set_num_threads( int numthreads ) {}
+	static inline int get_thread_num() { return m_nOurThreadNumberWithinTeam; }
+	static inline int get_num_threads() { return m_nOurTeamSize; }
+	static inline void set_dynamic(int dynamic_threads )
+	{
+		// ignore this call.
+	}
+	static inline void init_parallel()
+	{
+		// We assume tbb has already been setup by the application, but if not, here is where you would init it.
+		// Must be capable of being called even if already initted.
+	}
+   
+	static inline bool has_threading() { return true; }
+
+	template<class functor_t> static inline void run_in_parallel(int numthreads, functor_t f )
+	{
+		tbb::task_group g;
+		for( int i = 0; i < numthreads; i++ )
+		{
+			g.run( [i, numthreads, f]()
+			{
+				int nSaveThreadNum = m_nOurThreadNumberWithinTeam;
+				int nSaveTeamSize = m_nOurTeamSize;
+				m_nOurTeamSize = numthreads;
+				m_nOurThreadNumberWithinTeam = i;
+				f();
+				m_nOurTeamSize = nSaveTeamSize;
+				m_nOurThreadNumberWithinTeam = nSaveThreadNum;
+			} );
+		}
+		g.wait();
+	}
+	
+	template<class functor_t>
+	static inline void parallel_for_dynamic(int64_t startindex, int64_t endindex, int blocksize, int numthreads, functor_t body)
+	{
+		tbb::parallel_for( startindex, endindex, body );
+	}
+
+	static inline thread_local int m_nOurThreadNumberWithinTeam = 0;
+	static inline thread_local int m_nOurTeamSize = 1;
+	static inline int m_nMaxThreadsOverride = -1;			// For benchmarks, lets you override what TBB reports as the number of worker threads.
+};
+
+#endif // EIGEN_TBB_THREADING

@@ -158,7 +158,8 @@ following macros are supported; none of them are defined by default.
  - \b EIGEN_SPARSEVECTOR_PLUGIN - filename of plugin for extending the SparseVector class.
  - \b EIGEN_TRANSFORM_PLUGIN - filename of plugin for extending the Transform class.
  - \b EIGEN_VECTORWISEOP_PLUGIN - filename of plugin for extending the VectorwiseOp class.
-
+ - \b EIGEN_PARALLEL_PLUGIN - class name of a static class object to use as a wrapper around OpenMP calls. This allows the user to use alternative threading libraries and to do threading without turning on OpenMP in the compiler.
+ 
 \section TopicPreprocessorDirectivesDevelopers Macros for Eigen developers
 
 These macros are mainly meant for people developing %Eigen and for testing purposes. Even though, they might be useful for power users and the curious for debugging and testing purpose, they \b should \b not \b be \b used by real-word code.

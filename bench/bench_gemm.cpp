@@ -255,15 +255,15 @@ int main(int argc, char ** argv)
   // check the parallel product is correct
   #if defined EIGEN_HAS_OPENMP
   Eigen::initParallel();
-  int procs = omp_get_max_threads();
+  int procs = EigenOMPInterface::get_max_threads();
   if(procs>1)
   {
     #ifdef HAVE_BLAS
     blas_gemm(a,b,r);
     #else
-    omp_set_num_threads(1);
+   EigenOMPInterface::set_num_threads(1);
     r.noalias() += a * b;
-    omp_set_num_threads(procs);
+   EigenOMPInterface::set_num_threads(procs);
     #endif
     c.noalias() += a * b;
     if(!r.isApprox(c)) std::cerr << "Warning, your parallel product is crap!\n\n";
@@ -308,7 +308,7 @@ int main(int argc, char ** argv)
   if(procs>1)
   {
     BenchTimer tmono;
-    omp_set_num_threads(1);
+    EigenOMPInterface::set_num_threads(1);
     Eigen::setNbThreads(1);
     c = rc;
     BENCH(tmono, tries, rep, gemm(a,b,c));

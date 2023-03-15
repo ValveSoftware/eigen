@@ -85,8 +85,8 @@ static void run(Index rows, Index cols, Index depth,
   if(info)
   {
     // this is the parallel version!
-    int tid = omp_get_thread_num();
-    int threads = omp_get_num_threads();
+	int tid = EigenOMPInterface::get_thread_num();
+	int threads = EigenOMPInterface::get_num_threads();
 
     LhsScalar* blockA = blocking.blockA();
     eigen_internal_assert(blockA!=0);

@@ -66,8 +66,85 @@
   #define EIGEN_HAS_OPENMP
 #endif
 
+
+#ifdef EIGEN_PARALLEL_PLUGIN
+#define EIGEN_HAS_OPENMP
+#define EIGEN_HAS_OPENMP									// openmp-like thread interface provided by user
+using EigenOMPInterface = EIGEN_PARALLEL_PLUGIN;					  // user has provided an emulation layer
+#else
 #ifdef EIGEN_HAS_OPENMP
 #include <omp.h>
+class EigenOMPInterface
+// Simple wrapper class to abstract omp methods so that a plugin interface can be used for other thread libraries.
+{
+public:
+	static inline int get_max_threads() { return omp_get_max_threads(); }
+	static inline void set_num_threads( int numthreads ) { omp_set_num_threads(numthreads); }
+	static inline int get_thread_num() { return omp_get_thread_num(); }
+	static inline int get_num_threads() { return omp_get_num_threads(); }
+	static inline void set_dynamic(int dynamic_threads ) { omp_set_dynamic(dynamic_threads); }
+	static inline void init_parallel() {}					// must be capable of being called even if already initted
+   
+	static inline bool has_threading() { return true; }
+
+	template<class functor_t> static inline void run_in_parallel(int numthreads, functor_t f )
+	{
+		#pragma omp parallel num_threads(numthreads)
+		{
+			f();
+		}
+	}
+	
+	template<class functor_t>
+	static inline void parallel_for_dynamic(int64_t startindex, int64_t endindex, int blocksize, int numthreads, functor_t body)
+	{
+		#pragma omp parallel for schedule(dynamic,blocksize) num_threads(numthreads)
+		for( int64_t i = 0; i<endindex;++i )
+		{
+			body(i);
+		}
+	}
+};
+#define EIGEN_HAS_OPENMP
+#else
+class EigenOMPInterface
+// null implementation
+{
+public:
+
+	// All of these calls should function in a compatible way to the OpenMP omp_xxx functions with the same name
+	static inline int get_max_threads() { return 1; }
+	static inline void set_num_threads( int numthreads ) {}
+	static inline int get_thread_num() { return 0; }
+	static inline int get_thread_num_threads() { return 1; }
+	static inline void set_dynamic(int dynamic_threads ) {}
+
+	static inline void init_parallel() {}					// Called by Eigen::initParallel. must be capable of being called even if already initted
+
+	// This a hint to eigen that says whether this interface object actually does threading or not
+	static inline bool has_threading() { return true; }
+	
+
+	template<class functor_t>
+	static inline void run_in_parallel(int numthreads, functor_t f )
+	// run up to numthreads copies of the function object, and wait for completion. For jobs run
+	// inside of this interface, get_thread_num will return which subjob you are running, and
+	// get_thread_num_thrreads will return how many jobs were launched.
+	{
+		f();
+	}
+
+	template<class functor_t>
+	static inline void parallel_for_dynamic( int64_t startindex, int64_t endindex, int blocksize, int numthreads, functor_t body)
+	{
+		for( int64_t i = 0; i<endindex;++i )
+		{
+			body(i);
+		}
+	}
+	
+};
+#endif
 #endif
 
 // MSVC for windows mobile does not have the errno.h file

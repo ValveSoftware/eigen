@@ -123,7 +123,7 @@ EIGEN_DECLARE_TEST(product_large)
 
   // Regression test for bug 714:
 #if defined EIGEN_HAS_OPENMP
-  omp_set_dynamic(1);
+  EigenOMPInterface::set_dynamic(1);
   for(int i = 0; i < g_repeat; i++) {
     CALL_SUBTEST_6( product(Matrix<float,Dynamic,Dynamic>(internal::random<int>(1,EIGEN_TEST_MAX_SIZE), internal::random<int>(1,EIGEN_TEST_MAX_SIZE))) );
   }

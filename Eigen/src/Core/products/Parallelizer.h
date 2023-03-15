@@ -36,7 +36,7 @@ inline void manage_multi_threading(Action action, int* v)
     if(m_maxThreads>0)
       *v = m_maxThreads;
     else
-      *v = omp_get_max_threads();
+	*v = EigenOMPInterface::get_max_threads();
     #else
     *v = 1;
     #endif
@@ -52,7 +52,8 @@ inline void manage_multi_threading(Action action, int* v)
 /** Must be call first when calling Eigen from multiple threads */
 inline void initParallel()
 {
-  int nbt;
+	EigenOMPInterface::init_parallel();
+	int nbt;
   internal::manage_multi_threading(GetAction, &nbt);
   std::ptrdiff_t l1, l2, l3;
   internal::manage_caching_sizes(GetAction, &l1, &l2, &l3);
@@ -137,7 +138,7 @@ void parallelize_gemm(const Functor& func, Index rows, Index cols, Index depth, 
   // if multi-threading is explicitly disabled, not useful, or if we already are in a parallel session,
   // then abort multi-threading
   // FIXME omp_get_num_threads()>1 only works for openmp, what if the user does not use openmp?
-  if((!Condition) || (threads==1) || (omp_get_num_threads()>1))
+  if((!Condition) || (threads==1) || (EigenOMPInterface::get_num_threads()>1))
     return func(0,rows, 0,cols);
 
   Eigen::initParallel();
@@ -148,12 +149,12 @@ void parallelize_gemm(const Functor& func, Index rows, Index cols, Index depth, 
 
   ei_declare_aligned_stack_constructed_variable(GemmParallelInfo<Index>,info,threads,0);
 
-  #pragma omp parallel num_threads(threads)
+  EigenOMPInterface::run_in_parallel( threads, [cols,rows,transpose,&func,&info]()
   {
-    Index i = omp_get_thread_num();
+	Index i = EigenOMPInterface::get_thread_num();
     // Note that the actual number of threads might be lower than the number of request ones.
-    Index actual_threads = omp_get_num_threads();
-
+	Index actual_threads = EigenOMPInterface::get_num_threads();
+	
     Index blockCols = (cols / actual_threads) & ~Index(0x3);
     Index blockRows = (rows / actual_threads);
     blockRows = (blockRows/Functor::Traits::mr)*Functor::Traits::mr;
@@ -169,7 +170,7 @@ void parallelize_gemm(const Functor& func, Index rows, Index cols, Index depth, 
 
     if(transpose) func(c0, actualBlockCols, 0, rows, info);
     else          func(0, rows, c0, actualBlockCols, info);
-  }
+  } );
 #endif
 }
 
